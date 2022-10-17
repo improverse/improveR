@@ -7,6 +7,12 @@
 #' @importFrom improveRcore authenticatetREST
 #' @export
 improveRcore::authenticatetREST
+#' @importFrom improveRcore byNotEmpty
+#' @export
+improveRcore::byNotEmpty
+#' @importFrom improveRcore byNotEmptyAsDf
+#' @export
+improveRcore::byNotEmptyAsDf
 #' @importFrom improveRcore convertImproveTimestampToPosix
 #' @export
 improveRcore::convertImproveTimestampToPosix
