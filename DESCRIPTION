@@ -14,7 +14,16 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.2
 Imports: 
-  improveRcore,
-  improveRget
+    dplyr,
+    glue,
+    httr,
+    jsonlite,
+    logging,
+    plyr,
+    stringr,
+    tidyr
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

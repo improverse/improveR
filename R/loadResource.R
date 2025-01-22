@@ -1,0 +1,113 @@
+#' loadResource
+#'
+#' @param ident A resourceId, an entityId, a entityVersionId, or a dataframe.
+#'
+#' @param pwd Path working directory.
+#'
+#' @returns A dataframe with the fields `resourceId`, `entityId`, `entityVersionId`,
+#' `path`, `name`, and `data`.
+#'
+#' @export
+#' @references ics1090
+#' @details
+#'
+#'## ident
+#' There are multiple ways to describe the ident of a resource:
+#'
+#'Absolute idents:
+#'* resourceId: a UUID
+#'* Data frame: uses the resourceId value of the data frame\
+#'* entityId: pointer to the latest version of a resource. Short and long entityIds are accepted#'
+#'* entityVersionId: pointer to a specific version of a resource. Short and long entityIds are accepted#'
+#'* path: the full path to a resource, always starting with /.
+#'
+#'Relative idents:
+#'* All relative idents are path based, they always have to start with ./ or ../'
+#'* Relative path without pwd: always starts from the return value of pwd()#'
+#'* Relative path and pwd as second argument: starts the relative path from the
+#'absolute ident that was handed over as second argument. Sometimes still called
+#'“fromForRelativePathes” but will be updated to pwd.# 
+#'
+#'## pwd# %% 
+#'pwd shows the current “path working directory”. The improveR client is inspired
+#'by a command line interface. The default start position within the improve repository
+#'is the step that started an R instance with improveR.This starting point is set
+#'via the IMPROVER_STEP environment variable. If this information was not
+#'provided the root element is pwd 'pwd  is used if you use relative pathes to
+#'access an element.
+#'
+#' @examples
+#' \dontrun{
+#' loadResource("112EE78F4CDC4400836F8C059AF2EA5F") #resourceId
+#' loadResource("your_server:ST-63657") #entityId
+#' loadResource("your_server:ST-63657-1") #entityVersionId
+#' loadResource("/projects/folder/analysis_tree/Step 3") #path
+#' }
+
+loadResource <- function (ident, pwd = pwd())
+{
+  if (is.character(ident) && length(ident) == 1 && ident ==
+      "") {
+    return(NULL)
+  }
+  if (is.list(ident) && length(ident) == 0) {
+    return(NULL)
+  }
+  if (is.data.frame(ident) && nrow(ident) == 0) {
+    return(NULL)
+  }
+  if (!is.data.frame(ident) && !is.list(ident) && !is.character(ident)) {
+    if (is.null(ident) || is.na(ident)) {
+      return(NULL)
+    }
+  }
+  multiResource <- F
+  if (is.data.frame(ident)) {
+    multiResource <- nrow(ident) > 1
+    ident <- ident$resourceId
+  }
+  else {
+    multiResource <- length(ident) > 1
+  }
+  if (multiResource) {
+    resources <- lapply(ident, function(resId) {
+      loadResource(resId, pwd)
+    })
+    return(mergeDataframeList(resources))
+  }
+  ident <- getCorrectId(ident)
+  if (as.character(ident) == "0" | as.character(ident) == "root:root-root") {
+    return(getRoot())
+  }
+  res <- NULL
+  if (grepl("/", ident, fixed = T) | grepl("\\", ident, fixed = T)) {
+    ident <- normalisePath(ident, startPath = pwd)
+    logging::logdebug("path recognised")
+    logging::logdebug(ident)
+    res <- getFromCache(ident, loadResourceByPathGeneric,
+                        resourceCacheList)
+  }
+  else if (isEntityVersionId(ident)) {
+    logging::logdebug("resource version specifier")
+    logging::logdebug(ident)
+    res <- getFromCache(ident, internalLoadResourceVersionFromServer,
+                        resourceVersionCacheList)
+  }
+  else {
+    res <- getFromCache(ident, internalLoadResourceFromServer,
+                        resourceCacheList)
+  }
+  return(res)
+}
+
+
+isEntityVersionId <- function(entityVId) {
+  entityParts <- strsplit(entityVId,":")[[1]]
+  if (length(entityParts)==2) {
+    entityParts <- strsplit(entityParts[2],"-")[[1]]
+    if(length(entityParts)==3) {
+      return(T)
+    }
+  }
+  return(F)
+}

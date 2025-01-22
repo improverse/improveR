@@ -1,0 +1,137 @@
+logEnv <- new.env()
+logEnv$redirectToList <- F
+logEnv$logs <- list()
+logEnv$context <- "base"
+
+#' redirectLogs redirects the log from the default logstream to a structured list, with different context
+#' @param redirect T turns on redirection F turns it off
+#' @export
+redirectLogs <- function(redirect) {
+  logEnv$redirectToList <- redirect
+}
+#' resetLogs resets the strutured list from redirectLogs
+#' @export
+resetLogs <- function(){
+  logEnv$logs <- list()
+}
+
+#' hasCurrentError checks if there is an error message in the current context
+#' @export
+hasCurrentError <- function() {
+
+  currentLogs <- logEnv$logs[[logEnv$context]]
+  if (is.null(currentLogs)) {
+    return(F)
+  }
+  return(!is.null(currentLogs[["error"]]))
+}
+
+#' printLogs prints the strucured log list to the console
+#' @param reset T resets the list after printing
+#' @export
+printLogs <- function(reset=F) {
+  a<-lapply(names(logEnv$logs),function(logName) {
+    print(logName)
+    subLogs <- logEnv$logs[[logName]]
+    a<-lapply(names(subLogs),function(logName) {
+      print(logName)
+      mesgs <- subLogs[[logName]]
+      a<-lapply(mesgs,print)
+    })
+  })
+  if (reset) {
+    resetLogs()
+  }
+}
+
+#' setLogContext sets the context for the structured log list
+#' @param context a string, the context name
+#' @export
+setLogContext <- function(context) {
+  logEnv$context <- context
+}
+
+#' log_debug
+#' @param ... combines all items to one log message
+#' @export
+log_debug <- function(...) {
+  msg <- pasteAndResolveResource(...)
+  if (logEnv$redirectToList) {
+    log("debug",msg)
+  } else {
+    logging::logdebug(msg)
+  }
+
+}
+
+#' log_info
+#' @param ... combines all items to one log message
+#' @export
+log_info <- function(...) {
+  msg <- pasteAndResolveResource(...)
+  if (logEnv$redirectToList) {
+    log("info",msg)
+  } else {
+    logging::loginfo(msg)
+  }
+}
+
+#' log_warn
+#' @param ... combines all items to one log message
+#' @export
+log_warn <- function(...) {
+  msg <- pasteAndResolveResource(...)
+  if (logEnv$redirectToList) {
+    log("warn",msg)
+  } else {
+    logging::logwarn(msg)
+  }
+}
+
+#' log_error
+#' @param ... combines all items to one log message
+#' @export
+log_error <- function(...) {
+  msg <- pasteAndResolveResource(...)
+  if (logEnv$redirectToList) {
+    log("error",msg)
+  } else {
+    logging::logerror(msg)
+  }
+}
+
+pasteAndResolveResource <- function(...) {
+  args <- list(...)
+  if (length(args)>0) {
+    mesg <- ""
+    for (i in 1:length(args)) {
+      msgPart <- args[i]
+      if (is.list(msgPart) && ("entityId" %in% names(msgPart[[1]]))) {
+        msgPart <- paste(msgPart[[1]]$entityId,collapse = ", ")
+      }
+      mesg <- paste(mesg,msgPart)
+    }
+    return(substr(mesg,2,nchar(mesg)))
+  } else {
+    return("empty")
+  }
+}
+
+
+log <- function(level,message) {
+  entry <- logEnv$context
+  logList <- list()
+  if (is.character(entry) && entry %in% names(logEnv$logs)) {
+    logList <- logEnv$logs[[entry]]
+  }
+  messageList <- list()
+  if (level %in% names(logList)) {
+    messageList <- logList[[level]]
+  }
+  messageList<- c(messageList,message)
+  logList[[level]]<-messageList
+  logEnv$logs[[entry]]<-logList
+}
+
+
+
