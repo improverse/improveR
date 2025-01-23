@@ -4,7 +4,7 @@
 \alias{loadResource}
 \title{loadResource}
 \usage{
-loadResource(ident, pwd = pwd())
+loadResource(ident, from = pwd())
 }
 \arguments{
 \item{ident}{A resourceId, an entityId, a entityVersionId, or a dataframe.}

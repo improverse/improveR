@@ -18,7 +18,7 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
     resources <- lapply(resourceId,function(resId) {
       loadResourceFromServer(resId,invalidatesReproducibility)
     })
-    return(# %% 
+    return(
       mergeDataframeList(
         resources
         )
@@ -45,6 +45,12 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   df<-convertDates(df)
   df$isVersion<-F
   #TODO move to correct place
+
+  if (is.null(df$targetEntityId) && !is.null(df$targetId)) {
+    target <- improveRcore::loadResource(df$targetId)
+    df$targetEntityId<-target$entityId
+  }
+
   if(!grepl(pattern = ":",x=df$entityId,fixed = T)) {
     df$entityId <- paste0(repoPrefix(),df$entityId)
   }
@@ -100,3 +106,6 @@ getRoot <- function() {
   root$path <- "/"
   return(root)
 }
+
+
+

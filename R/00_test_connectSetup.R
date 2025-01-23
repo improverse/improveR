@@ -52,7 +52,26 @@ setupRepoDemo02 <- function() {
   Sys.setenv(R_TOOL="R 4.2")
 }
 
+setupRobertEnv <- function() {
+  Sys.setenv(IMPROVER_STEP="robert_oracle-1:ST-33703")
+  Sys.setenv(IMPROVER_REPO_URL="http://envhost1.hc.scintecodev.internal:4210/repository")
+  Sys.setenv(IMPROVER_USER="admin")
+  Sys.setenv(IMPROVER_PASSWORD="admin")
+  Sys.setenv(IMPROVER_TOKEN="")
+  Sys.setenv(TEST_FOLDER = "/Projects/Tests")
+  Sys.setenv("DB_DSN"="ORCLPDB1")
+  Sys.setenv("DB_USER"="im_robert_oracle1")
+  Sys.setenv("DB_PASSWORD"="sc1nt3c0")
 
+
+  Sys.setenv(NONMEM_RUNSERVER="runserver1-docker-lsf")
+  Sys.setenv(NONMEM_TOOL_INSTANCE="nonmem_7.4-lsf")
+  Sys.setenv(NONMEM_TOOL="nonmem_7.4")
+
+  Sys.setenv(R_RUNSERVER="runserver1-docker-lsf")
+  Sys.setenv(R_TOOL_INSTANCE="rbatch")
+  Sys.setenv(R_TOOL="R_4.2")
+}
 
 
 

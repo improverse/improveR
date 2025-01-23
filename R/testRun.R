@@ -6,6 +6,15 @@ configEnv <- new.env()
 testInit <- function() {
   print("clean env")
   rm(list = ls(envir = globalenv()),envir = globalenv())
+  if(Sys.getenv("TEST_SERVER")=="") {
+    initRepo()
+    credentialsFunctionName <- paste0(
+      "setup",
+      Sys.getenv("TEST_SERVER")
+    )
+    credentialsFunction <- match.fun(credentialsFunctionName)
+    credentialsFunction()
+  } 
   Sys.setenv(improver.logfile="improver.log")
   prepareConnect()
 }
@@ -91,19 +100,10 @@ prepareConnect <- function() {
 #' @param testServer a registered server
 #' @export
 #initRepo<-function(runName="test1",testServer="SWBEnv24") {
-initRepo<-function(runName="test1",testServer="RepoDemo02") {
+initRepo<-function(runName="test1",testServer="RobertEnv") {
   Sys.setenv(RUN_NAME = runName)
   Sys.setenv(TEST_SERVER = testServer)
 }
 
 
 
-if(Sys.getenv("TEST_SERVER")=="") {
-  initRepo()
-  credentialsFunctionName <- paste0(
-    "setup",
-    Sys.getenv("TEST_SERVER")
-  )
-  credentialsFunction <- match.fun(credentialsFunctionName)
-  credentialsFunction()
-}

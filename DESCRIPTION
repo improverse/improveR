@@ -23,7 +23,10 @@ Imports:
     logging,
     plyr,
     stringr,
-    tidyr
+    tidyr,
+    improveRcore,
+    improveRmodify,
+    utils
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

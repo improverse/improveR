@@ -22,11 +22,11 @@ baseFilesSetup <- function() {
   assign("BASE_FILES",TESTFOLDER_PATH,envir=configEnv)
 
 
-  testZip <- system.file("testData.zip", package = "smokeTests")
+  testZip <- system.file("testData.zip", package = "improveR")
   utils::unzip(testZip)
 
   improveRcore::improveConnect(secure = F,logLevel = "INFO")
-
+  improveConnect(secure = F,logLevel = "INFO")
   #test to log into file
   logging::addHandler(logging::writeToFile,logger="",file="improver.log")
 

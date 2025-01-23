@@ -1,3 +1,18 @@
+resourceCacheList <- list(
+  resourceIdCache="resourceId",
+  resourcePathCache="path",
+  resourceEntityIdCache="entityId",
+  resourceEntityVersionIdCache="entityVersionId"
+  #,resourceRelativePathCache=function(resource,path) {
+  #  return("NULL")
+  #}
+  )
+
+resourceVersionCacheList <- list(
+  versionedresourceEntityVersionIdCache="entityVersionId"
+  )
+
+
 #' loadResource
 #'
 #' @param ident A resourceId, an entityId, a entityVersionId, or a dataframe.
@@ -44,7 +59,7 @@
 #' loadResource("/projects/folder/analysis_tree/Step 3") #path
 #' }
 
-loadResource <- function (ident, pwd = pwd())
+loadResource <- function (ident, from = pwd())
 {
   if (is.character(ident) && length(ident) == 1 && ident ==
       "") {
@@ -65,13 +80,12 @@ loadResource <- function (ident, pwd = pwd())
   if (is.data.frame(ident)) {
     multiResource <- nrow(ident) > 1
     ident <- ident$resourceId
-  }
-  else {
+  } else {
     multiResource <- length(ident) > 1
   }
   if (multiResource) {
     resources <- lapply(ident, function(resId) {
-      loadResource(resId, pwd)
+      loadResource(resId, from)
     })
     return(mergeDataframeList(resources))
   }
@@ -81,7 +95,8 @@ loadResource <- function (ident, pwd = pwd())
   }
   res <- NULL
   if (grepl("/", ident, fixed = T) | grepl("\\", ident, fixed = T)) {
-    ident <- normalisePath(ident, startPath = pwd)
+
+    ident <- normalisePath(ident, startPath = from)
     logging::logdebug("path recognised")
     logging::logdebug(ident)
     res <- getFromCache(ident, loadResourceByPathGeneric,
@@ -110,4 +125,10 @@ isEntityVersionId <- function(entityVId) {
     }
   }
   return(F)
+}
+
+
+
+internalLoadResourceFromServer <- function(identifier) {
+  return(loadResourceFromServer(resourceId = identifier,invalidatesReproducibility = F))
 }
