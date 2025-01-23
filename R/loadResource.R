@@ -59,23 +59,11 @@ resourceVersionCacheList <- list(
 #' loadResource("/projects/folder/analysis_tree/Step 3") #path
 #' }
 
-loadResource <- function (ident, from = pwd())
-{
-  if (is.character(ident) && length(ident) == 1 && ident ==
-      "") {
-    return(NULL)
-  }
-  if (is.list(ident) && length(ident) == 0) {
-    return(NULL)
-  }
-  if (is.data.frame(ident) && nrow(ident) == 0) {
-    return(NULL)
-  }
-  if (!is.data.frame(ident) && !is.list(ident) && !is.character(ident)) {
-    if (is.null(ident) || is.na(ident)) {
-      return(NULL)
-    }
-  }
+loadResource <- function(ident, from = pwd()) {
+  
+  ident <- validate_ident(ident)
+  if (is.null(ident)) {return(NULL)}
+
   multiResource <- F
   if (is.data.frame(ident)) {
     multiResource <- nrow(ident) > 1
@@ -94,6 +82,7 @@ loadResource <- function (ident, from = pwd())
     return(getRoot())
   }
   res <- NULL
+
   if (grepl("/", ident, fixed = T) | grepl("\\", ident, fixed = T)) {
 
     ident <- normalisePath(ident, startPath = from)
@@ -115,7 +104,6 @@ loadResource <- function (ident, from = pwd())
   return(res)
 }
 
-
 isEntityVersionId <- function(entityVId) {
   entityParts <- strsplit(entityVId,":")[[1]]
   if (length(entityParts)==2) {
@@ -126,8 +114,6 @@ isEntityVersionId <- function(entityVId) {
   }
   return(F)
 }
-
-
 
 internalLoadResourceFromServer <- function(identifier) {
   return(loadResourceFromServer(resourceId = identifier,invalidatesReproducibility = F))
