@@ -2,10 +2,13 @@
 % Please edit documentation in R/registerCloseFunction.R
 \name{listCloseFunctions}
 \alias{listCloseFunctions}
-\title{lists the name of all functions registered by registerCloseFunction}
+\title{listCloseFunctions}
 \usage{
 listCloseFunctions()
 }
 \description{
-lists the name of all functions registered by registerCloseFunction
+Lists the names of all functions registered by registerCloseFunction.
+}
+\seealso{
+\code{\link[=registerCloseFunction]{registerCloseFunction()}}
 }

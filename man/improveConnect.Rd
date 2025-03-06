@@ -2,36 +2,13 @@
 % Please edit documentation in R/improveConnect.R
 \name{improveConnect}
 \alias{improveConnect}
-\title{improveConnect looks for connection information and sets this connection information as default
-there are three ways to set connection information
-the priority is command line, environment variables and a conf.json file
-\itemize{
-\item command line arguments, have to be in the correct order
-** token
-** ID of the step that was used to initiate the connection
-** the repo URL in the format https://repoaddress:repoPort/repository
-\item environment variables
-**    IMPROVER_TOKEN mandatory if user and password are empty
-**    IMPROVER_STEP
-**    IMPROVER_REPO_URL mandatory
-**    IMPROVER_USER
-**    IMPROVER_PASSWORD
-**    IMPROVER_WORKSPACE
-**    IMPROVER_SECURITY=insecure if there is no valid certificate
-\item json file in the wd called conf.json
-** reqToken mandatory if user and password are empty
-** stepId
-** repoUrl mandatory
-** runWorkspace
-** user
-** password
-}}
+\title{improveConnect}
 \usage{
 improveConnect(
   logLevel = "INFO",
   secure = TRUE,
-  offlinePossible = F,
-  persistentCaching = F
+  offlinePossible = FALSE,
+  persistentCaching = FALSE
 )
 }
 \arguments{
@@ -41,36 +18,54 @@ improveConnect(
 
 \item{offlinePossible}{if TRUE the setup continues even if no connection is possible}
 
-\item{persistentCaching}{default to false,
-persists and reloads the caches on the filesystem in .improver.cache
-if the environment variable improver.logfile is set, the logging is additionally added to this file}
+\item{persistentCaching}{default is FALSE; persists and reloads the caches on the filesystem in \code{.improver.cache}
+if the environment variable improver.logfile is set. The logging is additionally added to this file}
 }
 \description{
-improveConnect looks for connection information and sets this connection information as default
-there are three ways to set connection information
-the priority is command line, environment variables and a conf.json file
+improveConnect looks for connection information and sets this connection information as default.
+There are three ways to set connection information (in descending priority):
+\enumerate{
+\item via the command line
+\item via environment variables
+\item via a conf.json file
+}
+\subsection{Command line}{
+
+Command line arguments have to be in the correct order.
+\enumerate{
+\item token ID of the step that was used to initiate the connection
+\item the repo URL in the format https://repoaddress:repoPort/repository
+}
+}
+
+\subsection{Enviornment variables}{
+
+The following environment variables have to be set:
 \itemize{
-\item command line arguments, have to be in the correct order
-** token
-** ID of the step that was used to initiate the connection
-** the repo URL in the format https://repoaddress:repoPort/repository
-\item environment variables
-**    IMPROVER_TOKEN mandatory if user and password are empty
-**    IMPROVER_STEP
-**    IMPROVER_REPO_URL mandatory
-**    IMPROVER_USER
-**    IMPROVER_PASSWORD
-**    IMPROVER_WORKSPACE
-**    IMPROVER_SECURITY=insecure if there is no valid certificate
-\item json file in the wd called conf.json
-** reqToken mandatory if user and password are empty
-** stepId
-** repoUrl mandatory
-** runWorkspace
-** user
-** password
+\item IMPROVER_TOKEN: mandatory if user and password are empty\if{html}{\out{<br>}}
+\item IMPROVER_STEP\if{html}{\out{<br>}}
+\item IMPROVER_REPO_URL mandatory\if{html}{\out{<br>}}
+\item IMPROVER_USER\if{html}{\out{<br>}}
+\item IMPROVER_PASSWORD\if{html}{\out{<br>}}
+\item IMPROVER_WORKSPACE\if{html}{\out{<br>}}
+\item IMPROVER_SECURITY: insecure if there is no valid certificate
 }
 }
-\references{
-ics1081
+
+\subsection{Conf.json file}{
+
+The file has to be located in the working directory and contain the following
+details:
+\itemize{
+\item reqToken: mandatory if user and password are empty
+\item stepId
+\item repoUrl: mandatory
+\item runWorkspace
+\item user
+\item password
+}
+}
+}
+\seealso{
+\code{\link[=improveConnected]{improveConnected()}}, \code{\link[=improveDisconnect]{improveDisconnect()}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/testRun.R
 \name{executeFolder}
 \alias{executeFolder}
-\title{executes a folder with all RMDs and if available before that an init.R and an celanup.R file}
+\title{executeFolder}
 \usage{
 executeFolder(path)
 }
@@ -10,5 +10,7 @@ executeFolder(path)
 \item{path}{path to the executable package}
 }
 \description{
-arguments:
+Executes all Rmd-files in the folder specified by path. If available,
+execution of the Rmd-files is preceeded by the execution of an init.R file and/or
+followed by the execution of an cleanup.R file.
 }

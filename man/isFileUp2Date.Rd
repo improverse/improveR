@@ -9,10 +9,10 @@ isFileUp2Date(ident, fromForRelativePathes = pwd())
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{used if a relative path is used}
+\item{fromForRelativePathes}{Used if a relative path is used.}
 }
 \description{
-isFileUp2Date
+Checks if a new version of the file exists in the repository.
 }
 \references{
 ics1099

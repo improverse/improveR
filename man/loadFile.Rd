@@ -2,11 +2,7 @@
 % Please edit documentation in R/loadFile.R
 \name{loadFile}
 \alias{loadFile}
-\title{loads the file  by the resourceId,  entity ID or entity version ID
-it uses caching
-the results are returned as a data frame or a list of data frames
-the dates are also converted to posix dates via convertImproveTimestampToPosix
-resourceId can be a list}
+\title{loadFile}
 \usage{
 loadFile(
   ident,
@@ -23,13 +19,19 @@ loadFile(
 
 \item{filePath}{local Path where the file should be stored, relative to rootPath, normally wd}
 
-\item{addIdToName}{boolean, if the entityId should be added to the filename}
+\item{addIdToName}{logical, if the entityId should be added to the filename}
 
-\item{linkInInventory}{boolean, if TRUE a link to the resource is created in the inventory}
+\item{linkInInventory}{logical, if TRUE a link to the resource is created in the inventory}
 }
 \description{
-arguments:
+Loads a file by its resourceId, entity ID, or entity version ID.
+Uses caching. The results are returned as a data frame or a list of data frames.
+The dates are converted to POSIX dates with the convertImproveTimestampToPosix function.
+resourceId can be a list.
 }
 \references{
 ics1099
+}
+\seealso{
+\code{\link[=convertImproveTimestampToPosix]{convertImproveTimestampToPosix()}}
 }

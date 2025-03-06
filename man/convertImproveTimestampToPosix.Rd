@@ -2,13 +2,13 @@
 % Please edit documentation in R/convertImproveTimestampToPosix.R
 \name{convertImproveTimestampToPosix}
 \alias{convertImproveTimestampToPosix}
-\title{takes a timestamp as used in improve and converts it to a POSIX R time}
+\title{convertImproveTimestampToPosix}
 \usage{
 convertImproveTimestampToPosix(timestamp)
 }
 \arguments{
-\item{timestamp}{as character, numeric or list}
+\item{timestamp}{a character, numeric string or list}
 }
 \description{
-takes a timestamp as used in improve and converts it to a POSIX R time
+Takes a timestamp as used in improve and converts it to a POSIX R time
 }

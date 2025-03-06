@@ -37,15 +37,17 @@ initImproveLogging <- function(logLevel) {
     logging::addHandler(logging::writeToFile,logger="",file=logFile)
   }
 }
+
+#NOTE: margittr pipe replaced by base pipe to reduce dependency
 improveLastLogMessage<- function (type="",number=1) {
   logItems <- parseLogFile()
   if (is.null(logItems)) {
     return(NULL)
   }
   if (type!="") {
-    logItems %>% dplyr::filter(type==type)
+    logItems |> dplyr::filter(type==type)
   }
   return(
-    logItems %>% utils::tail(number) %>% dplyr::select(message) %>% as.character()
+    logItems |> utils::tail(number) |> dplyr::select(message) |> as.character()
   )
 }

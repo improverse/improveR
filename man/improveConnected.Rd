@@ -2,13 +2,19 @@
 % Please edit documentation in R/improveConnect.R
 \name{improveConnected}
 \alias{improveConnected}
-\title{improveConnected checks if improveConnect was called}
+\title{improveConnected}
 \usage{
-improveConnected()
+improveConnected(silent = FALSE)
+}
+\arguments{
+\item{silent}{Should logging messages be hidden. Default is FALSE.}
+}
+\value{
+logical. Returns \code{TRUE} if the connection is established, \code{FALSE} otherwise. The value is returned invisibly.
 }
 \description{
-improveConnected checks if improveConnect was called
+improveConnected checks if improveConnect was called.
 }
-\references{
-ics1081
+\seealso{
+\code{\link[=improveConnect]{improveConnect()}}, \code{\link[=improveDisconnect]{improveDisconnect()}}
 }

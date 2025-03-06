@@ -2,22 +2,21 @@
 % Please edit documentation in R/loadChildResources.R
 \name{loadChildResources}
 \alias{loadChildResources}
-\title{loads all child resources  by the resourceId,  entity ID or entity version ID
-it uses caching
-the results are returned as a data frame or a list of data frames
-the dates are also converted to posix dates via convertImproveTimestampToPosix
-resourceId can be a list}
+\title{loadChildResources}
 \usage{
 loadChildResources(ident, fromForRelativePathes = pwd())
 }
 \arguments{
-\item{ident}{the resource id or the entity id of the resource}
+\item{ident}{the resource id or the entity id of the resource; can be a list}
 
 \item{fromForRelativePathes}{used if a relative path is used}
 }
 \description{
-arguments:
+Loads all child resources by the resourceId, entity ID, or entity version ID.
+Uses caching. Child resources can be folders, steps, workflows, or analysis trees.
+The results are returned as a data frame or a list of data frames.
+The dates are  converted to POSIX dates with the convertImproveTimestampToPosix function.
 }
-\references{
-ics1085
+\seealso{
+\code{\link[=convertImproveTimestampToPosix]{convertImproveTimestampToPosix()}}
 }

@@ -2,10 +2,10 @@
 % Please edit documentation in R/improveConnect.R
 \name{improveClose}
 \alias{improveClose}
-\title{cleans up everything for checkin}
+\title{improveClose}
 \usage{
-improveClose()
+improveClose(cacheEnv)
 }
 \description{
-cleans up everything for checkin
+Cleans up everything for check-in.
 }

@@ -2,10 +2,13 @@
 % Please edit documentation in R/loggers.R
 \name{resetLogs}
 \alias{resetLogs}
-\title{resetLogs resets the strutured list from redirectLogs}
+\title{resetLogs}
 \usage{
 resetLogs()
 }
 \description{
-resetLogs resets the strutured list from redirectLogs
+resetLogs resets the strutured list from redirectLogs.
+}
+\seealso{
+\code{\link[=redirectLogs]{redirectLogs()}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/login.R
 \name{refreshToken}
 \alias{refreshToken}
-\title{refreshToken requests a new token to access the system. Just used in combination with improveLogin, run tokens do not need to be refreshed}
+\title{refreshToken}
 \usage{
 refreshToken(alwaysRefresh = F)
 }
@@ -10,8 +10,12 @@ refreshToken(alwaysRefresh = F)
 \item{alwaysRefresh}{refresh no matter how much time has elapsed}
 }
 \description{
-refreshToken requests a new token to access the system. Just used in combination with improveLogin, run tokens do not need to be refreshed
+refreshToken requests a new token to access the system. Just used in combination with improveLogin.
+Run tokens do not need to be refreshed.
 }
 \references{
 ics1208
+}
+\seealso{
+\code{\link[=improveLogin]{improveLogin()}}
 }

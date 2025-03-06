@@ -2,15 +2,14 @@
 % Please edit documentation in R/loadResourceByPathGeneric.R
 \name{pwd}
 \alias{pwd}
-\title{returns the pwd resource
-if no pwd is set, root is used}
+\title{pwd}
 \usage{
 pwd()
 }
 \value{
-pwd DF
+a data frame.
 }
 \description{
-returns the pwd resource
-if no pwd is set, root is used
+Returns the working directory as a data frame.
+If no pwd is set, root is used.
 }

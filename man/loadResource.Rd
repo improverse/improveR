@@ -7,16 +7,16 @@
 loadResource(ident, from = pwd())
 }
 \arguments{
-\item{ident}{A resourceId, an entityId, a entityVersionId, or a dataframe.}
+\item{ident}{id}
 
-\item{pwd}{Path working directory.}
+\item{from}{Path working directory.}
 }
 \value{
-A dataframe with the fields \code{resourceId}, \code{entityId}, \code{entityVersionId},
+A data frame with the fields \code{resourceId}, \code{entityId}, \code{entityVersionId},
 \code{path}, \code{name}, and \code{data}.
 }
 \description{
-loadResource
+Loads one or multiple resources.
 }
 \details{
 \subsection{ident}{
@@ -26,29 +26,29 @@ There are multiple ways to describe the ident of a resource:
 Absolute idents:
 \itemize{
 \item resourceId: a UUID
-\item Data frame: uses the resourceId value of the data frame\
-\item entityId: pointer to the latest version of a resource. Short and long entityIds are accepted#'
-\item entityVersionId: pointer to a specific version of a resource. Short and long entityIds are accepted#'
+\item Data frame: uses the resourceId value of the data frame
+\item entityId: pointer to the latest version of a resource. Short and long entityIds are accepted'
+\item entityVersionId: pointer to a specific version of a resource. Short and long entityIds are accepted'
 \item path: the full path to a resource, always starting with /.
 }
 
 Relative idents:
 \itemize{
 \item All relative idents are path based, they always have to start with ./ or ../'
-\item Relative path without pwd: always starts from the return value of pwd()#'
+\item Relative path without pwd: always starts from the return value of pwd()'
 \item Relative path and pwd as second argument: starts the relative path from the
 absolute ident that was handed over as second argument. Sometimes still called
-“fromForRelativePathes” but will be updated to pwd.#
+“fromForRelativePathes” but will be updated to pwd.
 }
 }
 
-\subsection{pwd# \%\%}{
+\subsection{pwd}{
 
 pwd shows the current “path working directory”. The improveR client is inspired
 by a command line interface. The default start position within the improve repository
 is the step that started an R instance with improveR.This starting point is set
 via the IMPROVER_STEP environment variable. If this information was not
-provided the root element is pwd 'pwd  is used if you use relative pathes to
+provided the root element is pwd. pwd  is used if you use relative pathes to
 access an element.
 }
 }

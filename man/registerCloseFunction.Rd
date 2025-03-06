@@ -2,17 +2,21 @@
 % Please edit documentation in R/registerCloseFunction.R
 \name{registerCloseFunction}
 \alias{registerCloseFunction}
-\title{registerCloseFunction registers a function that is called when the r session is ended. In a batch job the r session is ended when the run is over, in rstudio the session is ended, when the user either closes rstudio with the close button or selects terminate or restart session
-the close functions are executed in alphabetical order, so numbering as prefix can guarantee an order}
+\title{registerCloseFunction}
 \usage{
 registerCloseFunction(name, func)
 }
 \arguments{
-\item{name}{name of the function, this name is used for the alphabetical ordering and unregistering}
+\item{name}{Name of the function. This name is used for the alphabetical ordering and unregistering.}
 
-\item{func, }{the function that is executed}
+\item{func}{the function that is executed when ending the R session.}
 }
 \description{
-registerCloseFunction registers a function that is called when the r session is ended. In a batch job the r session is ended when the run is over, in rstudio the session is ended, when the user either closes rstudio with the close button or selects terminate or restart session
-the close functions are executed in alphabetical order, so numbering as prefix can guarantee an order
+registerCloseFunction
+}
+\details{
+registerCloseFunction registers a function that is called when the R session is ended.
+In a batch job the R session is ended when the run is over. In RStudio the session is ended,
+when the user either closes RStudio with the close button or selects terminate or restart session.
+the close functions are executed in alphabetical order, so numbering as prefix can guarantee an order.
 }

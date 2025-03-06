@@ -15,16 +15,16 @@ updateFile(
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{used if a relative path is used}
+\item{fromForRelativePathes}{Used if a relative path is used.}
 
-\item{filePath}{local Path where the file should be stored, relative to rootPath, normally wd}
+\item{filePath}{Local path where the file is stored (relative to rootPath).}
 
-\item{addIdToName}{boolean, if the entityId should be added to the filename}
+\item{addIdToName}{Logical; if TRUE the entity id is added to the filename.}
 
-\item{linkInInventory}{boolean, if TRUE a link to the resource is created in the inventory}
+\item{linkInInventory}{Logical; if TRUE, creates a link to the resource in inventory.}
 }
 \description{
-updateFile
+Retrieves the latest version of the file from the repository.
 }
 \references{
 ics1099

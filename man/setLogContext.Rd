@@ -2,13 +2,13 @@
 % Please edit documentation in R/loggers.R
 \name{setLogContext}
 \alias{setLogContext}
-\title{setLogContext sets the context for the structured log list}
+\title{setLogContext}
 \usage{
 setLogContext(context)
 }
 \arguments{
-\item{context}{a string, the context name}
+\item{context}{a string, the context name.}
 }
 \description{
-setLogContext sets the context for the structured log list
+setLogContext sets the context for the structured log list.
 }

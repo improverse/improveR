@@ -11,10 +11,11 @@ timing <- function(name) {
   #))
 }
 
-#' authenticatedREST uses the connection information from #ics1081 improveConnect# to create a REST call to the repository
-#' it needs the following parameters
-#' Those values are example values
-#' @param url in the format /resources/{resourceId}
+#' authenticatedREST
+#'
+#' @description authenticatedREST uses the connection information from improveConnect to create a REST call to the repository.
+#' It needs the following parameters. The values below are example values.
+#' @param url in the format /resources/\{resourceId\}
 #' @param urlParams in the format list(resourceId="1B1D3B817F424BA594893A5013DBFEEA")
 #' @param queryParams in the format list(isResourceVersion="true")
 #' @param data this block is written to the body, either list, binary or json
@@ -23,17 +24,17 @@ timing <- function(name) {
 #' @param encode is directly set to the header, default is json, should be fine for most rest calls, for file uploads use NULL
 #' @param ignoreFail is by default set to TRUE, if false, an error is thrown if the error code is not between 200 and 300
 #'
-#' in this example the following URL would be constructed:
+#' In this example the following URL would be constructed:
 #'   baseURL from improveConnect /resources/1B1D3B817F424BA594893A5013DBFEEA?isResourceVersion=true
 #'
 #' the unparsed result is returned from this call
+#' @seealso [improveConnect()]
 #' @references ics1082
 #' @export
-authenticatetREST <- function(url,urlParams=list(),queryParams=list(),data="",restType="GET",contentType="application/json",encode="json",ignoreFail=T) {
+authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",restType="GET",contentType="application/json",encode="json",ignoreFail=T) {
   timing(url)
   if (is.null(encode)) {
-    encode <- c("multipart",
-                "form", "json", "raw")
+    encode <- c("multipart","form", "json", "raw")
   }
 
   if (startsWith(url,"/")) {

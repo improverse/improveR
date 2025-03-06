@@ -19,9 +19,10 @@ testInit <- function() {
   prepareConnect()
 }
 
-#' executes a folder with all RMDs and if available before that an init.R and an celanup.R file
-#'
-#' arguments:
+#' executeFolder
+#' @description  Executes all Rmd-files in the folder specified by path. If available,
+#' execution of the Rmd-files is preceeded by the execution of an init.R file and/or
+#' followed by the execution of an cleanup.R file.
 #' @param  path path to the executable package
 #' @export
 executeFolder <- function(path) {
@@ -93,17 +94,19 @@ prepareConnect <- function() {
          ,envir=configEnv)
 }
 
-#' set runName and testServer to environment
-#'
-#' arguments:
+#QUESTION initRepo has currently hard coded default values; to remove?
+
+#' initRepo
+#' @description Set runName and testServer to environment.
 #' @param  runName name for the result folder
 #' @param testServer a registered server
+#' @examples
+#' \dontrun{
+#' initRepo(runName="TestFolder", testServer="TestServer") }
 #' @export
 #initRepo<-function(runName="test1",testServer="SWBEnv24") {
 initRepo<-function(runName="test1",testServer="RobertEnv") {
+# initRepo<-function(runName,testServer) {
   Sys.setenv(RUN_NAME = runName)
   Sys.setenv(TEST_SERVER = testServer)
 }
-
-
-

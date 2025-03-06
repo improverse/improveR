@@ -1,6 +1,10 @@
 
-#' strip removes the information dataframe around subentities like meta data, history, children or audittrail
-#' @param data a data frame with a nested frame in $data
+#QUESTION rewording needed? meta data, history, children are not subentities, but part of the information data
+#frame. If yes, sentence needs to be restructured. Currently 'meta data etc' refers to subentities.
+#' strip
+#' @description strip removes the information data frame around subentities like meta data, history, children,
+#'  or audittrail.
+#' @param data a data frame with a nested data frame in $data
 #' @export
 strip <- function(data) {
   return(data$data[[1]])
@@ -37,7 +41,6 @@ genericLoadResourceSubEntities <- function(ident,func,cacheList,fromForRelativeP
   res <- getFromCache(resources$entityId,func,cacheList,...)
   return(res)
 }
-
 
 genericLoadFromServer <- function(resource,name,funct,...) {
   improveConnected()

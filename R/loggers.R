@@ -3,13 +3,16 @@ logEnv$redirectToList <- F
 logEnv$logs <- list()
 logEnv$context <- "base"
 
-#' redirectLogs redirects the log from the default logstream to a structured list, with different context
-#' @param redirect T turns on redirection F turns it off
+#' redirectLogs
+#' @description redirectLogs redirects the log from the default logstream to a structured list, with a different context.
+#' @param redirect Boolean, TRUE turns on redirection,  FALSE turns it off.
 #' @export
 redirectLogs <- function(redirect) {
   logEnv$redirectToList <- redirect
 }
-#' resetLogs resets the strutured list from redirectLogs
+#' resetLogs
+#' @description resetLogs resets the strutured list from redirectLogs.
+#' @seealso [redirectLogs()]
 #' @export
 resetLogs <- function(){
   logEnv$logs <- list()
@@ -26,10 +29,11 @@ hasCurrentError <- function() {
   return(!is.null(currentLogs[["error"]]))
 }
 
-#' printLogs prints the strucured log list to the console
-#' @param reset T resets the list after printing
+#' printLogs
+#' @description printLogs prints the strucured log list to the console.
+#' @param reset Boolean, TRUE resets the list after printing.
 #' @export
-printLogs <- function(reset=F) {
+printLogs <- function(reset=FALSE) {
   a<-lapply(names(logEnv$logs),function(logName) {
     print(logName)
     subLogs <- logEnv$logs[[logName]]
@@ -44,8 +48,9 @@ printLogs <- function(reset=F) {
   }
 }
 
-#' setLogContext sets the context for the structured log list
-#' @param context a string, the context name
+#' setLogContext
+#' @description setLogContext sets the context for the structured log list.
+#' @param context a string, the context name.
 #' @export
 setLogContext <- function(context) {
   logEnv$context <- context

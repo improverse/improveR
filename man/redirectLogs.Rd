@@ -2,13 +2,13 @@
 % Please edit documentation in R/loggers.R
 \name{redirectLogs}
 \alias{redirectLogs}
-\title{redirectLogs redirects the log from the default logstream to a structured list, with different context}
+\title{redirectLogs}
 \usage{
 redirectLogs(redirect)
 }
 \arguments{
-\item{redirect}{T turns on redirection F turns it off}
+\item{redirect}{Boolean, TRUE turns on redirection,  FALSE turns it off.}
 }
 \description{
-redirectLogs redirects the log from the default logstream to a structured list, with different context
+redirectLogs redirects the log from the default logstream to a structured list, with a different context.
 }

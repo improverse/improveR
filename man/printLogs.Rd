@@ -2,13 +2,13 @@
 % Please edit documentation in R/loggers.R
 \name{printLogs}
 \alias{printLogs}
-\title{printLogs prints the strucured log list to the console}
+\title{printLogs}
 \usage{
-printLogs(reset = F)
+printLogs(reset = FALSE)
 }
 \arguments{
-\item{reset}{T resets the list after printing}
+\item{reset}{Boolean, TRUE resets the list after printing.}
 }
 \description{
-printLogs prints the strucured log list to the console
+printLogs prints the strucured log list to the console.
 }

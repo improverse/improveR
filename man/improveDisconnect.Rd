@@ -2,13 +2,16 @@
 % Please edit documentation in R/improveConnect.R
 \name{improveDisconnect}
 \alias{improveDisconnect}
-\title{improveDisconnect removes all connection information}
+\title{improveDisconnect}
 \usage{
-improveDisconnect()
+improveDisconnect(env = cacheEnv)
+}
+\arguments{
+\item{env}{default is 'cacheEnv'}
 }
 \description{
-improveDisconnect removes all connection information
+improveDisconnect removes all connection information.
 }
-\references{
-ics1081
+\seealso{
+\code{\link[=improveConnect]{improveConnect()}}, \code{\link[=improveConnected]{improveConnected()}}
 }

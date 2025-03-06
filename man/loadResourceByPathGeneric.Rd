@@ -2,15 +2,16 @@
 % Please edit documentation in R/loadResourceByPathGeneric.R
 \name{loadResourceByPathGeneric}
 \alias{loadResourceByPathGeneric}
-\title{loadResourceByPathFromServer}
+\title{loadResourceByPathGeneric}
 \usage{
 loadResourceByPathGeneric(path, from = pwd())
 }
 \arguments{
-\item{path}{a path}
+\item{path}{path to the resource.}
 
-\item{from, }{starting from}
+\item{from}{working directory from which relative path is resolved.
+Default is the root directory.}
 }
 \description{
-loadResourceByPathFromServer
+Loads a resource by its path.
 }

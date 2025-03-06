@@ -2,7 +2,7 @@
 % Please edit documentation in R/testRun.R
 \name{initRepo}
 \alias{initRepo}
-\title{set runName and testServer to environment}
+\title{initRepo}
 \usage{
 initRepo(runName = "test1", testServer = "RobertEnv")
 }
@@ -12,5 +12,9 @@ initRepo(runName = "test1", testServer = "RobertEnv")
 \item{testServer}{a registered server}
 }
 \description{
-arguments:
+Set runName and testServer to environment.
+}
+\examples{
+\dontrun{
+initRepo(runName="TestFolder", testServer="TestServer") }
 }

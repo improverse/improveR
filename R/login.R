@@ -1,7 +1,8 @@
 
-#' improveLogin can be used for test, development or interactive uses of improveR.
+#' improveLogin 
+#' 
+#' @description improveLogin can be used for test, development, or interactive uses of improveR.
 #' It uses the username and password to retrieve a token.
-#'
 #' @param repo the repository URL in this form https://<url>:<port>/<repositoryPath> the api part (/api/v1) is added automatically
 #' @param user the username as character
 #' @param password the plain text password as character, is not logged or stored
@@ -9,7 +10,6 @@
 #' @param logLevel possible LogLevels: DEBUG, INFO, WARN, ERROR
 #' @param secure if TRUE the certificates are checked
 #' @references ics1081
-#'
 #' @export
 
 improveLogin <- function(repo,user,password,shortEntityId,logLevel="INFO",secure=T) {
@@ -44,8 +44,6 @@ improveLogin <- function(repo,user,password,shortEntityId,logLevel="INFO",secure
     content <- httr::content(result)
     contentString <- rawToChar(content)
 
-
-
     Sys.setenv(IMPROVER_REPO_URL=repo)
     #Sys.setenv(IMPROVER_TOKEN=contentData$access_token)
     Sys.setenv(IMPROVER_USER=user)
@@ -66,12 +64,11 @@ improveLogin <- function(repo,user,password,shortEntityId,logLevel="INFO",secure
       }
     )
 
-
     improveConnect(logLevel,secure)
 
     setUser(user)
     return(T)
-  } else if (result$status_code==200) {
+  } else if (result$status_code==200) {   #QUESTION: else if (result$status_code=200) will never be triggered because above same condition
     log_error("not allowed to retrieve token")
     stop("not allowed to retrieve token")
   } else if (result$status_code==404){
@@ -83,10 +80,10 @@ improveLogin <- function(repo,user,password,shortEntityId,logLevel="INFO",secure
   }
 }
 
-#' improveReLogin can be used if a token could not be refreshed for test, development or interactive uses of improveR.
-#' It uses the password to retrieve a token. user has to have logged in before with improveLogin
-#'
-#' @param password the plain text password as character, is not logged or stored
+#' improveReLogin
+#' @description improveReLogin can be used if a token could not be refreshed for test, development, or interactive uses 
+#' of improveR. The function uses the password to retrieve a token. The user has to have logged in before with improveLogin.
+#' @param password The plain password as a character string. The password is not logged or stored.
 #' @references ics1208
 #' @export
 improveReLogin <- function(password) {
@@ -127,10 +124,12 @@ improveReLogin <- function(password) {
 }
 
 
-
-#' refreshToken requests a new token to access the system. Just used in combination with improveLogin, run tokens do not need to be refreshed
+#' refreshToken
+#' @description refreshToken requests a new token to access the system. Just used in combination with improveLogin. 
+#' Run tokens do not need to be refreshed.
 #' @param alwaysRefresh refresh no matter how much time has elapsed
 #' @references ics1208
+#' @seealso [improveLogin()]
 #' @export
 refreshToken <- function(alwaysRefresh=F) {
   token <- Sys.getenv("IMPROVER_REFRESH_TOKEN")
@@ -145,7 +144,7 @@ refreshToken <- function(alwaysRefresh=F) {
         Sys.setenv(IMPROVER_LAST_ACCESS=as.numeric(Sys.time()))
         tryCatch(
           {
-            result <- authenticatetREST("/authentication/refreshToken")
+            result <- authenticatedREST("/authentication/refreshToken")
             if (!is.null(result)) {
 
               refreshContent <- httr::content(result)

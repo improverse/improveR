@@ -1,12 +1,12 @@
-#' loads a resource version directly from the server by the  entity version ID
-#' the results are returned as a data frame or a list of data frames
-#' the dates are also converted to posix dates via convertImproveTimestampToPosix
-
-#' entityVersionId can be a list
+#' loadResourceVersionFromServer
+#' @description Loads a resource version directly from the server by the  entity version ID.
+#' The results are returned as a data frame or a list of data frames.
+#' The dates are also converted to POSIX dates via convertImproveTimestampToPosix.
+#' entityVersionId can be a list.
 #' @param entityVersionId the entity version id of the resource
-#' @param invalidatesReproducibility this flag may only be changed by internal functions
+#' @param invalidatesReproducibility this flag may only be changed by internal functions.
+#' @seealso [convertImproveTimestampToPosix()],[loadResource()], [loadResourceByPathGeneric()]
 #' @export
-
 loadResourceVersionFromServer <- function(entityVersionId,invalidatesReproducibility=T) {
   if (cacheEnv$persistentCaching & cacheEnv$reproducible & invalidatesReproducibility) {
     cacheEnv$reproducible<-F
@@ -38,7 +38,7 @@ loadResourceVersionFromServer <- function(entityVersionId,invalidatesReproducibi
 
   df<-NULL
 
-  result <- authenticatetREST("/revisions/{revisionId}/resources/{resourceId}",
+  result <- authenticatedREST("/revisions/{revisionId}/resources/{resourceId}",
                               list(resourceId=res$resourceId,
                                    revisionId=revisionId)
   )

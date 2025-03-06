@@ -3,7 +3,7 @@
 \docType{data}
 \name{improveCloseToken}
 \alias{improveCloseToken}
-\title{lock object}
+\title{improveCloseToken}
 \format{
 An object of class \code{environment} of length 0.
 }
@@ -11,6 +11,6 @@ An object of class \code{environment} of length 0.
 improveCloseToken
 }
 \description{
-lock object
+Locks an object.
 }
 \keyword{datasets}

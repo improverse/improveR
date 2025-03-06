@@ -31,8 +31,9 @@ removeFromCache <- function(key,argument,cacheList) {
   }
 }
 
+
 getFromCache <- function(key,func,cacheList,argument,...) {
-  improveConnected()
+#  improveConnected()
   if (is.character(key)) {
     logging::logdebug(paste0("Retrieving ",key," from caches"))
   } else {
@@ -50,7 +51,6 @@ getFromCache <- function(key,func,cacheList,argument,...) {
       writeToCache(val,cacheList,argument)
     }
   }
-
   return(val)
 }
 
@@ -58,7 +58,7 @@ searchInCache <- function(resourceCacheList,searchString) {
   for (i in 1:length(names(resourceCacheList))) {
     sString <-searchString
     cacheName <- names(resourceCacheList)[i]
-    cache<-get(cacheName,envir=cacheEnv)
+    cache <-get(cacheName,envir=cacheEnv)
     cacheKey <- unname(resourceCacheList[cacheName])[[1]]
     if (is.character(cacheKey)) {
       #if (cacheKey=="entityId" | cacheKey=="entityVersionId"){
@@ -101,6 +101,11 @@ writeToCache <- function(res,resourceCacheList,argument) {
   })
 }
 
+
+
+# cacheList <- resourceCacheList #REMOVE
+# rlang::env_print(cacheEnv) #REMOVE
+
 initialiseCache <- function(cacheList) {
   lapply(names(cacheList),function(cacheName) {
     if (!cacheName %in% ls(envir=cacheEnv)) {
@@ -110,10 +115,12 @@ initialiseCache <- function(cacheList) {
   })
 }
 
-#' empties the complete cache and removes a cacheFile if it exists
-#' sets the step to non reproducible
-#' same internal state like directly after calling improveConnect
+#' resetCache
+#' @description Empties the entire cache and removes a cacheFile, if it exists.
+#' Sets the step to non-reproducible. The reset cache is similar to
+#' its state after calling improveConnect.
 #' @references ics1091
+#' @seealso [improveConnect()]
 #' @export
 resetCache <- function() {
   logLevel<-cacheEnv$logLevel

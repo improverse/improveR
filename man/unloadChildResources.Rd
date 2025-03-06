@@ -10,7 +10,7 @@ unloadChildResources(ident)
 \item{ident}{id}
 }
 \description{
-unloadChildResources
+Removes a resource from the cache.
 }
 \references{
 ics1085

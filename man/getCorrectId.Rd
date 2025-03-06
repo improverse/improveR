@@ -7,7 +7,8 @@
 getCorrectId(resolveToId)
 }
 \arguments{
-\item{resolveToId}{the value resolve to short entity ID, or resource ID, version possible for both}
+\item{resolveToId}{Value which should be resolved to an ID. Accepts a resource ID, resource version ID, long and short entity ID, and an entity
+without prefix.}
 }
 \description{
 Resolves various ident types to an ID.

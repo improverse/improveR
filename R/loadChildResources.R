@@ -1,16 +1,16 @@
 childResourceCacheList <- createCacheList("child")
 
 
-#' loads all child resources  by the resourceId,  entity ID or entity version ID
-#' it uses caching
-#' the results are returned as a data frame or a list of data frames
-#' the dates are also converted to posix dates via convertImproveTimestampToPosix
-#' resourceId can be a list
-#'
-#' arguments:
-#' @param  ident the resource id or the entity id of the resource
+#QUESTION: spelling - pathes; should be paths; fromForRelativePathes; rename function?
+
+#' loadChildResources
+#' @description Loads all child resources by the resourceId, entity ID, or entity version ID.
+#' Uses caching. Child resources can be folders, steps, workflows, or analysis trees.
+#' The results are returned as a data frame or a list of data frames.
+#' The dates are  converted to POSIX dates with the convertImproveTimestampToPosix function.
+#' @param  ident the resource id or the entity id of the resource; can be a list
 #' @param fromForRelativePathes used if a relative path is used
-#' @references ics1085
+#' @seealso [convertImproveTimestampToPosix()]
 #' @export
 loadChildResources <- function(ident,fromForRelativePathes=pwd()) {
   return(
@@ -20,8 +20,9 @@ loadChildResources <- function(ident,fromForRelativePathes=pwd()) {
                                    fromForRelativePathes=fromForRelativePathes)
   )
 }
-
+#QUESTION: description text ok?
 #' unloadChildResources
+#' @description Removes a resource from the cache.
 #' @param ident id
 #' @references ics1085
 #' @export
@@ -32,8 +33,11 @@ unloadChildResources <- function(ident) {
 }
 
 #' updateChildResources
+#' @description Updates a child resource by removing it from the cache and subsequently loading
+#' it from the server.
 #' @param ident id
 #' @references ics1085
+#' @seealso [loadChildResources()], [unloadChildResources()]
 #' @export
 updateChildResources <- function(ident) {
   unloadChildResources(ident)
@@ -48,17 +52,16 @@ loadChildResourcesFromServer <- function(resource) {
 actualLoadChildResources <- function(resource) {
   result<-NULL
   if (as.character(resource$resourceId)!="0") {
-    result <- authenticatetREST("/resources/{resourceId}/resources",
-                                list(resourceId=resource$resourceId)
+    result <- authenticatedREST("/resources/{resourceId}/resources", list(resourceId=resource$resourceId)
     )
   } else {
-    result <- authenticatetREST("/resources")
+    result <- authenticatedREST("/resources")
   }
   if (is.null(result)) {
     return(NULL)
   }
   cont <- httr::content(result)
   df <- mergeListToDataframe(cont)
-  df<-convertDates(df)
+  df <-convertDates(df)
   return(df)
 }

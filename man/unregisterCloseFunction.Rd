@@ -2,13 +2,16 @@
 % Please edit documentation in R/registerCloseFunction.R
 \name{unregisterCloseFunction}
 \alias{unregisterCloseFunction}
-\title{unregisterCloseFunction removes a close function by the name it was registered with}
+\title{unregisterCloseFunction}
 \usage{
 unregisterCloseFunction(name)
 }
 \arguments{
-\item{name}{the registered name}
+\item{name}{The name under which the function has been registered.}
 }
 \description{
-unregisterCloseFunction removes a close function by the name it was registered with
+unregisterCloseFunction removes a close function by the name it was registered with.
+}
+\seealso{
+\code{\link[=registerCloseFunction]{registerCloseFunction()}}, \code{\link[=listCloseFunctions]{listCloseFunctions()}}
 }

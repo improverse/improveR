@@ -1,3 +1,7 @@
+
+#COMMENT
+## CHANGED & to &&: & evaluates all conditions even if e.g. first one fails; && stops at the first failure
+
 #' getCorrectId
 #'
 #' Resolves various ident types to an ID.
@@ -7,7 +11,9 @@
 #' * a long entity ID with http: ... => short entity ID
 #' * a short entity ID => short entity ID
 #' * an entity ID without prefix => short entity ID
-#' @param resolveToId the value resolve to short entity ID, or resource ID, version possible for both
+#' @param resolveToId 
+#' Value which should be resolved to an ID. Accepts a resource ID, resource version ID, long and short entity ID, and an entity 
+#' without prefix.
 #' @examples 
 #' \dontrun{
 #' getCorrectId("112EE78F4CDC4400836F8C059AF2EA5F") #resourceId
@@ -23,14 +29,14 @@ getCorrectId <- function(resolveToId) {
         if ("resourceId" %in% names(resolveToId)) {
             return(resolveToId$resourceId)
         } else {
-            logging::logerror("no resourceId contained in dataframe")
+            logging::logerror("no resourceId contained in data frame")
             logging::logerror(resolveToId)
             stop("missing resourceId")
         }
     } else if (startsWith(resolveToId, "/") | startsWith(resolveToId, "./") | startsWith(resolveToId, "\\") | startsWith(resolveToId, ".\\")) {
         return(resolveToId)
-    } else if (!grepl("=", resolveToId, fixed = T) &
-        !grepl(":", resolveToId, fixed = T) &
+    } else if (!grepl("=", resolveToId, fixed = T) &&
+        !grepl(":", resolveToId, fixed = T) &&
         !grepl("-", resolveToId, fixed = T)) {
         return(resolveToId)
     } else if (grepl("=", resolveToId, fixed = T)) {
@@ -39,6 +45,6 @@ getCorrectId <- function(resolveToId) {
     } else if (!grepl(":", resolveToId, fixed = T)) {
         return(paste0(repoPrefix(), resolveToId))
     } else {
-        return(resolveToId) # nolint: indentation_linter.
+        return(resolveToId)
     }
 }

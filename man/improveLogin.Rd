@@ -2,8 +2,7 @@
 % Please edit documentation in R/login.R
 \name{improveLogin}
 \alias{improveLogin}
-\title{improveLogin can be used for test, development or interactive uses of improveR.
-It uses the username and password to retrieve a token.}
+\title{improveLogin}
 \usage{
 improveLogin(
   repo,
@@ -28,7 +27,7 @@ improveLogin(
 \item{secure}{if TRUE the certificates are checked}
 }
 \description{
-improveLogin can be used for test, development or interactive uses of improveR.
+improveLogin can be used for test, development, or interactive uses of improveR.
 It uses the username and password to retrieve a token.
 }
 \references{

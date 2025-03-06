@@ -2,13 +2,14 @@
 % Please edit documentation in R/genericLoadResourceEntities.R
 \name{strip}
 \alias{strip}
-\title{strip removes the information dataframe around subentities like meta data, history, children or audittrail}
+\title{strip}
 \usage{
 strip(data)
 }
 \arguments{
-\item{data}{a data frame with a nested frame in $data}
+\item{data}{a data frame with a nested data frame in $data}
 }
 \description{
-strip removes the information dataframe around subentities like meta data, history, children or audittrail
+strip removes the information data frame around subentities like meta data, history, children,
+or audittrail.
 }

@@ -26,7 +26,9 @@ Imports:
     tidyr,
     improveRcore,
     improveRmodify,
-    utils
+    utils,
+    rmarkdown,
+    tibble
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

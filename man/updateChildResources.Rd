@@ -10,8 +10,12 @@ updateChildResources(ident)
 \item{ident}{id}
 }
 \description{
-updateChildResources
+Updates a child resource by removing it from the cache and subsequently loading
+it from the server.
 }
 \references{
 ics1085
+}
+\seealso{
+\code{\link[=loadChildResources]{loadChildResources()}}, \code{\link[=unloadChildResources]{unloadChildResources()}}
 }

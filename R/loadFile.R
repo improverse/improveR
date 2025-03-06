@@ -25,34 +25,28 @@ fileResourceVersionCacheList <- list(
   fileResourceEntityIdCache="entityVersionId"
 )
 
-#specific for file version!
+#QUESTION the following comment was already here; to incorporate into documentation? => #specific for file version!
 
-#' loads the file  by the resourceId,  entity ID or entity version ID
-#' it uses caching
-#' the results are returned as a data frame or a list of data frames
-#' the dates are also converted to posix dates via convertImproveTimestampToPosix
-#' resourceId can be a list
-#'
-#' arguments:
+#' loadFile
+#' @description Loads a file by its resourceId, entity ID, or entity version ID. 
+#' Uses caching. The results are returned as a data frame or a list of data frames. 
+#' The dates are converted to POSIX dates with the convertImproveTimestampToPosix function.
+#' resourceId can be a list.
 #' @param  ident the resource id or the entity id of the resource
 #' @param fromForRelativePathes used if a relative path is used
-#'
 #' @param filePath local Path where the file should be stored, relative to rootPath, normally wd
-#'
-#' @param addIdToName boolean, if the entityId should be added to the filename
-#'
-#' @param linkInInventory boolean, if TRUE a link to the resource is created in the inventory
+#' @param addIdToName logical, if the entityId should be added to the filename
+#' @param linkInInventory logical, if TRUE a link to the resource is created in the inventory
 #' @references ics1099
+#' @seealso [convertImproveTimestampToPosix()]
 #' @export
 loadFile <- function(ident,fromForRelativePathes=pwd(),filePath=".",addIdToName=FALSE,linkInInventory=FALSE) {
-
   resources <- loadResource(ident,fromForRelativePathes)
   if(is.null(resources)) {
     return(NULL)
   }
   versionRes <- resources[resources$isVersion,]
   noversionRes <- resources[!resources$isVersion,]
-
 
   res1<-versionLoadFile(versionRes,
                         fromForRelativePathes=fromForRelativePathes,
@@ -105,18 +99,18 @@ unversionLoadFile <- function(resources,fromForRelativePathes,filePath,addIdToNa
   return(res)
 }
 
+#QUESTION: check description text.
 #' unloadFile
+#' @description Removes a file from cache.
 #' @param ident id
 #' @param fromForRelativePathes used if a relative path is used
 #' @param filePath local Path where the file should be stored, relative to rootPath, normally wd
-#'
-#' @param addIdToName boolean, if the entityId should be added to the filename
+#' @param addIdToName logical, if the entityId should be added to the filename
 #' @references ics1099
 #' @export
 unloadFile <- function(ident,fromForRelativePathes=pwd(),filePath=".",addIdToName=FALSE) {
   res <- loadResource(ident,fromForRelativePathes)
   if (!is.null(res)) {
-
 
     f <- loadFile(ident,fromForRelativePathes,filePath=filePath,addIdToName=addIdToName)
     unloadResource(ident,fromForRelativePathes)
@@ -133,26 +127,29 @@ unloadFile <- function(ident,fromForRelativePathes=pwd(),filePath=".",addIdToNam
   }
 }
 
+
 #' updateFile
+#' @description Retrieves the latest version of the file from the repository.
 #' @param ident id
-#' @param fromForRelativePathes used if a relative path is used
-#'
-#' @param filePath local Path where the file should be stored, relative to rootPath, normally wd
-#'
-#' @param addIdToName boolean, if the entityId should be added to the filename
-#'
-#' @param linkInInventory boolean, if TRUE a link to the resource is created in the inventory
+#' @param fromForRelativePathes Used if a relative path is used.
+#' @param filePath Local path where the file is stored (relative to rootPath).
+#' @param addIdToName Logical; if TRUE the entity id is added to the filename.
+#' @param linkInInventory Logical; if TRUE, creates a link to the resource in inventory.
 #' @references ics1099
 #' @export
-updateFile <- function(ident,fromForRelativePathes=pwd(),filePath=".",addIdToName=FALSE,linkInInventory=FALSE) {
-  unloadFile(ident,fromForRelativePathes,filePath=filePath,addIdToName=addIdToName)
-  res <- loadFile(ident,fromForRelativePathes,filePath,addIdToName,linkInInventory)
+updateFile <- function(ident, fromForRelativePathes = pwd(), filePath = ".", 
+             addIdToName = FALSE, linkInInventory = FALSE) {
+  unloadFile(ident, fromForRelativePathes, filePath = filePath, 
+       addIdToName = addIdToName)
+  res <- loadFile(ident, fromForRelativePathes, filePath, 
+          addIdToName, linkInInventory)
   return(res)
 }
 
 #' isFileUp2Date
+#' @description Checks if a new version of the file exists in the repository.
 #' @param ident id
-#' @param fromForRelativePathes used if a relative path is used
+#' @param fromForRelativePathes Used if a relative path is used.
 #' @references ics1099
 #' @export
 isFileUp2Date <- function(ident,fromForRelativePathes=pwd()) {
@@ -219,7 +216,7 @@ actualLoadFile <- function(resource,filePath,addIdToName,linkInInventory) {
       logging::logdebug(paste0("download: ",fPath))
       f <- file.create(fPath)
       f <- file(fPath, "wb")
-      fResult <- authenticatetREST("/revisions/{revisionId}/resources/{resourceId}/content",
+      fResult <- authenticatedREST("/revisions/{revisionId}/resources/{resourceId}/content",
                                              list(resourceId=resource$resourceId,
                                                   revisionId=resource$revisionId)
       )

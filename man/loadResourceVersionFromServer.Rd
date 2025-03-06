@@ -2,21 +2,21 @@
 % Please edit documentation in R/loadResourceVersionFromServer.r
 \name{loadResourceVersionFromServer}
 \alias{loadResourceVersionFromServer}
-\title{loads a resource version directly from the server by the  entity version ID
-the results are returned as a data frame or a list of data frames
-the dates are also converted to posix dates via convertImproveTimestampToPosix
-entityVersionId can be a list}
+\title{loadResourceVersionFromServer}
 \usage{
 loadResourceVersionFromServer(entityVersionId, invalidatesReproducibility = T)
 }
 \arguments{
 \item{entityVersionId}{the entity version id of the resource}
 
-\item{invalidatesReproducibility}{this flag may only be changed by internal functions}
+\item{invalidatesReproducibility}{this flag may only be changed by internal functions.}
 }
 \description{
-loads a resource version directly from the server by the  entity version ID
-the results are returned as a data frame or a list of data frames
-the dates are also converted to posix dates via convertImproveTimestampToPosix
-entityVersionId can be a list
+Loads a resource version directly from the server by the  entity version ID.
+The results are returned as a data frame or a list of data frames.
+The dates are also converted to POSIX dates via convertImproveTimestampToPosix.
+entityVersionId can be a list.
+}
+\seealso{
+\code{\link[=convertImproveTimestampToPosix]{convertImproveTimestampToPosix()}},\code{\link[=loadResource]{loadResource()}}, \code{\link[=loadResourceByPathGeneric]{loadResourceByPathGeneric()}}
 }

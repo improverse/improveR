@@ -1,27 +1,16 @@
-#' normalisePath converts any path to an absolute path, so it eleminates all .. and .
-#' if a relative path is given it needs an absolute path as startPath to resolve
-#' if by too many .. the path navigates beyond root NULL is returned
-#' examples:
-#'   path<-"./../lmer/../lmer"
-#' startPath <- "/0demo/lmer"
-#' expected: /0demo/lmer
-#'
-#' path<-"./../../../lmer/../lmer"
-#' startPath <- "/0demo/lmer"
-#' expected: NULL
-#'
-#' path<-"/0demo/lmer"
-#' startPath <- "/0demo/lmer"
-#' expected: /0demo/lmer
-#'
-#' path<-"/0demo/lmer/"
-#' startPath <- "/0demo/lmer"
-#' expected: /0demo/lmer
+#' normalisePath
+#' @description normalisePath converts any path to an absolute path, and eleminates all .. and .
+#' If a relative path is given, it needs an absolute path as startPath to resolve.
+#' If by too many .. the path navigates beyond the root, NULL is returned.
 #' @param path the path to normalise
-#' @param startPath startpoint for relative pathes, defaults to /
+#' @param startPath Starting point for relative pathes, defaults to /
 #' @references ics1089
+#' @examples \dontrun{
+#' improveR::normalisePath(path = "./../lmer/../lmer", startPath = "/0demo/lmer") # /0demo/lmer
+#' improveR::normalisePath(path = "./../../../lmer/../lmer", startPath = "/0demo/lmer") # NULL
+#' improveR::normalisePath(path = "/0demo/lmer", startPath = "/0demo/lmer") # /0demo/lmer
+#' }
 #' @export
-
 normalisePath <- function(path,startPath="/") {
   if(is.data.frame(startPath)) {
     startPath<-startPath$path

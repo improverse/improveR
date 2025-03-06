@@ -2,17 +2,18 @@
 % Please edit documentation in R/getFromCache.R
 \name{resetCache}
 \alias{resetCache}
-\title{empties the complete cache and removes a cacheFile if it exists
-sets the step to non reproducible
-same internal state like directly after calling improveConnect}
+\title{resetCache}
 \usage{
 resetCache()
 }
 \description{
-empties the complete cache and removes a cacheFile if it exists
-sets the step to non reproducible
-same internal state like directly after calling improveConnect
+Empties the entire cache and removes a cacheFile, if it exists.
+Sets the step to non-reproducible. The reset cache is similar to
+its state after calling improveConnect.
 }
 \references{
 ics1091
+}
+\seealso{
+\code{\link[=improveConnect]{improveConnect()}}
 }

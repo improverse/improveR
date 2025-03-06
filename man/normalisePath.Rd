@@ -2,34 +2,26 @@
 % Please edit documentation in R/normalisePath.R
 \name{normalisePath}
 \alias{normalisePath}
-\title{normalisePath converts any path to an absolute path, so it eleminates all .. and .
-if a relative path is given it needs an absolute path as startPath to resolve
-if by too many .. the path navigates beyond root NULL is returned
-examples:
-path<-"./../lmer/../lmer"
-startPath <- "/0demo/lmer"
-expected: /0demo/lmer}
+\title{normalisePath}
 \usage{
 normalisePath(path, startPath = "/")
 }
 \arguments{
 \item{path}{the path to normalise}
 
-\item{startPath}{startpoint for relative pathes, defaults to /}
+\item{startPath}{Starting point for relative pathes, defaults to /}
 }
 \description{
-path<-"./../../../lmer/../lmer"
-startPath <- "/0demo/lmer"
-expected: NULL
+normalisePath converts any path to an absolute path, and eleminates all .. and .
+If a relative path is given, it needs an absolute path as startPath to resolve.
+If by too many .. the path navigates beyond the root, NULL is returned.
 }
-\details{
-path<-"/0demo/lmer"
-startPath <- "/0demo/lmer"
-expected: /0demo/lmer
-
-path<-"/0demo/lmer/"
-startPath <- "/0demo/lmer"
-expected: /0demo/lmer
+\examples{
+\dontrun{
+improveR::normalisePath(path = "./../lmer/../lmer", startPath = "/0demo/lmer") # /0demo/lmer
+improveR::normalisePath(path = "./../../../lmer/../lmer", startPath = "/0demo/lmer") # NULL
+improveR::normalisePath(path = "/0demo/lmer", startPath = "/0demo/lmer") # /0demo/lmer
+}
 }
 \references{
 ics1089

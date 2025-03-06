@@ -1,6 +1,12 @@
-#' loadResourceByPathFromServer
-#' @param path a path
-#' @param from, starting from
+#NOTE
+#minor - stringr includes now str_split_1 to get a char vector instead of a list (instead of str_split()[[1]])
+
+
+#' loadResourceByPathGeneric
+#' @description Loads a resource by its path.
+#' @param path path to the resource.
+#' @param from working directory from which relative path is resolved.
+#' Default is the root directory.
 #' @export
 loadResourceByPathGeneric <- function(path,from=pwd()) {
   logging::logdebug("loading path: ")
@@ -40,21 +46,19 @@ loadResourceByPathGeneric <- function(path,from=pwd()) {
   } else {
     pathParts<-pathParts[2:length(pathParts)]
     newPath <- paste(pathParts,collapse = "/")
-    return(loadResourceByPathGeneric(newPath,from=cwd))
+    return(loadResourceByPathGeneric(newPath,from=cwd)) #CHECK
   }
 }
 
-
-#' returns the pwd resource
-#' if no pwd is set, root is used
+#' pwd
+#' @description Returns the working directory as a data frame.
+#' If no pwd is set, root is used.
 #'
-#' @return pwd DF
-#'
+#' @return a data frame.
 #' @export
 pwd <- function() {
-  if (is.null(get0(x = "pwd",envir = cacheEnv))) {
+  if (is.null(get0(x = "pwd",envir = cacheEnv))) {  
     cacheEnv$pwd <- getRoot()
   }
   return(cacheEnv$pwd)
 }
-

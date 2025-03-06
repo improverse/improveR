@@ -2,17 +2,16 @@
 % Please edit documentation in R/login.R
 \name{improveReLogin}
 \alias{improveReLogin}
-\title{improveReLogin can be used if a token could not be refreshed for test, development or interactive uses of improveR.
-It uses the password to retrieve a token. user has to have logged in before with improveLogin}
+\title{improveReLogin}
 \usage{
 improveReLogin(password)
 }
 \arguments{
-\item{password}{the plain text password as character, is not logged or stored}
+\item{password}{The plain password as a character string. The password is not logged or stored.}
 }
 \description{
-improveReLogin can be used if a token could not be refreshed for test, development or interactive uses of improveR.
-It uses the password to retrieve a token. user has to have logged in before with improveLogin
+improveReLogin can be used if a token could not be refreshed for test, development, or interactive uses
+of improveR. The function uses the password to retrieve a token. The user has to have logged in before with improveLogin.
 }
 \references{
 ics1208

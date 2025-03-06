@@ -1,12 +1,13 @@
-#' loads resource directly from the server by the resourceId, resourceVersion ID or entity ID
-#' the results are returned as a data frame or a list of data frames
-#' the dates are also converted to posix dates via convertImproveTimestampToPosix
-#' if 0 is handed over, a virtual root resource is handed back
-#' resourceId can be a list
+#' loadResourceFromServer
+#' @description Loads a resource directly from the server by the resourceId, resourceVersion ID, or entity ID.
+#' The results are returned as a data frame or a list of data frames.
+#' The dates are also converted to POSIX dates via convertImproveTimestampToPosix.
+#' If 0 is handed over, a virtual root resource is handed back.
+#' resourceId can be a list.
 #' @param resourceId the resource id or the entity id of the resource
 #' @param invalidatesReproducibility this flag may only be changed by internal functions
+#' @seealso [convertImproveTimestampToPosix()]
 #' @export
-
 loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   improveConnected()
   if (cacheEnv$persistentCaching & cacheEnv$reproducible & invalidatesReproducibility) {
@@ -27,8 +28,8 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   logging::logdebug(paste0("Loading Resource for ",resourceId))
   df<-NULL
   if (as.character(resourceId)!="0") {
-    result <- authenticatetREST("/resources/{resourceId}",
-                                list(resourceId=resourceId)
+    result <- authenticatedREST("/resources/{resourceId}",  
+                                list(resourceId=resourceId) 
     )
     if (is.null(result)) {
       logging::logwarn(paste0("Resource with ID: ",resourceId," could not be loaded"))
@@ -38,16 +39,18 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
     cont$comments<-NULL
     cont$entries<-NULL
     cont$requestor<-NULL
-    df <- as.data.frame(cont,stringsAsFactors = FALSE)
+    #df <- as.data.frame(cont,stringsAsFactors = FALSE) #BUG
+    df <- convertAPIListToDataframe(cont) #NOTE new function inserted
+
   } else {
     df<-getRoot()
   }
   df<-convertDates(df)
   df$isVersion<-F
-  #TODO move to correct place
 
   if (is.null(df$targetEntityId) && !is.null(df$targetId)) {
-    target <- improveRcore::loadResource(df$targetId)
+    #target <- improveRcore::loadResource(df$targetId)
+    target <- loadResource(df$targetId)
     df$targetEntityId<-target$entityId
   }
 
@@ -106,6 +109,3 @@ getRoot <- function() {
   root$path <- "/"
   return(root)
 }
-
-
-

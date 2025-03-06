@@ -18,10 +18,10 @@ unloadFile(
 
 \item{filePath}{local Path where the file should be stored, relative to rootPath, normally wd}
 
-\item{addIdToName}{boolean, if the entityId should be added to the filename}
+\item{addIdToName}{logical, if the entityId should be added to the filename}
 }
 \description{
-unloadFile
+Removes a file from cache.
 }
 \references{
 ics1099
