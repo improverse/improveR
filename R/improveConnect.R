@@ -10,15 +10,42 @@ cacheEnv <- new.env(parent = emptyenv())
 #' @seealso [improveConnect()], [improveDisconnect()]
 #' @export
 
-improveConnected <- function() {
-  if (is.null(cacheEnv$initialized)) {
-#    log_error("improveConnect was not called or an error was thrown while connecting.")
-    log_info("No connection detected. improveConnect was not called or an error occurred during connection.")
-    stop("not connected")
+# improveConnected <- function(silent = FALSE) {
+#   if (is.null(cacheEnv$initialized)) {
+#     if (!silent) {
+#       log_info("No connection detected. improveConnect was not called or an error occurred during connection.")
+#     }
+#     return(invisible(FALSE))
+#     stop("not connected")
+#   } else if (!is.null(cacheEnv$initialized) && cacheEnv$initialized == TRUE) {
+#     if (!silent) {
+#       log_info("Connection already established.")
+#     }
+#     return(invisible(TRUE))
+#   }
+# }
+
+improveConnected <- function(silent = FALSE) {
+  if (is.null(cacheEnv$initialized) | cacheEnv$initialized == FALSE) {
+    if (!silent) {
+      log_info("No connection detected. improveConnect was not called or an error occurred during connection.")
+    }
+    return(invisible(FALSE))
+  } else if (cacheEnv$initialized == TRUE) {
+    if (!silent) {
+      log_info("Connection already established.")
+    }
+    return(invisible(TRUE))
+  } else {
+    # Handle any other state if needed, for example:
+    if (!silent) {
+      log_info("Connection status is not recognized.")
+    }
+    return(invisible(FALSE))
   }
-    else if (!is.null(cacheEnv$initialized)) {
-    log_info("Connection already established.")}
 }
+
+
 
 #' improveDisconnect
 #'
