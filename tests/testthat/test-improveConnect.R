@@ -38,11 +38,11 @@
 test_that("improveConnected succeeds when properly initialized", {
   
   if (exists("cacheEnv")) {
-  cacheEnv$initialized <- TRUE}
+  cacheEnv$initialized <- TRUE
+  }
 
   # Test: should return true
   expect_true(improveConnected())
-  # expect_true(improveConnected(silent=TRUE))
 
   # Cleanup
   rm(list = ls(envir = cacheEnv), envir = cacheEnv)
