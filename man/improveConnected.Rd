@@ -7,10 +7,7 @@
 improveConnected(silent = FALSE)
 }
 \arguments{
-\item{silent}{Should logging messages be hidden. Default is FALSE.}
-}
-\value{
-logical. Returns \code{TRUE} if the connection is established, \code{FALSE} otherwise. The value is returned invisibly.
+\item{silent}{if TRUE no log message is printed}
 }
 \description{
 improveConnected checks if improveConnect was called.

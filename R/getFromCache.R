@@ -1,8 +1,3 @@
-
-
-
-
-
 removeFromCache <- function(key,argument,cacheList) {
   if (!is.null(key)) {
     logging::logdebug(paste0("Removing ",key," from Caches"))
@@ -101,10 +96,6 @@ writeToCache <- function(res,resourceCacheList,argument) {
   })
 }
 
-
-
-# cacheList <- resourceCacheList #REMOVE
-# rlang::env_print(cacheEnv) #REMOVE
 
 initialiseCache <- function(cacheList) {
   lapply(names(cacheList),function(cacheName) {

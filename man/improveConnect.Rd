@@ -66,6 +66,9 @@ details:
 }
 }
 }
+\references{
+\link{ics1081}
+}
 \seealso{
 \code{\link[=improveConnected]{improveConnected()}}, \code{\link[=improveDisconnect]{improveDisconnect()}}
 }

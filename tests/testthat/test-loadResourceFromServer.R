@@ -41,6 +41,6 @@ test_that("Does cacheEnv exist", {
 test_that("Does cacheEnv include pwd?", {
   #  expect_equal(cacheEnv$pwd$entityId, "robert_oracle-1:ST-63678")
   improveConnect()
-  expect_true(rlang::env_has(cacheEnv, "pwd")) #
+  expect_true(exists("pwd", envir = cacheEnv))
 })
 

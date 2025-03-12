@@ -4,8 +4,8 @@
 \alias{improveClose}
 \title{improveClose}
 \usage{
-improveClose(cacheEnv)
+improveClose()
 }
 \description{
-Cleans up everything for check-in.
+Cleans up everything for checkin.
 }

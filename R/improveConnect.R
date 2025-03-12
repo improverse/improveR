@@ -1,12 +1,12 @@
 cacheEnv <- new.env(parent = emptyenv())
 
 
-#NOTE: Log message type was changed from log_error to log_info; Postive response added.
+# NOTE: Log message type was changed from log_error to log_info; Postive response added.
 
-#' improveConnected 
+#' improveConnected
 #'
-#' @description 
-#' improveConnected checks if improveConnect was called.
+#' @description improveConnected checks if improveConnect was called.
+#' @param silent if TRUE no log message is printed
 #' @seealso [improveConnect()], [improveDisconnect()]
 #' @export
 
@@ -51,10 +51,9 @@ improveConnected <- function(silent = FALSE) {
 #'
 #' @description improveDisconnect removes all connection information.
 #' @param env default is 'cacheEnv'
-#' @references [ics1081](obsidian://open?vault=improve-specs&file=specifications%2Frepository%2Fimprover%2FClient%2FResource%2Fconnections%2Fics1081%20improveConnect)
 #' @seealso [improveConnect()], [improveConnected()]
 #' @export
-improveDisconnect <- function(env=cacheEnv) {
+improveDisconnect <- function(env = cacheEnv) {
   rm(list = ls(envir = env), envir = env)
 }
 
@@ -62,16 +61,16 @@ improveDisconnect <- function(env=cacheEnv) {
 #'
 #' @description
 #' improveConnect looks for connection information and sets this connection information as default.
-#' There are three ways to set connection information (in descending priority): 
+#' There are three ways to set connection information (in descending priority):
 #' 1. via the command line
 #' 1. via environment variables
 #' 1. via a conf.json file
 #'
-#' ## Command line 
+#' ## Command line
 #' Command line arguments have to be in the correct order.
 #' 1. token ID of the step that was used to initiate the connection
 #' 1. the repo URL in the format https://repoaddress:repoPort/repository
-#' 
+#'
 #' ## Enviornment variables
 #' The following environment variables have to be set:
 #' * IMPROVER_TOKEN: mandatory if user and password are empty<br>
@@ -97,7 +96,7 @@ improveDisconnect <- function(env=cacheEnv) {
 #' @param offlinePossible if TRUE the setup continues even if no connection is possible
 #' @param persistentCaching default is FALSE; persists and reloads the caches on the filesystem in `.improver.cache`
 #' if the environment variable improver.logfile is set. The logging is additionally added to this file
-#' @references [ics1081](obsidian://open?vault=improve-specs&file=specifications%2Frepository%2Fimprover%2FClient%2FResource%2Fconnections%2Fics1081%20improveConnect)
+#' @references [ics1081]
 #' @export
 #' @seealso [improveConnected()], [improveDisconnect()]
 improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = FALSE, persistentCaching = FALSE) {
@@ -116,12 +115,12 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
   cacheEnv$persistentCaching <- persistentCaching
   cacheEnv$reproducible <- FALSE
 
-  
+
   if (!secure) {
     httr::set_config(httr::config(ssl_verifypeer = 0L))
     httr::set_config(httr::config(ssl_verifyhost = 0L))
   }
-  
+
   initImproveLogging(logLevel)
 
   # persistentCaching
@@ -276,30 +275,30 @@ getRootPath <- function() {
 
 # IMPROVE CLOSE
 # QUESTION Why does improveClose uses a two-step approach with the intermediate collection of links to files
-# before deleting them? Why not immediately deleting them once it has been established that the 
-# file exists? 
+# before deleting them? Why not immediately deleting them once it has been established that the
+# file exists?
 # NOTE FUNCTION CODE WAS MODIFIED
-## - function takes now cacheEnv as an input; otherwise testthat 
-##   and the improveClose do not refer to the same enviornemnt; 
+## - function takes now cacheEnv as an input; otherwise testthat
+##   and the improveClose do not refer to the same enviornemnt;
 
 #' improveClose
-#'
 #' @description Cleans up everything for checkin.
 #' @export
-improveClose <- function(cacheEnv) {
+# improveClose <- function(cacheEnv) {
+improveClose <- function() {
   cleaned <- NULL
   if (!is.null(cacheEnv$createdLinks)) {
-    if (length(cacheEnv$createdLinks) > 0) {    #checks number of cols
+    if (length(cacheEnv$createdLinks) > 0) {
       for (i in 1:nrow(cacheEnv$createdLinks)) {
-        linkEntry <- cacheEnv$createdLinks[i, ]  #assumes that df createdLinks has more than 1 col; otherwise vector not df retruned
+        linkEntry <- cacheEnv$createdLinks[i, ]
         if (file.exists(linkEntry$localPath)) {
-          cleaned <- plyr::rbind.fill(cleaned,linkEntry)
+          cleaned <- plyr::rbind.fill(cleaned, linkEntry)
         }
       }
       cacheEnv$createdLinks <- cleaned
       if (!is.null(cacheEnv$createdLinks)) {
         for (i in 1:nrow(cacheEnv$createdLinks)) {
-          linkEntry <- cacheEnv$createdLinks[i, ]  
+          linkEntry <- cacheEnv$createdLinks[i, ]
           if (file.exists(linkEntry$localPath)) {
             file.remove(linkEntry$localPath)
           }

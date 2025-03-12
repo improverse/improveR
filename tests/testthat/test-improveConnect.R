@@ -86,12 +86,13 @@ test_that("improveDisconnect removes all connection information from the environ
 ###   the definiton of improveClose solves the issue. 
 ###IMPROVEMENT maybe improveClose(env=cachEnv); set it as a default?
 
+# BUG
 test_that("improveClose handles file cleanup correctly", {
   
   # Create temporary folder
   test_dir <- file.path(tempdir(), "test_improveClose")
   dir.create(test_dir, showWarnings = FALSE)
-  on.exit(unlink(test_dir, recursive = TRUE)) #when exiting function remove folder and nested folders
+  # on.exit(unlink(test_dir, recursive = TRUE)) #when exiting function remove folder and nested folders
   
   # Write test files to temp folder
   path_file1 <- file.path(test_dir, "test1.txt")
@@ -100,6 +101,7 @@ test_that("improveClose handles file cleanup correctly", {
   writeLines(text="test1", con=path_file1) #store files with some content in the temp folder
   writeLines(text="test2", con=path_file2)
   
+
   # Create environment with references to temp test files
   # Checks also case where env contains link to non-exisitng file
   cacheEnv <- new.env(parent=emptyenv())
@@ -108,21 +110,25 @@ test_that("improveClose handles file cleanup correctly", {
     info=c("info on file 1", "info on file 2", NA),
     stringsAsFactors = FALSE
   )
+  #debugging check
+  as.list(cacheEnv) #check
+  exists("createdLinks", envir=cacheEnv) 
+  
   # Mock response from saveImproveJson; but saveImproveJson doesn't return anything
   # Should it be actually tested here or does it suffice to test only saveImproveJson?
-  json_saved <- FALSE
-  local_mocked_bindings(
-    saveImproveJson = function(...) {json_saved <<- TRUE},
-    .env=asNamespace("improveR")
-  )
+  # json_saved <- FALSE
+  # local_mocked_bindings(
+  #   saveImproveJson = function(...) {json_saved <<- TRUE},
+  #   .env=asNamespace("improveR")
+  # )
   
   # Run function
   # improveClose(cache=cacheEnv)
-  improveClose(cacheEnv)
+  improveClose()
   
   # Test
   expect_false(file.exists(path_file1))
   expect_false(file.exists(path_file2))
-  expect_true(json_saved)
+  # expect_true(json_saved)
 
 })

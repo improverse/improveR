@@ -147,7 +147,7 @@ unloadResource <- function(ident,fromForRelativePathes=pwd()) {
 #' @export
 updateResource <- function(ident,fromForRelativePathes=pwd()) {
   res <- loadResource(ident,fromForRelativePathes)
-  if (!is.null(res)) {
+  if (!is.null(res)) {?
     unloadResource(ident,fromForRelativePathes)
     res <- loadResource(ident,fromForRelativePathes)
     return(res)
