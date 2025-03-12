@@ -82,7 +82,7 @@ test_that("Does cacheEnv exist?", {
 
 
 #improveClose
-# TODO # @HACKLM
+# TODO # QUESTION # @HACKLM 
 ## PROBLEM: test below creates files in a temp folder; their location is assigned to the new
 ## environment cacheEnv; improveClose is called to delete the files; the test checks
 ## if the files are deleted; test however fails;
