@@ -293,12 +293,14 @@ improveClose <- function() {
         linkEntry <- cacheEnv$createdLinks[i, ]
         if (file.exists(linkEntry$localPath)) {
           cleaned <- plyr::rbind.fill(cleaned, linkEntry)
+          print(cleaned) #REMOVE
         }
       }
       cacheEnv$createdLinks <- cleaned
       if (!is.null(cacheEnv$createdLinks)) {
         for (i in 1:nrow(cacheEnv$createdLinks)) {
           linkEntry <- cacheEnv$createdLinks[i, ]
+          print(linkEntry)
           if (file.exists(linkEntry$localPath)) {
             file.remove(linkEntry$localPath)
           }
