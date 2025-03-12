@@ -28,7 +28,9 @@ Imports:
     improveRmodify,
     utils,
     rmarkdown,
-    tibble
+    tibble,
+    magrittr,
+    jose
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
