@@ -12,6 +12,7 @@ Maintainer: Michael Hackl <michael.hackl@scinteco.com>
 Description: unifies all readonly improveR functions.
 License: GPL-3
 Encoding: UTF-8
+Depends: R (>= 3.5.0) # added # @HACKLM
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
@@ -30,7 +31,8 @@ Imports:
     rmarkdown,
     tibble,
     magrittr,
-    jose
+    jose,
+    openssl
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
