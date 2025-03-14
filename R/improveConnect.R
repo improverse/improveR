@@ -82,7 +82,6 @@ improveDisconnect <- function(env = cacheEnv) {
 #' @export
 #' @seealso [improveConnected()], [improveDisconnect()]
 improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = FALSE, persistentCaching = FALSE) {
-  # TODO load pwd
 
   secureFlag <- Sys.getenv("IMPROVER_SECURITY")
   if (!is.null(secureFlag) && secureFlag == "insecure") {
@@ -255,18 +254,9 @@ getRootPath <- function() {
   return(get0("ROOT_PATH", envir = cacheEnv))
 }
 
-# IMPROVE CLOSE
-# QUESTION Why does improveClose uses a two-step approach with the intermediate collection of links to files
-# before deleting them? Why not immediately deleting them once it has been established that the
-# file exists?
-# NOTE FUNCTION CODE WAS MODIFIED
-## - function takes now cacheEnv as an input; otherwise testthat
-##   and the improveClose do not refer to the same enviornemnt;
-
 #' improveClose
 #' @description Cleans up everything for checkin.
 #' @export
-# improveClose <- function(cacheEnv) {
 improveClose <- function() {
   cleaned <- NULL
   if (!is.null(cacheEnv$createdLinks)) {
@@ -274,8 +264,7 @@ improveClose <- function() {
       for (i in 1:nrow(cacheEnv$createdLinks)) {
         linkEntry <- cacheEnv$createdLinks[i, ]
         if (file.exists(linkEntry$localPath)) {
-          cleaned <- plyr::rbind.fill(cleaned, linkEntry)
-          print(cleaned) #REMOVE
+          cleaned <- plyr::rbind.fill(cleaned, linkEntry)         
         }
       }
       cacheEnv$createdLinks <- cleaned

@@ -5,7 +5,8 @@
 #' @export
 convertImproveTimestampToPosix <- function(timestamp) {
   posixs<-lapply(timestamp,function(t) {
-    return(as.POSIXct(as.numeric(t)/1000, origin="1970-01-01")) #QUESTION: Should be add timezone; default is current timezone; if tests are called in a different tz, the test will fail
+    return(as.POSIXct(as.numeric(t)/1000, origin="1970-01-01")) # @HACKLM: Should we add timezone; default is current timezone; if test on this function are called in a different tz, the tests may fail
+    #  return(as.POSIXct(as.numeric(t)/1000, origin="1970-01-01", tz="UTC")) # this would set the timezone to UTC
   })
   if (length(posixs)==1) {
     return(posixs[[1]])

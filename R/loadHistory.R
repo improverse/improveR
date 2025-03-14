@@ -48,7 +48,6 @@ loadHistoryFromServer <- function(resource) {
   genericLoadFromServer(resource,name="history",funct=actualLoadHistory)
 }
 
-#NOTE: replaced authenticatetREST with authenticated
 actualLoadHistory <- function(resource) {
   result<-NULL
   if (as.character(resource$resourceId)!="0") {

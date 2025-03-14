@@ -1,7 +1,3 @@
-#NOTE
-#minor - stringr includes now str_split_1 to get a char vector instead of a list (instead of str_split()[[1]])
-
-
 #' loadResourceByPathGeneric
 #' @description Loads a resource by its path.
 #' @param path path to the resource.

@@ -94,8 +94,6 @@ prepareConnect <- function() {
          ,envir=configEnv)
 }
 
-#QUESTION initRepo has currently hard coded default values; to remove?
-
 #' initRepo
 #' @description Set runName and testServer to environment.
 #' @param  runName name for the result folder

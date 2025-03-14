@@ -68,7 +68,7 @@ improveLogin <- function(repo,user,password,shortEntityId,logLevel="INFO",secure
 
     setUser(user)
     return(T)
-  } else if (result$status_code==200) {   #QUESTION: else if (result$status_code=200) will never be triggered because above same condition
+  } else if (result$status_code==200) {  # @HACKLM this else if (result$status_code=200) will never be triggered because above same condition, was a different http code idented?
     log_error("not allowed to retrieve token")
     stop("not allowed to retrieve token")
   } else if (result$status_code==404){

@@ -12,10 +12,6 @@ resourceVersionCacheList <- list(
   versionedresourceEntityVersionIdCache="entityVersionId"
   )
 
-# NOTE: calling loadResource adds among others
-# childresourceEntityIdCache and childresourcePathCache
-# to cacheEnv; distorted camelCase? Note clear where names are
-# defined.
 
 #' loadResource
 #' @description Loads one or multiple resources.

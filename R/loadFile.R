@@ -246,15 +246,17 @@ getImproveJsonPath <- function() {
   )
 }
 
+# NOTE Test message:
+# Warning (test-improveConnect.R:109:3): improveClose handles file cleanup correctly
+# Use of .data in tidyselect expressions was deprecated in tidyselect 1.2.0.
+# Please use `"path"` instead of `.data$path`
 
-# NOTE R CMD Checks: saveImproveJson: no visible binding for global variable '.data'; data would 
-# require definition as global variable; if (getRversion() >= "2.15.1") utils::globalVariables("path_file1");
-# since it is only a R CMD note for 'possible problems', it doesn't require a fix.
 saveImproveJson <- function() {
   linkJsonFileName <- getImproveJsonPath()
   unlink(linkJsonFileName)
   if (!is.null(cacheEnv$createdLinks)) {
-    saveDF <- dplyr::select(cacheEnv$createdLinks,.data$path,.data$target)
+    # saveDF <- dplyr::select(cacheEnv$createdLinks,.data$path,.data$target)
+    saveDF <- dplyr::select(cacheEnv$createdLinks,path,target) #see note above
     saveDF$type<-"link"
     jsonlite::write_json(saveDF,linkJsonFileName)
   }
