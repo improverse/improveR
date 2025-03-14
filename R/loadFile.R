@@ -25,8 +25,6 @@ fileResourceVersionCacheList <- list(
   fileResourceEntityIdCache="entityVersionId"
 )
 
-#QUESTION the following comment was already here; to incorporate into documentation? => #specific for file version!
-
 #' loadFile
 #' @description Loads a file by its resourceId, entity ID, or entity version ID. 
 #' Uses caching. The results are returned as a data frame or a list of data frames. 

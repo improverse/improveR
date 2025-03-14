@@ -1,8 +1,6 @@
 cacheEnv <- new.env(parent = emptyenv())
 
 
-# NOTE: Log message type was changed from log_error to log_info; Postive response added.
-
 #' improveConnected
 #'
 #' @description improveConnected checks if improveConnect was called.
