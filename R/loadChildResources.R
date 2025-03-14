@@ -20,11 +20,13 @@ loadChildResources <- function(ident,fromForRelativePathes=pwd()) {
                                    fromForRelativePathes=fromForRelativePathes)
   )
 }
-#QUESTION: description text ok?
+
 #' unloadChildResources
 #' @description Removes a resource from the cache.
-#' @param ident id
-#' @references ics1085
+#' @inheritParams common_ident
+#' @inheritSection common_ident Details ident
+
+#' @references ics1085 # QUESTION # @HACKLM ics documents are not customer/r-package user facing; could all be removed -correct?
 #' @export
 unloadChildResources <- function(ident) {
   res <- loadResource(ident)
@@ -35,7 +37,9 @@ unloadChildResources <- function(ident) {
 #' updateChildResources
 #' @description Updates a child resource by removing it from the cache and subsequently loading
 #' it from the server.
-#' @param ident id
+#' @inheritParams common_ident
+#' @inheritSection common_ident Details ident
+
 #' @references ics1085
 #' @seealso [loadChildResources()], [unloadChildResources()]
 #' @export

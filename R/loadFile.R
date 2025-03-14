@@ -102,7 +102,9 @@ unversionLoadFile <- function(resources,fromForRelativePathes,filePath,addIdToNa
 #QUESTION: check description text.
 #' unloadFile
 #' @description Removes a file from cache.
-#' @param ident id
+#' @inheritParams common_ident
+#' @inheritSection common_ident Details ident
+
 #' @param fromForRelativePathes used if a relative path is used
 #' @param filePath local Path where the file should be stored, relative to rootPath, normally wd
 #' @param addIdToName logical, if the entityId should be added to the filename
@@ -130,7 +132,9 @@ unloadFile <- function(ident,fromForRelativePathes=pwd(),filePath=".",addIdToNam
 
 #' updateFile
 #' @description Retrieves the latest version of the file from the repository.
-#' @param ident id
+#' @inheritParams common_ident
+#' @inheritSection common_ident Details ident
+
 #' @param fromForRelativePathes Used if a relative path is used.
 #' @param filePath Local path where the file is stored (relative to rootPath).
 #' @param addIdToName Logical; if TRUE the entity id is added to the filename.
@@ -148,7 +152,9 @@ updateFile <- function(ident, fromForRelativePathes = pwd(), filePath = ".",
 
 #' isFileUp2Date
 #' @description Checks if a new version of the file exists in the repository.
-#' @param ident id
+#' @inheritParams common_ident
+#' @inheritSection common_ident Details ident
+
 #' @param fromForRelativePathes Used if a relative path is used.
 #' @references ics1099
 #' @export
@@ -241,6 +247,11 @@ getImproveJsonPath <- function() {
     file.path(getRootPath(),".improve.json",fsep = "/")
   )
 }
+
+
+# NOTE R CMD Checks: saveImproveJson: no visible binding for global variable '.data'; data would 
+# require definition as global variable; if (getRversion() >= "2.15.1") utils::globalVariables("path_file1");
+# since it is only a R CMD note for 'possible problems', it doesn't require a fix.
 saveImproveJson <- function() {
   linkJsonFileName <- getImproveJsonPath()
   unlink(linkJsonFileName)

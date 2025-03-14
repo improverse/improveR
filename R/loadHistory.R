@@ -22,7 +22,9 @@ loadHistory <- function(ident,fromForRelativePathes=pwd()) {
 }
 
 #' unloadHistory
-#' @param ident id
+#' @inheritParams common_ident
+#' @inheritSection common_ident Details ident
+
 #' @references ics1094
 #' @export
 unloadHistory <- function(ident) {
@@ -31,7 +33,9 @@ unloadHistory <- function(ident) {
 }
 
 #' updateHistory
-#' @param ident id
+#' @inheritParams common_ident
+#' @inheritSection common_ident Details ident
+
 #' @references ics1094
 #' @export
 updateHistory <- function(ident) {

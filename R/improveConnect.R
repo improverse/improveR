@@ -81,7 +81,6 @@ improveDisconnect <- function(env = cacheEnv) {
 #' @param offlinePossible if TRUE the setup continues even if no connection is possible
 #' @param persistentCaching default is FALSE; persists and reloads the caches on the filesystem in `.improver.cache`
 #' if the environment variable improver.logfile is set. The logging is additionally added to this file
-#' @references [ics1081]
 #' @export
 #' @seealso [improveConnected()], [improveDisconnect()]
 improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = FALSE, persistentCaching = FALSE) {

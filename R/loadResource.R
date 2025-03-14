@@ -19,32 +19,29 @@ resourceVersionCacheList <- list(
 
 #' loadResource
 #' @description Loads one or multiple resources.
-#' @param ident id
+#' @inheritParams common_ident
 #' @param from Path working directory.
 #' @returns A data frame with the fields `resourceId`, `entityId`, `entityVersionId`,
 #' `path`, `name`, and `data`.
-#'
 #' @export
 #' @references ics1090
 #' @details
-#'
-#'## ident
+#' ## ident
 #' There are multiple ways to describe the ident of a resource:
-#'
-#'Absolute idents:
-#'* resourceId: a UUID
-#'* Data frame: uses the resourceId value of the data frame
-#'* entityId: pointer to the latest version of a resource. Short and long entityIds are accepted'
-#'* entityVersionId: pointer to a specific version of a resource. Short and long entityIds are accepted'
-#'* path: the full path to a resource, always starting with /.
-#'
-#'Relative idents:
-#'* All relative idents are path based, they always have to start with ./ or ../'
-#'* Relative path without pwd: always starts from the return value of pwd()'
-#'* Relative path and pwd as second argument: starts the relative path from the
-#'absolute ident that was handed over as second argument. Sometimes still called
-#'“fromForRelativePathes” but will be updated to pwd. 
-#'
+#' 
+#' Absolute idents:
+#' * resourceId: a UUID
+#' * Data frame: uses the resourceId value of the data frame
+#' * entityId: pointer to the latest version of a resource. Short and long entityIds are accepted'
+#' * entityVersionId: pointer to a specific version of a resource. Short and long entityIds are accepted'
+#' * path: the full path to a resource, always starting with /.
+#' 
+#' Relative idents:
+#' * All relative idents are path based, they always have to start with ./ or ../'
+#' * Relative path without pwd: always starts from the return value of pwd()'
+#' * Relative path and pwd as second argument: starts the relative path from the
+#' absolute ident that was handed over as second argument. Sometimes still called
+#' “fromForRelativePathes” but will be updated to pwd.  
 #'## pwd
 #'pwd shows the current “path working directory”. The improveR client is inspired
 #'by a command line interface. The default start position within the improve repository
@@ -147,7 +144,7 @@ unloadResource <- function(ident,fromForRelativePathes=pwd()) {
 #' @export
 updateResource <- function(ident,fromForRelativePathes=pwd()) {
   res <- loadResource(ident,fromForRelativePathes)
-  if (!is.null(res)) {?
+  if (!is.null(res)) {
     unloadResource(ident,fromForRelativePathes)
     res <- loadResource(ident,fromForRelativePathes)
     return(res)
@@ -170,3 +167,29 @@ isResourceUp2Date <- function(ident,fromForRelativePathes=pwd()) {
   serverResource <- loadResourceFromServer(res$resourceId)
   return(serverResource$entityVersionId==res$entityVersionId)
 }
+
+
+#' Common Documentation for ident Parameter
+#'
+#' This parameter is used to uniquely identify objects across functions.
+#'
+#' @name common_ident
+#' @param ident id
+#'
+#' @section Details ident:
+#' There are multiple ways to describe the ident of a resource:
+#'
+#' Absolute idents:
+#' * resourceId: a UUID
+#' * Data frame: uses the resourceId value of the data frame
+#' * entityId: pointer to the latest version of a resource. Short and long entityIds are accepted'
+#' * entityVersionId: pointer to a specific version of a resource. Short and long entityIds are accepted'
+#' * path: the full path to a resource, always starting with /.
+#' 
+#' Relative idents:
+#' * All relative idents are path based, they always have to start with ./ or ../'
+#' * Relative path without pwd: always starts from the return value of pwd()'
+#' * Relative path and pwd as second argument: starts the relative path from the
+#' absolute ident that was handed over as second argument. Sometimes still called
+#' “fromForRelativePathes” but will be updated to pwd.  
+NULL
