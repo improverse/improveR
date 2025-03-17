@@ -72,7 +72,9 @@ test_that("improveDisconnect removes all connection information from the environ
 )
 
 
-
+# TODO this version can be removed since alternative version below WITHOUT
+# cacheEnv <- improveR::cacheEnv works as intended; currently only kept
+# for documentation purpose
 #improveClose
 test_that("OLD VERSION. improveClose handles file cleanup correctly", {
   
@@ -170,6 +172,9 @@ test_that("ALTERNTAIVE - improveClose handles file cleanup correctly", {
   # Tests after calling improveClose  
   expect_true(exists("cacheEnv"))
   expect_true(is.environment(cacheEnv))
+
+  # two test below confirm that we are testing the correct environment
+  expect_true(exists("createdLinks", envir=improveR:::cacheEnv))
   expect_true(exists("createdLinks", envir=cacheEnv))
 
   # files should be removed
