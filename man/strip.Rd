@@ -10,6 +10,5 @@ strip(data)
 \item{data}{a data frame with a nested data frame in $data}
 }
 \description{
-strip removes the information data frame around subentities like meta data, history, children,
-or audittrail.
+strip removes the information data frame around subentities like meta data, history, children, or audittrail.
 }

@@ -17,18 +17,20 @@
 #   # )
 # })
 
-#TODO
-# test_that("improveConnected handles uninitialized state correctly", {
 
-#   if (exists("cacheEnv")) {
-#     # rm(list = ls(envir = cacheEnv), envir = cacheEnv)
-#     assign("initialized", NULL, envir = cacheEnv)
+test_that("improveConnected handles uninitialized state correctly", {
 
-#   }
-#   # expect_false(improveConnected(silent=TRUE))
-#   expect_false(improveConnected())
+  # cacheEnv <- improveR:::cacheEnv
 
-# })
+  if (exists("cacheEnv")) {
+    
+    assign("initialized", FALSE, envir = cacheEnv)
+
+  }
+  # expect_false(improveConnected(silent=TRUE))
+  expect_false(improveConnected())
+
+})
 
 
 test_that("improveConnected succeeds when properly initialized", {
@@ -90,7 +92,7 @@ test_that("improveClose handles file cleanup correctly", {
   writeLines(text="test2", con=pathFile2)
  
   # assign package cacheEnv to the environment of test function
-  cacheEnv <- improveR:::cacheEnv
+  # cacheEnv <- improveR:::cacheEnv
 
   cacheEnv$createdLinks <- data.frame(
     localPath = c(pathFile1, pathFile2, pathWithoutFile), 
