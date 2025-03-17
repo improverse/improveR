@@ -47,25 +47,16 @@ test_that("improveConnected succeeds when properly initialized", {
 
 #improveDisconnect
 test_that("improveDisconnect removes all connection information from the environment", {
+
+  testthat::expect_true(exists("cacheEnv"))
+ 
+ #populate envir with dummy bindings
+ cacheEnv$initialized <- TRUE
+ cacheEnv$logLevel <- "INFO"
   
-  #set up environment with connection information
-  cacheEnv <- new.env(parent=emptyenv()) #empty environment as a parent
-
-  #populate envir with dummy bindings
-  cacheEnv$initialized <- TRUE
-  cacheEnv$logLevel <- "INFO"
-  cacheEnv$secure <- "secure"
-  cacheEnv$offlinePossible <- FALSE
-  cacheEnv$offline <- FALSE
-  cacheEnv$persistentCaching <- FALSE
-  cacheEnv$reproducible <- FALSE
-  cacheEnv$reqToken <- "token"
-  cacheEnv$stepId <- "stepId"
-  cacheEnv$repoUrl <- "repoURL"
-  cacheEnv$user <- "userName"
-  cacheEnv$password <- "password"
-
- improveR::improveDisconnect(env=cacheEnv)
+ testthat::expect_equal(length(ls(cacheEnv)), 2)
+ 
+ improveR::improveDisconnect()
  expect_equal(length(ls(cacheEnv)), 0)
 
 }
