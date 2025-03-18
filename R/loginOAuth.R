@@ -141,8 +141,8 @@ showOAuth <- function(authenticationProvider,openBrowser) {
   if (openBrowser) {
     utils::browseURL(authenticationProvider$verification_uri_complete)
   } else {
-    print("visit this URL: ",authenticationProvider$verification_uri )
-    print("your usercode is: ",authenticationProvider$user_code)
+    print(paste0("visit this URL: ",authenticationProvider$verification_uri))
+    print(paste0("your usercode is: ",authenticationProvider$user_code))
   }
   return(authenticationProvider)
 }
