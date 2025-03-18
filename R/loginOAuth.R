@@ -15,7 +15,7 @@ magrittr::`%>%`
 #' @references ics1081
 #' @export
 
-improveOAuth <- function(repo,shortEntityId,logLevel="INFO",secure=T,openBrowser=T,withCodeVerifier=F) {
+improveOAuth <- function(repo,shortEntityId,logLevel="INFO",secure=T,openBrowser=T,withCodeVerifier=T) {
 
   secureFlag <- Sys.getenv("IMPROVER_SECURITY")
   if (!is.null(secureFlag) && secureFlag=="insecure") {
@@ -89,8 +89,16 @@ getAuthenticationProvider <- function(repo) {
 
 createCodeVerifier <- function() {
   return(
-    openssl::base64_encode(openssl::aes_keygen(96))
+    return(jose::base64url_encode(openssl::aes_keygen(96)))
   )
+}
+
+
+hashToRaw <- function(hash_hex) {
+  hash_raw <- as.raw(sapply(seq(1, nchar(hash_hex), by = 2), function(i) {
+    strtoi(substr(hash_hex, i, i+1), base = 16L)
+  }))
+  return(hash_raw)
 }
 
 createCodeChallenge <- function(verifier) {
@@ -99,13 +107,11 @@ createCodeChallenge <- function(verifier) {
     hash_hex <- openssl::sha256(verifier)
 
     # Convert the hexadecimal string to raw bytes
-    hash_raw <- as.raw(sapply(seq(1, nchar(hash_hex), by = 2), function(i) {
-        strtoi(substr(hash_hex, i, i+1), base = 16L)
-    }))
+    hash_raw <- hashToRaw(hash_hex)
 
     # Encode the raw hash using base64url encoding
     return(jose::base64url_encode(hash_raw))
-  
+
 }
 
 startOAuth <- function(authenticationProvider,withCodeVerifier) {
@@ -116,7 +122,7 @@ startOAuth <- function(authenticationProvider,withCodeVerifier) {
   if (withCodeVerifier) {
     authenticationProvider$codeVerifier <- createCodeVerifier()
     authenticationProvider$codeChallengeMethod <- "S256"
-    authenticationProvider$codeChallenge <- createCodeChallenge(authenticationProvider$codeVerifier) 
+    authenticationProvider$codeChallenge <- createCodeChallenge(authenticationProvider$codeVerifier)
 
     urlParams$code_challenge <- authenticationProvider$codeChallenge
     urlParams$code_challenge_method <- authenticationProvider$codeChallengeMethod
