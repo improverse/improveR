@@ -71,7 +71,7 @@ improveOAuth <- function(repo,shortEntityId,logLevel="INFO",secure=T,openBrowser
 
 
 
-#repo <- "http://envhost2.hc.scintecodev.internal:18118/repository"
+# repo <- "http://envhost2.hc.scintecodev.internal:18118/repository"
 
 
 getAuthenticationProvider <- function(repo) {
@@ -87,15 +87,36 @@ getAuthenticationProvider <- function(repo) {
   return(authenticationProvider)
 }
 
+createCodeVerifier <- function() {
+  return(
+    openssl::base64_encode(openssl::aes_keygen(96))
+  )
+}
+
+createCodeChallenge <- function(verifier) {
+
+    # Compute the SHA256 hash as a hex string
+    hash_hex <- openssl::sha256(verifier)
+
+    # Convert the hexadecimal string to raw bytes
+    hash_raw <- as.raw(sapply(seq(1, nchar(hash_hex), by = 2), function(i) {
+        strtoi(substr(hash_hex, i, i+1), base = 16L)
+    }))
+
+    # Encode the raw hash using base64url encoding
+    return(jose::base64url_encode(hash_raw))
+  
+}
+
 startOAuth <- function(authenticationProvider,withCodeVerifier) {
   urlParams <- list()
   urlParams$response_type <-"code"
   urlParams$client_id <- authenticationProvider$clientId
   urlParams$scope <- "openid profile email"
   if (withCodeVerifier) {
-    authenticationProvider$codeVerifier <- openssl::base64_encode(openssl::aes_keygen(96))
+    authenticationProvider$codeVerifier <- createCodeVerifier()
     authenticationProvider$codeChallengeMethod <- "S256"
-    authenticationProvider$codeChallenge <- openssl::base64_encode(openssl::sha256(authenticationProvider$codeVerifier)) # @HACKLM # QUESTION R CMD checks no binding for global variable codeVerifier; where does it come from? should it be authenticationProvider$codeVerifier?
+    authenticationProvider$codeChallenge <- createCodeChallenge(authenticationProvider$codeVerifier) 
 
     urlParams$code_challenge <- authenticationProvider$codeChallenge
     urlParams$code_challenge_method <- authenticationProvider$codeChallengeMethod
@@ -115,6 +136,7 @@ showOAuth <- function(authenticationProvider,openBrowser) {
     utils::browseURL(authenticationProvider$verification_uri_complete)
   } else {
     print("visit this URL: ",authenticationProvider$verification_uri )
+    print("your usercode is: ",authenticationProvider$user_code)
   }
   return(authenticationProvider)
 }
