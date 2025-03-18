@@ -95,7 +95,7 @@ startOAuth <- function(authenticationProvider,withCodeVerifier) {
   if (withCodeVerifier) {
     authenticationProvider$codeVerifier <- openssl::base64_encode(openssl::aes_keygen(96))
     authenticationProvider$codeChallengeMethod <- "S256"
-    authenticationProvider$codeChallenge <- openssl::base64_encode(openssl::sha256(codeVerifier)) # @HACKLM # QUESTION R CMD checks no binding for global variable codeVerifier; where does it come from? should it be authenticationProvider$codeVerifier?
+    authenticationProvider$codeChallenge <- openssl::base64_encode(openssl::sha256(authenticationProvider$codeVerifier)) # @HACKLM # QUESTION R CMD checks no binding for global variable codeVerifier; where does it come from? should it be authenticationProvider$codeVerifier?
 
     urlParams$code_challenge <- authenticationProvider$codeChallenge
     urlParams$code_challenge_method <- authenticationProvider$codeChallengeMethod
