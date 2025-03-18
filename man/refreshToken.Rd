@@ -10,7 +10,7 @@ refreshToken(alwaysRefresh = F)
 \item{alwaysRefresh}{refresh no matter how much time has elapsed}
 }
 \description{
-refreshToken requests a new token to access the system. Just used in combination with improveLogin.
+refreshToken requests a new token to access the system.
 Run tokens do not need to be refreshed.
 }
 \references{

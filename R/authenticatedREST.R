@@ -3,7 +3,6 @@ REST_FUNCTIONS <- list(POST=httr::POST,
                        PUT=httr::PUT,
                        DELETE=httr::DELETE)
 
-
 timing <- function(name) {
   #logging::loginfo(paste(
   #  name,
@@ -14,7 +13,7 @@ timing <- function(name) {
 #' authenticatedREST
 #'
 #' @description authenticatedREST uses the connection information from improveConnect to create a REST call to the repository.
-#' It needs the following parameters. The values below are example values.
+#' The values below are example values.
 #' @param url in the format /resources/\{resourceId\}
 #' @param urlParams in the format list(resourceId="1B1D3B817F424BA594893A5013DBFEEA")
 #' @param queryParams in the format list(isResourceVersion="true")
@@ -46,7 +45,7 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     return(NULL)
   }
   restFunction <- REST_FUNCTIONS[restType][[1]]
-  url <- replacePlaceHoldersinURL(url,urlParams)
+  url <- replacePlaceHoldersinURL(url,urlParams) 
   url <- appendQueryParams(url,queryParams)
   url <- paste0(conf()$repoUrl,url)
   logging::logdebug(paste0(restType," connecting to ",url))
@@ -62,7 +61,7 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
       logging::logdebug("Check refresh Token")
       refreshToken()
     } else {
-      logging::logdebug("do not refresh, as is token")
+      logging::logdebug("do not refresh, as is token") # TODO wording ambiguous; e.g. "Do not refresh, valid token available."
     }
 
   } else {
@@ -78,10 +77,10 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     return(result)
   } else if (result$status_code==401){
     return(NULL)
-    log_error("Invalid or out of date token")
+    log_error("Invalid or out of date token") # TODO wording ok, could be also invalid user/password combi; not only token; e.g. "Invalid authentication credentials (token, username/password)."
   } else {
     logging::logdebug(result)
-    if (!ignoreFail) {
+    if (!ignoreFail) { #if ignoreFail is false, function stops
       logging::logerror(paste0(result$status_code," error when connecting to ",url))
       stop("error connecting to REST service")
     } else {

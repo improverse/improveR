@@ -39,7 +39,7 @@ the unparsed result is returned from this call}
 }
 \description{
 authenticatedREST uses the connection information from improveConnect to create a REST call to the repository.
-It needs the following parameters. The values below are example values.
+The values below are example values.
 }
 \references{
 ics1082

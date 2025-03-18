@@ -125,7 +125,7 @@ improveReLogin <- function(password) {
 
 
 #' refreshToken
-#' @description refreshToken requests a new token to access the system. Just used in combination with improveLogin. 
+#' @description refreshToken requests a new token to access the system. 
 #' Run tokens do not need to be refreshed.
 #' @param alwaysRefresh refresh no matter how much time has elapsed
 #' @references ics1208
