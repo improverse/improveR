@@ -3,6 +3,8 @@
 magrittr::`%>%`
 
 
+codeVerifier <- NULL
+
 #' improveOAuth
 #'
 #' @description improveOAuth is used to connect to the repository via oauth.
@@ -15,7 +17,7 @@ magrittr::`%>%`
 #' @references ics1081
 #' @export
 
-improveOAuth <- function(repo,shortEntityId,logLevel="INFO",secure=T,openBrowser=T,withCodeVerifier=T) {
+improveOAuth <- function(repo,shortEntityId="/",logLevel="INFO",secure=T,openBrowser=T,withCodeVerifier=T) {
 
   secureFlag <- Sys.getenv("IMPROVER_SECURITY")
   if (!is.null(secureFlag) && secureFlag=="insecure") {
@@ -67,6 +69,26 @@ improveOAuth <- function(repo,shortEntityId,logLevel="INFO",secure=T,openBrowser
 
 }
 
+improveRevokeOAuth <- function() {
+  repo <- substr(conf()$repoUrl,0,nchar(conf()$repoUrl)-8)
+
+  authenticationProvider <- getAuthenticationProvider(repo)
+
+  urlParams <- list()
+  urlParams$token_type_hint <-"access_token"
+  urlParams$client_id <- authenticationProvider$clientId
+  urlParams$token<-Sys.getenv("IMPROVER_TOKEN")
+
+  revokeResult <- httr::POST(authenticationProvider$deviceAuthUri,encode = "form",body=urlParams)
+  if (revokeResult$status_code!=200) {
+    stop("error getting device code")
+  }
+  deviceCodeContent <- httr::content(deviceCodeResult)
+  authenticationProvider <- c(deviceCodeContent,authenticationProvider)
+  return(authenticationProvider)
+
+
+}
 
 
 
@@ -84,6 +106,7 @@ getAuthenticationProvider <- function(repo) {
     stop(paste("no authentication provider found at ",authenticationProviderApi))
   }
   authenticationProvider <- httr::content(authenticationProviderResult)
+  cacheEnv$authenticationProvider <- authenticationProvider
   return(authenticationProvider)
 }
 
@@ -120,7 +143,10 @@ startOAuth <- function(authenticationProvider,withCodeVerifier) {
   urlParams$client_id <- authenticationProvider$clientId
   urlParams$scope <- "openid profile email"
   if (withCodeVerifier) {
-    authenticationProvider$codeVerifier <- createCodeVerifier()
+    if (is.null(cacheEnv$codeVerifier)) {
+      cacheEnv$codeVerifier<- createCodeVerifier()
+    }
+    authenticationProvider$codeVerifier<-cacheEnv$codeVerifier
     authenticationProvider$codeChallengeMethod <- "S256"
     authenticationProvider$codeChallenge <- createCodeChallenge(authenticationProvider$codeVerifier)
 
@@ -157,15 +183,7 @@ pollToken <- function (authenticationProvider) {
   while (authenticationProvider$expires_in>0) {
     startTime<-as.numeric(Sys.time())
 
-    urlParams <- list()
-    urlParams$grant_type <-"urn:ietf:params:oauth:grant-type:device_code"
-    urlParams$client_id <- authenticationProvider$clientId
-    urlParams$device_code <- authenticationProvider$device_code
-    urlParams$scope <- "openid profile email"
-    if ("codeVerifier" %in% names(authenticationProvider)) {
-      urlParams$code_verifier <- authenticationProvider$codeVerifier
-    }
-    pollResult <- httr::POST(authenticationProvider$tokenUri,encode = "form",body=urlParams)
+
     if (pollResult$status_code==200) {
       pollContent <- httr::content(pollResult)
       return(c(authenticationProvider,pollContent))
@@ -178,5 +196,18 @@ pollToken <- function (authenticationProvider) {
   }
   stop("authentication timed out")
 
+}
+
+hasAuthenticated <- function(authenticationProvider) {
+  urlParams <- list()
+  urlParams$grant_type <-"urn:ietf:params:oauth:grant-type:device_code"
+  urlParams$client_id <- authenticationProvider$clientId
+  urlParams$device_code <- authenticationProvider$device_code
+  urlParams$scope <- "openid profile email"
+  if ("codeVerifier" %in% names(authenticationProvider)) {
+    urlParams$code_verifier <- authenticationProvider$codeVerifier
+  }
+  pollResult <- httr::POST(authenticationProvider$tokenUri,encode = "form",body=urlParams)
+  return(pollResult)
 }
 
