@@ -1,0 +1,62 @@
+[
+    {
+        "id": "A11C156A578642AAB54FCEACC26A06EF",
+        "name": "Stefan S",
+        "username": "stefan.scheiber@scinteco.com",
+        "role": "admin",
+        "active": true
+    },
+    {
+        "id": "24E48B0EC3234378B01062042553ECC0",
+        "name": "Moritz",
+        "username": "moritz.sinowatz@scinteco.com",
+        "email": "moritz.sinowatz@scinteco.com",
+        "role": "admin",
+        "active": true
+    },
+    {
+        "id": "A60DE042E27A477195ADEEF6E0600021",
+        "name": "User1 Test",
+        "username": "testuser1",
+        "role": "user",
+        "active": true
+    },
+    {
+        "id": "CA100BD38354405CAF176FB4708F888D",
+        "name": "Martin T",
+        "username": "martin.trummer@scinteco.com",
+        "email": "martin.trummer@scinteco.com",
+        "role": "admin",
+        "active": true
+    },
+    {
+        "id": "7BFDA6D3AED640C2A8A19144C4933C55",
+        "name": "Robert B",
+        "username": "robert.boulanger@scinteco.com",
+        "email": "robert.boulanger@scinteco.com",
+        "role": "admin",
+        "active": true
+    },
+    {
+        "id": "20F5A82567F544CBADDFFB6739D61E19",
+        "name": "Christoph S",
+        "username": "christoph.stocker@scinteco.com",
+        "email": "christoph.stocker@scinteco.com",
+        "role": "user",
+        "active": true
+    },
+    {
+        "id": "2BBC6A293F35DDD1E063030011ACA175",
+        "name": "Administrator",
+        "username": "admin",
+        "role": "admin",
+        "active": true
+    },
+    {
+        "id": "085E871E3BD4417C88D84001468FD276",
+        "name": "desktop-pmalkg2_cflandorfer",
+        "username": "desktop-pmalkg2_cflandorfer",
+        "role": "user",
+        "active": true
+    }
+]

@@ -1,16 +1,16 @@
 
-
-
-
-isCapturing <- function() {
-  any(grepl("functionWithTrace",capture.output(httr::POST)))
+mockUrl <- Sys.getenv("IMPROVER_TEST_REPO")
+if (mockUrl=="") {
+  mockUrl <- "http://envhost2.hc.scintecodev.internal:18118/repository"
 }
+#mockUrl <- "http://10.0.0.2:18118/repository"
+
+
 
 
 httptest::with_mock_dir("fullOauthDirectSuccess",{
   test_that("fullOauthDirectSuccess", {
-    mockUrl <- "http://10.0.0.2:18118/repository"
-    #mockUrl <- "http://envhost2.hc.scintecodev.internal:18118/repository"
+
     authenticationProvider <- getAuthenticationProvider(mockUrl)
     expect_true(length(authenticationProvider)==7)
     expect_equal("improve-client",authenticationProvider$clientId)
@@ -33,9 +33,9 @@ httptest::with_mock_dir("fullOauthDirectSuccess",{
     #authenticatedResult <- hasAuthenticated(initiatedAuthentication)
     #httptest::change_state()
     if (isCapturing()) {
-      print("login then hit enter")
+      print("login within 30 seconds")
       print(instructions)
-      readline()
+      Sys.sleep(30)
     }
     authenticatedResult <- hasAuthenticated(initiatedAuthentication)
     expect_equal(authenticatedResult$status_code,200)
@@ -73,11 +73,66 @@ httptest::with_mock_dir("fullOauthDirectSuccess",{
   })
 })
 
+httptest::with_mock_dir("simpleOauth",{
+  test_that("simpleOauth", {
+    clearConnectionData()
+    Sys.setenv(IMPROVER_TEST_REPLAY="T")
+    improveOAuth(mockUrl)
+    expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
+    improveRevokeOAuth()
+    expect_true(Sys.getenv("IMPROVER_TOKEN")=="")
+  })
+})
+
+
+httptest::with_mock_dir("simpleConnectWithOauth",{
+  test_that("simpleConnectWithOauth", {
+    clearConnectionData()
+    Sys.setenv(IMPROVER_TEST_REPLAY="T")
+    Sys.setenv(IMPROVER_REPO_URL=mockUrl)
+    improveConnect()
+    expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
+    improveRevokeOAuth()
+    expect_true(Sys.getenv("IMPROVER_TOKEN")=="")
+  })
+})
 
 
 
+httptest::with_mock_dir("simpleStubWithLogin",{
+  test_that("simpleStubWithLogin", {
+    clearConnectionData()
+    Sys.setenv(IMPROVER_TEST_REPLAY="T")
+    Sys.setenv(IMPROVER_REPO_URL=mockUrl)
+    improveConnect()
+    expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
+    users <- authenticatedREST("/users")
+  })
+})
+
+# for capturing it is important that you have logged in before to the repo
+# but I think it is not necessary to test the login process every time when capturing
+httptest::with_mock_dir("simpleStubLoggedIn",{
+  test_that("simpleStubLoggedIn", {
+    improveConnect()
+    expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
+    users <- authenticatedREST("/users")
+  })
+})
 
 
+httptest::with_mock_dir("simpleRefresh",{
+  test_that("simpleRefresh", {
+    clearConnectionData()
+    Sys.setenv(IMPROVER_TEST_REPLAY="T")
+    improveOAuth(mockUrl)
+    expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
+    oldToken <- Sys.getenv("IMPROVER_TOKEN")
+    Sys.sleep(330)
+    users <- authenticatedREST("/users")
+    expect_false(Sys.getenv("IMPROVER_TOKEN")==oldToken)
+  })
+})
 
 testthat::test_that("tests the creation of a correct code challenge",{
     code_verifier <- "WUsHGZRCV9NGaRfp9RlaMl4NQvLx8TNtrUj5crJYXH7wTJcaxt4ykP7AAJ41kVtICGfmzdUacdACgQ6y5OlTz6bt9CX1Hc5oyb6F6K5ovlPAQ-GuRBdZlOGw4vsoXSas"

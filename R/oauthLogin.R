@@ -11,13 +11,21 @@ codeVerifier <- NULL
 #' @param repo the repository URL in this form https://<url>:<port>/<repositoryPath> the api part (/api/v1) is added automatically
 #' @param shortEntityId one valid short entity ID must be provided, this is used as pathWorkingDirectory
 #' @param logLevel possible LogLevels: DEBUG, INFO, WARN, ERROR
-#' @param secure if TRUE the certificates are checked
+#' @param secure if TRUE the certificates are checked.
+#' Default is TRUE, it can be set to false also by the environment variable IMPROVER_SECURITY=insecure
 #' @param openBrowser this indicates wether the r session can open a browser to user can access. default is true. if set to false a URL and a code is written to the console. This can be used to log in form a different PC.
+#' it can be set to false also by the environment variable IMPROVER_HEADLESS_OAUTH=T
 #' @param withCodeVerifier if the oauth provider uses pkca code challenge verification
 #' @references ics1081
 #' @export
 
 improveOAuth <- function(repo,shortEntityId="/",logLevel="INFO",secure=T,openBrowser=T,withCodeVerifier=T) {
+
+
+  if (Sys.getenv("IMPROVER_HEADLESS_OAUTH")!="" ||
+      (Sys.getenv("IMPROVER_TEST_REPLAY")=="T" && (!isCapturing()))) {
+    openBrowser=F
+  }
 
   secureFlag <- Sys.getenv("IMPROVER_SECURITY")
   if (!is.null(secureFlag) && secureFlag=="insecure") {
@@ -47,7 +55,7 @@ improveOAuth <- function(repo,shortEntityId="/",logLevel="INFO",secure=T,openBro
     }
   )
 
-
+  print(authenticationProvider$id_token)
   user <- jose::jwt_split(authenticationProvider$id_token)$payload$preferred_username
 
 
@@ -83,9 +91,9 @@ improveRevokeOAuth <- function() {
   if (revokeResult$status_code!=200) {
     stop("error getting device code")
   }
-  deviceCodeContent <- httr::content(deviceCodeResult)
-  authenticationProvider <- c(deviceCodeContent,authenticationProvider)
-  return(authenticationProvider)
+
+
+  clearConnectionData()
 
 
 }
@@ -111,6 +119,13 @@ getAuthenticationProvider <- function(repo) {
 }
 
 createCodeVerifier <- function() {
+  #if we are capturing for replay, we have to have the same code verifier everytime, otherwise the replay wont work
+  if (isCapturing() || Sys.getenv("IMPROVER_TEST_REPLAY")=="T") {
+    return(
+      "WUsHGZRCV9NGaRfp9RlaMl4NQvLx8TNtrUj5crJYXH7wTJcaxt4ykP7AAJ41kVtICGfmzdUacdACgQ6y5OlTz6bt9CX1Hc5oyb6F6K5ovlPAQ-GuRBdZlOGw4vsoXSas"
+    )
+  }
+
   return(
     return(jose::base64url_encode(openssl::aes_keygen(96)))
   )
@@ -182,8 +197,11 @@ pollToken <- function (authenticationProvider) {
 
   while (authenticationProvider$expires_in>0) {
     startTime<-as.numeric(Sys.time())
-
-
+    if (isCapturing()) {
+      print("login within 30 seconds")
+      Sys.sleep(30)
+    }
+    pollResult <- hasAuthenticated(authenticationProvider)
     if (pollResult$status_code==200) {
       pollContent <- httr::content(pollResult)
       return(c(authenticationProvider,pollContent))

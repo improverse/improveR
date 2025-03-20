@@ -40,6 +40,25 @@ improveDisconnect <- function(env = cacheEnv) {
   rm(list = ls(envir = env), envir = env)
 }
 
+#' clearConnectionData
+#'
+#' @description deletes repoUrl, stepId, and token from the environment variables and calls improveDisconnect
+#' @param includeRepoData includes the repository URL and the selected step in the clear process
+#' @seealso [improveDisconnect()]
+#' @export
+clearConnectionData <- function(includeRepoData=F) {
+  if (includeRepoData) {
+    Sys.setenv(IMPROVER_STEP="")
+    Sys.setenv(IMPROVER_REPO_URL="")
+  }
+  Sys.setenv(IMPROVER_USER="")
+  Sys.setenv(IMPROVER_PASSWORD="")
+  Sys.setenv(IMPROVER_TOKEN="")
+  Sys.setenv(IMPROVER_REFRESH_TOKEN="")
+  Sys.setenv(TEST_FOLDER = "")
+  improveDisconnect()
+}
+
 #' improveConnect
 #'
 #' @description
@@ -54,7 +73,7 @@ improveDisconnect <- function(env = cacheEnv) {
 #' 1. token ID of the step that was used to initiate the connection
 #' 1. the repo URL in the format https://repoaddress:repoPort/repository
 #'
-#' ## Enviornment variables
+#' ## Environment variables
 #' The following environment variables have to be set:
 #' * IMPROVER_TOKEN: mandatory if user and password are empty<br>
 #' * IMPROVER_STEP<br>
@@ -147,6 +166,9 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     if (!password == "") {
       Sys.unsetenv("IMPROVER_PASSWORD")
       improveLogin(repo = repoUrl, user = user, password = password, logLevel = logLevel, secure = secure, shortEntityId = stepId)
+      return()
+    } else if (reqToken=="") {
+      improveOAuth(repoUrl)
       return()
     }
     workspace <- Sys.getenv("IMPROVER_WORKSPACE")
@@ -264,7 +286,7 @@ improveClose <- function() {
       for (i in 1:nrow(cacheEnv$createdLinks)) {
         linkEntry <- cacheEnv$createdLinks[i, ]
         if (file.exists(linkEntry$localPath)) {
-          cleaned <- plyr::rbind.fill(cleaned, linkEntry)         
+          cleaned <- plyr::rbind.fill(cleaned, linkEntry)
         }
       }
       cacheEnv$createdLinks <- cleaned

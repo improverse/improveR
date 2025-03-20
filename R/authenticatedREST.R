@@ -1,7 +1,7 @@
-REST_FUNCTIONS <- list(POST=httr::POST,
-                       GET=httr::GET,
-                       PUT=httr::PUT,
-                       DELETE=httr::DELETE)
+REST_FUNCTIONS <- list(POST="httr::POST",
+                       GET="httr::GET",
+                       PUT="httr::PUT",
+                       DELETE="httr::DELETE")
 
 timing <- function(name) {
   #logging::loginfo(paste(
@@ -45,7 +45,10 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     return(NULL)
   }
   restFunction <- REST_FUNCTIONS[restType][[1]]
-  url <- replacePlaceHoldersinURL(url,urlParams) 
+  #fix for httptest to work
+  restFunction <- eval(parse(text=restFunction))
+
+  url <- replacePlaceHoldersinURL(url,urlParams)
   url <- appendQueryParams(url,queryParams)
   url <- paste0(conf()$repoUrl,url)
   logging::logdebug(paste0(restType," connecting to ",url))

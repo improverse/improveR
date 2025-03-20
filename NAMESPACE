@@ -2,6 +2,7 @@
 
 export("%>%")
 export(authenticatedREST)
+export(clearConnectionData)
 export(convertImproveTimestampToPosix)
 export(executeFolder)
 export(getCorrectId)

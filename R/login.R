@@ -1,6 +1,6 @@
 
-#' improveLogin 
-#' 
+#' improveLogin
+#'
 #' @description improveLogin can be used for test, development, or interactive uses of improveR.
 #' It uses the username and password to retrieve a token.
 #' @param repo the repository URL in this form https://<url>:<port>/<repositoryPath> the api part (/api/v1) is added automatically
@@ -81,7 +81,7 @@ improveLogin <- function(repo,user,password,shortEntityId,logLevel="INFO",secure
 }
 
 #' improveReLogin
-#' @description improveReLogin can be used if a token could not be refreshed for test, development, or interactive uses 
+#' @description improveReLogin can be used if a token could not be refreshed for test, development, or interactive uses
 #' of improveR. The function uses the password to retrieve a token. The user has to have logged in before with improveLogin.
 #' @param password The plain password as a character string. The password is not logged or stored.
 #' @references ics1208
@@ -125,7 +125,7 @@ improveReLogin <- function(password) {
 
 
 #' refreshToken
-#' @description refreshToken requests a new token to access the system. 
+#' @description refreshToken requests a new token to access the system.
 #' Run tokens do not need to be refreshed.
 #' @param alwaysRefresh refresh no matter how much time has elapsed
 #' @references ics1208
@@ -142,38 +142,50 @@ refreshToken <- function(alwaysRefresh=F) {
       if (timeDiff > (expirationSeconds/2) || alwaysRefresh) {
         log_info("refreshing token")
         Sys.setenv(IMPROVER_LAST_ACCESS=as.numeric(Sys.time()))
+        # TODO more elegant solution
         tryCatch(
           {
-            result <- authenticatedREST("/authentication/refreshToken")
-            if (!is.null(result)) {
-
-              refreshContent <- httr::content(result)
-              resultString <- jsonlite::toJSON(refreshContent)
-              resultString  <- stringr::str_replace_all(resultString,"\\[","")
-              resultString <- stringr::str_replace_all(resultString,"\\]","")
-              Sys.setenv(IMPROVER_TOKEN=resultString)
-              cacheEnv$conf$reqToken <- resultString
-              log_debug(resultString)
-            } else {
-              log_warn("error refreshing token")
-            }
-          }, error=function(e) {
-            result <- httr::GET(paste0(Sys.getenv("IMPROVER_REPO_URL"),"/api/v1/authentication/refreshToken"), body = list(),
-                                httr::add_headers('Authorization' = paste0("Bearer ",cacheEnv$conf$reqToken),
-                                                  'Content-Type' = "")
-            )
-            if (result$status_code==200) {
-              resultString <- rawToChar(result$content)
-              Sys.setenv(IMPROVER_TOKEN=resultString)
-              cacheEnv$conf$reqToken <- resultString
-              log_debug(resultString)
-            } else {
-              log_warn("error refreshing token")
-            }
+            renewAccessToken()
+          }, error = function(oauthError) {
+            refreshImproveLegacy()
           }
         )
+
 
       }
     }
   }
+}
+
+refreshImproveLegacy <- function() {
+  tryCatch(
+    {
+      result <- authenticatedREST("/authentication/refreshToken")
+      if (!is.null(result)) {
+
+        refreshContent <- httr::content(result)
+        resultString <- jsonlite::toJSON(refreshContent)
+        resultString  <- stringr::str_replace_all(resultString,"\\[","")
+        resultString <- stringr::str_replace_all(resultString,"\\]","")
+        Sys.setenv(IMPROVER_TOKEN=resultString)
+        cacheEnv$conf$reqToken <- resultString
+        log_debug(resultString)
+      } else {
+        log_warn("error refreshing token")
+      }
+    }, error=function(e) {
+      result <- httr::GET(paste0(Sys.getenv("IMPROVER_REPO_URL"),"/api/v1/authentication/refreshToken"), body = list(),
+                          httr::add_headers('Authorization' = paste0("Bearer ",cacheEnv$conf$reqToken),
+                                            'Content-Type' = "")
+      )
+      if (result$status_code==200) {
+        resultString <- rawToChar(result$content)
+        Sys.setenv(IMPROVER_TOKEN=resultString)
+        cacheEnv$conf$reqToken <- resultString
+        log_debug(resultString)
+      } else {
+        log_warn("error refreshing token")
+      }
+    }
+  )
 }

@@ -1,0 +1,8 @@
+{
+    "device_code": "81j_R3gUXKVTGahXbrkeB-TQaMKBghXd3u29CzielGs",
+    "user_code": "JDKO-ADUS",
+    "verification_uri": "https://keycloak1.hc.scinteco.com/realms/master/device",
+    "verification_uri_complete": "https://keycloak1.hc.scinteco.com/realms/master/device?user_code=JDKO-ADUS",
+    "expires_in": 600,
+    "interval": 5
+}
