@@ -3,7 +3,7 @@
 magrittr::`%>%`
 
 
-codeVerifier <- NULL
+
 
 #' improveOAuth
 #'
@@ -55,7 +55,6 @@ improveOAuth <- function(repo,shortEntityId="/",logLevel="INFO",secure=T,openBro
     }
   )
 
-  print(authenticationProvider$id_token)
   user <- jose::jwt_split(authenticationProvider$id_token)$payload$preferred_username
 
 
