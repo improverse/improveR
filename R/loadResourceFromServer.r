@@ -39,8 +39,8 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
     cont$comments<-NULL
     cont$entries<-NULL
     cont$requestor<-NULL
-    #df <- as.data.frame(cont,stringsAsFactors = FALSE) #BUG
-    df <- convertAPIListToDataframe(cont) #NOTE new function inserted
+    df <- as.data.frame(cont,stringsAsFactors = FALSE) 
+    # df <- convertAPIListToDataframe(cont) #NOTE new function inserted (previsous fix)
 
   } else {
     df<-getRoot()
