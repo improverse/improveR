@@ -117,6 +117,7 @@ getAuthenticationProvider <- function(repo) {
   return(authenticationProvider)
 }
 
+#this is the createCodeVerifier function
 createCodeVerifier <- function() {
   #if we are capturing for replay, we have to have the same code verifier everytime, otherwise the replay wont work
   if (isCapturing() || Sys.getenv("IMPROVER_TEST_REPLAY")=="T") {
