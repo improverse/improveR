@@ -31,11 +31,20 @@ getOrCreateTestFolderRoot <- function() {
 }
 
 createFolderPath <- function(testRootFolder,setupType) {
+
+  folderName <- stringr::str_replace_all(Sys.time(),":","-")
+  if (isCapturing() || Sys.getenv("IMPROVER_TEST_REPLAY")=="T") {
+    folderName <- "httptestCapture"
+  }
+
   path <- paste(
     setupType,
-    stringr::str_replace_all(Sys.time(),":","-"),
+    folderName,
     sep="/"
   )
+
+
+
   folderSegments <- strsplit(path,split = "/",fixed=T)[[1]]
   root <- testRootFolder
   for (i in 1:length(folderSegments)) {
@@ -120,6 +129,8 @@ workflowFilesSetup <- function(testRootFolder) {
 }
 
 
+
+
 httptest::with_mock_dir("setUpFiles",{
     clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
@@ -131,7 +142,7 @@ httptest::with_mock_dir("setUpFiles",{
     folderPathes$emptyFiles <- emptyFolderSetup(testRootFolder)
     folderPathes$baseFiles <- baseFilesSetup(testRootFolder)
     folderPathes$workflowFiles <- workflowFilesSetup(testRootFolder)
-    assign(x = "testFolders",value = folderPathes,envir = globalenv())
+    assign(x = "TEST_FOLDERS",value = folderPathes,envir = globalenv())
 })
 
 
