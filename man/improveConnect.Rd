@@ -38,7 +38,7 @@ Command line arguments have to be in the correct order.
 }
 }
 
-\subsection{Enviornment variables}{
+\subsection{Environment variables}{
 
 The following environment variables have to be set:
 \itemize{

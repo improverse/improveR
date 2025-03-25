@@ -2,5 +2,5 @@
 
 
 isCapturing <- function() {
-  any(grepl("functionWithTrace",capture.output(httr::POST)))
+  any(grepl("functionWithTrace",utils::capture.output(httr::POST)))
 }
