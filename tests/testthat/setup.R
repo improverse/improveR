@@ -131,7 +131,7 @@ httptest::with_mock_dir("setUpFiles",{
     folderPathes$emptyFiles <- emptyFolderSetup(testRootFolder)
     folderPathes$baseFiles <- baseFilesSetup(testRootFolder)
     folderPathes$workflowFiles <- workflowFilesSetup(testRootFolder)
-
+    assign(x = "testFolders",value = folderPathes,envir = globalenv())
 })
 
 
