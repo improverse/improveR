@@ -1,0 +1,24 @@
+[
+    {
+        "resourceId": "D8B44DCE2BF84FA5AA693CC5F4D4A98C",
+        "comment": "Created by improveRmodify",
+        "resourceVersionId": "A5248F0AF369464E8BAD7CB494E6FF44",
+        "nodeType": "File",
+        "name": "EDA.R",
+        "parentId": "79ABE01AC57E4408872CDE5F302A6540",
+        "deleted": false,
+        "entityId": "envhost2.hc.scintecodev.internal-18118:FI-44848",
+        "entityVersionId": "envhost2.hc.scintecodev.internal-18118:FI-44848-3",
+        "revisionId": "978A11C48F464AFDB2F1998079AB3FED",
+        "createdById": "2BBC6A293F35DDD1E063030011ACA175",
+        "createdAt": "1742907654693",
+        "lastModifiedOn": "1742909814779",
+        "lastModifiedById": "2BBC6A293F35DDD1E063030011ACA175",
+        "status": "Complete",
+        "fileSize": 237,
+        "fileHash": "E7DE3CABE656104EB147A231998185ADC17C643A302E6868F6E1D7C0FF90F3A1",
+        "hasChildren": false,
+        "hasChildrenIncludingFiles": false,
+        "outdatedLink": false
+    }
+]

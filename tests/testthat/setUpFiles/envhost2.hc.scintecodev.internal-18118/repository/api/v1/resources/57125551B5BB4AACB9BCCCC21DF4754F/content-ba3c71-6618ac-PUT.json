@@ -1,0 +1,24 @@
+[
+    {
+        "resourceId": "57125551B5BB4AACB9BCCCC21DF4754F",
+        "comment": "Created by improveRmodify",
+        "resourceVersionId": "9ECAA35A797949B2A01289DF1B6828A0",
+        "nodeType": "File",
+        "name": "testWorkflow.r",
+        "parentId": "79ABE01AC57E4408872CDE5F302A6540",
+        "deleted": false,
+        "entityId": "envhost2.hc.scintecodev.internal-18118:FI-44854",
+        "entityVersionId": "envhost2.hc.scintecodev.internal-18118:FI-44854-3",
+        "revisionId": "134BED86AC4E4369B8CABC8BD221D58F",
+        "createdById": "2BBC6A293F35DDD1E063030011ACA175",
+        "createdAt": "1742907669608",
+        "lastModifiedOn": "1742909823889",
+        "lastModifiedById": "2BBC6A293F35DDD1E063030011ACA175",
+        "status": "Complete",
+        "fileSize": 1059,
+        "fileHash": "85984AF0AC9C3AA444F4735412033EF0A0FA2D2C4036EB89EA94A1899FB463C0",
+        "hasChildren": false,
+        "hasChildrenIncludingFiles": false,
+        "outdatedLink": false
+    }
+]
