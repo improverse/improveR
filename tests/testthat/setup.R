@@ -128,9 +128,6 @@ workflowFilesSetup <- function(testRootFolder) {
 
 }
 
-
-
-
 httptest::with_mock_dir("setUpFiles",{
     clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")

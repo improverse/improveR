@@ -1,13 +1,13 @@
-# test_that("loadResource correctly loads resources", {
+test_that("loadResource correctly loads resources", {
   
   
-#   TEST_FOLDER <- baseFilesSetup()
+  TEST_FOLDER <- baseFilesSetup()
   
-#   folder <- improveR::loadResource(TEST_FOLDER)
-#   expect_equal(folder$nodeType,"Folder")
-#   expect_equal(folder$path,TEST_FOLDER)
+  folder <- improveR::loadResource(TEST_FOLDER)
+  expect_equal(folder$nodeType,"Folder")
+  expect_equal(folder$path,TEST_FOLDER)
 
-# })
+})
 
 #loadResource #TODO
 ## resources can be loaded by three different functions => needs three mockings
