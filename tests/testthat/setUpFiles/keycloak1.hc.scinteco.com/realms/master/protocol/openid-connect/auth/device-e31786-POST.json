@@ -1,8 +1,8 @@
 {
-    "device_code": "X0PjrR39z76Yj-t6XTrzIcTWv5fBFppQ-KscwwMFMJ8",
-    "user_code": "NTWV-LMUS",
+    "device_code": "wrA-fudo47OrzK480J50ANa3RIxOwTpM_JXb0iQN-QI",
+    "user_code": "NYCV-RUKT",
     "verification_uri": "https://keycloak1.hc.scinteco.com/realms/master/device",
-    "verification_uri_complete": "https://keycloak1.hc.scinteco.com/realms/master/device?user_code=NTWV-LMUS",
+    "verification_uri_complete": "https://keycloak1.hc.scinteco.com/realms/master/device?user_code=NYCV-RUKT",
     "expires_in": 600,
     "interval": 5
 }

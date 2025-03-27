@@ -1,0 +1,24 @@
+[
+    {
+        "resourceId": "9C8DEAB706584211AE662BC0A67D4845",
+        "comment": "Created by improveRmodify",
+        "resourceVersionId": "77AA210775B14221877CF6727C086B9D",
+        "nodeType": "File",
+        "name": "sampleCopy",
+        "parentId": "3EDB1AE559A84E2AA47DA51282768891",
+        "deleted": false,
+        "entityId": "envhost2.hc.scintecodev.internal-18118:FI-44842",
+        "entityVersionId": "envhost2.hc.scintecodev.internal-18118:FI-44842-7",
+        "revisionId": "27B29419BE8E46D7B1C9684E8EFAAE07",
+        "createdById": "2BBC6A293F35DDD1E063030011ACA175",
+        "createdAt": "1742907640847",
+        "lastModifiedOn": "1743105301963",
+        "lastModifiedById": "2BBC6A293F35DDD1E063030011ACA175",
+        "status": "Complete",
+        "fileSize": 67,
+        "fileHash": "1A9158BAD763829461AEC3A930BA1E61CFCD13A9D4EAFB5DB7AE9E52D8CE21D8",
+        "hasChildren": false,
+        "hasChildrenIncludingFiles": false,
+        "outdatedLink": false
+    }
+]

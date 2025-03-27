@@ -1,0 +1,24 @@
+[
+    {
+        "resourceId": "D3BAA5B407BF4002B4836C9A926A39BE",
+        "comment": "Created by improveRmodify",
+        "resourceVersionId": "290FFA3BA98F4351A131C346C03FE041",
+        "nodeType": "File",
+        "name": "data.csv",
+        "parentId": "79ABE01AC57E4408872CDE5F302A6540",
+        "deleted": false,
+        "entityId": "envhost2.hc.scintecodev.internal-18118:FI-44845",
+        "entityVersionId": "envhost2.hc.scintecodev.internal-18118:FI-44845-7",
+        "revisionId": "E19DDBA7B91744159E610794487E747A",
+        "createdById": "2BBC6A293F35DDD1E063030011ACA175",
+        "createdAt": "1742907647679",
+        "lastModifiedOn": "1743105307006",
+        "lastModifiedById": "2BBC6A293F35DDD1E063030011ACA175",
+        "status": "Complete",
+        "fileSize": 22252,
+        "fileHash": "3C98718131DB25D8E67182D94F10BF59C727C161184512744F2DC9C14F60A7AD",
+        "hasChildren": false,
+        "hasChildrenIncludingFiles": false,
+        "outdatedLink": false
+    }
+]

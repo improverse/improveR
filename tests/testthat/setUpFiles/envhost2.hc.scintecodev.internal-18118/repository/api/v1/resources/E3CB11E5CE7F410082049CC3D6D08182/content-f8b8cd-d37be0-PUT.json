@@ -1,0 +1,24 @@
+[
+    {
+        "resourceId": "E3CB11E5CE7F410082049CC3D6D08182",
+        "comment": "Commit comment",
+        "resourceVersionId": "75465FF2B24E4D7ABA39447AE573D528",
+        "nodeType": "File",
+        "name": "csv.csv",
+        "parentId": "775AFB56A89648A29101AF515A835A9B",
+        "deleted": false,
+        "entityId": "envhost2.hc.scintecodev.internal-18118:FI-44834",
+        "entityVersionId": "envhost2.hc.scintecodev.internal-18118:FI-44834-8",
+        "revisionId": "12D028CDA1484B1DB8852DAD900D9366",
+        "createdById": "2BBC6A293F35DDD1E063030011ACA175",
+        "createdAt": "1742907620938",
+        "lastModifiedOn": "1743105290898",
+        "lastModifiedById": "2BBC6A293F35DDD1E063030011ACA175",
+        "status": "Complete",
+        "fileSize": 206,
+        "fileHash": "0B31E7B9EF5A37987DD0F9C58B26C212B5E85221E959F18C15F0F047C4AA13CC",
+        "hasChildren": false,
+        "hasChildrenIncludingFiles": false,
+        "outdatedLink": false
+    }
+]

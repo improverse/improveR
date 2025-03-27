@@ -1,0 +1,29 @@
+[
+    {
+        "resourceId": "64F23012609441B4B608921EADC9293E",
+        "resourceVersionId": "0023BAF12D8F4C5787124440D875633E",
+        "nodeType": "File",
+        "name": "test.R",
+        "parentId": "1992FC8E276B47B582C13F039F9E0144",
+        "deleted": false,
+        "entityId": "envhost2.hc.scintecodev.internal-18118:FI-44843",
+        "entityVersionId": "envhost2.hc.scintecodev.internal-18118:FI-44843-6",
+        "fullEntityId": "http://envhost2.hc.scintecodev.internal:18118/provider/provide?client=local&resourceId=envhost2.hc.scintecodev.internal-18118:FI-44843",
+        "fullEntityVersionId": "http://envhost2.hc.scintecodev.internal:18118/provider/provide?client=local&resourceId=envhost2.hc.scintecodev.internal-18118:FI-44843-6",
+        "revisionId": "7BAE55566B3B4FD58807173402F339DE",
+        "createdByName": "Administrator",
+        "createdById": "2BBC6A293F35DDD1E063030011ACA175",
+        "createdAt": "1742907643770",
+        "lastModifiedOn": "1743003682151",
+        "lastModifiedById": "2BBC6A293F35DDD1E063030011ACA175",
+        "lastModifiedByName": "Administrator",
+        "status": "Complete",
+        "fileSize": 72,
+        "fileHash": "CFB4D2E3119235F0A0995323AE2CC6EA1FB4FE5963538C5FA82BAE1BAD06AE4C",
+        "hasChildren": false,
+        "hasChildrenIncludingFiles": false,
+        "path": "/infra/tests/baseFiles/httptestCapture/rgetR/test.R",
+        "outdatedLink": false,
+        "finishedStatus": "unfinished"
+    }
+]
