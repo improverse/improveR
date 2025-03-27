@@ -121,7 +121,9 @@ resetCache <- function() {
   if (file.exists(".improver.cache")) {
     file.remove(".improver.cache")
   }
+  authenticationProvider <- cacheEnv$authenticationProvider
   rm(list=ls(envir=cacheEnv),envir=cacheEnv)
+  cacheEnv$authenticationProvider <- authenticationProvider
   improveConnect(logLevel = logLevel,secure = secure,offlinePossible = offlinePossible,persistentCaching = persistentCaching)
   cacheEnv$reproducible<-F
 }
