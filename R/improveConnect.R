@@ -17,6 +17,7 @@ improveConnected <- function(silent = FALSE) {
   } else if (cacheEnv$initialized == TRUE) {
     if (!silent) {
       log_info("Connection already established.")
+      log_info(cacheEnv$conf$repoUrl)
     }
     return(invisible(TRUE))
   } else {
