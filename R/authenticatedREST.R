@@ -56,16 +56,18 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
   result <- NULL
   if (!is.na(conf()$reqToken) && !is.null(conf()$reqToken)) {
     logging::logdebug("TokenAuth")
-    result <- restFunction(url, body = data,
-                           httr::add_headers('Authorization' = paste0("Bearer ",conf()$reqToken)),
-                                             encode=encode,
-                                             'Content-Type' = contentType)
     if (!grepl("refreshToken",url)) {
       logging::logdebug("Check refresh Token")
       refreshToken()
     } else {
       logging::logdebug("do not refresh, as is token") # TODO wording ambiguous; e.g. "Do not refresh, valid token available."
     }
+
+    result <- restFunction(url, body = data,
+                           httr::add_headers('Authorization' = paste0("Bearer ",conf()$reqToken)),
+                                             encode=encode,
+                                             'Content-Type' = contentType)
+
 
   } else {
     logging::logdebug("User Auth")

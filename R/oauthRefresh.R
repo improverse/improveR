@@ -36,7 +36,9 @@ renewAccessToken <- function () {
     Sys.setenv(IMPROVER_TOKEN_EXPIRATION=refreshContent$expires_in)
     Sys.setenv(IMPROVER_REFRESH_TOKEN=refreshContent$refresh_token)
     Sys.setenv(IMPROVER_LAST_ACCESS=as.numeric(Sys.time()))
-
+    conf <- cacheEnv$conf
+    conf$reqToken <- refreshContent$access_token
+    cacheEnv$conf <- conf
   }
 
 
