@@ -50,7 +50,7 @@ loadReferencesFromServer <- function(resource) {
 actualLoadReferences <- function(resource) {
   result<-NULL
   if (as.character(resource$resourceId)!="0") {
-    result <- authenticatetREST("/resources/{resourceId}/references",
+    result <- authenticatedREST("/resources/{resourceId}/references",
                                 list(resourceId=resource$resourceId)
     )
   } else {

@@ -51,11 +51,11 @@ loadFullChildResourcesFromServer <- function(resource) {
 actualLoadFullChildResources <- function(resource) {
   result<-NULL
   if (as.character(resource$resourceId)!="0") {
-    result <- authenticatetREST("/resources/{resourceId}/resources",
+    result <- authenticatedREST("/resources/{resourceId}/resources",
                                 list(resourceId=resource$resourceId)
     )
   } else {
-    result <- authenticatetREST("/resources")
+    result <- authenticatedREST("/resources")
   }
   if (is.null(result)) {
     return(NULL)

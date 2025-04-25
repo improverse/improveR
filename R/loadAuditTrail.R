@@ -48,7 +48,7 @@ loadAuditTrailFromServer <- function(resource) {
 actualLoadAuditTrail <- function(resource) {
   result<-NULL
   if (as.character(resource$resourceId)!="0") {
-    result <- authenticatetREST("/resources/{resourceId}/auditTrail",
+    result <- authenticatedREST("/resources/{resourceId}/auditTrail",
                                 list(resourceId=resource$resourceId)
     )
   } else {

@@ -54,7 +54,7 @@ actualLoadChildSteps <- function(resource) {
       log_warn("Resource",resource$entityId,"is not a Step, co no child steps possible")
       return(NULL)
     }
-    result <- authenticatetREST("/resources/{resourceId}/childSteps",
+    result <- authenticatedREST("/resources/{resourceId}/childSteps",
                                 list(resourceId=resource$resourceId)
     )
   } else {

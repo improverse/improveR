@@ -51,7 +51,7 @@ loadMetaDataFromServer <- function(resource) {
 actualLoadMetaData <- function(resource) {
   result<-NULL
   if (as.character(resource$resourceId)!="0") {
-    result <- authenticatetREST("/resources/{resourceId}/metadata",
+    result <- authenticatedREST("/resources/{resourceId}/metadata",
                                 list(resourceId=resource$resourceId)
     )
   } else {
