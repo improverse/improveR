@@ -27,7 +27,6 @@ Imports:
     stringr,
     tidyr,
     utils,
-    rmarkdown,
     tibble,
     magrittr,
     jose,

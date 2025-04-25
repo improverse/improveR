@@ -1,9 +1,0 @@
-{
-    "clientId": "improve-client",
-    "authorizationUri": "https://keycloak1.hc.scinteco.com/realms/master/protocol/openid-connect/auth",
-    "tokenUri": "https://keycloak1.hc.scinteco.com/realms/master/protocol/openid-connect/token",
-    "jwksUri": "https://keycloak1.hc.scinteco.com/realms/master/protocol/openid-connect/certs",
-    "revocationUri": "https://keycloak1.hc.scinteco.com/realms/master/protocol/openid-connect/revoke",
-    "logoutUri": "https://keycloak1.hc.scinteco.com/realms/master/protocol/openid-connect/logout",
-    "deviceAuthUri": "https://keycloak1.hc.scinteco.com/realms/master/protocol/openid-connect/auth/device"
-}

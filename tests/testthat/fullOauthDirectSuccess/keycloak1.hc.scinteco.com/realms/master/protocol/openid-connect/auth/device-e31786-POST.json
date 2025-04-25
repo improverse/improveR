@@ -1,8 +1,0 @@
-{
-    "device_code": "uvu2pLtcra4WM19LGLTxt4F2YbYDh2AQ81dsxg_E_HM",
-    "user_code": "HLPS-TTMG",
-    "verification_uri": "https://keycloak1.hc.scinteco.com/realms/master/device",
-    "verification_uri_complete": "https://keycloak1.hc.scinteco.com/realms/master/device?user_code=HLPS-TTMG",
-    "expires_in": 600,
-    "interval": 5
-}

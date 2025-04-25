@@ -22,7 +22,7 @@ getOrCreateTestFolderRoot <- function() {
     stop("environment variable TESTFOLDER_ROOT is not allowed to be the root folder")
   }
   pathParts <- pathParts[2:length(pathParts)]
-  rootFolder <- improveRcore::loadResource("/")
+  rootFolder <- loadResource("/")
 
   for (i in 1:length(pathParts)) {
     rootFolder <- improveRmodify::createFolder(rootFolder,folderName = pathParts[i])
@@ -133,7 +133,7 @@ httptest::with_mock_dir("setUpFiles",{
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
     Sys.setenv(IMPROVER_REPO_URL=mockUrl)
     improveConnect()
-    improveRcore::improveConnect()
+    improveConnect()
     testRootFolder <- getOrCreateTestFolderRoot()
     folderPathes <- list()
     folderPathes$emptyFiles <- emptyFolderSetup(testRootFolder)
