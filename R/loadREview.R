@@ -66,11 +66,11 @@ reviewersCacheList <- list(
 
 #' getReviewers
 #' @param ident id
-#' @param fromForRelativePathes defaults to pwd, used to resolve relative pathes
+#' @param from defaults to pwd, used to resolve relative pathes
 #' @references ics1208
 #' @export
-getReviewers <- function(ident,fromForRelativePathes=pwd()) {
-  review <- loadResource(ident,fromForRelativePathes)
+getReviewers <- function(ident,from=pwd()) {
+  review <- loadResource(ident,from)
   if (is.null(review) || review$nodeType!="Review") {
     logging::logwarn(paste0(ident," does not specify a Review"))
   }
@@ -123,11 +123,11 @@ reviewEntriesCacheList <- list(
 
 #' getReviewEntries
 #' @param ident id
-#' @param fromForRelativePathes defaults to pwd, used to resolve relative pathes
+#' @param from defaults to pwd, used to resolve relative pathes
 #' @references ics1208
 #' @export
-getReviewEntries <- function(ident,fromForRelativePathes=pwd()) {
-  review <- loadResource(ident,fromForRelativePathes)
+getReviewEntries <- function(ident,from=pwd()) {
+  review <- loadResource(ident,from)
   if (is.null(review) || review$nodeType!="Review") {
     logging::logwarn(paste0(ident," does not specify a Review"))
   }
@@ -183,11 +183,11 @@ reviewCommentsCacheList <- list(
 
 #' getReviewComments
 #' @param ident id
-#' @param fromForRelativePathes defaults to pwd, used to resolve relative pathes
+#' @param from defaults to pwd, used to resolve relative pathes
 #' @references ics1208
 #' @export
-getReviewComments <- function(ident,fromForRelativePathes=pwd()) {
-  review <- loadResource(ident,fromForRelativePathes)
+getReviewComments <- function(ident,from=pwd()) {
+  review <- loadResource(ident,from)
   if (is.null(review) || review$nodeType!="Review") {
     logging::logwarn(paste0(ident," does not specify a Review"))
   }
@@ -239,11 +239,11 @@ reviewEntryCommentsCacheList <- list(
 #' getReviewEtnryComments
 #' @param resourceId id (UUID) of the resource
 #' @param entryId id (UUID) of the review entry
-#' @param fromForRelativePathes defaults to pwd, used to resolve relative pathes
+#' @param from defaults to pwd, used to resolve relative pathes
 #' @references ics1543
 #' @export
-getReviewEntryComments <- function(resourceId, entryId, fromForRelativePathes=pwd()) {
-  review <- loadResource(resourceId, fromForRelativePathes)
+getReviewEntryComments <- function(resourceId, entryId, from=pwd()) {
+  review <- loadResource(resourceId, from)
   if (is.null(review) || review$nodeType!="Review") {
     logging::logwarn(paste0(resourceId," does not specify a Review"))
   }

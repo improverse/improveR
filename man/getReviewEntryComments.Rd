@@ -4,14 +4,14 @@
 \alias{getReviewEntryComments}
 \title{getReviewEtnryComments}
 \usage{
-getReviewEntryComments(resourceId, entryId, fromForRelativePathes = pwd())
+getReviewEntryComments(resourceId, entryId, from = pwd())
 }
 \arguments{
 \item{resourceId}{id (UUID) of the resource}
 
 \item{entryId}{id (UUID) of the review entry}
 
-\item{fromForRelativePathes}{defaults to pwd, used to resolve relative pathes}
+\item{from}{defaults to pwd, used to resolve relative pathes}
 }
 \description{
 getReviewEtnryComments

@@ -4,12 +4,12 @@
 \alias{getReviewEntries}
 \title{getReviewEntries}
 \usage{
-getReviewEntries(ident, fromForRelativePathes = pwd())
+getReviewEntries(ident, from = pwd())
 }
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{defaults to pwd, used to resolve relative pathes}
+\item{from}{defaults to pwd, used to resolve relative pathes}
 }
 \description{
 getReviewEntries

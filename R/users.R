@@ -5,7 +5,7 @@
 users <- function() {
   improveR::improveConnected()
 
-  result <- authenticatetREST("/users")
+  result <- authenticatedREST("/users")
   if (is.null(result)) {
     return(NULL)
   }

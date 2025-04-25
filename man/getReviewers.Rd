@@ -4,12 +4,12 @@
 \alias{getReviewers}
 \title{getReviewers}
 \usage{
-getReviewers(ident, fromForRelativePathes = pwd())
+getReviewers(ident, from = pwd())
 }
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{defaults to pwd, used to resolve relative pathes}
+\item{from}{defaults to pwd, used to resolve relative pathes}
 }
 \description{
 getReviewers
