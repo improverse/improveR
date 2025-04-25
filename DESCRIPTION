@@ -33,7 +33,8 @@ Imports:
     tibble,
     magrittr,
     jose,
-    openssl
+    openssl,
+    rlang
 Suggests: 
     httptest,
     testthat (>= 3.0.0)
