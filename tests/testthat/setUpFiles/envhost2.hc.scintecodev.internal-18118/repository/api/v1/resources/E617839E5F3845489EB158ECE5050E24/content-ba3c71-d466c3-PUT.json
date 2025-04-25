@@ -1,0 +1,24 @@
+[
+    {
+        "resourceId": "E617839E5F3845489EB158ECE5050E24",
+        "comment": "Created by improveRmodify",
+        "resourceVersionId": "5CC5D93CC32C4460BB89C84FF73539E8",
+        "nodeType": "File",
+        "name": "testWorkflow.Rmd",
+        "parentId": "79ABE01AC57E4408872CDE5F302A6540",
+        "deleted": false,
+        "entityId": "envhost2.hc.scintecodev.internal-18118:FI-44855",
+        "entityVersionId": "envhost2.hc.scintecodev.internal-18118:FI-44855-7",
+        "revisionId": "50117A19F8824B508756C96A02EF7F67",
+        "createdById": "2BBC6A293F35DDD1E063030011ACA175",
+        "createdAt": "1742907671956",
+        "lastModifiedOn": "1743105317963",
+        "lastModifiedById": "2BBC6A293F35DDD1E063030011ACA175",
+        "status": "Complete",
+        "fileSize": 7536,
+        "fileHash": "74BCA13F3D23BEB20425DB74B2401AB4244F26221E8A29B54E8E0B7829F3FF2F",
+        "hasChildren": false,
+        "hasChildrenIncludingFiles": false,
+        "outdatedLink": false
+    }
+]

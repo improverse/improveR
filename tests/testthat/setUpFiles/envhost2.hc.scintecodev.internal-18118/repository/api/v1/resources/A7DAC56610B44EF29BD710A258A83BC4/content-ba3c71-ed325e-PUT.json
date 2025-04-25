@@ -1,0 +1,24 @@
+[
+    {
+        "resourceId": "A7DAC56610B44EF29BD710A258A83BC4",
+        "comment": "Created by improveRmodify",
+        "resourceVersionId": "057C23435C35408784604035E3756992",
+        "nodeType": "File",
+        "name": "report.Rmd",
+        "parentId": "79ABE01AC57E4408872CDE5F302A6540",
+        "deleted": false,
+        "entityId": "envhost2.hc.scintecodev.internal-18118:FI-44851",
+        "entityVersionId": "envhost2.hc.scintecodev.internal-18118:FI-44851-7",
+        "revisionId": "6526CBAB281D4832A480A4DA9CDE2277",
+        "createdById": "2BBC6A293F35DDD1E063030011ACA175",
+        "createdAt": "1742907661781",
+        "lastModifiedOn": "1743105313657",
+        "lastModifiedById": "2BBC6A293F35DDD1E063030011ACA175",
+        "status": "Complete",
+        "fileSize": 1039,
+        "fileHash": "EDF3BA33A270BFEE510B5B8AB428DA81CBFC80CAFF1DF0F13AE8AD949156B6BE",
+        "hasChildren": false,
+        "hasChildrenIncludingFiles": false,
+        "outdatedLink": false
+    }
+]

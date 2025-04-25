@@ -4,7 +4,10 @@
 \alias{clearConnectionData}
 \title{clearConnectionData}
 \usage{
-clearConnectionData()
+clearConnectionData(includeRepoData = F)
+}
+\arguments{
+\item{includeRepoData}{includes the repository URL and the selected step in the clear process}
 }
 \description{
 deletes repoUrl, stepId, and token from the environment variables and calls improveDisconnect
