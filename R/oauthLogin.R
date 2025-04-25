@@ -113,6 +113,7 @@ getAuthenticationProvider <- function(repo) {
     stop(paste("no authentication provider found at ",authenticationProviderApi))
   }
   authenticationProvider <- httr::content(authenticationProviderResult)
+  authenticationProvider$clientId <- "improve-api-client"
   cacheEnv$authenticationProvider <- authenticationProvider
   return(authenticationProvider)
 }
