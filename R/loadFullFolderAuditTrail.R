@@ -1,12 +1,12 @@
 #' retrieves recursive audit trail for a specific folder
 #'
 #' @param ident the folder the audit trail is retrieved for
-#' @param fromForRelativePathes startpoint for relative pathes, per default: pwd is used
+#' @param from startpoint for relative pathes, per default: pwd is used
 #' @param includeReadAccess if TRUE also read access entries of the audit trail are shown
 #' @importFrom rlang .data
 #' @importFrom magrittr %>%
 #' @export
-getFullFolderAuditTrail <- function(ident,fromForRelativePathes=pwd(),includeReadAccess=FALSE) {
+getFullFolderAuditTrail <- function(ident,from=pwd(),includeReadAccess=FALSE) {
 
   #resource <- loadResource(ident)
   auditTrails <- loadAuditTrail(ident)$data[[1]]
@@ -31,7 +31,7 @@ getFullFolderAuditTrail <- function(ident,fromForRelativePathes=pwd(),includeRea
       .data$createdAt,
       .keep_all=TRUE)
   }
-  #improveRcore:::convertDates(auditTrails)
+  #convertDates(auditTrails)
   auditTrails<-auditTrails[order(auditTrails$createdAt),]
   return(auditTrails)
 }

@@ -4,13 +4,7 @@
 \alias{queryFolder}
 \title{performs this query against the elastic search within one folder}
 \usage{
-queryFolder(
-  queryString,
-  fetchSize = 100,
-  fetchOffset = 0,
-  ident,
-  fromForRelativePathes = improveRcore::pwd()
-)
+queryFolder(queryString, fetchSize = 100, fetchOffset = 0, ident, from = pwd())
 }
 \arguments{
 \item{queryString}{query with the same grammar as in the UI}
@@ -21,7 +15,7 @@ queryFolder(
 
 \item{ident}{path or id of a resource to start search from}
 
-\item{fromForRelativePathes}{root for a relative path per default pwd}
+\item{from}{root for a relative path per default pwd}
 }
 \description{
 performs this query against the elastic search within one folder

@@ -31,15 +31,15 @@ fileResourceVersionCacheList <- list(
 #' The dates are converted to POSIX dates with the convertImproveTimestampToPosix function.
 #' resourceId can be a list.
 #' @param  ident the resource id or the entity id of the resource
-#' @param fromForRelativePathes used if a relative path is used
+#' @param from used if a relative path is used
 #' @param filePath local Path where the file should be stored, relative to rootPath, normally wd
 #' @param addIdToName logical, if the entityId should be added to the filename
 #' @param linkInInventory logical, if TRUE a link to the resource is created in the inventory
 #' @references ics1099
 #' @seealso [convertImproveTimestampToPosix()]
 #' @export
-loadFile <- function(ident,fromForRelativePathes=pwd(),filePath=".",addIdToName=FALSE,linkInInventory=FALSE) {
-  resources <- loadResource(ident,fromForRelativePathes)
+loadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE,linkInInventory=FALSE) {
+  resources <- loadResource(ident,from)
   if(is.null(resources)) {
     return(NULL)
   }
@@ -47,25 +47,25 @@ loadFile <- function(ident,fromForRelativePathes=pwd(),filePath=".",addIdToName=
   noversionRes <- resources[!resources$isVersion,]
 
   res1<-versionLoadFile(versionRes,
-                        fromForRelativePathes=fromForRelativePathes,
+                        from=from,
                         filePath=filePath,
                         addIdToName=addIdToName,
                         linkInInventory=linkInInventory)
   res2<-unversionLoadFile(noversionRes,
-                        fromForRelativePathes=fromForRelativePathes,
+                        from=from,
                         filePath=filePath,
                         addIdToName=addIdToName,
                         linkInInventory=linkInInventory)
   return(rbind(res1,res2))
 }
 
-versionLoadFile <- function(resources,fromForRelativePathes,filePath,addIdToName,...) {
+versionLoadFile <- function(resources,from,filePath,addIdToName,...) {
   if (nrow(resources)==0) {
     return(NULL)
   } else if (nrow(resources)>1) {
     entityIds <- resources$entityVersionId
     resourceValues <- Map(function(resId) {
-      loadFile(resId,fromForRelativePathes,...)
+      loadFile(resId,from,...)
     },entityIds)
     return(
       resourceValues
@@ -78,13 +78,13 @@ versionLoadFile <- function(resources,fromForRelativePathes,filePath,addIdToName
   return(res)
 }
 
-unversionLoadFile <- function(resources,fromForRelativePathes,filePath,addIdToName,...) {
+unversionLoadFile <- function(resources,from,filePath,addIdToName,...) {
   if (nrow(resources)==0) {
     return(NULL)
   } else if (nrow(resources)>1) {
     entityIds <- resources$entityId
     resourceValues <- Map(function(resId) {
-      loadFile(resId,fromForRelativePathes,filePath,addIdToName,...)
+      loadFile(resId,from,filePath,addIdToName,...)
     },entityIds)
     return(
       resourceValues
@@ -103,17 +103,17 @@ unversionLoadFile <- function(resources,fromForRelativePathes,filePath,addIdToNa
 #' @inheritParams common_ident
 #' @inheritSection common_ident Details ident
 
-#' @param fromForRelativePathes used if a relative path is used
+#' @param from used if a relative path is used
 #' @param filePath local Path where the file should be stored, relative to rootPath, normally wd
 #' @param addIdToName logical, if the entityId should be added to the filename
 #' @references ics1099
 #' @export
-unloadFile <- function(ident,fromForRelativePathes=pwd(),filePath=".",addIdToName=FALSE) {
-  res <- loadResource(ident,fromForRelativePathes)
+unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
+  res <- loadResource(ident,from)
   if (!is.null(res)) {
 
-    f <- loadFile(ident,fromForRelativePathes,filePath=filePath,addIdToName=addIdToName)
-    unloadResource(ident,fromForRelativePathes)
+    f <- loadFile(ident,from,filePath=filePath,addIdToName=addIdToName)
+    unloadResource(ident,from)
 
     path <- unlink(f$data[[1]],recursive = T)
 
@@ -133,17 +133,17 @@ unloadFile <- function(ident,fromForRelativePathes=pwd(),filePath=".",addIdToNam
 #' @inheritParams common_ident
 #' @inheritSection common_ident Details ident
 
-#' @param fromForRelativePathes Used if a relative path is used.
+#' @param from Used if a relative path is used.
 #' @param filePath Local path where the file is stored (relative to rootPath).
 #' @param addIdToName Logical; if TRUE the entity id is added to the filename.
 #' @param linkInInventory Logical; if TRUE, creates a link to the resource in inventory.
 #' @references ics1099
 #' @export
-updateFile <- function(ident, fromForRelativePathes = pwd(), filePath = ".", 
+updateFile <- function(ident, from = pwd(), filePath = ".", 
              addIdToName = FALSE, linkInInventory = FALSE) {
-  unloadFile(ident, fromForRelativePathes, filePath = filePath, 
+  unloadFile(ident, from, filePath = filePath, 
        addIdToName = addIdToName)
-  res <- loadFile(ident, fromForRelativePathes, filePath, 
+  res <- loadFile(ident, from, filePath, 
           addIdToName, linkInInventory)
   return(res)
 }
@@ -153,17 +153,17 @@ updateFile <- function(ident, fromForRelativePathes = pwd(), filePath = ".",
 #' @inheritParams common_ident
 #' @inheritSection common_ident Details ident
 
-#' @param fromForRelativePathes Used if a relative path is used.
+#' @param from Used if a relative path is used.
 #' @references ics1099
 #' @export
-isFileUp2Date <- function(ident,fromForRelativePathes=pwd()) {
-  res <- loadResource(ident,fromForRelativePathes)
+isFileUp2Date <- function(ident,from=pwd()) {
+  res <- loadResource(ident,from)
   if (res$isVersion) {
     logging::logwarn("Versions are always up 2 date")
     logging::logwarn(paste0(ident," is a version ID"))
     return(TRUE)
   }
-  f <- loadFile(ident,fromForRelativePathes)
+  f <- loadFile(ident,from)
   serverResource <- loadResourceFromServer(res$resourceId)
   return(serverResource$entityVersionId==f$entityVersionId)
 }

@@ -4,12 +4,12 @@
 \alias{loadChildResources}
 \title{loadChildResources}
 \usage{
-loadChildResources(ident, fromForRelativePathes = pwd())
+loadChildResources(ident, from = pwd())
 }
 \arguments{
 \item{ident}{the resource id or the entity id of the resource; can be a list}
 
-\item{fromForRelativePathes}{used if a relative path is used}
+\item{from}{used if a relative path is used}
 }
 \description{
 Loads all child resources by the resourceId, entity ID, or entity version ID.

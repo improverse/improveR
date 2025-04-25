@@ -9,15 +9,15 @@ childStepCacheList <- createCacheList("childSteps")
 #'
 #' arguments:
 #' @param  ident the resource id or the entity id of the resource
-#' @param fromForRelativePathes used if a relative path is used
+#' @param from used if a relative path is used
 #' @references ics1205
 #' @export
-loadChildSteps <- function(ident,fromForRelativePathes=pwd()) {
+loadChildSteps <- function(ident,from=pwd()) {
   return(
     genericLoadResourceSubEntities(ident,
                                    func=loadChildStepsFromServer,
                                    cacheList=childStepCacheList,
-                                   fromForRelativePathes=fromForRelativePathes)
+                                   from=from)
   )
 }
 

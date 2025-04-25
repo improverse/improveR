@@ -6,7 +6,7 @@
 \usage{
 loadFile(
   ident,
-  fromForRelativePathes = pwd(),
+  from = pwd(),
   filePath = ".",
   addIdToName = FALSE,
   linkInInventory = FALSE
@@ -15,7 +15,7 @@ loadFile(
 \arguments{
 \item{ident}{the resource id or the entity id of the resource}
 
-\item{fromForRelativePathes}{used if a relative path is used}
+\item{from}{used if a relative path is used}
 
 \item{filePath}{local Path where the file should be stored, relative to rootPath, normally wd}
 

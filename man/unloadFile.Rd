@@ -4,17 +4,12 @@
 \alias{unloadFile}
 \title{unloadFile}
 \usage{
-unloadFile(
-  ident,
-  fromForRelativePathes = pwd(),
-  filePath = ".",
-  addIdToName = FALSE
-)
+unloadFile(ident, from = pwd(), filePath = ".", addIdToName = FALSE)
 }
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{used if a relative path is used}
+\item{from}{used if a relative path is used}
 
 \item{filePath}{local Path where the file should be stored, relative to rootPath, normally wd}
 
@@ -42,7 +37,7 @@ Relative idents:
 \item Relative path without pwd: always starts from the return value of pwd()'
 \item Relative path and pwd as second argument: starts the relative path from the
 absolute ident that was handed over as second argument. Sometimes still called
-“fromForRelativePathes” but will be updated to pwd.
+“from” but will be updated to pwd.
 }
 }
 

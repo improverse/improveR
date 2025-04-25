@@ -11,15 +11,15 @@ referencesResourceCacheList <- createCacheList("references")
 #'
 #' arguments:
 #' @param  ident the resource id or the entity id of the resource
-#' @param fromForRelativePathes used if a relative path is used
+#' @param from used if a relative path is used
 #' @references ics1206
 #' @export
-loadReferences <- function(ident,fromForRelativePathes=pwd()) {
+loadReferences <- function(ident,from=pwd()) {
   return(
     genericLoadResourceSubEntities(ident,
                                    func=loadReferencesFromServer,
                                    cacheList=referencesResourceCacheList,
-                                   fromForRelativePathes=fromForRelativePathes)
+                                   from=from)
   )
 }
 

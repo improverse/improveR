@@ -4,12 +4,12 @@
 \alias{updateResource}
 \title{updateResource}
 \usage{
-updateResource(ident, fromForRelativePathes = pwd())
+updateResource(ident, from = pwd())
 }
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{pwd for relative path}
+\item{from}{pwd for relative path}
 }
 \description{
 Updates a resource.

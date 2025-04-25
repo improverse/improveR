@@ -37,7 +37,7 @@ resourceVersionCacheList <- list(
 #' * Relative path without pwd: always starts from the return value of pwd()'
 #' * Relative path and pwd as second argument: starts the relative path from the
 #' absolute ident that was handed over as second argument. Sometimes still called
-#' “fromForRelativePathes” but will be updated to pwd.  
+#' “from” but will be updated to pwd.  
 #'## pwd
 #'pwd shows the current “path working directory”. The improveR client is inspired
 #'by a command line interface. The default start position within the improve repository
@@ -118,11 +118,11 @@ internalLoadResourceVersionFromServer <- function(identifier) {
 #' unloadResource
 #' @description Unloads a resource.
 #' @param ident id
-#' @param fromForRelativePathes pwd for relative path
+#' @param from pwd for relative path
 #' @references ics1090
 #' @export
-unloadResource <- function(ident,fromForRelativePathes=pwd()) {
-  res <- loadResource(ident,fromForRelativePathes)
+unloadResource <- function(ident,from=pwd()) {
+  res <- loadResource(ident,from)
   if (!is.null(res)) {
     if (res$isVersion) {
       removeFromCache(res$entityVersionId,"",resourceVersionCacheList)
@@ -135,14 +135,14 @@ unloadResource <- function(ident,fromForRelativePathes=pwd()) {
 #' updateResource
 #' @description Updates a resource.
 #' @param ident id
-#' @param fromForRelativePathes pwd for relative path
+#' @param from pwd for relative path
 #' @references ics1090
 #' @export
-updateResource <- function(ident,fromForRelativePathes=pwd()) {
-  res <- loadResource(ident,fromForRelativePathes)
+updateResource <- function(ident,from=pwd()) {
+  res <- loadResource(ident,from)
   if (!is.null(res)) {
-    unloadResource(ident,fromForRelativePathes)
-    res <- loadResource(ident,fromForRelativePathes)
+    unloadResource(ident,from)
+    res <- loadResource(ident,from)
     return(res)
   }
   return(res)
@@ -151,10 +151,10 @@ updateResource <- function(ident,fromForRelativePathes=pwd()) {
 #' isResourceUp2Date
 #' @description Checks if resource is up to date. 
 #' @param ident id
-#' @param fromForRelativePathes pwd for relative path
+#' @param from pwd for relative path
 #' @export
-isResourceUp2Date <- function(ident,fromForRelativePathes=pwd()) {
-  res <- loadResource(ident,fromForRelativePathes)
+isResourceUp2Date <- function(ident,from=pwd()) {
+  res <- loadResource(ident,from)
   if (res$isVersion) {
     logging::logwarn("Versions are always up 2 date")
     logging::logwarn(paste0(ident," is a version ID"))
@@ -187,5 +187,5 @@ isResourceUp2Date <- function(ident,fromForRelativePathes=pwd()) {
 #' * Relative path without pwd: always starts from the return value of pwd()'
 #' * Relative path and pwd as second argument: starts the relative path from the
 #' absolute ident that was handed over as second argument. Sometimes still called
-#' “fromForRelativePathes” but will be updated to pwd.  
+#' “from” but will be updated to pwd.  
 NULL

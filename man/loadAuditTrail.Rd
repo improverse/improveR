@@ -8,12 +8,12 @@ the results are returned as a data frame or a list of data frames
 the dates are also converted to posix dates via convertImproveTimestampToPosix
 resourceId can be a list}
 \usage{
-loadAuditTrail(ident, fromForRelativePathes = pwd())
+loadAuditTrail(ident, from = pwd())
 }
 \arguments{
 \item{ident}{the resource id or the entity id of the resource}
 
-\item{fromForRelativePathes}{used if a relative path is used}
+\item{from}{used if a relative path is used}
 }
 \description{
 arguments:

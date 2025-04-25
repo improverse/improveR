@@ -51,15 +51,15 @@ query <- function(query, fetchSize=100,fetchOffset=0) {
 #' performs this query against the elastic search within one folder
 #'
 #' @param ident path or id of a resource to start search from
-#' @param fromForRelativePathes root for a relative path per default pwd
+#' @param from root for a relative path per default pwd
 #' @param queryString query with the same grammar as in the UI
 #' @param fetchSize maximum number of returned results
 #' @param fetchOffset offset of the results, enables paging
 #'
 #' @export
 
-queryFolder <- function(queryString, fetchSize=100,fetchOffset=0,ident,fromForRelativePathes=improveRcore::pwd()) {
-  resource <- loadResource(ident,fromForRelativePathes)
+queryFolder <- function(queryString, fetchSize=100,fetchOffset=0,ident,from=pwd()) {
+  resource <- loadResource(ident,from)
   if (is.null(resource)) {
     return(NULL)
   }

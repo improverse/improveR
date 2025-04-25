@@ -1,7 +1,7 @@
 childResourceCacheList <- createCacheList("child")
 
 
-#QUESTION: spelling - pathes; should be paths; fromForRelativePathes; rename function?
+#QUESTION: spelling - pathes; should be paths; from; rename function?
 
 #' loadChildResources
 #' @description Loads all child resources by the resourceId, entity ID, or entity version ID.
@@ -9,15 +9,15 @@ childResourceCacheList <- createCacheList("child")
 #' The results are returned as a data frame or a list of data frames.
 #' The dates are  converted to POSIX dates with the convertImproveTimestampToPosix function.
 #' @param  ident the resource id or the entity id of the resource; can be a list
-#' @param fromForRelativePathes used if a relative path is used
+#' @param from used if a relative path is used
 #' @seealso [convertImproveTimestampToPosix()]
 #' @export
-loadChildResources <- function(ident,fromForRelativePathes=pwd()) {
+loadChildResources <- function(ident,from=pwd()) {
   return(
     genericLoadResourceSubEntities(ident,
                                    func=loadChildResourcesFromServer,
                                    cacheList=childResourceCacheList,
-                                   fromForRelativePathes=fromForRelativePathes)
+                                   from=from)
   )
 }
 

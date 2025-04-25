@@ -4,16 +4,12 @@
 \alias{getFullFolderAuditTrail}
 \title{retrieves recursive audit trail for a specific folder}
 \usage{
-getFullFolderAuditTrail(
-  ident,
-  fromForRelativePathes = pwd(),
-  includeReadAccess = FALSE
-)
+getFullFolderAuditTrail(ident, from = pwd(), includeReadAccess = FALSE)
 }
 \arguments{
 \item{ident}{the folder the audit trail is retrieved for}
 
-\item{fromForRelativePathes}{startpoint for relative pathes, per default: pwd is used}
+\item{from}{startpoint for relative pathes, per default: pwd is used}
 
 \item{includeReadAccess}{if TRUE also read access entries of the audit trail are shown}
 }

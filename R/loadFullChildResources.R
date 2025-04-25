@@ -11,15 +11,15 @@ fullChildResourceCacheList <- createCacheList("fullchild")
 #'
 #' arguments:
 #' @param  ident the resource id or the entity id of the resource
-#' @param fromForRelativePathes used if a relative path is used
+#' @param from used if a relative path is used
 #' @references ics1085
 #' @export
-loadFullChildResources <- function(ident,fromForRelativePathes=pwd()) {
+loadFullChildResources <- function(ident,from=pwd()) {
   return(
     genericLoadResourceSubEntities(ident,
                                    func=loadFullChildResourcesFromServer,
                                    cacheList=fullChildResourceCacheList,
-                                   fromForRelativePathes=fromForRelativePathes)
+                                   from=from)
   )
 }
 

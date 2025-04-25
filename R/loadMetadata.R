@@ -9,15 +9,15 @@ metadataResourceCacheList <- createCacheList("metadata")
 #'
 #' arguments:
 #' @param  ident the resource id or the entity id of the resource
-#' @param fromForRelativePathes used if a relative path is used
+#' @param from used if a relative path is used
 #' @references ics1096
 #' @export
-loadMetaData <- function(ident,fromForRelativePathes=pwd()) {
+loadMetaData <- function(ident,from=pwd()) {
   return(
     genericLoadResourceSubEntities(ident,
                                    func=loadMetaDataFromServer,
                                    cacheList=metadataResourceCacheList,
-                                   fromForRelativePathes=fromForRelativePathes)
+                                   from=from)
   )
 }
 

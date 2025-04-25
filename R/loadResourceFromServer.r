@@ -49,7 +49,7 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   df$isVersion<-F
 
   if (is.null(df$targetEntityId) && !is.null(df$targetId)) {
-    #target <- improveRcore::loadResource(df$targetId)
+    #target <- loadResource(df$targetId)
     target <- loadResource(df$targetId)
     df$targetEntityId<-target$entityId
   }

@@ -9,15 +9,15 @@ auditTrailResourceCacheList <- createCacheList("auditTrail")
 #'
 #' arguments:
 #' @param  ident the resource id or the entity id of the resource
-#' @param fromForRelativePathes used if a relative path is used
+#' @param from used if a relative path is used
 #' @references ics1097
 #' @export
-loadAuditTrail <- function(ident,fromForRelativePathes=pwd()) {
+loadAuditTrail <- function(ident,from=pwd()) {
   return(
     genericLoadResourceSubEntities(ident,
                                    func=loadAuditTrailFromServer,
                                    cacheList=auditTrailResourceCacheList,
-                                   fromForRelativePathes=fromForRelativePathes)
+                                   from=from)
   )
 }
 
