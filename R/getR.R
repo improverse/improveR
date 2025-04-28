@@ -51,15 +51,15 @@ source(
 #'
 #' @param logLevel logLevel for improve connect
 #' @param secure if certificates should be checked
-#' @param pwd used for relative paths, by default pwd is used, which is initiated with the step that started improveR
+#' @param from used for relative paths, by default from is used, which is initiated with the step that started improveR
 #'
 #' @export
-improveInit <- function(ident,pwd=pwd(),logLevel="INFO",secure=T) {
+improveInit <- function(ident,from=pwd(),logLevel="INFO",secure=T) {
   log_info("initialising module for ",ident)
   improveConnect(logLevel = logLevel,secure = secure)
-  initFile <- loadResource(ident,pwd)
+  initFile <- loadResource(ident,from)
   if (is.null(initFile)) {
-    log_error("no module definition found at",ident,pwd)
+    log_error("no module definition found at",ident,from)
     return(NULL)
   }
   src <- sourceR(initFile)

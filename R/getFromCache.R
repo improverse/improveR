@@ -122,8 +122,10 @@ resetCache <- function() {
     file.remove(".improver.cache")
   }
   authenticationProvider <- cacheEnv$authenticationProvider
+  editable <- cacheEnv$editable
   rm(list=ls(envir=cacheEnv),envir=cacheEnv)
   cacheEnv$authenticationProvider <- authenticationProvider
   improveConnect(logLevel = logLevel,secure = secure,offlinePossible = offlinePossible,persistentCaching = persistentCaching)
   cacheEnv$reproducible<-F
+  cacheEnv$editable<-editable
 }

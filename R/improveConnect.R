@@ -17,14 +17,14 @@ improveConnected <- function(silent = FALSE) {
     return(invisible(FALSE))
   } else if (cacheEnv$initialized == TRUE) {
     if (!silent) {
-      log_info("Connection already established.")
-      log_info(cacheEnv$conf$repoUrl)
+      log_debug("Connection already established.")
+      log_debug(cacheEnv$conf$repoUrl)
     }
     return(invisible(TRUE))
   } else {
     # Handle any other state if needed, for example:
     if (!silent) {
-      log_info("Connection status is not recognized.")
+      log_warn("Connection status is not recognized.")
     }
     return(invisible(FALSE))
   }
@@ -40,8 +40,10 @@ improveConnected <- function(silent = FALSE) {
 #' @export
 improveDisconnect <- function(env = cacheEnv) {
   authenticationProvider <- env$authenticationProvider
+  editable <- env$editable
   rm(list = ls(envir = env), envir = env)
   env$authenticationProvider <- authenticationProvider
+  env$editable <- editable
 }
 
 #' clearConnectionData

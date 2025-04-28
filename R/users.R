@@ -3,7 +3,7 @@
 #' @ics1142
 #' @export
 users <- function() {
-  improveR::improveConnected()
+  improveConnected()
 
   result <- authenticatedREST("/users")
   if (is.null(result)) {
