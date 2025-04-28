@@ -4,12 +4,12 @@
 \alias{isFileUp2Date}
 \title{isFileUp2Date}
 \usage{
-isFileUp2Date(ident, fromForRelativePathes = pwd())
+isFileUp2Date(ident, from = pwd())
 }
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{Used if a relative path is used.}
+\item{from}{Used if a relative path is used.}
 }
 \description{
 Checks if a new version of the file exists in the repository.
@@ -33,7 +33,7 @@ Relative idents:
 \item Relative path without pwd: always starts from the return value of pwd()'
 \item Relative path and pwd as second argument: starts the relative path from the
 absolute ident that was handed over as second argument. Sometimes still called
-“fromForRelativePathes” but will be updated to pwd.
+“from” but will be updated to pwd.
 }
 }
 

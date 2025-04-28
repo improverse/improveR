@@ -15,6 +15,9 @@ renewAccessToken <- function () {
     }
     storedData = decodeRefreshToken(refrToken)
     authProvider = cacheEnv$authenticationProvider
+    if (!is.null(authProvider)) {
+      authProvider<- getAuthenticationProvider(Sys.getenv("IMPROVER_REPO_URL"))
+    }
     #currentTokenString = Sys.getenv("IMPROVER_TOKEN")
     #currentToken = jose::jwt_split(currentTokenString)
 

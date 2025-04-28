@@ -9,9 +9,10 @@ cacheEnv <- new.env(parent = emptyenv())
 #' @export
 
 improveConnected <- function(silent = FALSE) {
-  if (is.null(cacheEnv$initialized) | cacheEnv$initialized == FALSE) {
+  if (is.null(cacheEnv$initialized) || cacheEnv$initialized == FALSE) {
     if (!silent) {
-      log_info("No connection detected. improveConnect was not called or an error occurred during connection.")
+      log_error("No connection detected. improveConnect was not called or an error occurred during connection.")
+      stop("not connected")
     }
     return(invisible(FALSE))
   } else if (cacheEnv$initialized == TRUE) {
@@ -38,7 +39,9 @@ improveConnected <- function(silent = FALSE) {
 #' @seealso [improveConnect()], [improveConnected()]
 #' @export
 improveDisconnect <- function(env = cacheEnv) {
+  authenticationProvider <- env$authenticationProvider
   rm(list = ls(envir = env), envir = env)
+  env$authenticationProvider <- authenticationProvider
 }
 
 #' clearConnectionData

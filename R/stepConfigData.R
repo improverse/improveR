@@ -1,0 +1,161 @@
+defaultKey <- function(...) {
+  return("default")
+}
+
+
+runserversCacheList <- list(
+  runserversCache=defaultKey
+)
+
+
+
+
+actualLoadRunservers <- function(...) {
+  result <- authenticatedREST('configuration/runservers',
+                                            restType = "GET")
+  servers <- httr::content(result)
+  serversDf <- mergeListToDataframe(servers)
+  return(serversDf)
+}
+
+
+#' loads all registered runservers
+#' @references ics1226
+#' @export
+loadRunservers <- function() {
+  runservers <- getFromCache(defaultKey,actualLoadRunservers,runserversCacheList,NULL)
+  return(runservers)
+}
+
+#' loads runserver by label
+#' @param label the label of the runserver
+#' @references ics1226
+#' @export
+loadRunserver <- function(label) {
+  runservers <- loadRunservers()
+  runserver<-runservers[runservers$label==label,]
+  if (nrow(runserver)==1) {
+    return(runserver)
+  }
+  logging::logwarn(paste0(
+    "No or multiple runservers with this label found: ",label)
+  )
+  return(NULL)
+}
+
+#' unloadRunservers
+#' @references ics1226
+#' @export
+unloadRunservers <- function() {
+  loadRunservers()
+  removeFromCache(defaultKey,"",runserversCacheList)
+}
+
+#' updateRunservers reloads the runservers from the repository
+#' @references ics1226
+#' @export
+updateRunservers <- function() {
+  unloadRunservers()
+  res <- loadRunservers()
+  return(res)
+}
+
+
+runserverToolsCacheList <- list(
+  runserverToolsCache="runserverId"
+)
+
+#' loadToolsForRunserver
+#'
+#' @param runserverId resourceId of the runserver
+#' @references ics1227
+#' @export
+loadToolsForRunserver <- function(runserverId) {
+  runserverToos <- getFromCache(runserverId,actualLoadToolsForRunserver,runserverToolsCacheList,NULL)
+  return(runserverToos)
+}
+
+#' loadToolForRunserver
+#'
+#' @param runserverId resourceId of the runserver
+#' @param toolName name of the tool, optional, but toolname or toolInstanceName have to be given
+#' @param toolInstanceName name of the tool instance, optional, but toolname or toolInstanceName have to be given
+#' @references ics1227
+#'
+#' @export
+loadToolForRunserver <- function(runserverId,toolName=NULL,toolInstanceName=NULL) {
+  runserverTools <- loadToolsForRunserver(runserverId)
+  if (is.null(runserverTools)) {
+    return(NULL)
+  }
+  if (is.null(toolName) && is.null(toolInstanceName)) {
+    logging::logerror("toolName or tool instance name have to be given")
+    return(NULL)
+  } else if (is.null(toolName)) {
+    tool<-runserverTools[runserverTools$name==toolInstanceName,]
+    if (nrow(tool)==1) {
+      return(tool)
+    }
+    logging::logerror(paste0(toolInstanceName," not unique or does not exist"))
+    return(NULL)
+  } else if (is.null(toolInstanceName)) {
+    tool<-runserverTools[runserverTools$toolName==toolName,]
+    if (nrow(tool)==1) {
+      return(tool)
+    }
+    logging::logerror(paste0(toolName," not unique or does not exist"))
+    return(NULL)
+  } else  {
+    runserverTools<-runserverTools[runserverTools$toolName==toolName,]
+    tool<-runserverTools[runserverTools$name==toolInstanceName,]
+        if (nrow(tool)==1) {
+      return(tool)
+    }
+    logging::logerror(paste0(toolInstanceName," and ",toolName," not unique or does not exist"))
+    return(NULL)
+  }
+}
+
+actualLoadToolsForRunserver <- function(runserverId) {
+  result <- authenticatedREST('configuration/runservers/{runserverId}/tools',
+                                            urlParams = list(runserverId=runserverId
+                                            ),
+                                            restType = "GET")
+  if (is.null(result)) {
+    log_warn("no tools found for runserver:",runserverId)
+    return(NULL)
+  }
+  tools <- httr::content(result)
+  toolsDf <- mergeListToDataframe(tools)
+
+  catTools <- loadAllTools()
+
+  colnames(catTools)[colnames(catTools) == 'id'] <- 'toolId'
+  colnames(catTools)[colnames(catTools) == 'name'] <- 'toolName'
+  fullTools <- merge(catTools,toolsDf,by="toolId")
+  runservers <- loadRunservers()
+  colnames(runservers)[colnames(runservers) == 'id'] <- 'runserverId'
+  fullTools <- merge(runservers,fullTools,by="runserverId")
+
+  return(fullTools)
+}
+
+
+#' unloadToolsForRunserver
+#' @param runserverId resourceId of the runserver
+#' @references ics1227
+#' @export
+unloadToolsForRunserver <- function(runserverId) {
+  loadToolsForRunserver(runserverId)
+  removeFromCache(runserverId,"",runserverToolsCacheList)
+}
+
+#' updateToolsForRunserver reloads the runserver tools from the repository
+#' @param runserverId resourceId of the runserver
+#' @references ics1227
+#' @export
+updateToolsForRunserver <- function(runserverId) {
+  unloadToolsForRunserver(runserverId)
+  res <- loadToolsForRunserver(runserverId)
+  return(res)
+}

@@ -10,7 +10,7 @@
 #' @export
 loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   improveConnected()
-  if (cacheEnv$persistentCaching & cacheEnv$reproducible & invalidatesReproducibility) {
+  if (cacheEnv$persistentCaching && cacheEnv$reproducible && invalidatesReproducibility) {
     cacheEnv$reproducible<-F
     logging::logwarn("No longer reproducible, as repo was accessed directly without cache, use loadResource")
   }
@@ -28,8 +28,8 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   logging::logdebug(paste0("Loading Resource for ",resourceId))
   df<-NULL
   if (as.character(resourceId)!="0") {
-    result <- authenticatedREST("/resources/{resourceId}",  
-                                list(resourceId=resourceId) 
+    result <- authenticatedREST("/resources/{resourceId}",
+                                list(resourceId=resourceId)
     )
     if (is.null(result)) {
       logging::logwarn(paste0("Resource with ID: ",resourceId," could not be loaded"))
@@ -39,7 +39,7 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
     cont$comments<-NULL
     cont$entries<-NULL
     cont$requestor<-NULL
-    df <- as.data.frame(cont,stringsAsFactors = FALSE) 
+    df <- as.data.frame(cont,stringsAsFactors = FALSE)
     # df <- convertAPIListToDataframe(cont) #NOTE new function inserted (previsous fix)
 
   } else {
@@ -49,7 +49,7 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   df$isVersion<-F
 
   if (is.null(df$targetEntityId) && !is.null(df$targetId)) {
-    #target <- improveRcore::loadResource(df$targetId)
+    #target <- loadResource(df$targetId)
     target <- loadResource(df$targetId)
     df$targetEntityId<-target$entityId
   }

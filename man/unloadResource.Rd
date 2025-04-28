@@ -4,12 +4,12 @@
 \alias{unloadResource}
 \title{unloadResource}
 \usage{
-unloadResource(ident, fromForRelativePathes = pwd())
+unloadResource(ident, from = pwd())
 }
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{pwd for relative path}
+\item{from}{pwd for relative path}
 }
 \description{
 Unloads a resource.

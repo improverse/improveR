@@ -22,15 +22,15 @@ createCacheList <- function(name) {
   return(myList)
 }
 
-genericLoadResourceSubEntities <- function(ident,func,cacheList,fromForRelativePathes=pwd(),...) {
-  resources <- loadResource(ident,fromForRelativePathes)
+genericLoadResourceSubEntities <- function(ident,func,cacheList,from=pwd(),...) {
+  resources <- loadResource(ident,from)
   if (is.null(resources)) {
     return(NULL)
   }
   if (nrow(resources)>1) {
     entityIds <- resources$entityId
     resourceValues <- Map(function(resId) {
-      genericLoadResourceSubEntities(resId,func,cacheList,fromForRelativePathes,...)
+      genericLoadResourceSubEntities(resId,func,cacheList,from,...)
     },entityIds)
     return(
       mergeListToDataframe(resourceValues)

@@ -6,7 +6,7 @@
 \usage{
 updateFile(
   ident,
-  fromForRelativePathes = pwd(),
+  from = pwd(),
   filePath = ".",
   addIdToName = FALSE,
   linkInInventory = FALSE
@@ -15,7 +15,7 @@ updateFile(
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{Used if a relative path is used.}
+\item{from}{Used if a relative path is used.}
 
 \item{filePath}{Local path where the file is stored (relative to rootPath).}
 
@@ -45,7 +45,7 @@ Relative idents:
 \item Relative path without pwd: always starts from the return value of pwd()'
 \item Relative path and pwd as second argument: starts the relative path from the
 absolute ident that was handed over as second argument. Sometimes still called
-“fromForRelativePathes” but will be updated to pwd.
+“from” but will be updated to pwd.
 }
 }
 

@@ -4,12 +4,12 @@
 \alias{isResourceUp2Date}
 \title{isResourceUp2Date}
 \usage{
-isResourceUp2Date(ident, fromForRelativePathes = pwd())
+isResourceUp2Date(ident, from = pwd())
 }
 \arguments{
 \item{ident}{id}
 
-\item{fromForRelativePathes}{pwd for relative path}
+\item{from}{pwd for relative path}
 }
 \description{
 Checks if resource is up to date.

@@ -1,8 +1,0 @@
-{
-    "device_code": "CjBtDoA0lR-PybLFeFiRx1RNoNTlYoP2ynGbfZuymDk",
-    "user_code": "WNXH-TJZK",
-    "verification_uri": "https://keycloak1.hc.scinteco.com/realms/master/device",
-    "verification_uri_complete": "https://keycloak1.hc.scinteco.com/realms/master/device?user_code=WNXH-TJZK",
-    "expires_in": 600,
-    "interval": 5
-}

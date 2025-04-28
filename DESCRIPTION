@@ -26,14 +26,16 @@ Imports:
     plyr,
     stringr,
     tidyr,
-    improveRcore,
-    improveRmodify,
     utils,
-    rmarkdown,
     tibble,
     magrittr,
     jose,
-    openssl
+    openssl,
+    rlang,
+    haven,
+    htmltools,
+    knitr,
+    readxl
 Suggests: 
     httptest,
     testthat (>= 3.0.0)

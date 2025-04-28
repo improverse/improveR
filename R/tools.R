@@ -1,0 +1,123 @@
+
+
+toolCategoriesCacheList <- list(
+  toolCategoriesCache=defaultKey
+)
+
+
+
+
+actualToolCategories <- function(...) {
+  result <- authenticatedREST('configuration/toolCategories',
+                                            restType = "GET")
+  categories <- httr::content(result)
+  categoriesDf <- mergeListToDataframe(categories)
+  return(categoriesDf)
+}
+
+
+#' loads all registered tool categories
+#' @references ics1229
+#' @export
+loadToolCategories <- function() {
+  categories <- getFromCache(defaultKey,actualToolCategories,toolCategoriesCacheList,NULL)
+  return(categories)
+}
+
+
+#' unloadToolCategories
+#' @references ics1229
+#' @export
+unloadToolCategories <- function() {
+  loadToolCategories()
+  removeFromCache(defaultKey,"",toolCategoriesCacheList)
+}
+
+#' updateToolCategories reloads the tool categories from the repository
+#' @references ics1229
+#' @export
+updateToolCategories <- function() {
+  unloadToolCategories()
+  res <- loadToolCategories()
+  return(res)
+}
+
+##############################TOOLS
+
+toolsCacheList <- list(
+  toolsCache="categoryId"
+)
+
+#' loadToolsForCategory
+#'
+#' @param categoryId categoryId of the tools
+#' @references ics1230
+#' @export
+loadToolsForCategory <- function(categoryId) {
+  catgoryTools <- getFromCache(categoryId,actualLoadToolsForCategory,toolsCacheList,NULL)
+  return(catgoryTools)
+}
+
+
+actualLoadToolsForCategory <- function(categoryId) {
+  result <- authenticatedREST('configuration/toolCategories/{id}/tools',
+                                            urlParams = list(id=categoryId
+                                            ),
+                                            restType = "GET")
+  if (is.null(result)) {
+    log_warn("no tools found for category:",categoryId)
+    return(NULL)
+  }
+  tools <- httr::content(result)
+  toolsDf <- mergeListToDataframe(tools)
+  if (nrow(toolsDf)>0) {
+    toolsDf$categoryId<-categoryId
+    return(toolsDf)
+  }
+  return(NULL)
+}
+
+
+#' unloadToolsForCategory
+#' @param categoryId categoryId of the tools
+#' @references ics1230
+#' @export
+unloadToolsForCategory <- function(categoryId) {
+  loadToolsForCategory(categoryId)
+  removeFromCache(categoryId,"",runserverToolsCacheList)
+}
+
+#' updateToolsForCategory reloads the category tools from the repository
+#' @param categoryId categoryId of the category
+#' @references ics1230
+#' @export
+updateToolsForCategory <- function(categoryId) {
+  unloadToolsForCategory(categoryId)
+  res <- loadToolsForCategory(categoryId)
+  return(res)
+}
+
+#' loads all registered tools with their categories
+#' @references ics1230
+#' @export
+loadAllTools <- function() {
+  categories <- loadToolCategories()
+  allTools <- NULL
+  if (nrow(categories)>0) {
+    for (i in 1:nrow(categories)) {
+      category <- categories[i,]
+      tools <- loadToolsForCategory(category$id)
+      if (!is.null(tools) && nrow(tools)>0) {
+        tools$categoryName <- category$name
+        tools$categoryIdentifier <- category$identifier
+        if (is.null(allTools)) {
+          allTools<- tools
+        } else {
+          allTools <- plyr::rbind.fill(allTools,tools)
+        }
+      }
+    }
+  }
+  return(allTools)
+}
+

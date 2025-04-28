@@ -28,7 +28,7 @@ removeFromCache <- function(key,argument,cacheList) {
 
 
 getFromCache <- function(key,func,cacheList,argument,...) {
-#  improveConnected()
+  improveConnected()
   if (is.character(key)) {
     logging::logdebug(paste0("Retrieving ",key," from caches"))
   } else {

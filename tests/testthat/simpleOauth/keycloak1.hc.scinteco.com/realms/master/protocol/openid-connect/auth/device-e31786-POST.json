@@ -1,8 +1,0 @@
-{
-    "device_code": "pB_f8GMPHUdw1UJUQ6wWBFQXH4rHxabdXUct7PpG0Y4",
-    "user_code": "LOQB-GWZL",
-    "verification_uri": "https://keycloak1.hc.scinteco.com/realms/master/device",
-    "verification_uri_complete": "https://keycloak1.hc.scinteco.com/realms/master/device?user_code=LOQB-GWZL",
-    "expires_in": 600,
-    "interval": 5
-}
