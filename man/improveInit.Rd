@@ -4,12 +4,12 @@
 \alias{improveInit}
 \title{initialises modules, also automatically connects}
 \usage{
-improveInit(ident, pwd = pwd(), logLevel = "INFO", secure = T)
+improveInit(ident, from = pwd(), logLevel = "INFO", secure = T)
 }
 \arguments{
 \item{ident}{path, resource or entity ID of the R object}
 
-\item{pwd}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{used for relative paths, by default from is used, which is initiated with the step that started improveR}
 
 \item{logLevel}{logLevel for improve connect}
 

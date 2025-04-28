@@ -6,9 +6,9 @@
 #' @param startPath Starting point for relative pathes, defaults to /
 #' @references ics1089
 #' @examples \dontrun{
-#' improveR::normalisePath(path = "./../lmer/../lmer", startPath = "/0demo/lmer") # /0demo/lmer
-#' improveR::normalisePath(path = "./../../../lmer/../lmer", startPath = "/0demo/lmer") # NULL
-#' improveR::normalisePath(path = "/0demo/lmer", startPath = "/0demo/lmer") # /0demo/lmer
+#' normalisePath(path = "./../lmer/../lmer", startPath = "/0demo/lmer") # /0demo/lmer
+#' normalisePath(path = "./../../../lmer/../lmer", startPath = "/0demo/lmer") # NULL
+#' normalisePath(path = "/0demo/lmer", startPath = "/0demo/lmer") # /0demo/lmer
 #' }
 #' @export
 normalisePath <- function(path,startPath="/") {

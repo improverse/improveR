@@ -18,9 +18,9 @@ If by too many .. the path navigates beyond the root, NULL is returned.
 }
 \examples{
 \dontrun{
-improveR::normalisePath(path = "./../lmer/../lmer", startPath = "/0demo/lmer") # /0demo/lmer
-improveR::normalisePath(path = "./../../../lmer/../lmer", startPath = "/0demo/lmer") # NULL
-improveR::normalisePath(path = "/0demo/lmer", startPath = "/0demo/lmer") # /0demo/lmer
+normalisePath(path = "./../lmer/../lmer", startPath = "/0demo/lmer") # /0demo/lmer
+normalisePath(path = "./../../../lmer/../lmer", startPath = "/0demo/lmer") # NULL
+normalisePath(path = "/0demo/lmer", startPath = "/0demo/lmer") # /0demo/lmer
 }
 }
 \references{

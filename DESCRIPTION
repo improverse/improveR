@@ -35,7 +35,8 @@ Imports:
     haven,
     htmltools,
     knitr,
-    readxl
+    readxl,
+    uuid
 Suggests: 
     httptest,
     testthat (>= 3.0.0)
