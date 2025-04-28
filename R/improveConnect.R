@@ -39,7 +39,9 @@ improveConnected <- function(silent = FALSE) {
 #' @seealso [improveConnect()], [improveConnected()]
 #' @export
 improveDisconnect <- function(env = cacheEnv) {
+  authenticationProvider <- env$authenticationProvider
   rm(list = ls(envir = env), envir = env)
+  env$authenticationProvider <- authenticationProvider
 }
 
 #' clearConnectionData
