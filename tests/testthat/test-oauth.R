@@ -9,7 +9,7 @@ httptest::with_mock_dir("fullOauthDirectSuccess",{
 
     authenticationProvider <- getAuthenticationProvider(mockUrl)
     expect_true(length(authenticationProvider)==7)
-    expect_equal("improve-client",authenticationProvider$clientId)
+    expect_equal("improve-api-client",authenticationProvider$clientId)
     ########################
     cacheEnv$codeVerifier <- "WUsHGZRCV9NGaRfp9RlaMl4NQvLx8TNtrUj5crJYXH7wTJcaxt4ykP7AAJ41kVtICGfmzdUacdACgQ6y5OlTz6bt9CX1Hc5oyb6F6K5ovlPAQ-GuRBdZlOGw4vsoXSas"
     initiatedAuthentication <- startOAuth(authenticationProvider,withCodeVerifier=T)
