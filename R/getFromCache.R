@@ -79,14 +79,21 @@ writeToCache <- function(res,resourceCacheList,argument) {
   devnull<-lapply(names(resourceCacheList),function(cacheName) {
     if (cacheName %in% ls(envir=cacheEnv)) {
       cache<-get(cacheName,envir=cacheEnv)
+
       cacheKey <- unname(resourceCacheList[cacheName])[[1]]
+
       if (is.character(cacheKey)) {
-        value <- as.character(unique(res[cacheKey]))
-        #if (cacheKey=="entityId" | cacheKey=="entityVersionId"){
-        #  value <- strsplit(value,":")[[1]][2]
-        #  print(value)
-        #}
-        assign(value,res,envir=cache)
+        cacheKeyValues <- unique(res[cacheKey])
+        if (nrow(cacheKeyValues)>1) {
+          for (i in 1:nrow(cacheKeyValues)) {
+            ckV <- cacheKeyValues[i,]
+            storeRes <- res[res[[cacheKey]]==ckV,]
+            assign(x = ckV,value=storeRes,envir=cache)
+          }
+        } else {
+          value <- as.character(cacheKeyValues)
+          assign(value,res,envir=cache)
+        }
       }
       else if (is.function(cacheKey)) {
         value <- cacheKey(res,argument)
