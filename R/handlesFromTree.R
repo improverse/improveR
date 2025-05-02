@@ -6,6 +6,7 @@
 #' @export
 handlesFromTree <- function(ident,from=pwd(),includeSelf=F) {
   workflowHandle <- uuid::UUIDgenerate()
+  #TODO here load dmg
   steps <- loadChildResources(ident,from)$data[[1]]
   if (!includeSelf) {
     steps <- steps[steps$resourceId!=pwd()$resourceId,]

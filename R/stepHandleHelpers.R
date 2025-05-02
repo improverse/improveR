@@ -151,9 +151,10 @@ setStepToolName <- function(stepHandle,toolName) {
 #' @param variableName the name of the variable the file should be bound to, optional
 #' @param sourceHandle stepHandle if ident is relative to another step in the workflow
 #' @param sourceName name if ident is relative to another step in the workflow
+#' @param variableProcess if the file is bound to a variable, the process name the variable belongs to
 #'
 #' @export
-addStepRemoteFile <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variableName=NULL,sourceHandle=NULL,sourceName=NULL) {
+addStepRemoteFile <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variableName=NULL,sourceHandle=NULL,sourceName=NULL,variableProcess="Main") {
 
 
   ###TODO incorporate sourceHandles and specific versions
@@ -175,6 +176,7 @@ addStepRemoteFile <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variableN
   fileList["asLink"]<-asLink
   fileList["name"]<-name
   fileList["variableName"]<-variableName
+  fileList["variableProcess"]<-variableProcess
   if (!is.null(sourceHandle)) {
     fileList["sourceHandle"]<-sourceHandle
     fileList["sourceName"]<-sourceName

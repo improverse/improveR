@@ -1,36 +1,30 @@
-#' handleFromStep
-#' reads a step and it´s processes and generates a new handle
-#' @param stepId the ident of the step
-#' @references ics1213
-#' @export
-handleFromStep <- function(stepId) {
 
-  stepHandle <- uuid::UUIDgenerate()
+#cycle with old version. test usage of correct run, with revision
 
-  step <- loadResource(stepId)
-  process <- getMainProcess(step)
-
-  newHandle <- data.frame(handle=stepHandle,stringsAsFactors = F)
-  newHandle$treeIdent<-step$parentId
+#' collect all data for one process
+#'
+fullProcess <- function(process) {
+  processId <- process$id
+  newHandle <- data.frame(handle=processId,stringsAsFactors = F)
   newHandle$runserverName <- process$runserverLabel
   newHandle$toolName <- process$toolLabel
   newHandle$runserverToolName<-process$toolInstance
-  newHandle$description<-step$description
-  newHandle$rationale<-step$rationale
-  newHandle$entityId<-step$entityId
-  if (!startsWith(step$name,"Step ")) {
-    newHandle$stepName <- step$name
-  }
   newHandle$toolArgs <- process$toolArgs
   newHandle$toolDeletePatterns <- process$toolDeletePatterns
   newHandle$toolStreamablePatterns <- process$toolStreamablePatterns
+  newHandle$selected <- process$selected
+  newHandle$gridTool <- process$gridTool
+  newHandle$main <- process$main
+  newHandle$name <- process$name
+  newHandle$processType <- process$processType
+  newHandle$position <- process$position
+  newHandle$parentProcessId <- process$parentProcessId
 
-  gridArguments <- loadProcessGridArguments(process$id)
+  gridArguments <- process$gridArguments
 
   if (!is.null(gridArguments)) {
-
-      newHandle$gridArguments <- list(
-        byNotEmptyAsDf(gridArguments,function(ga) {
+    newHandle$gridArguments <- list(
+      byNotEmptyAsDf(gridArguments,function(ga) {
         gridHandle <- data.frame(handle=stepHandle)
         gridHandle$argumentName<- ga$name
 
@@ -46,15 +40,58 @@ handleFromStep <- function(stepId) {
       })
     )
   }
+  return(newHandle)
+}
 
-  runs <- loadProcessRuns(process$id)
+#' handleFromStep
+#' reads a step and it´s processes and generates a new handle
+#' @param stepId the ident of the step
+#' @references ics1213
+#' @export
+handleFromStep <- function(stepId) {
+
+  stepHandle <- uuid::UUIDgenerate()
+
+  step <- loadResource(stepId)
+
+  processes <- loadProcessesForStep(stepIdent = stepId)
+  processes <- processes[order(processes$position),]
+
+  processDfs <- byNotEmptyAsDf(processes,fullProcess)
+
+  newHandle <- data.frame(handle=stepHandle,stringsAsFactors = F)
+  newHandle$processes <- list(processDfs)
+  newHandle$treeIdent<-step$parentId
+
+  newHandle$description<-step$description
+  newHandle$rationale<-step$rationale
+  newHandle$entityId<-step$entityId
+  if (!startsWith(step$name,"Step ")) {
+    newHandle$stepName <- step$name
+  }
+
+
+  selectedProcesses <- processes[processes$selected,]
+  runs <- data.frame()
+  if (nrow(selectedProcesses)>0) {
+    runs <- loadProcessRuns(selectedProcesses[1,]$id)
+  }
+
+
   inventory <- getStepResourceInventory(step,recurse=T)%>%strip()
-  variables <- loadProcessVariables(process$id)
+  variables <- byNotEmptyAsDf(processes,
+                              function(process) {
+                                return(process$variables)
+                              }
+                                )
+
+  # use DMG for files
+
   if (!is.data.frame(runs) || nrow(runs)==0) {
     inputFiles <- inventory
   } else {
     inputFiles <- inventory[inventory$nodeType=="File",]
-    inputFiles <- inputFiles[inputFiles$createdAt<min(runs$startedAt),]
+    inputFiles <- inputFiles[inputFiles$createdAt<max(runs$startedAt),]
   }
   storeStep(stepHandle = stepHandle,stepList = newHandle)
 
@@ -63,20 +100,24 @@ handleFromStep <- function(stepId) {
   links <- inventory[inventory$nodeType=="Link",]
   linkHandles <- byNotEmpty(links,function(link) {
     variableName <- NULL
+    variableProcess <-NULL
     variable <- variables[variables$valueResourceId==link$resourceId,]
     if (nrow(variable)==1) {
       variableName<-variable$name
+      variableProcess<-loadProcessesForStepById(variable$processId)$name
     }
-    addStepRemoteFile(stepHandle=stepHandle,ident = link,name = link$inventoryPath,asLink = T,variableName = variableName)
+    addStepRemoteFile(stepHandle=stepHandle,ident = link,name = link$inventoryPath,asLink = T,variableName = variableName,variableProcess = variableProcess)
 
   })
   fileHandles <- byNotEmpty(inputFiles,function(f) {
     variableName <- NULL
+    variableProcess <-NULL
     variable <- variables[variables$valueResourceId==f$resourceId,]
     if (nrow(variable)==1) {
       variableName<-variable$name
+      variableProcess<-loadProcessesForStepById(variable$processId)$name
     }
-    addStepRemoteFile(stepHandle=stepHandle,ident = f,name = f$inventoryPath,asLink = F,variableName = variableName)
+    addStepRemoteFile(stepHandle=stepHandle,ident = f,name = f$inventoryPath,asLink = F,variableName = variableName,variableProcess = variableProcess)
     })
 
   externalLinks <- inventory[inventory$nodeType=="ExtLink",]

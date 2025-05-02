@@ -174,7 +174,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
       improveLogin(repo = repoUrl, user = user, password = password, logLevel = logLevel, secure = secure, shortEntityId = stepId)
       return()
     } else if (reqToken=="") {
-      improveOAuth(repoUrl)
+      improveOAuth(repoUrl,shortEntityId = stepId)
       return()
     }
     workspace <- Sys.getenv("IMPROVER_WORKSPACE")
