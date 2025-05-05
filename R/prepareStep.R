@@ -12,13 +12,12 @@ createPreparedStep <- function(stepHandle) {
   logging::logdebug("createPreparedStep")
   timing("createPreparedStep")
   prepStep <- retrieveStep(stepHandle)
+  mainPrep <- retrieveMainProcess(stepHandle)
 
 
-  runserver <- loadRunserver(prepStep$runserverName)
-
-
+  runserver <- loadRunserver(mainPrep$runserverName)
   tools  <- loadToolsForRunserver(runserver$id)
-  tool <- loadToolForRunserver(runserver$id,prepStep$toolName,prepStep$runserverToolName)
+  tool <- loadToolForRunserver(runserver$id,mainPrep$toolName,mainPrep$runserverToolName)
   newStep <- NULL
   if (!is.null(prepStep$entityId)) {
     newStep <- loadResource(prepStep$entityId)
@@ -39,25 +38,73 @@ createPreparedStep <- function(stepHandle) {
 
   timing("created")
 
-  main <- getMainProcess(newStep$resourceId)
-  processId <- main$id
+
+  processes <- prepStep$processes[[1]]
+
+  if (nrow(processes)>0) {
+    processes <- processes[order(processes$position),]
+    for (i in 1:nrow(processes)) {
+      process <- processes[i,]
+
+      runserver <- loadRunserver(process$runserverName)
+      tools  <- loadToolsForRunserver(runserver$id)
+      tool <- loadToolForRunserver(runserver$id,process$toolName,process$runserverToolName)
+
+      toolArguments <- NULL
+      if (!is.null(process$commandline)) {
+        toolArguments <- ""
+        if (process$appendCommandline) {
+          toolArguments <- paste0(repoProcess$toolArgs,"\r\n")
+        }
+        toolArguments <- paste0(toolArguments,process$commandline)
+      }
 
 
-
-  toolArguments <- NULL
-  if (!is.null(prepStep$commandline)) {
-    toolArguments <- ""
-    if (prepStep$appendCommandline) {
-      toolArguments <- paste0(main$toolArgs,"\r\n")
+      if (process$processType=="main") {
+        repoProcess <- getMainProcess(newStep$resourceId)
+        setProcessVariables(newStep$resourceId,
+                            repoProcess$id,
+                            runserverId=runserver$id,
+                            toolId=tool$toolId,
+                            runserverToolId=tool$id,
+                            gridTool=!is.na(tool$gridProvider),
+                            toolArguments=toolArguments,
+                            position = process$position,
+                            processType = process$processType,
+                            name=process$name,
+                            mainProcess=process$main,
+                            toolDeletePatterns = process$toolDeletePatterns,
+                            toolStreamablePatterns = process$toolStreamablePatterns,
+                            toolIgnorePatterns = process$toolIgnorePatterns,
+                            toolBrowserUrl = process$toolBrowserUrl,
+                            selected = process$selected,
+                            parentProcessId = process$parentProcessId
+        )
+      } else {
+        createProcess(
+          newStep$resourceId,
+          runserverId=runserver$id,
+          toolId=tool$toolId,
+          runserverToolId=tool$id,
+          gridTool=!is.na(tool$gridProvider),
+          toolArguments=toolArguments,
+          position = process$position,
+          processType = process$processType,
+          name=process$name,
+          mainProcess=process$main,
+          toolDeletePatterns = process$toolDeletePatterns,
+          toolStreamablePatterns = process$toolStreamablePatterns,
+          toolIgnorePatterns = process$toolIgnorePatterns,
+          toolBrowserUrl = process$toolBrowserUrl,
+          selected = process$selected,
+          parentProcessId = process$parentProcessId
+        )
+      }
     }
-    toolArguments <- paste0(toolArguments,prepStep$commandline)
   }
-
-  setProcessVariables(newStep$resourceId,processId,runserverId=runserver$id,toolId=tool$toolId,runserverToolId=tool$id,gridTool=!is.na(tool$gridProvider),toolArguments=toolArguments)
-
   logging::logdebug("process variables set")
   timing("process variables set")
-  main <- updateProcessesForStep(newStep$resourceId)
+  repoProcesses <- updateProcessesForStep(newStep$resourceId)
 
   if (!is.null(prepStep$stepName)) {
     stepName <- prepStep$stepName
@@ -89,12 +136,12 @@ createPreparedStep <- function(stepHandle) {
 
 
   #a bit hacky
-  unloadResource(newStep)
-  unloadChildResources(newStep)
-  unloadFullChildResources(newStep)
-  unloadChildResources(newStep$parentId)
-  unloadFullChildResources(newStep$parentId)
-  newStep <- loadResource(newStep)
+  #unloadResource(newStep)
+  #unloadChildResources(newStep)
+  #unloadFullChildResources(newStep)
+  #unloadChildResources(newStep$parentId)
+  #unloadFullChildResources(newStep$parentId)
+  newStep <- updateResource(newStep)
 
   timing("all unloads")
 
@@ -128,12 +175,12 @@ createPreparedStep <- function(stepHandle) {
 
   timing("grid arguments set")
 
-  unloadResource(newStep)
-  unloadChildResources(newStep)
-  unloadFullChildResources(newStep)
-  unloadChildResources(newStep$parentId)
-  unloadFullChildResources(newStep$parentId)
-  newStep <- loadResource(newStep)
+  #unloadResource(newStep)
+  #unloadChildResources(newStep)
+  #unloadFullChildResources(newStep)
+  #unloadChildResources(newStep$parentId)
+  #unloadFullChildResources(newStep$parentId)
+  newStep <- updateResource(newStep)
 
   logging::logdebug("reloaded")
   timing("reloaded")
@@ -326,9 +373,19 @@ addFileToStep <- function(newStep, filePrep,local) {
   timing("created")
   if (!is.na(filePrep$variableName) && !filePrep$variableName=="" && !is.null(newFile)) {
     timing("variableStart")
-    processId <- as.character(getMainProcess(newStep)$id)
+    stepProcesses <- loadProcessesForStep(newStep$resourceId)
+    variableProcess <- stepProcesses[stepProcesses$name==filePrep$variableProcess,]
+    processId <- as.character(variableProcess$id)
     variables <- getProcessFileVariables(newStep,processId)
     variableId <- as.character(variables[variables$name==filePrep$variableName,]$id)
+    if (length(variableId)==0) {
+      position=1
+      if (!is.null(variables)) {
+        position<- max(variables$position)+1
+      }
+      variable<- createProcessFileVariable(ident = newStep$resourceId,processId = processId,name = filePrep$variableName,variableType = "fileRef",position = position)
+      variableId<-variable[[1]][1]
+    }
 
     result <- authenticatedREST("/resources/{resourceId}/processes/{processId}/variables/{variableId}",
                                               urlParams = list(resourceId=newStep$resourceId,

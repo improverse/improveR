@@ -81,7 +81,7 @@ handleFromStep <- function(stepId) {
   inventory <- getStepResourceInventory(step,recurse=T)%>%strip()
   variables <- byNotEmptyAsDf(processes,
                               function(process) {
-                                return(process$variables)
+                                return(loadProcessVariables(process$id))
                               }
                                 )
 

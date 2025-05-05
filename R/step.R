@@ -54,12 +54,18 @@ createStep <- function(treeIdent,parentStepIdent=NULL,toolId=NULL) {
 #' @param toolIgnorePatterns toolIgnorePatterns
 #' @param toolArguments toolArguments
 #' @param mainProcess if this process is status relevant, there needs to be exactly one mainProcess
+#' @param position the position in the process list
+#' @param parentProcessId only to use when processType equals sub
+#' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
+#' @param toolDeletePatterns files that wont get checked in
+#' @param toolStreamablePatterns file that can be streamed to monitor the step
 #'
 #' @export
-setProcessVariables <- function(stepId, processId,processType="main",name="Main",selected=TRUE,runserverId="",toolId="",runserverToolId="",toolIgnorePatterns="",mainProcess=T,gridTool,toolArguments=NULL) {
+setProcessVariables <- function(stepId, processId,processType="main",name="Main",selected=TRUE,runserverId="",toolId="",runserverToolId="",toolIgnorePatterns="",mainProcess=T,gridTool,toolArguments=NULL,position=1,parentProcessId = NULL,toolBrowserUrl=NULL,toolDeletePatterns=NULL,toolStreamablePatterns="") {
 
   processVariables <- list(
     processType=processType,
+    position=position,
     name=name,
     selected=replaceTF(selected),
     runserverId=runserverId,
@@ -71,6 +77,18 @@ setProcessVariables <- function(stepId, processId,processType="main",name="Main"
 
   if (!is.null(toolArguments)) {
     processVariables$toolArgs <- toolArguments
+  }
+  if (!is.null(parentProcessId)) {
+    processVariables$parentProcessId <- parentProcessId
+  }
+  if (!is.null(toolBrowserUrl)) {
+    processVariables$toolBrowserUrl <- toolBrowserUrl
+  }
+  if (!is.null(toolDeletePatterns)) {
+    processVariables$toolDeletePatterns <- toolDeletePatterns
+  }
+  if (!is.null(toolStreamablePatterns)) {
+    processVariables$toolStreamablePatterns <- toolStreamablePatterns
   }
 
   result <- authenticatedREST('/resources/{stepId}/processes/{processId}',
@@ -130,6 +148,36 @@ getProcessFileVariables <- function(ident, processId) {
   return(variablesDf)
 }
 
+#' createProcessFileVariable
+#'
+#' @param ident id of the step the variables refer to
+#' @param processId id of the process the variables refer to
+#' @param name name of the variable
+#' @param variableType fileRef or filePath
+#' @param position position of the variable
+#'
+#' @export
+createProcessFileVariable <- function(ident, processId,name,variableType,position) {
+  step <- loadResource(ident)
+  variableData <- list(
+    type="processVariable",
+    name=name,
+    variableType=variableType,
+    position=position
+  )
+  result <- authenticatedREST('/resources/{stepId}/processes/{processId}/variables',
+
+                              urlParams = list(stepId=step$resourceId,
+                                               processId=processId
+                              ),
+                              data=variableData,
+                              restType = "POST")
+
+  variables <- httr::content(result)
+  variablesDf <- plyr::rbind.fill(lapply(variables,as.data.frame))
+  return(variablesDf)
+}
+
 #' detaches a step from its parent
 #'
 #' @param ident ident of the step
@@ -172,3 +220,63 @@ attachStep <- function(ident,parent,  from=pwd()) {
   unloadChildSteps(stepParentEntity)
   return(updateResource(ident,from))
 }
+
+#' createProcess
+#'
+#' @param stepId id of the step the variables refer to
+#' @param processType processType
+#' @param name name
+#' @param selected selected
+#' @param runserverId runserverId
+#' @param toolId toolId
+#' @param gridTool gridTool
+#' @param runserverToolId runserverToolId
+#' @param toolIgnorePatterns toolIgnorePatterns
+#' @param toolArguments toolArguments
+#' @param mainProcess if this process is status relevant, there needs to be exactly one mainProcess
+#' @param position the position in the process list
+#' @param parentProcessId only to use when processType equals sub
+#' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
+#' @param toolDeletePatterns files that wont get checked in
+#' @param toolStreamablePatterns file that can be streamed to monitor the step
+#'
+#' @export
+createProcess <- function(stepId,processType="main",name="Main",selected=TRUE,runserverId="",toolId="",runserverToolId="",toolIgnorePatterns="",mainProcess=T,gridTool,toolArguments=NULL,position=1,parentProcessId = NULL,toolBrowserUrl=NULL,toolDeletePatterns=NULL,toolStreamablePatterns="") {
+
+  processVariables <- list(
+    processType=processType,
+    position=position,
+    name=name,
+    selected=replaceTF(selected),
+    runserverId=runserverId,
+    toolId=toolId,
+    runserverToolId=runserverToolId,
+    toolIgnorePatterns=toolIgnorePatterns,
+    main=replaceTF(mainProcess),
+    gridTool=replaceTF(gridTool))
+
+  if (!is.null(toolArguments)) {
+    processVariables$toolArgs <- toolArguments
+  }
+  if (!is.null(parentProcessId)) {
+    processVariables$parentProcessId <- parentProcessId
+  }
+  if (!is.null(toolBrowserUrl)) {
+    processVariables$toolBrowserUrl <- toolBrowserUrl
+  }
+  if (!is.null(toolDeletePatterns)) {
+    processVariables$toolDeletePatterns <- toolDeletePatterns
+  }
+  if (!is.null(toolStreamablePatterns)) {
+    processVariables$toolStreamablePatterns <- toolStreamablePatterns
+  }
+
+  result <- authenticatedREST('/resources/{stepId}/processes/',
+                              urlParams = list(stepId=stepId
+                              ),
+                              data=processVariables,
+                              restType = "POST")
+  result <- updateProcessesForStep(stepId)
+}
+
+

@@ -11,11 +11,18 @@ removeFromCache <- function(key,argument,cacheList) {
         cache<-get(cacheName,envir=cacheEnv)
         cacheKey <- unname(cacheList[cacheName])[[1]]
         if (is.character(cacheKey)) {
-          value <- as.character(unique(res[cacheKey]))
-          #if (cacheKey=="entityId" | cacheKey=="entityVersionId"){
-          #  value <- strsplit(value,":")[[1]][2]
-          #}
-          rm(list = value ,envir=cache)
+
+          cacheKeyValues <- unique(res[cacheKey])
+          if (nrow(cacheKeyValues)>1) {
+            for (i in 1:nrow(cacheKeyValues)) {
+              ckV <- cacheKeyValues[i,]
+
+              rm(list = ckV ,envir=cache)
+            }
+          } else {
+            value <- as.character(cacheKeyValues)
+            rm(list = value ,envir=cache)
+          }
         }
         else if (is.function(cacheKey)) {
           value <- cacheKey(res,argument)

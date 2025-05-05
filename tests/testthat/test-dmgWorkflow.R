@@ -12,11 +12,35 @@ Sys.setenv(R_TOOL_INSTANCE="rbatch")
 Sys.setenv(R_TOOL="R_4.2")
 Sys.setenv(TEST_SERVER="5310")
 devtools::load_all()
+clearConnectionData()
 improveConnect()
+setEditable(T)
 
 testTree <- "envhost1.hc.scintecodev.internal-5310:AT-59469"
-workflow <- retrieveWorkflow(handlesFromTree(testTree))
 
-dmgResult <- authenticatedREST("/resources/{resourceId}/dmg",
-                            list(resourceId=loadResource(testTree)$resourceId))
-dmg <- httr::content(dmgResult)
+workflowHandle <- handlesFromTree(testTree)
+workflow <- retrieveWorkflow(workflowHandle)
+
+makeStepsRelative(workflowHandle)
+workflow <- retrieveWorkflow(workflowHandle)
+workflow$entityId <- NULL
+persistWorkflowChanges(workflow)
+executeWorkflow(workflow = workflow)
+
+#execute flow
+#adapt all stephelpers to use main process as default but others possibly
+#test circular workflow (actually use runs to build workflow)
+#integrate import export directly in library, added hashes to workflow
+# add sorting of the json to workflow
+#rerun check identity with string comparison
+#strict rerun rules (rerun with multiple processes,...)
+#loadParent
+#check those fields
+#' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
+#' @param toolDeletePatterns files that wont get checked in
+#' @param toolStreamablePatterns file that can be streamed to monitor the step
+#variable does not exist
+
+#dmgResult <- authenticatedREST("/resources/{resourceId}/dmg",
+#                            list(resourceId=loadResource(testTree)$resourceId))
+#dmg <- httr::content(dmgResult)

@@ -1,3 +1,6 @@
+
+
+
 #' sets the containing tree
 #'
 #' @param stepHandle id of the prepared step
@@ -383,4 +386,17 @@ addStepLocalFile <- function(stepHandle,path,name=NULL,variableName=NULL) {
   fileList["variableName"]<-variableName
   fileList["path"]<-path
   addStepValue(stepHandle,"localFiles",fileList)
+}
+
+
+
+
+
+retrieveMainProcess <- function(stepHandle) {
+  stepData <- retrieveStep(stepHandle)
+  processes <- stepData$processes[[1]]
+  if (nrow(processes)>0 && ("main" %in% processes$processType)) {
+    return(processes[processes$processType=="main",])
+  }
+  return(NULL)
 }
