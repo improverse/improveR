@@ -38,6 +38,29 @@ setStepValue <- function(stepHandle,key,value) {
   return(stepHandle)
 }
 
+setProcessValue <- function(stepHandle,processName,key,value){
+  stepData <- retrieveStep(stepHandle)
+  processes <- stepData$processes[[1]]
+  if (!(processName %in% processes$name)) {
+    newProcess <- data.frame(
+      name=processName,
+      selected=T,
+      main=F,
+      processType="post",
+      position=max(processes$position)+1,
+      stringsAsFactors = F)
+    processes <- plyr::rbind.fill(newProcess,processes)
+  }
+  processes <- byNotEmptyAsDf(processes,function(process) {
+    if (process$name==processName) {
+      process[[key]]<-value
+    }
+    return(process)
+  })
+  stepData$processes <- list(processes)
+  storeStep(stepHandle = stepHandle,stepList=stepData)
+}
+
 getStepValue <- function(stepHandle,key) {
   stepList <- retrieveStep(stepHandle)
   if (key %in% names(stepList)) {

@@ -4,7 +4,7 @@
 \alias{setStepCommandLine}
 \title{sets the command line}
 \usage{
-setStepCommandLine(stepHandle, commandline, append = T)
+setStepCommandLine(stepHandle, commandline, append = T, process = "Main")
 }
 \arguments{
 \item{stepHandle}{id of the prepared step}
@@ -12,6 +12,8 @@ setStepCommandLine(stepHandle, commandline, append = T)
 \item{commandline}{the new command line or command line appendix}
 
 \item{append}{if the complete command line is replaced or this is appended defaults to TRUE}
+
+\item{process}{the name of the process, default = Main. If the process does not yet exist it is created}
 }
 \description{
 sets the command line

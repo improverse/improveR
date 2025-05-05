@@ -27,8 +27,9 @@ workflow$entityId <- NULL
 persistWorkflowChanges(workflow)
 executeWorkflow(workflow = workflow)
 
-#execute flow
+
 #adapt all stephelpers to use main process as default but others possibly
+#add gridarguments to process mapping
 #test circular workflow (actually use runs to build workflow)
 #integrate import export directly in library, added hashes to workflow
 # add sorting of the json to workflow
@@ -39,7 +40,8 @@ executeWorkflow(workflow = workflow)
 #' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
 #' @param toolDeletePatterns files that wont get checked in
 #' @param toolStreamablePatterns file that can be streamed to monitor the step
-#variable does not exist
+#check step finish position
+#check variables do exist but needed one not
 
 #dmgResult <- authenticatedREST("/resources/{resourceId}/dmg",
 #                            list(resourceId=loadResource(testTree)$resourceId))

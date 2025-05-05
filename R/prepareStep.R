@@ -59,7 +59,7 @@ createPreparedStep <- function(stepHandle) {
         toolArguments <- paste0(toolArguments,process$commandline)
       }
 
-
+      repoProcess <- NULL
       if (process$processType=="main") {
         repoProcess <- getMainProcess(newStep$resourceId)
         setProcessVariables(newStep$resourceId,
@@ -81,7 +81,7 @@ createPreparedStep <- function(stepHandle) {
                             parentProcessId = process$parentProcessId
         )
       } else {
-        createProcess(
+        repoProcess <- createProcess(
           newStep$resourceId,
           runserverId=runserver$id,
           toolId=tool$toolId,
@@ -100,6 +100,15 @@ createPreparedStep <- function(stepHandle) {
           parentProcessId = process$parentProcessId
         )
       }
+      gridArguments <- process$gridArguments[[1]]
+      byNotEmpty(gridArguments,function(gridArgument) {
+        setGridArgument(repoProcess$id,gridArgument$argumentName,gridArgument$argumentValue,update=T)
+      })
+
+      logging::logdebug("grid arguments set")
+
+      timing("grid arguments set")
+
     }
   }
   logging::logdebug("process variables set")
@@ -166,14 +175,6 @@ createPreparedStep <- function(stepHandle) {
   logging::logdebug("local files set")
   timing("local files set")
 
-  gridArguments <- prepStep$gridArguments[[1]]
-  byNotEmpty(gridArguments,function(gridArgument) {
-    setGridArgument(processId,gridArgument$argumentName,gridArgument$argumentValue,update=T)
-  })
-
-  logging::logdebug("grid arguments set")
-
-  timing("grid arguments set")
 
   #unloadResource(newStep)
   #unloadChildResources(newStep)

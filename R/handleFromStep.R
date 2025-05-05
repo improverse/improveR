@@ -1,9 +1,10 @@
 
 #cycle with old version. test usage of correct run, with revision
-
+#' @param process the process loaded from the repo
+#' @param stepHandle the stepHandle the process will be added to
 #' collect all data for one process
 #'
-fullProcess <- function(process) {
+fullProcess <- function(process,stepHandle) {
   processId <- process$id
   newHandle <- data.frame(handle=processId,stringsAsFactors = F)
   newHandle$runserverName <- process$runserverLabel
@@ -57,7 +58,7 @@ handleFromStep <- function(stepId) {
   processes <- loadProcessesForStep(stepIdent = stepId)
   processes <- processes[order(processes$position),]
 
-  processDfs <- byNotEmptyAsDf(processes,fullProcess)
+  processDfs <- byNotEmptyAsDf(processes,function(process){fullProcess(process,stepHandle)})
 
   newHandle <- data.frame(handle=stepHandle,stringsAsFactors = F)
   newHandle$processes <- list(processDfs)

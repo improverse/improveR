@@ -76,10 +76,11 @@ setStepFinishCondition <- function(stepHandle,runserverName,runserverTool) {
 #'
 #' @param stepHandle id of the prepared step
 #' @param runserverName name of the runserver
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepRunserverName <- function(stepHandle,runserverName) {
-  setStepValue(stepHandle,"runserverName",runserverName)
+setStepRunserverName <- function(stepHandle,runserverName,process="Main") {
+  setProcessValue(stepHandle,process,"runserverName",runserverName)
 }
 
 #' sets the name of the step
@@ -118,31 +119,34 @@ setStepRationale <- function(stepHandle,rationale) {
 #' @param stepHandle id of the prepared step
 #' @param commandline the new command line or command line appendix
 #' @param append if the complete command line is replaced or this is appended defaults to TRUE
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepCommandLine <- function(stepHandle,commandline,append=T) {
-  setStepValue(stepHandle,"commandline",commandline)
-  setStepValue(stepHandle,"appendCommandline",append)
+setStepCommandLine <- function(stepHandle,commandline,append=T,process="Main") {
+  setProcessValue(stepHandle,process,"commandline",commandline)
+  setProcessValue(stepHandle,process,"appendCommandline",append)
 }
 
 #' sets the runserver tool by name
 #'
 #' @param stepHandle id of the prepared step
 #' @param runserverToolName name of the runserver tool
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepRunserverToolName <- function(stepHandle,runserverToolName) {
-  setStepValue(stepHandle,"runserverToolName",runserverToolName)
+setStepRunserverToolName <- function(stepHandle,runserverToolName,process="Main") {
+  setProcessValue(stepHandle,process,"runserverToolName",runserverToolName)
 }
 
 #' sets the tool by name
 #'
 #' @param stepHandle id of the prepared step
 #' @param toolName name of the  tool
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepToolName <- function(stepHandle,toolName) {
-  setStepValue(stepHandle,"toolName",toolName)
+setStepToolName <- function(stepHandle,toolName,process="Main") {
+  setProcessValue(stepHandle,process,"toolName",toolName)
 }
 
 #' adds a new remote file to the step
@@ -343,9 +347,10 @@ replaceFileFields <- function(fileDf,asLink,newName,newIdent) {
 #' @param stepHandle id of the prepared step
 #' @param argumentName the ident of the file in the repository
 #' @param argumentValue leave empty if you want to use the same name as the used file
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-addStepGridArgument <- function(stepHandle,argumentName,argumentValue) {
+addStepGridArgument <- function(stepHandle,argumentName,argumentValue,process="Main") {
   gridList <- data.frame(argumentName=argumentName,
                          argumentValue=argumentValue)
   addStepValue(stepHandle,"gridArguments",gridList)
@@ -354,9 +359,10 @@ addStepGridArgument <- function(stepHandle,argumentName,argumentValue) {
 #' removes all grid arguments from the step
 #'
 #' @param stepHandle id of the prepared step
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-removeStepGridArguments <- function(stepHandle) {
+removeStepGridArguments <- function(stepHandle,process="Main") {
   removeStepValue(stepHandle,"gridArguments")
   return(stepHandle)
 }

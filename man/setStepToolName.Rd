@@ -4,12 +4,14 @@
 \alias{setStepToolName}
 \title{sets the tool by name}
 \usage{
-setStepToolName(stepHandle, toolName)
+setStepToolName(stepHandle, toolName, process = "Main")
 }
 \arguments{
 \item{stepHandle}{id of the prepared step}
 
 \item{toolName}{name of the  tool}
+
+\item{process}{the name of the process, default = Main. If the process does not yet exist it is created}
 }
 \description{
 sets the tool by name

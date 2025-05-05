@@ -4,10 +4,12 @@
 \alias{removeStepGridArguments}
 \title{removes all grid arguments from the step}
 \usage{
-removeStepGridArguments(stepHandle)
+removeStepGridArguments(stepHandle, process = "Main")
 }
 \arguments{
 \item{stepHandle}{id of the prepared step}
+
+\item{process}{the name of the process, default = Main. If the process does not yet exist it is created}
 }
 \description{
 removes all grid arguments from the step

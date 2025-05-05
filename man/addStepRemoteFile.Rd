@@ -11,7 +11,8 @@ addStepRemoteFile(
   asLink = T,
   variableName = NULL,
   sourceHandle = NULL,
-  sourceName = NULL
+  sourceName = NULL,
+  variableProcess = "Main"
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ addStepRemoteFile(
 \item{sourceHandle}{stepHandle if ident is relative to another step in the workflow}
 
 \item{sourceName}{name if ident is relative to another step in the workflow}
+
+\item{variableProcess}{if the file is bound to a variable, the process name the variable belongs to}
 }
 \description{
 adds a new remote file to the step
