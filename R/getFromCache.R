@@ -6,30 +6,34 @@ removeFromCache <- function(key,argument,cacheList) {
       logging::logwarn("No longer reproducible, as cache was updated during working")
     }
     res <- getFromCache(key,function(key){},cacheList,"")
-    devnull<-lapply(names(cacheList),function(cacheName) {
-      if (cacheName %in% ls(envir=cacheEnv)) {
-        cache<-get(cacheName,envir=cacheEnv)
-        cacheKey <- unname(cacheList[cacheName])[[1]]
-        if (is.character(cacheKey)) {
+    if (!is.null(res)) {
+      devnull<-lapply(names(cacheList),function(cacheName) {
+        if (cacheName %in% ls(envir=cacheEnv)) {
+          cache<-get(cacheName,envir=cacheEnv)
+          cacheKey <- unname(cacheList[cacheName])[[1]]
+          if (is.character(cacheKey)) {
 
-          cacheKeyValues <- unique(res[cacheKey])
-          if (nrow(cacheKeyValues)>1) {
-            for (i in 1:nrow(cacheKeyValues)) {
-              ckV <- cacheKeyValues[i,]
+            cacheKeyValues <- unique(res[cacheKey])
+            if (!is.null(cacheKeyValues)) {
+              if (nrow(cacheKeyValues)>1) {
+                for (i in 1:nrow(cacheKeyValues)) {
+                  ckV <- cacheKeyValues[i,]
 
-              rm(list = ckV ,envir=cache)
+                  rm(list = ckV ,envir=cache)
+                }
+              } else {
+                value <- as.character(cacheKeyValues)
+                rm(list = value ,envir=cache)
+              }
             }
-          } else {
-            value <- as.character(cacheKeyValues)
-            rm(list = value ,envir=cache)
+          }
+          else if (is.function(cacheKey)) {
+            value <- cacheKey(res,argument)
+            rm(list = ls(pattern = value,envir=cache),envir=cache)
           }
         }
-        else if (is.function(cacheKey)) {
-          value <- cacheKey(res,argument)
-          rm(list = ls(pattern = value,envir=cache),envir=cache)
-        }
-      }
-    })
+      })
+    }
   }
 }
 
@@ -63,9 +67,6 @@ searchInCache <- function(resourceCacheList,searchString) {
     cache <-get(cacheName,envir=cacheEnv)
     cacheKey <- unname(resourceCacheList[cacheName])[[1]]
     if (is.character(cacheKey)) {
-      #if (cacheKey=="entityId" | cacheKey=="entityVersionId"){
-      #  sString <- strsplit(sString,":")[[1]][2]
-      #}
       returnVal <- get0(sString,envir=cache)
       if (!is.null(returnVal)) {
         return(returnVal)

@@ -21,7 +21,7 @@ fullProcess <- function(process,stepHandle) {
   newHandle$position <- process$position
   newHandle$parentProcessId <- process$parentProcessId
 
-  gridArguments <- process$gridArguments
+  gridArguments <- updateProcessGridArguments(process$id)
 
   if (!is.null(gridArguments)) {
     newHandle$gridArguments <- list(
@@ -55,7 +55,7 @@ handleFromStep <- function(stepId) {
 
   step <- loadResource(stepId)
 
-  processes <- loadProcessesForStep(stepIdent = stepId)
+  processes <- updateProcessesForStep(stepIdent = stepId)
   processes <- processes[order(processes$position),]
 
   processDfs <- byNotEmptyAsDf(processes,function(process){fullProcess(process,stepHandle)})

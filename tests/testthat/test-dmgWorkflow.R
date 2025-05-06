@@ -1,4 +1,4 @@
-Sys.setenv(IMPROVER_STEP="envhost1.hc.scintecodev.internal-5310:FO-54947")
+Sys.setenv(IMPROVER_STEP="envhost1.hc.scintecodev.internal-5310:FO-19756")
 Sys.setenv(IMPROVER_REPO_URL="http://envhost1.hc.scintecodev.internal:5310/repository")
 Sys.setenv(TEST_FOLDER = "/Projects/Tests")
 
@@ -30,18 +30,21 @@ executeWorkflow(workflow = workflow)
 
 #adapt all stephelpers to use main process as default but others possibly
 #add gridarguments to process mapping
-#test circular workflow (actually use runs to build workflow)
-#integrate import export directly in library, added hashes to workflow
+#loadParentStep
+
+#load over tree boundaries (use DMG 123 testcase)
+
+#test circular workflow (actually use runs to build workflow) (handles from steps vs handles from runs)
 # add sorting of the json to workflow
+#integrate import export directly in library, added hashes to workflow version and latest version to workflow
 #rerun check identity with string comparison
 #strict rerun rules (rerun with multiple processes,...)
-#loadParent
 #check those fields
 #' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
 #' @param toolDeletePatterns files that wont get checked in
 #' @param toolStreamablePatterns file that can be streamed to monitor the step
-#check step finish position
-#check variables do exist but needed one not
+#check step finish use for main tool?
+#check variables do exist but needed one not (position)
 
 #dmgResult <- authenticatedREST("/resources/{resourceId}/dmg",
 #                            list(resourceId=loadResource(testTree)$resourceId))

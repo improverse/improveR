@@ -41,14 +41,22 @@ setStepValue <- function(stepHandle,key,value) {
 setProcessValue <- function(stepHandle,processName,key,value){
   stepData <- retrieveStep(stepHandle)
   processes <- stepData$processes[[1]]
+  position<-1
+  if (!is.null(processes) && nrow(processes)>0) {
+    position<-max(processes$position)+1
+  }
   if (!(processName %in% processes$name)) {
     newProcess <- data.frame(
       name=processName,
       selected=T,
       main=F,
       processType="post",
-      position=max(processes$position)+1,
+      position=position,
       stringsAsFactors = F)
+    if (processName=="Main") {
+      newProcess$processType="main"
+      newProcess$main=T
+    }
     processes <- plyr::rbind.fill(newProcess,processes)
   }
   processes <- byNotEmptyAsDf(processes,function(process) {
@@ -59,6 +67,7 @@ setProcessValue <- function(stepHandle,processName,key,value){
   })
   stepData$processes <- list(processes)
   storeStep(stepHandle = stepHandle,stepList=stepData)
+  return(stepHandle)
 }
 
 getStepValue <- function(stepHandle,key) {
@@ -107,5 +116,59 @@ addStepValue <- function(stepHandle,key,value) {
 
   storeStep(stepHandle = stepHandle,stepList=stepList)
 
+  return(stepHandle)
+}
+
+
+
+
+removeProcessValue <- function(stepHandle,key) {
+  stepList <- retrieveStep(stepHandle)
+  processes <- byNotEmptyAsDf(processes,function(process) {
+    if (process$name==processName) {
+      if (key %in% names(process)) {
+        process[key]<-NULL
+      }
+    }
+    return(process)
+  })
+  storeStep(stepHandle = stepHandle,stepList=stepList)
+  return(stepHandle)
+}
+
+addProcessValue <- function(stepHandle,key,value,processName) {
+  stepList <- retrieveStep(stepHandle)
+
+  processes <- byNotEmptyAsDf(processes,function(process) {
+    if (process$name==processName) {
+      valueList <- NULL
+      if (key %in% names(process)) {
+        valueList <- process[key][[1]][[1]]
+      }
+      if (typeof(value)=="character") {
+        if (is.null(valueList)) {
+          valueList <- value
+        } else {
+          valueList <- paste(valueList,value,sep=",")
+        }
+        process[key]<-valueList
+      } else if (is.data.frame(value)) {
+        if (is.null(valueList)) {
+          valueList <- value
+        } else {
+          valueList <- plyr::rbind.fill(valueList,value)
+        }
+        process[key]<-tidyr::nest(valueList,data = tidyr::everything())
+      } else {
+        logging::logwarn(paste0(
+          "only character or dataframe allowed in stephandle for key: ",
+          key
+        ))
+      }
+    }
+    return(process)
+  })
+  stepData$processes <- list(processes)
+  storeStep(stepHandle = stepHandle,stepList=stepData)
   return(stepHandle)
 }

@@ -29,6 +29,8 @@ createStep <- function(treeIdent,parentStepIdent=NULL,toolId=NULL) {
                                               restType = "POST")
     step <- httr::content(result)
     #TODO update children ...
+    unloadChildResources(treeIdent)
+    unloadFullChildResources(treeIdent)
     return(loadResource(step$resourceId))
   }
 }
@@ -216,7 +218,7 @@ attachStep <- function(ident,parent,  from=pwd()) {
                                             queryParams = list(parentStepId=stepParentEntity$resourceId),
                                             restType = "PUT"
   )
-  unloadParentStep(ident,from)
+  unloadParentStep(stepEntity,from)
   unloadChildSteps(stepParentEntity)
   return(updateResource(ident,from))
 }

@@ -55,8 +55,12 @@ actualLoadProcessesForStep <- function(stepIdent) {
 #' @references ics1218
 #' @export
 unloadProcessesForStep <- function(stepIdent) {
-  loadProcessesForStep(stepIdent)
-  removeFromCache(stepIdent,"",processesForStepsCacheList)
+  step <- loadResource(stepIdent)
+  if (is.null(step)) {
+    return(NULL)
+  }
+  loadProcessesForStep(step)
+  removeFromCache(step$resourceId,"",processesForStepsCacheList)
 }
 
 #' updateProcessesForStep reloads the processes for a step

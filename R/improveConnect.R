@@ -61,7 +61,6 @@ clearConnectionData <- function(includeRepoData=F) {
   Sys.setenv(IMPROVER_PASSWORD="")
   Sys.setenv(IMPROVER_TOKEN="")
   Sys.setenv(IMPROVER_REFRESH_TOKEN="")
-  Sys.setenv(TEST_FOLDER = "")
   improveDisconnect()
 }
 

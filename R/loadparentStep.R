@@ -1,4 +1,15 @@
-parentStepCacheList <- createCacheList("parentStep")
+createParentStepCacheList <- function(name) {
+  myList <- list(
+    childStepCache="childStep"
+  )
+  itemNames <- names(myList)
+  itemNames <- paste0(name,itemNames)
+  names(myList)<-itemNames
+  return(myList)
+}
+
+
+parentStepCacheList <- createParentStepCacheList("parentStep")
 
 
 #' loads the parent step of one step, not applicable to multiple steps
@@ -13,10 +24,9 @@ parentStepCacheList <- createCacheList("parentStep")
 loadParentStep <- function(ident, from=pwd()) {
   resource <- loadResource(ident,from)
   if (!is.null(resource)) {
-    res <- getFromCache(resource$entityId,actualLoadParentStep,parentStepCacheList)
-    if (!is.null(res)) {
-      return(res$data[[1]])
-    }
+    res <- getFromCache(resource$resourceId,actualLoadParentStep,parentStepCacheList)
+    res$childStep<-NULL
+    return(res)
   }
   return(NULL)
 }
@@ -29,7 +39,7 @@ loadParentStep <- function(ident, from=pwd()) {
 unloadParentStep <- function(ident, from=pwd()) {
   resource <- loadResource(ident,from)
   if (!is.null(resource)) {
-    removeFromCache(resource$entityId,"",parentStepCacheList)
+    removeFromCache(resource$resourceId,"",parentStepCacheList)
   }
 }
 
@@ -41,10 +51,7 @@ unloadParentStep <- function(ident, from=pwd()) {
 updateParentStep <- function(ident, from=pwd()) {
   unloadParentStep(ident,from)
   res <- loadParentStep(ident,from)
-  if (!is.null(res)) {
-    return(res$data[[1]])
-  }
-  return(NULL)
+  return(res)
 }
 
 actualLoadParentStep <- function(ident,from=pwd()) {
@@ -59,27 +66,16 @@ actualLoadParentStep <- function(ident,from=pwd()) {
     log_warn("Tried to find parent Step for a non step: ",step$entityId," ",step$name)
     return(NULL)
   }
-  steps <- loadChildResources(step$parentId)$data[[1]]
-  steps <- steps[steps$resourceId!=step$resourceId,]
-  steps <- steps[steps$nodeType=="Step",]
-  parent <- byNotEmptyAsDf(steps,function(s) {
-    childSteps <- loadChildSteps(s$resourceId)$data[[1]]
-    childSteps <- childSteps[childSteps$resourceId==step$resourceId,]
-    if (nrow(childSteps)==1 && ("resourceId" %in% colnames(childSteps))) {return(s)}
-    return(NULL)
-  })
-  if (nrow(parent)==0) {
-    log_info("Step ",step$path," has no parent step")
-    return(NULL)
+
+  result <- authenticatedREST('resources/{stepId}/parentStep',
+                              urlParams = list(stepId=step$resourceId
+                              ),
+                              restType = "GET")
+  parent <- httr::content(result)
+  if (is.list(parent) && ("resourceId" %in% names(parent))) {
+    parent <- loadResource(parent$resourceId)
+    parent$childStep <- step$resourceId
+    return(parent)
   }
-
-  resultFrame <- data.frame(type="parentStep",stringsAsFactors = F)
-  resultFrame$resourceId <- step$resourceId
-  resultFrame$entityId <- step$entityId
-  resultFrame$entityVersionId <- step$entityVersionId
-  resultFrame$path <- step$path
-  resultFrame$name <- step$name
-  resultFrame$data <- list(parent)
-
-  return(resultFrame)
+  return(NULL)
 }

@@ -353,7 +353,7 @@ replaceFileFields <- function(fileDf,asLink,newName,newIdent) {
 addStepGridArgument <- function(stepHandle,argumentName,argumentValue,process="Main") {
   gridList <- data.frame(argumentName=argumentName,
                          argumentValue=argumentValue)
-  addStepValue(stepHandle,"gridArguments",gridList)
+  addProcessValue(stepHandle,"gridArguments",gridList,process)
 }
 
 #' removes all grid arguments from the step
@@ -363,7 +363,7 @@ addStepGridArgument <- function(stepHandle,argumentName,argumentValue,process="M
 #'
 #' @export
 removeStepGridArguments <- function(stepHandle,process="Main") {
-  removeStepValue(stepHandle,"gridArguments")
+  removeProcessValue(stepHandle,"gridArguments",process)
   return(stepHandle)
 }
 
@@ -386,10 +386,11 @@ addStepLineage <- function(stepHandle,lineageHandle) {
 #' @param variableName the name of the variable the file should be bound to, optional
 #'
 #' @export
-addStepLocalFile <- function(stepHandle,path,name=NULL,variableName=NULL) {
+addStepLocalFile <- function(stepHandle,path,name=NULL,variableName=NULL,variableProcess="Main") {
   fileList <- data.frame(stepHandle=stepHandle)
   fileList["name"]<-name
   fileList["variableName"]<-variableName
+  fileList["variableProcess"]<-variableProcess
   fileList["path"]<-path
   addStepValue(stepHandle,"localFiles",fileList)
 }
