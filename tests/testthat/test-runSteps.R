@@ -306,11 +306,75 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   s2t2 <- mockStep(dmgL2, s1t2, "S2T2", "processing", dataSet2 = i2)
 
   s1t3 <- mockStep(dmgL3, s1t2, "S1T3", "report", dataSet2 = s2t2)
-  # Ran without error
-  expect_true(T)
 
-  lineageStep <- loadChildResources(dmgL3)%>%strip()
 
+
+  fullLineageFolder <- createFolder(TEST_FOLDER,"fullLineage")
+
+  lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
+    getFullLineage() %>%
+      makeStepsRelative() %>%
+      detachWorkflowFromResources() %>%
+      detachWorkflowFromTrees() %>%
+      setWorkflowTreeRootFolder(fullLineageFolder$path) %>%
+      executeWorkflow()
+
+  expect_equal(nrow(loadChildResources(fullLineageFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources("./DMG L1",fullLineageFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources("./DMG L2",fullLineageFolder)$data[[1]]),2)
+  expect_equal(nrow(loadChildResources("./DMG L3",fullLineageFolder)$data[[1]]),1)
+
+  lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
+    getFullLineage(,depth=1) %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromResources() %>%
+    detachWorkflowFromTrees() %>%
+    setWorkflowTreeRootFolder(fullLineageFolder$path) %>%
+    setWorkflowTreeName("AllInOne") %>%
+    executeWorkflow()
+
+  expect_equal(nrow(loadChildResources(fullLineageFolder)$data[[1]]),4)
+  expect_equal(nrow(loadChildResources("./AllInOne",fullLineageFolder)$data[[1]]),3)
+
+  fullUsageFolder <- createFolder(TEST_FOLDER,"fullUsage")
+
+  usageWorkflowHandle <- loadFullChildResources(dmgL1)%>%strip() %>%
+    dplyr::filter(description=="Initial 2")%>%
+    getFullUsage() %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromResources() %>%
+    detachWorkflowFromTrees() %>%
+    setWorkflowTreeRootFolder(fullUsageFolder$path) %>%
+    executeWorkflow()
+
+  expect_equal(nrow(loadChildResources(fullUsageFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources("./DMG L1",fullUsageFolder)$data[[1]]),1)
+  expect_equal(nrow(loadChildResources("./DMG L2",fullUsageFolder)$data[[1]]),1)
+  expect_equal(nrow(loadChildResources("./DMG L3",fullUsageFolder)$data[[1]]),1)
+
+  usageWorkflowHandle <- loadFullChildResources(dmgL1)%>%strip() %>%
+    dplyr::filter(description=="Initial 2")%>%
+    getFullUsage(depth=1) %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromResources() %>%
+    detachWorkflowFromTrees() %>%
+    setWorkflowTreeRootFolder(fullUsageFolder$path) %>%
+    setWorkflowTreeName("AllInOne") %>%
+    executeWorkflow()
+
+  expect_equal(nrow(loadChildResources(fullUsageFolder)$data[[1]]),4)
+  expect_equal(nrow(loadChildResources("./AllInOne",fullUsageFolder)$data[[1]]),2)
+
+
+  lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
+    getFullLineage() %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromResources() %>%
+    executeWorkflow()
+
+  expect_equal(nrow(loadChildResources("./DMG L1",TEST_FOLDER)$data[[1]]),7)
+  expect_equal(nrow(loadChildResources("./DMG L2",TEST_FOLDER)$data[[1]]),4)
+  expect_equal(nrow(loadChildResources("./DMG L3",TEST_FOLDER)$data[[1]]),2)
 
 })
 

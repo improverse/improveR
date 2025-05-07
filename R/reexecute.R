@@ -420,6 +420,6 @@ makeStepsRelative <- function(workflow) {
 
   }
 
-
+  return(unique(workflow$workflowHandle))
 
 }

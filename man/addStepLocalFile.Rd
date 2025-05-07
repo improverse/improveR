@@ -4,7 +4,13 @@
 \alias{addStepLocalFile}
 \title{adds a new local file to the step}
 \usage{
-addStepLocalFile(stepHandle, path, name = NULL, variableName = NULL)
+addStepLocalFile(
+  stepHandle,
+  path,
+  name = NULL,
+  variableName = NULL,
+  variableProcess = "Main"
+)
 }
 \arguments{
 \item{stepHandle}{id of the prepared step}
@@ -14,6 +20,8 @@ addStepLocalFile(stepHandle, path, name = NULL, variableName = NULL)
 \item{name}{leave empty if you want to use the same name as the used file}
 
 \item{variableName}{the name of the variable the file should be bound to, optional}
+
+\item{variableProcess}{the name of the process for the variable the file should be bound to, optional}
 }
 \description{
 adds a new local file to the step

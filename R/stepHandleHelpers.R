@@ -384,6 +384,7 @@ addStepLineage <- function(stepHandle,lineageHandle) {
 #' @param path local path to the file
 #' @param name leave empty if you want to use the same name as the used file
 #' @param variableName the name of the variable the file should be bound to, optional
+#' @param variableProcess the name of the process for the variable the file should be bound to, optional
 #'
 #' @export
 addStepLocalFile <- function(stepHandle,path,name=NULL,variableName=NULL,variableProcess="Main") {
@@ -397,7 +398,12 @@ addStepLocalFile <- function(stepHandle,path,name=NULL,variableName=NULL,variabl
 
 
 
-
+#' retrieveMainProcess
+#' retrieves the main process data frame of a step by handle
+#'
+#' @param stepHandle id of the prepared step
+#'
+#' @export
 
 retrieveMainProcess <- function(stepHandle) {
   stepData <- retrieveStep(stepHandle)
@@ -408,7 +414,15 @@ retrieveMainProcess <- function(stepHandle) {
   return(NULL)
 }
 
-
+#' getHandleForResource
+#' returns the stepHandle for a specific step resource.
+#' Only works if a prepared step has been executed or a workflow was pulled from the repository and not detached via detachWorkflowFromResources
+#'
+#' @param workflowHandle the workflow to seach for the step
+#' @param ident ident of the resource
+#' @param from, path for relative pathes, default pwd()
+#'
+#' @export
 getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
   workflow <- retrieveWorkflow(workflowHandle)
   resource <- loadResource(ident,from)
@@ -420,3 +434,77 @@ getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
   }
   return(NULL)
 }
+#' detachWorkflowFromResources
+#' deletes all entity ids from a workflow, switches from in place execution to creation of new steps
+#'
+#' @param workflowHandle handle of the workflow
+#'
+#' @export
+detachWorkflowFromResources <- function(workflowHandle) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$entityId <- NULL
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+#' detachWorkflowFromTrees
+#' removes coupling to a specific tree for an entire workflow.
+#' if no treeIdent is provided treeName and treePath have to be provided.
+#'
+#' @param workflowHandle handle of the workflow
+#'
+#' @export
+detachWorkflowFromTrees <- function(workflowHandle) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$treeIdent <- NULL
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+#' setWorkflowTreeRootFolder
+#' sets the path to a root folder for the tree that the steps are created in. Only used if no treeIdent is set.
+#' Use detachWorkflowFromTrees to remove treeIdent
+#'
+#' @param workflowHandle handle of the workflow
+#' @param rootFolder path to the rootFolder
+#'
+#' @export
+setWorkflowTreeRootFolder <- function(workflowHandle,rootFolder) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$treePath <- rootFolder
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+#' setWorkflowTreeName
+#' sets the name for the tree that the steps are created in. Only used if no treeIdent is set.
+#' Use detachWorkflowFromTrees to remove treeIdent
+#'
+#' @param workflowHandle handle of the workflow
+#' @param treeName name of the tree
+#'
+#' @export
+setWorkflowTreeName <- function(workflowHandle,treeName) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$treeName <- treeName
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+#' setWorkflowTreeIdent
+#' sets the ident for the existing tree that the steps are created in.
+#' Use detachWorkflowFromTrees to remove treeIdent again.
+#'
+#' @param workflowHandle handle of the workflow
+#' @param treeIdent ident of the tree
+#'
+#' @export
+setWorkflowTreeIdent <- function(workflowHandle,treeIdent) {
+  tree <- loadResource(treeIdent)
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$treeIdent <- tree$resourceId
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+

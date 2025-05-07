@@ -14,6 +14,17 @@ createPreparedStep <- function(stepHandle) {
   prepStep <- retrieveStep(stepHandle)
   mainPrep <- retrieveMainProcess(stepHandle)
 
+  treeIdent <- prepStep$treeIdent
+  if (is.null(treeIdent) || is.na(treeIdent)) {
+    tryCatch( {
+      targetResource <- loadResource(prepStep$treePath)
+      treeIdent <- createAnalysisTree(targetResource,treeName = prepStep$treeName)$resourceId
+    },error=function(e) {
+      log_error(e)
+      log_error("treeIdent or treePath and treeName need to be specified in order to create the step")
+      stop("could not create step")
+    })
+  }
 
   runserver <- loadRunserver(mainPrep$runserverName)
   tools  <- loadToolsForRunserver(runserver$id)
@@ -23,14 +34,14 @@ createPreparedStep <- function(stepHandle) {
     newStep <- loadResource(prepStep$entityId)
   } else {
     if (is.null(prepStep$parentIdent)) {
-      newStep <- createStep(prepStep$treeIdent,NULL,toolId=tool$toolId)
+      newStep <- createStep(treeIdent,NULL,toolId=tool$toolId)
     } else {
       parent <- loadResource(prepStep$parentIdent)
       if (prepStep$inheritFromParent) {
-        newStep <- createStep(prepStep$treeIdent,prepStep$parentIdent,toolId=parent$toolId)
+        newStep <- createStep(treeIdent,prepStep$parentIdent,toolId=parent$toolId)
       } else {
         toolId <- as.character(tools[tools$toolId!=parent$toolId,]$toolId[1])
-        newStep <- createStep(prepStep$treeIdent,prepStep$parentIdent,toolId=toolId)
+        newStep <- createStep(treeIdent,prepStep$parentIdent,toolId=toolId)
       }
     }
   }

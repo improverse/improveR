@@ -26,6 +26,10 @@ realiseStep <-function(handle,force=T,run=T) {
   }
   newStep <- createPreparedStep(handle)
   setStepValue(handle,"entityId",as.character(newStep$entityId))
+  tree <- loadResource(newStep$parentId)
+  setStepValue(handle,"treeIdent",tree$resourceId)
+  setStepValue(handle,"treeName",tree$name)
+  setStepValue(handle,"treePath",dirname(tree$path))
   if (getStepState(handle)=="INITIAL" && run) {
     runStep(handle)
   }

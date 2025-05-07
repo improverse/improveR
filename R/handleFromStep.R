@@ -1,9 +1,10 @@
 
-#cycle with old version. test usage of correct run, with revision
+#' fullProcess
+#' collect all data for one process
+#' cycle with old version. test usage of correct run, with revision
 #' @param process the process loaded from the repo
 #' @param stepHandle the stepHandle the process will be added to
-#' collect all data for one process
-#'
+
 fullProcess <- function(process,stepHandle) {
   processId <- process$id
   newHandle <- data.frame(handle=processId,stringsAsFactors = F)
@@ -54,7 +55,7 @@ handleFromStep <- function(stepId) {
   stepHandle <- uuid::UUIDgenerate()
 
   step <- loadResource(stepId)
-
+  tree <- loadResource(step$parentId)
   processes <- updateProcessesForStep(stepIdent = stepId)
   processes <- processes[order(processes$position),]
 
@@ -63,7 +64,8 @@ handleFromStep <- function(stepId) {
   newHandle <- data.frame(handle=stepHandle,stringsAsFactors = F)
   newHandle$processes <- list(processDfs)
   newHandle$treeIdent<-step$parentId
-
+  newHandle$treeName <- tree$name
+  newHandle$treePath <- dirname(tree$path)
   newHandle$description<-step$description
   newHandle$rationale<-step$rationale
   newHandle$entityId<-step$entityId

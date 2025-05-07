@@ -1,4 +1,11 @@
 
+#' getLineageLinkedStepsinOtherTrees
+#' returns all steps in other trees that are referenced via link from a specific step
+#'
+#' @param ident ident of the step
+#' @param from from for relative pathes, default is pwd()
+#'
+#' @export
 getLineageLinkedStepsinOtherTrees <- function(ident,from=pwd()) {
   lineageStep <- loadResource(ident,from)
   lineageTree <- loadResource(lineageStep$parentId)
@@ -21,8 +28,21 @@ getLineageLinkedStepsinOtherTrees <- function(ident,from=pwd()) {
   return(NULL)
 }
 
-#ident <- "envhost1.hc.scintecodev.internal-5310:ST-62592"
-getFullLineage <- function(ident,from=pwd(),workflowEnv=new.env(),depth=-1) {
+#' getFullLineage
+#' returns a workflowHandle for the lineage workflow of a step, covering multiple trees.
+#'
+#' @param ident ident of the step
+#' @param from from for relative pathes, default is pwd()
+#' @param workflowEnv internal variable, leave NULL
+#' @param depth, the depth of recursion when retrieving additional trees. -1 takes all trees into account
+#'
+#' @export
+getFullLineage <- function(ident,from=pwd(),workflowEnv=NULL,depth=-1) {
+  userCall <- F
+  if (is.null(workflowEnv)) {
+    workflowEnv <- new.env()
+    userCall <- T
+  }
   targetStep <- loadResource(ident,from)
   if (nrow(targetStep)==1) {
     workflowHandle <- workflowEnv[[targetStep$parentId]]
@@ -31,9 +51,21 @@ getFullLineage <- function(ident,from=pwd(),workflowEnv=new.env(),depth=-1) {
       workflowEnv[[targetStep$parentId]]<-workflowHandle
     }
     stepHandle <- getHandleForResource(workflowHandle,targetStep)
-    return(addMultiTreeLineage(workflowHandle,stepHandle,workflowEnv=workflowEnv,depth))
+    resultWorkflow <-addMultiTreeLineage(workflowHandle,stepHandle,workflowEnv=workflowEnv,depth)
+    if (userCall) {
+      resultWorkflow <- deepWorkflowCopy(resultWorkflow,preserveEntityId = T)
+    }
+    return(resultWorkflow)
   }
 }
+
+#' addMultiTreeLineage
+#' internal recursion function for getFullLineage
+#'
+#' @param workflowHandle the retrieved workflow
+#' @param stepHandle the currently investigated step
+#' @param workflowEnv internal variable
+#' @param depth, the depth of recursion when retrieving additional trees. -1 takes all trees into account
 
 addMultiTreeLineage <- function(workflowHandle,stepHandle,workflowEnv=new.env(),depth=-1) {
 
@@ -56,8 +88,13 @@ addMultiTreeLineage <- function(workflowHandle,stepHandle,workflowEnv=new.env(),
 }
 
 
-###################USAGE
-#ident <- "envhost1.hc.scintecodev.internal-5310:ST-62565"
+#' getUsageLinkedStepsinOtherTrees
+#' returns all steps in other trees that reference a specific step via link
+#'
+#' @param ident ident of the step
+#' @param from from for relative pathes, default is pwd()
+#'
+#' @export
 getUsageLinkedStepsinOtherTrees <- function(ident,from=pwd()) {
   usageStep <- loadResource(ident,from)
   usageTree <- loadResource(usageStep$parentId)
@@ -82,7 +119,21 @@ getUsageLinkedStepsinOtherTrees <- function(ident,from=pwd()) {
   return(NULL)
 }
 
-getFullUsage <- function(ident,from=pwd(),workflowEnv=new.env(),depth=-1) {
+#' getFullUsage
+#' returns a workflowHandle for the usage workflow of a step, covering multiple trees.
+#'
+#' @param ident ident of the step
+#' @param from from for relative pathes, default is pwd()
+#' @param workflowEnv internal variable, leave NULL
+#' @param depth, the depth of recursion when retrieving additional trees. -1 takes all trees into account
+#'
+#' @export
+getFullUsage <- function(ident,from=pwd(),workflowEnv=NULL,depth=-1) {
+  userCall <- F
+  if (is.null(workflowEnv)) {
+    workflowEnv <- new.env()
+    userCall <- T
+  }
   targetStep <- loadResource(ident,from)
   if (nrow(targetStep)==1) {
     workflowHandle <- workflowEnv[[targetStep$parentId]]
@@ -91,10 +142,21 @@ getFullUsage <- function(ident,from=pwd(),workflowEnv=new.env(),depth=-1) {
       workflowEnv[[targetStep$parentId]]<-workflowHandle
     }
     stepHandle <- getHandleForResource(workflowHandle,targetStep)
-    return(addMultiTreeUsage(workflowHandle,stepHandle,workflowEnv=workflowEnv,depth))
+    resultWorkflow <- addMultiTreeUsage(workflowHandle,stepHandle,workflowEnv=workflowEnv,depth)
+    if (userCall) {
+      resultWorkflow <- deepWorkflowCopy(resultWorkflow,preserveEntityId = T)
+    }
+    return(resultWorkflow)
   }
 }
 
+#' addMultiTreeUsage
+#' internal recursion function for getFullUsage
+#'
+#' @param workflowHandle the retrieved workflow
+#' @param stepHandle the currently investigated step
+#' @param workflowEnv internal variable
+#' @param depth, the depth of recursion when retrieving additional trees. -1 takes all trees into account
 addMultiTreeUsage <- function(workflowHandle,stepHandle,workflowEnv=new.env(),depth=-1) {
 
 
@@ -109,9 +171,9 @@ addMultiTreeUsage <- function(workflowHandle,stepHandle,workflowEnv=new.env(),de
     })
 
     return(
-      dplyr::distinct(plyr::rbind.fill(lin,externalUsage),handle,.keep_all = T)
+      dplyr::distinct(plyr::rbind.fill(used,externalUsage),handle,.keep_all = T)
     )
   }
-  return(lin)
+  return(used)
 }
 

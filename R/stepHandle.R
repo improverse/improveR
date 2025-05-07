@@ -122,7 +122,7 @@ addStepValue <- function(stepHandle,key,value) {
 
 
 
-removeProcessValue <- function(stepHandle,key) {
+removeProcessValue <- function(stepHandle,key,processName) {
   stepList <- retrieveStep(stepHandle)
   processes <- byNotEmptyAsDf(processes,function(process) {
     if (process$name==processName) {

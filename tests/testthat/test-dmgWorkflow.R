@@ -31,12 +31,12 @@ executeWorkflow(workflow = workflow)
 #adapt all stephelpers to use main process as default but others possibly
 #add gridarguments to process mapping
 #loadParentStep
+#load over tree boundaries (use DMG 123 testcase)
+#create all in same treee, create trees by name, create in
 
-
-#load over tree boundaries (use DMG 123 testcase) create all in same treee, create trees by name, create in
 #error message if vpn is missing
 
-#integrate import export directly in library, added hashes to workflow version and latest version to workflow
+#integrate import export directly in library, added hashes to workflow version and latest version to workflow - add container around workflow use imrpoveCLI to actually import and export
 #test circular workflow (actually use runs to build workflow) (handles from steps vs handles from runs)
 # add sorting of the json to workflow
 #rerun check identity with string comparison
@@ -47,6 +47,7 @@ executeWorkflow(workflow = workflow)
 #' @param toolStreamablePatterns file that can be streamed to monitor the step
 #check step finish use for main tool?
 #check variables do exist but needed one not (position)
+
 
 #dmgResult <- authenticatedREST("/resources/{resourceId}/dmg",
 #                            list(resourceId=loadResource(testTree)$resourceId))
