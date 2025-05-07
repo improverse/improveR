@@ -1,7 +1,7 @@
 Package: improveR
 Type: Package
-Title: Readonly package for improveR
-Version: 1.3.0
+Title: Package to control the user functions of improve
+Version: 4.3.0
 Authors@R: 
   person(given = "Michael",
            family = "Hackl",
@@ -9,7 +9,7 @@ Authors@R:
            email = "michael.hackl@scinteco.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Maintainer: Michael Hackl <michael.hackl@scinteco.com>
-Description: unifies all readonly improveR functions.
+Description: read and write functionality for the improve repository. workflow control functions
 License: GPL-3
 Encoding: UTF-8
 Depends: 

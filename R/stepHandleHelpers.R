@@ -170,9 +170,13 @@ addStepRemoteFile <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variableN
     resource <- loadResource(ident)
     if (resource$nodeType=="File") {
       fileList["ident"]<-resource$entityId
+      fileList["filehash"]<- resource$fileHash
     } else if (resource$nodeType=="Link"){
-
       fileList["ident"]<-resource$targetEntityId
+      fileList["version"] <- resource$targetRevisionId
+      target <- loadResource(resource$targetEntityId)
+      fileList["filehash"]<- target$fileHash
+      fileList["maxVersion"]<-target$revisionId
     } else {
       logging::logwarn("Only files or resources can be added to an inventory")
       logging::logwarn(ident)

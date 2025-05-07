@@ -49,9 +49,8 @@ improveOAuth <- function(repo,shortEntityId="/",logLevel="INFO",secure=T,openBro
         showOAuth(openBrowser) %>%
         pollToken()
     },error=function(e) {
-      log_error("Error authenticating via oauth")
       log_error(e)
-      return(F)
+      stop("Error authenticating via oauth")
     }
   )
 
