@@ -308,6 +308,10 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   s1t3 <- mockStep(dmgL3, s1t2, "S1T3", "report", dataSet2 = s2t2)
   # Ran without error
   expect_true(T)
+
+  lineageStep <- loadChildResources(dmgL3)%>%strip()
+
+
 })
 
 test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213", {
@@ -406,7 +410,6 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
 
   copyGrid <- improveR::deepWorkflowCopy(checkGrid, targetTree = testTree3)
   copyGridFlow <- improveR::retrieveWorkflow(copyGrid)
-  copyGridFlow$entityId <- NULL
   improveR::executeWorkflow(copyGrid)
 
   checkGridCompare <- improveR::handlesFromTree(testTree3)

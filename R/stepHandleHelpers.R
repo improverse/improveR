@@ -407,3 +407,16 @@ retrieveMainProcess <- function(stepHandle) {
   }
   return(NULL)
 }
+
+
+getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  resource <- loadResource(ident,from)
+  if (nrow(resource)==1) {
+    workflow <- workflow[workflow$entityId==resource$entityId,]
+    if (nrow(workflow)==1) {
+      return(workflow$handle)
+    }
+  }
+  return(NULL)
+}

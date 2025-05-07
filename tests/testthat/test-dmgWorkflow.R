@@ -32,13 +32,15 @@ executeWorkflow(workflow = workflow)
 #add gridarguments to process mapping
 #loadParentStep
 
-#load over tree boundaries (use DMG 123 testcase)
 
+#load over tree boundaries (use DMG 123 testcase) create all in same treee, create trees by name, create in
+#error message if vpn is missing
+
+#integrate import export directly in library, added hashes to workflow version and latest version to workflow
 #test circular workflow (actually use runs to build workflow) (handles from steps vs handles from runs)
 # add sorting of the json to workflow
-#integrate import export directly in library, added hashes to workflow version and latest version to workflow
 #rerun check identity with string comparison
-#strict rerun rules (rerun with multiple processes,...)
+#strict rerun rules (rerun with multiple processes,...), review condition? injectable checks
 #check those fields
 #' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
 #' @param toolDeletePatterns files that wont get checked in
