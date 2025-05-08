@@ -325,7 +325,7 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   expect_equal(nrow(loadChildResources("./DMG L3",fullLineageFolder)$data[[1]]),1)
 
   lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
-    getFullLineage(,depth=1) %>%
+    getFullLineage(depth=1) %>%
     makeStepsRelative() %>%
     detachWorkflowFromResources() %>%
     detachWorkflowFromTrees() %>%
@@ -375,6 +375,32 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   expect_equal(nrow(loadChildResources("./DMG L1",TEST_FOLDER)$data[[1]]),7)
   expect_equal(nrow(loadChildResources("./DMG L2",TEST_FOLDER)$data[[1]]),4)
   expect_equal(nrow(loadChildResources("./DMG L3",TEST_FOLDER)$data[[1]]),2)
+
+
+  #import export
+  reports <- loadChildResources(dmgL3)%>%strip()
+  workflowToexport  <-  reports[1,]%>%
+    getFullLineage() %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromTrees() %>%
+    retrieveWorkflow()
+  exportWorkflow(workflowToexport)
+
+  #externalLinkMapping
+
+
+  #create tool mapping
+  #export externalLinks
+    #test with subfolders, test with also inputfiles
+    #integrate cache
+
+
+  #create step, add links
+
+
+  # push input files
+  # map variables
+  #push run
 
 })
 

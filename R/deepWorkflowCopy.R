@@ -87,8 +87,6 @@ deepWorkflowCopy <- function(workflow,targetTree=NULL,createParentalRelation=F,p
 
 
     for (i in 1:nrow(workflow)) {
-      print(i)
-      print(workflow[i,]$handle)
       storeStep(stepHandle = workflow[i,]$handle,stepList = workflow[i,])
     }
     storeWorkflow(workflowHandle,workflow)

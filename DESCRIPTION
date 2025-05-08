@@ -9,7 +9,7 @@ Authors@R:
            email = "michael.hackl@scinteco.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Maintainer: Michael Hackl <michael.hackl@scinteco.com>
-Description: read and write functionality for the improve repository. workflow control functions
+Description: read and write functionality for the improve repository. Workflow control functions are included to manage multiple steps.
 License: GPL-3
 Encoding: UTF-8
 Depends: 
@@ -36,7 +36,9 @@ Imports:
     htmltools,
     knitr,
     readxl,
-    uuid
+    uuid,
+    properties,
+    zip
 Suggests: 
     httptest,
     testthat (>= 3.0.0),
