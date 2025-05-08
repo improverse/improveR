@@ -386,21 +386,20 @@ test_that("DMG spans multiple trees, linear|ics1140", {
     retrieveWorkflow()
   exportWorkflow(workflowToexport)
 
+  importRepoFolder <- file.path(TEST_FOLDER,"import1")
+  importWorkflow("export",importRepoFolder)
   #externalLinkMapping
 
 
   #create tool mapping
-  #export externalLinks
-    #test with subfolders, test with also inputfiles
-    #integrate cache
+  #test externalLinks
+  #test with subfolders, test with also inputfiles
+  #integrate cache
+  #zip handling and tempfolderHandling
+#mapping of input file variables
+  #parental relations in workflows
 
 
-  #create step, add links
-
-
-  # push input files
-  # map variables
-  #push run
 
 })
 

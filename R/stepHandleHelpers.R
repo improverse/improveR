@@ -332,6 +332,23 @@ changeStepRemoteFile <- function(stepHandle,name,asLink=NULL,newName=NULL,newIde
   storeStep(stepHandle = stepHandle,stepList=stepData)
 }
 
+changeStepRemoteFileDf <- function(stepHandle,name,df) {
+  stepData <- retrieveStep(stepHandle)
+  remoteFiles <- stepData$remoteFiles[[1]]
+  remoteFiles <- byNotEmptyAsDf(remoteFiles,function(file) {
+    if ("name" %in% names(file)) {
+      fileName <- file$name
+      if (fileName!=name) {
+        return(file)
+      } else {
+        df
+      }
+    }
+  })
+  stepData$remoteFiles <- list(remoteFiles)
+  storeStep(stepHandle = stepHandle,stepList=stepData)
+}
+
 
 replaceFileFields <- function(fileDf,asLink,newName,newIdent) {
   if (!is.null(asLink)) {

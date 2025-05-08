@@ -1,8 +1,5 @@
-exportWorkflow <- function(workflow) {
-
-
-  #list of external links
-  outsideLinks <- byNotEmptyAsDf(workflow,function(workflowTask) {
+filterOutsideLinks <- function(workflow) {
+   outsideLinks <- byNotEmptyAsDf(workflow,function(workflowTask) {
     remoteFiles <- workflowTask$remoteFiles[[1]]
     if (!is.null(remoteFiles)) {
       oLinks <- remoteFiles[remoteFiles$asLink & !is.na(remoteFiles$ident),]
@@ -10,7 +7,14 @@ exportWorkflow <- function(workflow) {
     }
     return(NULL)
   }) %>%
-    dplyr::distinct(stepHandle,version,.keep_all = T) %>%
+    dplyr::distinct(stepHandle,version,.keep_all = T)
+   return(outsideLinks)
+}
+
+
+exportWorkflow <- function(workflow) {
+  #list of external links
+  outsideLinks <- filterOutsideLinks(workflow) %>%
     dplyr::select(stepHandle,name,version,filehash,maxVersion)
 
   insideLinks <- byNotEmptyAsDf(workflow,function(workflowTask) {
