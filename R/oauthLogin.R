@@ -78,14 +78,13 @@ improveOAuth <- function(repo,shortEntityId="/",logLevel="INFO",secure=T,openBro
 improveRevokeOAuth <- function() {
   repo <- substr(conf()$repoUrl,0,nchar(conf()$repoUrl)-8)
 
-  authenticationProvider <- getAuthenticationProvider(repo)
+  authenticationProvider = cacheEnv$authenticationProvider
 
   urlParams <- list()
   urlParams$token_type_hint <-"access_token"
   urlParams$client_id <- authenticationProvider$clientId
   urlParams$token<-Sys.getenv("IMPROVER_TOKEN")
-
-  revokeResult <- httr::POST(authenticationProvider$deviceAuthUri,encode = "form",body=urlParams)
+  revokeResult <- httr::POST(authenticationProvider$revocationUri,encode = "form",body=urlParams)
   if (revokeResult$status_code!=200) {
     stop("error getting device code")
   }
@@ -225,6 +224,9 @@ hasAuthenticated <- function(authenticationProvider) {
   if ("codeVerifier" %in% names(authenticationProvider)) {
     urlParams$code_verifier <- authenticationProvider$codeVerifier
   }
+  #if (is.null(cacheEnv$codeVerifier)) {
+  #  urlParams$code_verifier <- cacheEnv$codeVerifier
+  #}
   pollResult <- httr::POST(authenticationProvider$tokenUri,encode = "form",body=urlParams)
   return(pollResult)
 }

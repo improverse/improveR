@@ -1,8 +1,25 @@
-importWorkflow <- function(workflowFolder,importRepoFolder) {
+importWorkflow <- function(workflowFile,importRepoFolder) {
+  workflowName <- strsplit(basename(workflowFile),split = ".",fixed = T)[[1]]
+  workflowName <- paste(workflowName[1:(length(workflowName)-1)],collapse = ".")
 
-  importRepoFolderResource <- createFolder(TEST_FOLDER,"import1")
-  importFolder <- workflowFolder
+  importFolder <- tempfile()
+  dir.create(importFolder)
+  zip::unzip(zipfile = workflowFile,exdir = importFolder)
+
+  importFolder <- dir(importFolder,full.names = T)
+  if (length(importFolder)!=1) {
+    stop("workflow file is expected to be a zip file containing exactly one folder.")
+  }
+  if (!file.exists(file.path(importFolder,"workflow.json"))) {
+    stop("no workflow.json file found in the first subfolder of the zip file")
+  }
   importFolder <- normalizePath(importFolder,winslash = "/")
+  importRepoFolderResource <- loadResource(importRepoFolder)
+  if (is.null(importRepoFolderResource) || importRepoFolderResource$nodeType!="Folder") {
+    stop("importRepoFolder has to be a folder in the repository and exist")
+  }
+
+
   importWF <- jsonlite::read_json(
     file.path(importFolder,"workflow.json",fsep = "/"),
     simplifyVector = T
@@ -15,19 +32,44 @@ importWorkflow <- function(workflowFolder,importRepoFolder) {
     retrieveWorkflow()
 
   #uploadLinks
-  #here integrate mapping
+  #map outsideLinks
   outsideLinkFolder <- file.path(importFolder,"links",fsep = "/")
   providedLinks <- dir(outsideLinkFolder)
-  linkMapping <- list()
+  linkMappingPath <- file.path(
+    dirname(normalizePath(workflowFile)),
+    paste0(workflowName,"LinkMapping.json")
+    )
+
+  #TODO check with ident / version /SHA
+  linkMapping <- new.env()
+  importMapping <- data.frame()
+  if (file.exists(linkMappingPath)) {
+    importMapping <-jsonlite::read_json(linkMappingPath,simplifyVector = T)
+    x<-byNotEmpty(importMapping,function(linkMap){
+      if (is.character(linkMap$ident) && linkMap$ident!="") {
+        linkMapping[[linkMap$key]]<-linkMap$ident
+      }
+    })
+  }
+
+
   if (length(providedLinks)>0) {
     for (i in 1:length(providedLinks)) {
-      linkResource <- createFile(importRepoFolderResource,
-                                 fileName = providedLinks[i],
-                                 localPath = file.path(outsideLinkFolder,providedLinks[i]))
-      linkMapping[[providedLinks[i]]] <- linkResource$entityId
+      if (is.null(linkMapping[[providedLinks[i]]])) {
+        linkName <- providedLinks[i]
+        importLine <- importMapping[importMapping$key==providedLinks[i],]
+        if (is.character(importLine$name) && !grepl(pattern = ",",x = importLine$name,fixed = T)) {
+          linkName <- importLine$name
+        }
+        linkResource <- createFile(importRepoFolderResource,
+                                   fileName = linkName,
+                                   localPath = file.path(outsideLinkFolder,providedLinks[i]))
+        linkMapping[[providedLinks[i]]] <- linkResource$entityId
+      }
+
     }
   }
-  #map outsideLinks
+
 
   outsideLinks <- filterOutsideLinks(importWF)
   mappedIdents <- unlist(
@@ -37,6 +79,32 @@ importWorkflow <- function(workflowFolder,importRepoFolder) {
   x<-byNotEmpty(outsideLinks,function(oL) {
     changeStepRemoteFileDf(oL$stepHandle,oL$name,oL)
   })
+
+  #map tools
+  toolMappingPath <- file.path(
+    dirname(normalizePath(workflowFile)),
+    paste0(workflowName,"ToolMapping.json")
+  )
+  if (file.exists(toolMappingPath)) {
+    importMapping <-jsonlite::read_json(toolMappingPath,simplifyVector = T)
+    processes <- byNotEmptyAsDf(importWF,function(task) {
+      return(task$processes[[1]])
+    })
+    x<-byNotEmpty(importMapping,function(proc){
+      keyParts <- strsplit(proc$key,":::",fixed=T)[[1]]
+      runserverName <- keyParts[1]
+      toolName <- keyParts[2]
+      runserverToolName<-keyParts[3]
+      affectedProcesses <- processes[processes$runserverName==runserverName & processes$toolName==toolName & processes$runserverToolName==runserverToolName,]
+      y<-byNotEmpty(affectedProcesses,function(affectedProcess) {
+        affectedProcess$toolName<-proc$toolName
+        affectedProcess$runserverName<-proc$runserverName
+        affectedProcess$runserverToolName<-proc$runserverToolName
+        changeStepProcessDf(affectedProcess$handle,affectedProcess$name,affectedProcess)
+      })
+    })
+  }
+
   importWF <- retrieveWorkflow(importWF)
 
   orderedWorkflow <- executionOrder(importWF)

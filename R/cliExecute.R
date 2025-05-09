@@ -5,6 +5,7 @@
 #' @param cliString A string representing the CLI command to execute.
 executeCli <- function(cliString) {
   shellFile <- cliPath()
-  result <- system(paste(shellFile, cliString))
-  print(result)
+  result <- system(paste(shellFile, cliString),intern = T)
 }
+
+

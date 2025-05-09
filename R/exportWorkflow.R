@@ -12,7 +12,7 @@ filterOutsideLinks <- function(workflow) {
 }
 
 
-exportWorkflow <- function(workflow) {
+exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
   #list of external links
   outsideLinks <- filterOutsideLinks(workflow) %>%
     dplyr::select(stepHandle,name,version,filehash,maxVersion)
@@ -38,8 +38,9 @@ exportWorkflow <- function(workflow) {
     dplyr::select(stepHandle,name)
 
   #pull all steps
-  dir.create("export")
-  exportDir <- normalizePath("export",winslash = "/")
+  workflowFolder <- file.path(targetFolder,workflowName,fsep = "/")
+  dir.create(workflowFolder)
+  exportDir <- normalizePath(workflowFolder,winslash = "/")
   linkDir <- file.path(exportDir,"links",fsep = "/")
   dir.create(linkDir)
 
@@ -114,4 +115,43 @@ exportWorkflow <- function(workflow) {
                        file.path(exportDir,"workflow.json"),
                        pretty = T)
 
+
+  #create tool mapping
+
+  toolMapping <- byNotEmptyAsDf(workflowToexport,function(task) {
+    processes <- task$processes[[1]] %>%
+      dplyr::select(runserverName,toolName,runserverToolName,gridTool) %>%
+      dplyr::mutate(key=paste(runserverName,toolName,runserverToolName,gridTool,sep=":::"))
+    return(processes)
+  }) %>%
+    dplyr::distinct(key,.keep_all = T)
+  toolMapping <- toolMapping[,c(5,1,2,3,4)]
+
+  jsonlite::write_json(toolMapping,
+                       file.path(targetFolder,
+                                 paste0(workflowName,"ToolMapping.json")),
+                       pretty=TRUE)
+
+  #create link mapping
+  #add stepname / treename
+  outsideLinks <- filterOutsideLinks(workflowToexport) %>%
+    dplyr::select(ident,version,filehash,name) %>%
+    byNotEmptyAsDf(function(link) {
+      sameNames <- unique(
+        outsideLinks[outsideLinks$version==link$version,]$name
+      )
+      link$name <- paste(sameNames,collapse = ", ")
+      return(link)
+    }) %>%
+    dplyr::distinct(ident,version,filehash,name) %>%
+    dplyr::mutate(key=version)
+  outsideLinks <- outsideLinks[,c(5,1,2,3,4)]
+  jsonlite::write_json(outsideLinks,
+                       file.path(targetFolder,
+                                 paste0(workflowName,"LinkMapping.json")),
+                       pretty=TRUE)
+
+  zip(zipfile = paste0(workflowFolder,".zip"),files = workflowFolder)
+  #print(workflowFolder)
+  unlink(workflowFolder,force = T,recursive = T)
 }

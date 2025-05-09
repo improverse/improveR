@@ -384,41 +384,15 @@ test_that("DMG spans multiple trees, linear|ics1140", {
     makeStepsRelative() %>%
     detachWorkflowFromTrees() %>%
     retrieveWorkflow()
-  exportWorkflow(workflowToexport)
+  exportWorkflow(workflowToexport,workflowName = "lineageDMG")
 
   importRepoFolder <- file.path(TEST_FOLDER,"import1")
-  importWorkflow("export",importRepoFolder)
+  createFolder(dirname(importRepoFolder),basename(importRepoFolder))
+  importWorkflow("lineageDMG.zip",importRepoFolder)
   #externalLinkMapping
 
 
-  #create tool mapping
-
-  toolMapping <- byNotEmptyAsDf(workflowToexport,function(task) {
-    processes <- task$processes[[1]] %>%
-      dplyr::select(runserverName,toolName,runserverToolName,gridTool) %>%
-      dplyr::mutate(key=paste(runserverName,toolName,runserverToolName,gridTool,sep=":::"))
-    return(processes)
-  }) %>%
-    dplyr::distinct(key,.keep_all = T)
-  toolMapping <- toolMapping[,c(5,1,2,3,4)]
-
-  jsonlite::write_json(toolMapping,"toolMapping.json",pretty=T)
-
-  #create link mapping
-#add stepname / treename
-  outsideLinks <- filterOutsideLinks(workflowToexport) %>%
-    dplyr::select(ident,version,filehash,name) %>%
-    byNotEmptyAsDf(function(link) {
-      sameNames <- unique(
-        outsideLinks[outsideLinks$version==link$version,]$name
-      )
-      link$name <- paste(sameNames,collapse = ", ")
-      return(link)
-    }) %>%
-    dplyr::distinct(ident,version,filehash,name) %>%
-    dplyr::mutate(key=version)
-  outsideLinks <- outsideLinks[,c(5,1,2,3,4)]
-  jsonlite::write_json(outsideLinks,"linkMapping.json",pretty=T)
+  #DMG L3 why is Initial 1 not included
 
   #test externalLinks
   #test with subfolders, test with also inputfiles

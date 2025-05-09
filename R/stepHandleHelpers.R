@@ -349,6 +349,21 @@ changeStepRemoteFileDf <- function(stepHandle,name,df) {
   storeStep(stepHandle = stepHandle,stepList=stepData)
 }
 
+changeStepProcessDf <- function(stepHandle,name,df) {
+  stepData <- retrieveStep(stepHandle)
+  processes <- stepData$processes[[1]]
+  processes <- byNotEmptyAsDf(processes,function(proc) {
+    if ("name" %in% names(proc)) {
+      if (proc$name!=name) {
+        return(proc)
+      } else {
+        df
+      }
+    }
+  })
+  stepData$processes <- list(processes)
+  storeStep(stepHandle = stepHandle,stepList=stepData)
+}
 
 replaceFileFields <- function(fileDf,asLink,newName,newIdent) {
   if (!is.null(asLink)) {
