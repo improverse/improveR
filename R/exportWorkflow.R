@@ -151,7 +151,7 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
                                  paste0(workflowName,"LinkMapping.json")),
                        pretty=TRUE)
 
-  zip(zipfile = paste0(workflowFolder,".zip"),files = workflowFolder)
+  utils::zip(zipfile = paste0(workflowFolder,".zip"),files = workflowFolder)
   #print(workflowFolder)
   unlink(workflowFolder,force = T,recursive = T)
 }
