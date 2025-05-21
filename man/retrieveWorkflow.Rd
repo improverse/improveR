@@ -2,7 +2,7 @@
 % Please edit documentation in R/workflow.R
 \name{retrieveWorkflow}
 \alias{retrieveWorkflow}
-\title{retrieves complete workflow description}
+\title{retrieves complete workflow description, can be used to refresh a workflow}
 \usage{
 retrieveWorkflow(workflowHandle)
 }
@@ -10,5 +10,5 @@ retrieveWorkflow(workflowHandle)
 \item{workflowHandle}{handle of the workflow}
 }
 \description{
-retrieves complete workflow description
+retrieves complete workflow description, can be used to refresh a workflow
 }
