@@ -171,6 +171,9 @@ actualLoadProcessVariables <- function(processId) {
                                                                           processId=process$id))
   variableResponse <- httr::content(variableResponse)
   dfs <- mergeNestedListToDataframe(variableResponse)
+  if (is.list(dfs) && length(dfs)==0) {
+    return(NULL)
+  }
   return(dfs)
 }
 
