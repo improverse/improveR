@@ -118,7 +118,7 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
 
   #create tool mapping
 
-  toolMapping <- byNotEmptyAsDf(workflowToexport,function(task) {
+  toolMapping <- byNotEmptyAsDf(workflow,function(task) {
     processes <- task$processes[[1]] %>%
       dplyr::select(runserverName,toolName,runserverToolName,gridTool) %>%
       dplyr::mutate(key=paste(runserverName,toolName,runserverToolName,gridTool,sep=":::"))
@@ -134,7 +134,7 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
 
   #create link mapping
   #add stepname / treename
-  outsideLinks <- filterOutsideLinks(workflowToexport) %>%
+  outsideLinks <- filterOutsideLinks(workflow) %>%
     dplyr::select(ident,version,filehash,name) %>%
     byNotEmptyAsDf(function(link) {
       sameNames <- unique(
