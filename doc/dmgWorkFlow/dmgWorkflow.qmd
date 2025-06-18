@@ -599,7 +599,7 @@ The `detachWorkflowFromTrees` function is similar to `detachWorkflowFromResource
 However, instead of setting the `entityId` to NULL, it sets the `treeIdent` to NULL and hence
 removes the connection between a step and its tree(s).
 
-*Note**: the column `treeName` remains in the data frame (retrieved via `retrieveWorkflow()`).
+**Note**: the column `treeName` remains in the data frame (retrieved via `retrieveWorkflow()`).
 This is not an ommission, but ensures that steps still follow the original grouping into different trees.
 
 ```{r}
@@ -775,34 +775,51 @@ workflowElements_new %>%
 
 ```
 
-```{r}
-knitr::knit_exit()
-```
 
 # 'handleFrom' functions
 
-There two 'handle(s)From' functions: `handleFromStep()` and `handlesFromTree()`. The first one assigns a handle to a step, the second one assigns handles to all steps in an analysis tree. Both functions create an in-memory handle which contains all metadata, processes, files, and dependencies of the step or tree. The handles are stored in the `stepCache` environment.
+There two 'handle(s)From' functions: `handleFromStep()` and `handlesFromTree()`. The first one assigns a handle to a step and
+stores all pretaining metadata, processes, files, and dependencies of the step in the `stepCache` environment. The second one assigns a handle to an analysis tree and stores all handles of the tree's steps under the tree's handle in the `stepCache` environment.
 
-#TODO relation to other functions; when do I need this function
+
+```{r}
+#| eval: false
+#| include: false
+#@HACKLM wording: we have getHandleForResource() which gets/returns a handle; handlesFromTree/Step has no verb in the begining of the function obsuring a bit the direction/purpose
+of the function; would "setHandleFromTree/Step" not be more
+intuitive. I am also not sure about the 'From'; to me 'from'
+suggests that something is taken/infered from soemthing; AFAIK this is not the case here. We have a tree/step and assign a handle to it. Wouldn't "setHandleForTree/Step" be more intuitive?
+
+```
+
+
+```{r}
+#| include: false
+#| eval: false
+#TODO 
+- relation to other functions: relation to detach-functions
+- when do I need this function
+```
 
 ## handleFromStep()
 
-Converts a repository step (identified by stepId) into an in-memory step handle with all its metadata, processes, files, and dependencies.
-Returns an in-memory step handle that contains everything needed to understand, modify, or execute the step independently of its original repository context.
-New stepHandle is key with with step meta data etc is stored in stepCache environment.
+`handleFromStep()` takes a step id as an input and:
+*   creates a unique handle for the step
+*   uses the handle to store the step's metadata, processes, files, and dependencies in the stepCache environment.
 
 ```{r}
 #| code-summary: "handleFromStep(): Function definition"
 #| eval: false
+#| code-fold: true
 
 handleFromStep <- function(stepId) {
 
   stepHandle <- uuid::UUIDgenerate() #generates new Universally Unique Identifiers. Can be either time-based or random.
 
-  step <- loadResource(stepId) #loads step
-  tree <- loadResource(step$parentId) #loads the AT of the step
+  step <- loadResource(stepId) #loads step; dataframe w 1 row
+  tree <- loadResource(step$parentId) #loads the AT of the step; data frame with 1 row;  
 
-  processes <- updateProcessesForStep(stepIdent = stepId) #updates and gets data on step's processes
+  processes <- updateProcessesForStep(stepIdent = stepId) #updates and gets data on step's processes; data frame
   processes <- processes[order(processes$position),] #orders processes by their position in the step
   processDfs <- byNotEmptyAsDf(processes,function(process){fullProcess(process,stepHandle)}) #each process becomes a df
 
@@ -878,36 +895,30 @@ handleFromStep <- function(stepId) {
 
 ```
 
-
 ```{r}
 #| code-summary: "handleFromStep: Demonstrate function"
 
 stepIdent <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of Data Order
-handleFromStep(stepIdent) 
-"ea8b1ac4-18c6-4596-b29a-6a47a5d5c333"
 
-View(as.list(improveR:::stepCache))
-listviewer::jsonedit(as.list(improveR:::stepCache))
+handleStep <- handleFromStep(stepIdent) 
+handleStep
+
+improveR:::stepCache[[handleStep]] 
+glimpse(improveR:::stepCache[[handleStep]] )
+class(improveR:::stepCache[[handleStep]] )
+ncol(improveR:::stepCache[[handleStep]])
+names(improveR:::stepCache[[handleStep]])
 ```
 
 ## handlesFromTree()
 
-#@HACKLM wording: we have getHandleForResource() which gets/returns a handle; handlesFromTree/Step has no verb in the begining of the function obsuring a bit the direction/purpose
-of the function; would "setHandleFromTree/Step" not be more
-intuitive. I am also not sure about the 'From'; to me 'from'
-suggests that something is taken/infered from soemthing; AFAIK this is not the case here. We have a tree/step and assign a handle to it. Wouldn't "setHandleForTree/Step" be more intuitive?
-
-#REVISE
-`handlesFromTree` handlesFromTree reads a specific tree and creates handles for all steps.
-
-Returns a workflowHandle (which is different from the workflowHanlde returned by `getFullLineage()`).
-The new workflowHandle of the tree is the key under which the handles of the tree's stepsa are stored in the `stepCache` environment.
-
-Note that `handlesFromTree` returns only the new handle of the tree, but not the handles of the steps. The latter are only stored in the cache environment. 
-
+`handlesFromTree()` takes an analysis tree ident as an input and creates a handle for the tree.
+This handle is stored in the `stepCache` environment as a key, under which the handles of all steps of the tree are stored.
 
 ```{r}
-#|  code-summary: "handlesFromTree: Function definition"
+#| code-summary: "handlesFromTree: Function definition"
+#| eval: false
+#| code-fold: true
 
 handlesFromTree <- function(ident,from=pwd(),includeSelf=F) {
   workflowHandle <- uuid::UUIDgenerate()
@@ -957,25 +968,36 @@ handlesFromTree <- function(ident,from=pwd(),includeSelf=F) {
 ```
 
 
-
 ```{r}
 #| code-summary: "Demonstrate function with AT Data Order"
 
-identATDataOrder <- "envhost1.hc.scintecodev.internal-5310:AT-54614" #AT Data Order
-# identATDataOrderStep <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step inside of Analysis Tree "DataOrder"
-testHandlesFromTree <- handlesFromTree(ident = identATDataOrder)
-testHandlesFromTree
+treeIdent <- "envhost1.hc.scintecodev.internal-5310:AT-54614" #AT Data Order
 
-listviewer::jsonedit(as.list(improveR:::stepCache))
-stepHandlesATDataOrder <- get0(testHandlesFromTree, envir = improveR:::stepCache) 
-stepHandlesATDataOrder
-length(stepHandlesATDataOrder) #5
+handleTree <- handlesFromTree(ident = treeIdent)
+handleTree
 
-get0(stepHandlesATDataOrder[1], envir = improveR:::stepCache) #get first step handle
+improveR:::stepCache[[handleTree]] #reveal stepHandles which are stored under the handle returned by handlesFromTree()
+length(improveR:::stepCache[[handleTree]]) #length 3 since three steps in AT Data Order
+as.list(improveR:::stepCache[[handleTree]]) #list of handles of the steps in the AT Data 
+
+
+```
+
+```{r}
+#| include: false
+#| eval. false
+#listviewer::jsonedit(improveR:::stepCache[[handleTree]]) #view handles of the steps in the AT Data Order
+#listviewer::jsonedit(as.list(improveR:::stepCache))
 ```
 
 
+```{r}
+knitr::knit_exit()
+```
+
 # getHandleForResource()
+
+`getHandleForResource()` retrieves an already created stepHandle for a specific resource in a workflow.
 
 Returns the stepHandle for a specific step resource.
 Only works if a prepared step has been executed or a workflow was pulled from the repository and not detached via detachWorkflowFromResources
@@ -986,6 +1008,7 @@ Or can retrieveWorkflow return a dataframe with  elements other than steps?
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
+#| code-fold: true
 getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
   workflow <- retrieveWorkflow(workflowHandle) #get dataframe with workflow steps
   resource <- loadResource(ident,from) #load specified resource; allows for different ident types.
@@ -1002,6 +1025,7 @@ getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
 - Is this a different handle than the one obtained for a specific step after calling getfullLineage() > retrieveWorkflow()? No. It's the same. The function only filters the workflow elements for a specific resourceId and return the resource's handle.
 
 ```{r}
+#| code-summary: "Use getHandleForResource()"
 identStepResource <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of Data Order
 
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516"
@@ -1459,6 +1483,9 @@ glimpse(res) #QUESTION where is this data in improve client?
 
 
 ### loadProcessesForStep()
+
+Returns a data frame with the processes of a step.
+
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
@@ -1481,8 +1508,11 @@ loadProcessesForStep <- function(stepIdent) {
 ```{r}
 #| code-summary: "Demonstrate loadProcessesForStep()"
 stepId_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" 
+
 processes_ATDataOrder_Step3 <- loadProcessesForStep(stepIdent=stepId_ATDataOrder_Step3)
-glimpse(processes_ATDataOrder_Step3) #@HACKLM not clear why result is not corresponding to data displayed inside improve client
+
+processes_ATDataOrder_Step3$runs
+#@HACKLM not clear why result is not corresponding to data displayed inside improve client
 ```
 
 ### getFromCache()
