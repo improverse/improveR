@@ -1,0 +1,16 @@
+handle,processes,treeIdent,treeName,treePath,description,entityId,remoteFiles,workflowHandle,rationale
+52f66a60-3fca-4437-bad6-ff9584635a7e,,98C32486D1F6462793768B22909ED58E,DataOrder,/improve-tutorial,Checks data set for missing data,ST-54627,,68bc249f-e9be-4049-aa4d-37d842bb1e15,Ensures missing data are accounted for before proceeding with analysis.
+52ee2d04-2fbc-409d-9a53-a9d5abf42938,,D0A5C735170C4DE3AE39FF67A7331A7C,EDA,/improve-tutorial,Analyse dynamics of concentration over time,ST-54049,,68bc249f-e9be-4049-aa4d-37d842bb1e15,additional EDA
+684fa8ab-55bb-43d3-99f7-f2e3b9520187,,D0A5C735170C4DE3AE39FF67A7331A7C,EDA,/improve-tutorial,Create subject level data. Transforms data set from panel structure to cross-section structure for individual subject data.,ST-54047,,68bc249f-e9be-4049-aa4d-37d842bb1e15,EDA
+3f7a453a-c94b-4184-8954-8ff9caec6d91,,D0A5C735170C4DE3AE39FF67A7331A7C,EDA,/improve-tutorial,Conduct explenatory data analysis.,ST-57280,,68bc249f-e9be-4049-aa4d-37d842bb1e15,Get EDA
+660ba808-6a27-427f-b24d-a9c0d252589b,,D0A5C735170C4DE3AE39FF67A7331A7C,EDA,/improve-tutorial,Tables of Step 6 are reproduced using JAMA theme.,ST-59046,,68bc249f-e9be-4049-aa4d-37d842bb1e15,Get EDA
+8ea8d412-698c-4c47-8f92-74e9d5f5de05,,A0D580FB7DE64E5690BCEBAEC951141C,Modeling,/improve-tutorial,Create combined regression table for Jama,ST-59463,,68bc249f-e9be-4049-aa4d-37d842bb1e15,Model results
+f347c128-9cdc-41ad-a2a8-05ac20b2b61e,,A0D580FB7DE64E5690BCEBAEC951141C,Modeling,/improve-tutorial,Model 1: Duration ~ Wt,ST-54635,,68bc249f-e9be-4049-aa4d-37d842bb1e15,Check linear relationship between duration and weight
+6236f189-40dc-4123-a02f-7d154a4f82dc,,A0D580FB7DE64E5690BCEBAEC951141C,Modeling,/improve-tutorial,Model: Duration ~ Wt+Age+Sex,ST-54675,,68bc249f-e9be-4049-aa4d-37d842bb1e15,"Extend model 1 by including Age and Sex as an additional explanatory variable;
+Check linear relationship between duration and weight as well as age and sex."
+9af65015-b0fe-421a-87b4-915762ca659a,,A0D580FB7DE64E5690BCEBAEC951141C,Modeling,/improve-tutorial,Model 2: Duration ~ Wt + Sex,ST-54651,,68bc249f-e9be-4049-aa4d-37d842bb1e15,"Extend model 1 by including Sex as an additional explanatory variable;
+Check linear relationship between duration and weight as well as sex."
+9b412953-5d08-437f-910e-c55bbd879462,,A0D580FB7DE64E5690BCEBAEC951141C,Modeling,/improve-tutorial,Model: Duration ~ Wt + Age,ST-54672,,68bc249f-e9be-4049-aa4d-37d842bb1e15,"Extend model 1 by including Age as an additional explanatory variable;
+Check linear relationship between duration and weight as well as age."
+5366ed53-ad41-42f6-9e29-c08e0cead93c,,A0D580FB7DE64E5690BCEBAEC951141C,Modeling,/improve-tutorial,Compare performances of different model specifications,ST-54678,,68bc249f-e9be-4049-aa4d-37d842bb1e15,Model results
+2f9b440d-ea75-4caf-a207-a12b7e9ac109,,9978BAEF59D8403C86FEB9E8379DF557,Reporting,/improve-tutorial,Collect results and create report,ST-62516,,68bc249f-e9be-4049-aa4d-37d842bb1e15,NA
