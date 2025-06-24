@@ -10,7 +10,7 @@ Authors@R:
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Maintainer: Michael Hackl <michael.hackl@scinteco.com>
 Description: read and write functionality for the improve repository. Workflow control functions are included to manage multiple steps.
-License: GPL-3
+License: improve
 Encoding: UTF-8
 Depends: 
     R (>= 3.5.0) 
