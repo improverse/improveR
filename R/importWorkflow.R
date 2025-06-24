@@ -7,17 +7,6 @@
 #'
 #' @return None. The function is called for its side effects.
 #'
-#' @details
-#' The function performs the following steps:
-#' \itemize{
-#'   \item Extracts the workflow name from the zip file name.
-#'   \item Unzips the workflow file into a temporary directory.
-#'   \item Checks that the zip contains exactly one folder.
-#'   \item Verifies the presence of a `workflow.json` file in the extracted folder.
-#'   \item Normalizes the import folder path.
-#'   \item Loads the repository folder resource and checks its validity.
-#' }
-#'
 #' @examples
 #' \dontrun{
 #' importWorkflow("path/to/workflow.zip", "path/to/repo/folder")
