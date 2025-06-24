@@ -599,7 +599,7 @@ The `detachWorkflowFromTrees` function is similar to `detachWorkflowFromResource
 However, instead of setting the `entityId` to NULL, it sets the `treeIdent` to NULL and hence
 removes the connection between a step and its tree(s).
 
-*Note**: the column `treeName` remains in the data frame (retrieved via `retrieveWorkflow()`).
+**Note**: the column `treeName` remains in the data frame (retrieved via `retrieveWorkflow()`).
 This is not an ommission, but ensures that steps still follow the original grouping into different trees.
 
 ```{r}
@@ -627,9 +627,13 @@ workflowTreeDetached
 "treeIdent" %in% names(workflowTreeDetached)
 ```
 
-`detachWorkflowFromTrees()` is a one-way function. There is no 'attach' equivalent to `detachWorkflowFromTrees()` as with `detachStep()` and `attachStep()`.
+`detachWorkflowFromTrees()` is a one-way function. There is no 'attach' equivalent to `detachWorkflowFromTrees()` as with `detachStep()` and `attachStep()`. However, you can assign all steps of a workflow to a single tree by using `setWorkflowTreeIdent()`. 
+
 Applying `detachWorkflowFromTrees()` does not result in any changes visible in the editor area in the improve client (as it is the case with e.g. `detachStep()`).
 
+@HACKLM is there a more intuitive way of naming functions?
+detachStep <-> attachStep
+detachWorkflowFromTrees <-> currently: setWorkflowTreeIdent; would attachWorkFlowTreeIdent be substantively justified?
 
 # 'setWorkflow' functions
 
@@ -638,17 +642,18 @@ The improveR package provides for three 'workflow setting' functions: `setWorkfl
 
 ## setWorkflowTreeIdent()
 
-`setWorkflowTreeIdent()` takes the ident of an analysis tree and assigns it to all elements (steps) of a workflow dataframe. In other words, steps which constitue a single workflow but are located in different trees are assigned to a single tree(Ident). The changes made to the workflow dataframe are subsequently saved
+`setWorkflowTreeIdent()` takes the ident of an analysis tree and assigns ('sets') it to all elements (steps) of a workflow dataframe. In other words, steps which constitue a single workflow but are located in different trees are assigned to a single tree(Ident). The changes made to the workflow dataframe are subsequently saved
 to the stepCache environment (`persistWorkflowChanges()`).
 
-Note that the function does not create a new tree, but rather assigns the ident of an existing tree to the workflow's step. Also note that `setWorkflowTreeIdent()` only changes the `treeIdent` of a step, but leaves `treeName` unchanged.
+Note that the function does not create a new tree, but rather assigns the ident of an existing tree to all of the workflow's steps. Also note that `setWorkflowTreeIdent()` only changes the `treeIdent` of a step, but leaves `treeName` unchanged. To change the `treeName` of a step, use `setWorkflowTreeName()`.
 
+To remove the newly assigned treeident use `detachWorkflowFromTrees()`. 
 
 #TODO - CHECKLIST
 ?when is this function used
 ?what is its purpose
 ok ?what does it do
-?relation to other functions
+?relation to other functions; which functions 'undo' its effects.
 
 ```{r}
 #| code-summary: "setWorkflowTreeIdent(): Definition of function"
@@ -662,49 +667,82 @@ setWorkflowTreeIdent <- function(workflowHandle,treeIdent) {
 }
 ```
 
+The chunk below demonstrates the use of `setWorkflowTreeIdent()` and reveals the
+changed `treeIdent` of the workflow's steps after the application of the function
+
 ```{r}
-#| code-summary: "Function elements"
-#get the resourceId of a specific Analysis Tree
-treeIdent <- "envhost1.hc.scintecodev.internal-5310:AT-54614" #AT Data Order
-treeATDataOrder <- loadResource("envhost1.hc.scintecodev.internal-5310:AT-54614") #AT Data Order
-class(ATDataOrder)
-treeATDataOrder$resourceId
+#| code-summary: "setWorkflowTreeIdent(): Apply function"
 
-#get the elements of a workflow/lineage
-ident_ATDataOrderStep3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of Data Order
-workflowHandleATDataOrderStep3 <- getFullLineage(ident=ident_ATDataOrderStep3, depth = -1)
-workflowATDataOrderStep3 <- retrieveWorkflow(workflowHandleATDataOrderStep3)
+#get workflow handle
+identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
+workflowHandle <- improveR::getFullLineage(identTargetStep) 
+workflowElements <- workflowHandle %>% retrieveWorkflow()  #dataframe with steps of the workflow
+#check treeIdent of workflow elements
+workflowElements %>%
+  select(entityId, description, treeIdent, treeName) 
 
-#assign ident of tree to workflow
-workflowATDataOrderStep3$treeIdent <-treeATDataOrder$resourceId
-
-#store the changes to stepCache
-workflow<- persistWorkflowChanges(workflow)
+# treeIdent of analysis tree of which the ident is used
+treeIdentATModeling <- "envhost1.hc.scintecodev.internal-5310:AT-54634" #AT Modeling
+setWorkflowTreeIdent(workflowHandle,treeIdent = treeIdentATModeling) #assigns the treeIdent of AT Modeling to all steps in the workflow
+workflowElements_new <- workflowHandle %>% retrieveWorkflow()  
+workflowElements_new %>%
+  select(entityId, description, treeIdent, treeName)
 ```
 
 ## setWorkflowTreeRootFolder()
 
-Function assigns the location of te root folder to the tree paths of a workflow's elements.
-Subsequently, it stores the changes to the stepCache. All elements in the workflow will have the same root folder.
-According to function documentation, only used if no treeIdent is set.
+`setWorkflowTreeRootFolder()` takes the elements (steps) of a workflow and sets their `treePath` to a common root folder.
+Subsequently, it stores the changes (stepCache). 
+
+@HACKLM wording: "setWorkFlowTreePath" instead of "setWorkflowTreeRootFolder"? The function sets the `treePath`, like set TreeIdent or TreeName with relate functions; "root folder" is value to wich treePath is set;
 
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
 
 setWorkflowTreeRootFolder <- function(workflowHandle,rootFolder) {
-  workflow <- retrieveWorkflow(workflowHandle)
-  workflow$treePath <- rootFolder
-  workflow<- persistWorkflowChanges(workflow)
+  workflow <- retrieveWorkflow(workflowHandle) #get workflow elements
+  workflow$treePath <- rootFolder #set treePath to rootFolder
+  workflow<- persistWorkflowChanges(workflow) #store changes in stepCache
   return(workflowHandle)
 }
 ```
 
+```{r}
+#| code-summary: "setWorkflowTreeRootFolder: Apply function"
+
+#get workflow handle
+identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
+workflowHandle <- improveR::getFullLineage(identTargetStep) 
+workflowElements <- workflowHandle %>% retrieveWorkflow() 
+#dataframe with steps of the workflow
+#check treeIdent of workflow elements
+workflowElements %>%
+  select(entityId, description, treePath, treeName) 
+
+setWorkflowTreeRootFolder(workflowHandle, "improve-tutorial_new") #set treePath to rootFolder
+
+#get workflow again and display treePath
+workflowElements <- workflowHandle %>% retrieveWorkflow() 
+workflowElements %>%
+  select(entityId, description, treePath, treeName) 
+
+#set treePath back to "improve-tutorial"  
+
+setWorkflowTreeRootFolder(workflowHandle, "/improve-tutorial") #set treePath to rootFolder
+
+#get workflow again and display treePath
+workflowElements <- workflowHandle %>% retrieveWorkflow() 
+workflowElements %>%
+  select(entityId, description, treePath, treeName) 
+```
+
+
 ## setWorkflowTreeName()
 
-According to function documentation, only used if no treeIdent is set.
-Function assigns a new name to the tree of a workflowHandle and stores the changes to the stepCache.
-Note that treeName can be freely chosen (unlike treeIdent in `setWorkflowTreeIdent()`).
+`setWorkflowTreeName' takes the elements (steps) of a workflow and sets their `treeName` to a common name. Subsequently, it stores the changes (stepCache). 
+
+Note that `setWorkflowTreeName()` only changes the `treeIdent` of a step, but leaves `treeName` unchanged. To change the `treeName` of a step, use `setWorkflowTreeIdent()`.
 
 ```{r}
 #| code-summary: "Function definition"
@@ -717,30 +755,71 @@ setWorkflowTreeName <- function(workflowHandle,treeName) {
 }
 ```
 
-
 ```{r}
-knitr::knit_exit()
+#| code-summary: "setWorkflowTreeName: Apply function"
+
+#get workflow handle
+identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
+workflowHandle <- improveR::getFullLineage(identTargetStep) 
+workflowElements <- workflowHandle %>% retrieveWorkflow()  #dataframe with steps of the workflow
+#check treeIdent of workflow elements
+workflowElements %>%
+  select(entityId, description, treeIdent, treeName) 
+
+# treeIdent of analysis tree of which the ident is used
+treeIdentATModeling <- "envhost1.hc.scintecodev.internal-5310:AT-54634" #AT Modeling
+setWorkflowTreeName(workflowHandle,treeName = "New Analysis Tree") #sets treeName of all steps in the workflow to "New Analysis Tree"
+workflowElements_new <- workflowHandle %>% retrieveWorkflow()  
+workflowElements_new %>%
+  select(entityId, description, treeIdent, treeName)
+
 ```
 
 
-# handleFromStep()
+# 'handleFrom' functions
 
-Converts a repository step (identified by stepId) into an in-memory step handle with all its metadata, processes, files, and dependencies.
-Returns an in-memory step handle that contains everything needed to understand, modify, or execute the step independently of its original repository context.
-New stepHandle is key with with step meta data etc is stored in stepCache environment.
+There two 'handle(s)From' functions: `handleFromStep()` and `handlesFromTree()`. The first one assigns a handle to a step and
+stores all pretaining metadata, processes, files, and dependencies of the step in the `stepCache` environment. The second one assigns a handle to an analysis tree and stores all handles of the tree's steps under the tree's handle in the `stepCache` environment.
+
+
+```{r}
+#| eval: false
+#| include: false
+#@HACKLM wording: we have getHandleForResource() which gets/returns a handle; handlesFromTree/Step has no verb in the begining of the function obsuring a bit the direction/purpose
+of the function; would "setHandleFromTree/Step" not be more
+intuitive. I am also not sure about the 'From'; to me 'from'
+suggests that something is taken/infered from soemthing; AFAIK this is not the case here. We have a tree/step and assign a handle to it. Wouldn't "setHandleForTree/Step" be more intuitive?
+
+```
+
+
+```{r}
+#| include: false
+#| eval: false
+#TODO 
+- relation to other functions: relation to detach-functions
+- when do I need this function
+```
+
+## handleFromStep()
+
+`handleFromStep()` takes a step id as an input and:
+*   creates a unique handle for the step
+*   uses the handle to store the step's metadata, processes, files, and dependencies in the stepCache environment.
 
 ```{r}
 #| code-summary: "handleFromStep(): Function definition"
 #| eval: false
+#| code-fold: true
 
 handleFromStep <- function(stepId) {
 
   stepHandle <- uuid::UUIDgenerate() #generates new Universally Unique Identifiers. Can be either time-based or random.
 
-  step <- loadResource(stepId) #loads step
-  tree <- loadResource(step$parentId) #loads the AT of the step
+  step <- loadResource(stepId) #loads step; dataframe w 1 row
+  tree <- loadResource(step$parentId) #loads the AT of the step; data frame with 1 row;  
 
-  processes <- updateProcessesForStep(stepIdent = stepId) #updates and gets data on step's processes
+  processes <- updateProcessesForStep(stepIdent = stepId) #updates and gets data on step's processes; data frame
   processes <- processes[order(processes$position),] #orders processes by their position in the step
   processDfs <- byNotEmptyAsDf(processes,function(process){fullProcess(process,stepHandle)}) #each process becomes a df
 
@@ -816,188 +895,34 @@ handleFromStep <- function(stepId) {
 
 ```
 
-
 ```{r}
 #| code-summary: "handleFromStep: Demonstrate function"
 
 stepIdent <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of Data Order
-handleFromStep(stepIdent) 
-"ea8b1ac4-18c6-4596-b29a-6a47a5d5c333"
 
-View(as.list(improveR:::stepCache))
-listviewer::jsonedit(as.list(improveR:::stepCache))
+handleStep <- handleFromStep(stepIdent) 
+handleStep
+
+improveR:::stepCache[[handleStep]] 
+glimpse(improveR:::stepCache[[handleStep]] )
+class(improveR:::stepCache[[handleStep]] )
+ncol(improveR:::stepCache[[handleStep]])
+names(improveR:::stepCache[[handleStep]])
 ```
 
+## handlesFromTree()
 
-## related functions
-
-### updateProcessesForStep()
-
--  reloads the processes for a step
+`handlesFromTree()` takes an analysis tree ident as an input and creates a handle for the tree.
+This handle is stored in the `stepCache` environment as a key, under which the handles of all steps of the tree are stored.
 
 ```{r}
-#| code-summary: "Function definition"
+#| code-summary: "handlesFromTree: Function definition"
 #| eval: false
-updateProcessesForStep <- function(stepIdent) {
-  unloadProcessesForStep(stepIdent)
-  res <- loadProcessesForStep(stepIdent)
-  return(res)
-}
-```
-
-```{r}
-#| code-summary: "Demonstrate updateProcessesForStep()"
-
-stepId_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627"
-res <- updateProcessesForStep(stepIdent=stepId_ATDataOrder_Step3)
-class(res)
-names(res)
-glimpse(res) #QUESTION where is this data in improve client?
-```
-
-
-### loadProcessesForStep()
-```{r}
-#| code-summary: "Function definition"
-#| eval: false
-loadProcessesForStep <- function(stepIdent) {
-  step <- loadResource(stepIdent) #loads a step via its ident
-  if (is.null(step)) {
-    return(NULL)
-  }
-  if (step$nodeType!="Step") {
-    log_warn("loadProcessesForStep only possible for type Step.",stepIdent,"is of type",step$nodeType)
-    return(NULL)
-  }
-
-  processes <- getFromCache(key=step$resourceId,func=actualLoadProcessesForStep,cacheList=processesForStepsCacheList,NULL)
-  return(processes)
-}
-```
-
-
-```{r}
-#| code-summary: "Demonstrate loadProcessesForStep()"
-stepId_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" 
-processes_ATDataOrder_Step3 <- loadProcessesForStep(stepIdent=stepId_ATDataOrder_Step3)
-glimpse(processes_ATDataOrder_Step3) #@HACKLM not clear why result is not corresponding to data displayed inside improve client
-```
-
-### getFromCache()
-
-- unexported function
-- returns dataframe with details on process step
-- key is the step's resourceId
-- func is the function to load the step's processes
-- cacheList is the list of caches to search in
-- argument is the argument to write to the cache
-- ... are additional arguments to pass to the function
-- if the key is found in the cache, it returns the value
-- if the key is not found, it calls the function to load the step's processes and writes the value to the cache
-- if the value is NULL, it does not write to the cache
-
-```{r}
-#| eval: false
-getFromCache <- function(key,func,cacheList,argument,...) {
-  improveConnected()
-  if (is.character(key)) {
-    logging::logdebug(paste0("Retrieving ",key," from caches"))
-  } else {
-    logging::logdebug(paste0("Retrieving from caches by function"))
-  }
-  initialiseCache(cacheList)
-  val <- searchInCache(cacheList,key)
-  if (!is.null(val)) {
-    logging::logdebug("Found")
-    return(val)
-  } else {
-    logging::logdebug("Get for cache ")
-    val <- func(key,...)
-    if (!is.null(val)) {
-      writeToCache(val,cacheList,argument)
-    }
-  }
-  return(val)
-}
-```
-
-```{r}
-#| code-summary: "Demonstrate getFromCache()"
-
-ident_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" 
-
-res_getFromCache <- improveR:::getFromCache(key=ident_ATDataOrder_Step3, func=improveR:::actualLoadProcessesForStep, cacheList=improveR:::processesForStepsCacheList, NULL)
-class(res_getFromCache)             
-glimpse(res_getFromCache)
-```
-
-
-### fullProcess()
-
-`fullProcess` creates a data frame with the details of a process, including the step handle, process type, and other relevant information.
-Returns a data frame
-
-```{r}
-#| code-summary: "Function definition"
-#| eval: false
-
-fullProcess <- function(process,stepHandle) {
-  processId <- process$id
-  newHandle <- data frame(handle=processId,stringsAsFactors = F)
-  newHandle$runserverName <- process$runserverLabel
-  newHandle$toolName <- process$toolLabel
-  newHandle$runserverToolName<-process$toolInstance
-  newHandle$toolArgs <- process$toolArgs
-  newHandle$toolDeletePatterns <- process$toolDeletePatterns
-  newHandle$toolStreamablePatterns <- process$toolStreamablePatterns
-  newHandle$selected <- process$selected
-  newHandle$gridTool <- process$gridTool
-  newHandle$main <- process$main
-  newHandle$name <- process$name
-  newHandle$processType <- process$processType
-  newHandle$position <- process$position
-  newHandle$parentProcessId <- process$parentProcessId
-
-  gridArguments <- updateProcessGridArguments(process$id)
-
-  if (!is.null(gridArguments)) {
-    newHandle$gridArguments <- list(
-      byNotEmptyAsDf(gridArguments,function(ga) {
-        gridHandle <- data frame(handle=stepHandle)
-        gridHandle$argumentName<- ga$name
-
-        if (ga$gridArgumentType=="LOV") {
-          categoryValues <- ga$category[[1]]$values[[1]]
-          gridHandle$argumentValue <- categoryValues[categoryValues$id==ga$lovValueId,]$text
-        } else if (ga$gridArgumentType=="TEXT") {
-          gridHandle$argumentValue <- ga$textValue
-        } else if (ga$gridArgumentType=="DATE_TIME") {
-          gridHandle$argumentValue <- round(as.numeric(ga$dateValue)/1000)
-        }
-        return(gridHandle)
-      })
-    )
-  }
-  return(newHandle)
-}
-```
-
-# handlesFromTree()
-
-`handlesFromTree` handlesFromTree reads a specific tree and creates handles for all steps.
-Returns a workflowHandle (which is different from the workflowHanlde returned by `getFullLineage()`).
-The new workflowHandle of the tree is the key under which the handles of the tree's stepsa are stored in the `stepCache` environment.
-
-Note that `handlesFromTree` returns only the new handle of the tree, but not the handles of the steps. The latter are only stored in
-the cache environment. 
-
-
-```{r}
-#|  code-summary: "handlesFromTree: Function definition"
+#| code-fold: true
 
 handlesFromTree <- function(ident,from=pwd(),includeSelf=F) {
   workflowHandle <- uuid::UUIDgenerate()
-  #TODO here load dmg
+
   steps <- loadChildResources(ident,from)$data[[1]]
   if (!includeSelf) {
     steps <- steps[steps$resourceId!=pwd()$resourceId,]
@@ -1043,21 +968,71 @@ handlesFromTree <- function(ident,from=pwd(),includeSelf=F) {
 ```
 
 
-
 ```{r}
 #| code-summary: "Demonstrate function with AT Data Order"
 
-identATDataOrder <- "envhost1.hc.scintecodev.internal-5310:AT-54614" #AT Data Order
-# identATDataOrderStep <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step inside of Analysis Tree "DataOrder"
-testHandlesFromTree <- handlesFromTree(ident = identATDataOrder)
-testHandlesFromTree
+treeIdent <- "envhost1.hc.scintecodev.internal-5310:AT-54614" #AT Data Order
 
-listviewer::jsonedit(as.list(improveR:::stepCache))
-stepHandlesATDataOrder <- get0(testHandlesFromTree, envir = improveR:::stepCache) 
-stepHandlesATDataOrder
-length(stepHandlesATDataOrder) #5
+handleTree <- handlesFromTree(ident = treeIdent)
+handleTree
 
-get0(stepHandlesATDataOrder[1], envir = improveR:::stepCache) #get first step handle
+improveR:::stepCache[[handleTree]] #reveal stepHandles which are stored under the handle returned by handlesFromTree()
+length(improveR:::stepCache[[handleTree]]) #length 3 since three steps in AT Data Order
+as.list(improveR:::stepCache[[handleTree]]) #list of handles of the steps in the AT Data 
+
+
+```
+
+```{r}
+#| include: false
+#| eval. false
+#listviewer::jsonedit(improveR:::stepCache[[handleTree]]) #view handles of the steps in the AT Data Order
+#listviewer::jsonedit(as.list(improveR:::stepCache))
+```
+
+
+```{r}
+knitr::knit_exit()
+```
+
+# getHandleForResource()
+
+`getHandleForResource()` retrieves an already created stepHandle for a specific resource in a workflow.
+
+Returns the stepHandle for a specific step resource.
+Only works if a prepared step has been executed or a workflow was pulled from the repository and not detached via detachWorkflowFromResources
+
+#@HACKLM why is column in workflow called "handle" and not "stepHandle"? For consistency might be good to harmonize names. 
+Or can retrieveWorkflow return a dataframe with  elements other than steps?
+
+```{r}
+#| code-summary: "Function definition"
+#| eval: false
+#| code-fold: true
+getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
+  workflow <- retrieveWorkflow(workflowHandle) #get dataframe with workflow steps
+  resource <- loadResource(ident,from) #load specified resource; allows for different ident types.
+  if (nrow(resource)==1) {
+      workflow <- workflow[workflow$entityId==resource$entityId,] #filter; keep only rows of workflow which have the same resourceId as the resource in question
+    if (nrow(workflow)==1) { 
+      return(workflow$handle) # return the handle (stepHandle) of the step which has the same resourceId as the resource in question
+    }
+  }
+  return(NULL)
+}
+```
+
+- Is this a different handle than the one obtained for a specific step after calling getfullLineage() > retrieveWorkflow()? No. It's the same. The function only filters the workflow elements for a specific resourceId and return the resource's handle.
+
+```{r}
+#| code-summary: "Use getHandleForResource()"
+identStepResource <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of Data Order
+
+identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516"
+workflowHandleTargetStep <- getFullLineage(ident=identTargetStep, depth = -1)
+workflowTargetStep <- retrieveWorkflow(workflowHandleTargetStep)
+
+stepHandle_ATDataOrder_Step3 <- getHandleForResource(workflowHandle=workflowHandleTargetStep, ident=identStepResource)
 ```
 
 
@@ -1119,42 +1094,6 @@ glimpse(mainProcess_ATDataOrder_Step3)
 mainProcess_ATDataOrder_Step3
 ```
 
-
-# getHandleForResource()
-
-Returns the stepHandle for a specific step resource.
-Only works if a prepared step has been executed or a workflow was pulled from the repository and not detached via detachWorkflowFromResources
-
-#@HACKLM why is column in workflow called "handle" and not "stepHandle"? For consistency might be good to harmonize names. 
-Or can retrieveWorkflow return a dataframe with  elements other than steps?
-
-```{r}
-#| code-summary: "Function definition"
-#| eval: false
-getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
-  workflow <- retrieveWorkflow(workflowHandle) #get dataframe with workflow steps
-  resource <- loadResource(ident,from) #load specified resource; allows for different ident types.
-  if (nrow(resource)==1) {
-      workflow <- workflow[workflow$entityId==resource$entityId,] #filter; keep only rows of workflow which have the same resourceId as the resource in question
-    if (nrow(workflow)==1) { 
-      return(workflow$handle) # return the handle (stepHandle) of the step which has the same resourceId as the resource in question
-    }
-  }
-  return(NULL)
-}
-```
-
-- Is this a different handle than the one obtained for a specific step after calling getfullLineage() > retrieveWorkflow()? No. It's the same. The function only filters the workflow elements for a specific resourceId and return the resource's handle.
-
-```{r}
-identStepResource <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of Data Order
-
-identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516"
-workflowHandleTargetStep <- getFullLineage(ident=identTargetStep, depth = -1)
-workflowTargetStep <- retrieveWorkflow(workflowHandleTargetStep)
-
-stepHandle_ATDataOrder_Step3 <- getHandleForResource(workflowHandle=workflowHandleTargetStep, ident=identStepResource)
-```
 
 
 # exportWorkflow() (not exported)
@@ -1512,6 +1451,168 @@ glimpse(workflow_myTargetStep)
 ```
 
 Surprisingly, the data frame workflow_myTargetStep contains only one row, i.e. one step - `r workflow_myTargetStep$description` with the entityId `r workflow_myTargetStep$entityId`, which is the targetStep itself. Looking at the DMG in the improve client, however, suggests that there are two steps which preced the step, e.g. Step 2 and Step 3.
+
+
+
+
+# Auxiliary functions (change)
+
+### updateProcessesForStep()
+
+-  reloads the processes for a step
+
+```{r}
+#| code-summary: "Function definition"
+#| eval: false
+updateProcessesForStep <- function(stepIdent) {
+  unloadProcessesForStep(stepIdent)
+  res <- loadProcessesForStep(stepIdent)
+  return(res)
+}
+```
+
+```{r}
+#| code-summary: "Demonstrate updateProcessesForStep()"
+
+stepId_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627"
+res <- updateProcessesForStep(stepIdent=stepId_ATDataOrder_Step3)
+class(res)
+names(res)
+glimpse(res) #QUESTION where is this data in improve client?
+```
+
+
+### loadProcessesForStep()
+
+Returns a data frame with the processes of a step.
+
+```{r}
+#| code-summary: "Function definition"
+#| eval: false
+loadProcessesForStep <- function(stepIdent) {
+  step <- loadResource(stepIdent) #loads a step via its ident
+  if (is.null(step)) {
+    return(NULL)
+  }
+  if (step$nodeType!="Step") {
+    log_warn("loadProcessesForStep only possible for type Step.",stepIdent,"is of type",step$nodeType)
+    return(NULL)
+  }
+
+  processes <- getFromCache(key=step$resourceId,func=actualLoadProcessesForStep,cacheList=processesForStepsCacheList,NULL)
+  return(processes)
+}
+```
+
+
+```{r}
+#| code-summary: "Demonstrate loadProcessesForStep()"
+stepId_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" 
+
+processes_ATDataOrder_Step3 <- loadProcessesForStep(stepIdent=stepId_ATDataOrder_Step3)
+
+processes_ATDataOrder_Step3$runs
+#@HACKLM not clear why result is not corresponding to data displayed inside improve client
+```
+
+### getFromCache()
+
+- unexported function
+- returns dataframe with details on process step
+- key is the step's resourceId
+- func is the function to load the step's processes
+- cacheList is the list of caches to search in
+- argument is the argument to write to the cache
+- ... are additional arguments to pass to the function
+- if the key is found in the cache, it returns the value
+- if the key is not found, it calls the function to load the step's processes and writes the value to the cache
+- if the value is NULL, it does not write to the cache
+
+```{r}
+#| eval: false
+getFromCache <- function(key,func,cacheList,argument,...) {
+  improveConnected()
+  if (is.character(key)) {
+    logging::logdebug(paste0("Retrieving ",key," from caches"))
+  } else {
+    logging::logdebug(paste0("Retrieving from caches by function"))
+  }
+  initialiseCache(cacheList)
+  val <- searchInCache(cacheList,key)
+  if (!is.null(val)) {
+    logging::logdebug("Found")
+    return(val)
+  } else {
+    logging::logdebug("Get for cache ")
+    val <- func(key,...)
+    if (!is.null(val)) {
+      writeToCache(val,cacheList,argument)
+    }
+  }
+  return(val)
+}
+```
+
+```{r}
+#| code-summary: "Demonstrate getFromCache()"
+
+ident_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" 
+
+res_getFromCache <- improveR:::getFromCache(key=ident_ATDataOrder_Step3, func=improveR:::actualLoadProcessesForStep, cacheList=improveR:::processesForStepsCacheList, NULL)
+class(res_getFromCache)             
+glimpse(res_getFromCache)
+```
+
+
+### fullProcess()
+
+`fullProcess` creates a data frame with the details of a process, including the step handle, process type, and other relevant information.
+Returns a data frame
+
+```{r}
+#| code-summary: "Function definition"
+#| eval: false
+
+fullProcess <- function(process,stepHandle) {
+  processId <- process$id
+  newHandle <- data frame(handle=processId,stringsAsFactors = F)
+  newHandle$runserverName <- process$runserverLabel
+  newHandle$toolName <- process$toolLabel
+  newHandle$runserverToolName<-process$toolInstance
+  newHandle$toolArgs <- process$toolArgs
+  newHandle$toolDeletePatterns <- process$toolDeletePatterns
+  newHandle$toolStreamablePatterns <- process$toolStreamablePatterns
+  newHandle$selected <- process$selected
+  newHandle$gridTool <- process$gridTool
+  newHandle$main <- process$main
+  newHandle$name <- process$name
+  newHandle$processType <- process$processType
+  newHandle$position <- process$position
+  newHandle$parentProcessId <- process$parentProcessId
+
+  gridArguments <- updateProcessGridArguments(process$id)
+
+  if (!is.null(gridArguments)) {
+    newHandle$gridArguments <- list(
+      byNotEmptyAsDf(gridArguments,function(ga) {
+        gridHandle <- data frame(handle=stepHandle)
+        gridHandle$argumentName<- ga$name
+
+        if (ga$gridArgumentType=="LOV") {
+          categoryValues <- ga$category[[1]]$values[[1]]
+          gridHandle$argumentValue <- categoryValues[categoryValues$id==ga$lovValueId,]$text
+        } else if (ga$gridArgumentType=="TEXT") {
+          gridHandle$argumentValue <- ga$textValue
+        } else if (ga$gridArgumentType=="DATE_TIME") {
+          gridHandle$argumentValue <- round(as.numeric(ga$dateValue)/1000)
+        }
+        return(gridHandle)
+      })
+    )
+  }
+  return(newHandle)
+}
+```
 
 
 # EXAMPLE OF WORKFLOW MANAGMENT 
