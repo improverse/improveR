@@ -16,10 +16,8 @@ format:
     # output-file: 
     embed-resources: true
     theme: 
-      # light: cosmo
       light: [materia, style.scss]
       dark: slate
-    logo: "logo_scinteco.svg"
     fontsize: 16px
     grid:
       sidebar-width: 300px
@@ -35,28 +33,33 @@ project:
 lightbox: true
 ---
 
-
 # Purpose
 
-The purpose of this document is to describe improveR's capacities to handle workflows.
+The purpose of this document is to describe `improveR`'s capacities to
+handle workflows as well as other related functions.
 
 # Libraries
+
 ```{r}
 #| code-summary: "Get packages"
 #| code-fold: true
+#| cache: false
 library(improveR)
 packageVersion("improveR")
 library(tidyverse, quietly = T)
 library(tictoc) #time keeping of functions
 options(width=10000) #make results window wide; horizontal scrollbar
+
 ```
 
-To demonstrate improveR's pertaining functions the folder 'improve-tutorial'
-under http://envhost1.hc.scintecodev.internal:5310/repository is used.
+To demonstrate `improveR`'s pertaining functions the folder
+'improve-tutorial' under
+http://envhost1.hc.scintecodev.internal:5310/repository is used.
 
 ```{r}
 #| code-summary: "Set environment variables to access repository"
 #| code-fold: true
+#| cache: false
 
 Sys.setenv(IMPROVER_REPO_URL="http://envhost1.hc.scintecodev.internal:5310/repository")
 
@@ -74,96 +77,132 @@ improveConnect()
 setEditable(T)
 ```
 
-
 # getFullLineage()
 
-`getFullLineage` returns a *workflow handle* for the lineage of a step, i.e. the sequence of steps and their resources preceding the target step. 
-The lineage comprises all steps leading to the step ("to the left", including branches) and can span across multiple 
-analysis trees. The argument `depth` controls the depth of the recursion, i.e. how many trees preceding the step's own tree should be included. The
-default -1 includes all branches. Depending on the complexity of the lineage, the query may take up to a few minutes to execute.
+`getFullLineage` returns a *workflow handle* for the lineage of a step,
+i.e. the sequence of steps and their resources preceding the target
+step. The lineage comprises all steps leading to the step ("to the
+left", including branches) and can span across multiple analysis trees.
+The argument `depth` controls the depth of the recursion, i.e. how many
+trees preceding the step's own tree should be included. The default -1
+includes all branches. Depending on the complexity of the lineage, the
+query may take up to a few minutes to execute.
 
-The 'directional' counterpart to `getFullLineage` is `getFullUsage` (see @sec-getfullusage) which returns the tree starting from the step in question (in contrast to ending with it). For details see below
+The 'directional' counterpart to `getFullLineage` is `getFullUsage` (see
+@sec-getfullusage) which returns the lineage **starting** from the step in
+question. For details see below
 
-To demonstrate the use of `getFullLineage`, let's get the lineage of **repo 5310 > improve-tutorial > Reporting > Step 1** with the short EntityId `envhost1.hc.scintecodev.internal-5310:ST-62516`. 
+To demonstrate the use of `getFullLineage`, let's get the lineage of
+*repo 5310 \> improve-tutorial \> Reporting \> Step 1* with the short
+entity Id `envhost1.hc.scintecodev.internal-5310:ST-62516`.
 
 ```{r}
 #| code-summary: "Get workflowHandle"
-#| cache: false
 #| eval: true
+#| cache: false
 
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516"
 
 tic()
 workflowHandleTargetStep <- getFullLineage(ident=identTargetStep, depth = -1)
 toc()
-```
 
-```{r}
-#| include: false
-# write(workflowHandleTargetStep, "data/workflowHandleTargetStep.txt")
-# workflowHandleTargetStep <- readLines("data/workflowHandleTargetStep.txt")
-```
-
-```{r}
 class(workflowHandleTargetStep)
 workflowHandleTargetStep
 ```
 
-The workflow handle `workflowHandleTargetStep` is a character vector of length `r length(workflowHandleTargetStep)`.
-The `workflowHandleTargetStep` is a unique identifier that represents the complete lineage up to and including the target step.
-This handle can be used with other improveR functions to retrieve, manipulate, and execute the workflow.
+The workflow handle `workflowHandleTargetStep` is a character vector of
+length `r length(workflowHandleTargetStep)`. It is a unique identifier for the complete lineage up to and including the target step. This handle can be
+used with other `improveR` functions to retrieve, manipulate, and execute
+the workflow.
 
-**Important**: `workflowHandle` is not permanent. If you rerun the code from above or if you start a new session, the same workflow will get a new handle. The old workflow handle will no longer be a valid reference for a workflow.
+**Important**: `workflowHandle` is not permanent. If you rerun the code
+from above or if you start a new R session, the same workflow will get a
+new handle. The old workflow handle will no longer be a valid reference
+for a workflow.
 
+## retrieveWorkflow {#sec-retrieveworkflow}
 
-## retrieveWorkflow
-The `retrieveWorkflow` function retrieves the steps (and their details) which are associated
-with the previsouly retrieved workflow handle and constitute the workflow.
+The `retrieveWorkflow` function retrieves the steps (and their details)
+which are associated with the previsouly retrieved workflow handle and together
+constitute the workflow.
 
-**Important**: Currently, `retrieveWorkflow` returns only the elements to the left of the target step if the links
-are not outdated. If the links are outdated, the workflow is incomplete and only contains the steps with an up to date
-lineage to the target step. See below for an example of an incomplete workflow (@sec-incomplete-workflow). #@HACKLM
+**Important**: Currently, `retrieveWorkflow` returns only the elements
+to the left of the target step if the links connecting the individual steps are not outdated. If the
+links are outdated, the workflow is incomplete and only contains the
+steps with an up-to-date lineage to the target step. See below for an
+example of an incomplete workflow.
+
+```{r}
+#| include: false
+#| eval: false
+#| cache: false
+
+#TODO (@sec-incomplete-workflow) add later
+# @HACKLM check current status of dmgs and outdated links/workflows; outdated links do not form part of workflow?
+```
+
 
 ```{r}
 #| code-summary: "Retrieve workflow"
+#| cache: false
 workflowTargetStep <- retrieveWorkflow(workflowHandleTargetStep)
-```
 
-*direct path*: `getFullLineage()` > `retrieveWorkflow()` only returns those steps which are required to reach the target step. Leaves are not included in the workflow. 
-
-#@HACKLM
-In the repository, the analysis tree "EDA" contains five steps (three steps and two child steps). `retrieveWorkflow()`, however, returns only four steps; it does not include Step 17 (envhost1.hc.scintecodev.internal-5310:ST-59046; 'using Lancet theme').
-Why? The targetStep of the workflow - Step1/Reporting - is linked to the EDA/Step17 via graphDistributionSexAge.png. 
-Also, why are step 2 and 4 of AT DataOrder not included in the workflow?
-
-```{r}
-#| code-summary: "Content of workflowTargetStep"
 class(workflowTargetStep) 
 nrow(workflowTargetStep)
-glimpse(workflowTargetStep)
+workflowTargetStep
 ```
 
-`retrieveWorkflow` returns a data frame with the workflow details, i.e. the steps leading to the target step. Here `workflowTargetStep` is a data frame with `r ncol(workflowTargetStep)` columns and `r nrow(workflowTargetStep)` rows. Let's go through the individual elements of the returned data frame.
+*direct path*: `getFullLineage()` > `retrieveWorkflow()` only returns
+those steps which are required to reach the target step. Leaves are not
+included in the workflow. #CHECK 
 
-### handle 
+`retrieveWorkflow` returns a data frame with the workflow details, i.e.
+the steps leading to the target step. Here `workflowTargetStep` is a
+data frame with `r ncol(workflowTargetStep)` columns and
+`r nrow(workflowTargetStep)` rows. Let's go through the individual
+elements of the returned data frame.
 
-`handle`: Is a character column containing a distinct id for each step, in this case `r length(workflowTargetStep$handle)`.
+
+```{r}
+#| eval: false
+#| include: false
+#| cache: true
+#@HACKLM In the repository, the analysis tree "EDA" contains five steps
+# (three steps and two child steps). `retrieveWorkflow()`, however,
+# returns only four steps; it does not include Step 17
+# (envhost1.hc.scintecodev.internal-5310:ST-59046; 'using Lancet theme').
+# Why? The targetStep of the workflow - Step1/Reporting - is linked to the
+# EDA/Step17 via graphDistributionSexAge.png. Also, why are step 2 and 4
+# of AT DataOrder not included in the workflow?
+
+```
+
+### handle
+
+`handle`: Is a character column containing a distinct id for each step,
+in this case `r length(workflowTargetStep$handle)`.
 
 ```{r}
 #| code-fold: show
 #| collapse: true
+#| cache: true
 class(workflowTargetStep$handle)
 workflowTargetStep[, c("description","handle")]
 ```
 
 ### processes
 
-`processes` is a list column containing a data frame for a specific step. 
-The nested data frame contains details on the tool used to run the step in 
-improve. Below the details for one step (`r glimpse(workflowTargetStep$description[[1]])`; `r workflowTargetStep$entityId[[1]]`).
+`processes` is a list column containing a data frame for a specific
+step. The nested data frame contains details on the tool used to run the
+step in improve. Below the details for one step
+(`r glimpse(workflowTargetStep$description[[1]])`;
+`r workflowTargetStep$entityId[[1]]`).
+
 ```{r}
 #| code-fold: show
 #| collapse: true
+#| cache: true
 class(workflowTargetStep$processes[[1]])
 glimpse(workflowTargetStep$description[[1]])
 glimpse(workflowTargetStep$entityId[[1]])
@@ -172,63 +211,79 @@ glimpse(workflowTargetStep$processes[[1]])
 
 ### tree related info
 
-`treeIdent`, `treeName`, and `treePath` detail in which Analysis Tree the workflow's steps are located.
+`treeIdent`, `treeName`, and `treePath` detail in which Analysis Tree
+the workflow's steps are located.
+
 ```{r}
 #| code-fold: show
 #| collapse: true
+#| cache: true
 
 workflowTargetStep %>%
 select(description, entityId, contains("tree"))
 ```
 
 ### step related details
-There are three additional details on each step within the lineage of the target step:
 
-`description`: description, i.e. the name of the step, as provided under "comments".
-`rationale`: the rational for the step, as provided under "comments".
-`entityId`: entityId of the step
+There are three additional details on each step within the lineage of
+the target step:
+
+`description`: description, i.e. the name of the step, as provided under
+"comments". `rationale`: the rational for the step, as provided under
+"comments". `entityId`: entityId of the step
 
 ```{r}
 #| code-fold: show
 #| collapse: true
+#| cache: true
 workflowTargetStep %>%
 select(description, rationale, entityId)
 ```
 
 ### remoteFiles
 
-The column `remoteFiles` within the dataframe returned by `retrieveWorflow` is a list column with 
-`r ncol(workflowTargetStep$remoteFiles[[1]])` columns. It contains details on files which were
-included into the step, e.g. data files included via link into the step, R script(s) as well as the files produced when executing the step. 
+The column `remoteFiles` within the dataframe returned by
+`retrieveWorflow` is a list column with
+`r ncol(workflowTargetStep$remoteFiles[[1]])` columns. It contains
+details on files which were included into the step, e.g. data files
+included via link into the step, R script(s) as well as the files
+produced when executing the step.
 
 ```{r}
+#| cache: true
 class(workflowTargetStep$remoteFiles[[1]])
 ncol(workflowTargetStep$remoteFiles[[1]])
 names(workflowTargetStep$remoteFiles[[1]])
 
 glimpse(workflowTargetStep$remoteFiles[[1]])
 ```
- 
-`stepHandle`: the handle of the step to which the file is linked to (the step's handle). Identical to for all files in the step.  
-`ident`: short entity id   
-`version` target revision (properties > general > target revision)  
-`filehash`  
-`maxVersion` Revision id (properties > general > revision)  
-`asLink` Is the file linked or not   
-`name` name of file   
-`variableName` if file is bound as a variable   
-`variableProcess` the process to which the file is bound as a variable  
+
+`stepHandle`: the handle of the step to which the file is linked to (the
+step's handle). Identical to for all files in the step.\
+`ident`: short entity id\
+`version` target revision (properties \> general \> target revision)\
+`filehash`\
+`maxVersion` Revision id (properties \> general \> revision)\
+`asLink` Is the file linked or not\
+`name` name of file\
+`variableName` if file is bound as a variable\
+`variableProcess` the process to which the file is bound as a variable
 
 Below the output for one specific step.
+
 ```{r}
+#| cache: true
 workflowTargetStep$description[[1]]
 workflowTargetStep$remoteFiles[[1]]
 ```
 
-In the case of the here pertinent step 1 in the AT 'Reporting', the remoteFiles are predominantly png-image files which were included via a link (`asLink`) into the step.
+In the case of the here pertinent step 1 in the AT 'Reporting', the
+remoteFiles are predominantly png-image files which were included via a
+link (`asLink`) into the step.
 
 ```{r}
 #| code-summary: "Display remoteFiles"
+#| cache: true
 workflowTargetStep %>%
   slice(1) %>%
   select(remoteFiles) %>%
@@ -237,17 +292,26 @@ workflowTargetStep %>%
   select(ident, asLink, name, stepHandle)
 ```
 
-The example below presents the files of the `remoteFiles` column of Step 6 in the AT EDA ('Analyse dynamics of concentration'). It demonstrates that `remoteFiles` not
-only contains files which were included as input files (e.g. via link), but also output files created by the step as well as R files.
- 
-#@HACKLM: again, question regarding the wording: 
-- what does 'remote' mean in this context?
-- what is stored under `remoteFiles` are the files which we see in the
-inventory in the improve client.
-- the output files (.png) or the .r script are not 'remote'
+The example below presents the files of the `remoteFiles` column of Step
+6 in the AT EDA ('Analyse dynamics of concentration'). It demonstrates
+that `remoteFiles` not only contains files which were included as input
+files (e.g. via link), but also output files created by the step as well
+as R files.
+
+```{r}
+#| eval: false
+#| include: false
+# #@HACKLM: again, question regarding the wording: - what does 'remote'
+# mean in this context? - what is stored under `remoteFiles` are the files
+# which we see in the inventory in the improve client. - the output files
+# (.png) or the .r script are not 'remote'
+
+```
+
 
 ```{r}
 #| code-summary: "Check remote files of AT EDA, Step 6 Analyse dynamics of concentration"
+#| cache: true
 
 remoteFiles_ATEDA_ST6 <- workflowTargetStep %>%
 filter(str_detect(description, stringr::regex("Analyse dynamics of concentration", ignore_case = T))) %>%
@@ -260,17 +324,18 @@ remoteFiles_ATEDA_ST6 %>%
 select(name, asLink) 
 ```
 
-
 # getFullUsage() {#sec-getfullusage}
 
 `getFullUsage()` is the 'directional' counterpart to `getFullLineage()`.
-The function returns a workflowHandle (an alphanumeric string) for the usage workflow of a step, which may cover multiple trees. 
-In other words, it captures all steps which are directly or indirectly to the right ('downstream') 
-of the relevant step in the workflow .
+The function returns a workflowHandle (an alphanumeric string) for the
+usage workflow of a step, which may cover multiple trees. In other
+words, it captures all steps which are directly or indirectly to the
+right ('downstream') of the relevant step in the workflow .
 
 ```{r}
 #| code-summary: "getFullUsage() - Function definition"
 #| eval: false
+#| cache: true
 
 getFullUsage <- function(ident,from=pwd(),workflowEnv=NULL,depth=-1) {
   userCall <- F
@@ -297,10 +362,12 @@ getFullUsage <- function(ident,from=pwd(),workflowEnv=NULL,depth=-1) {
 }
 ```
 
-Note that the execution of the function can take a few minutes (below around 90 seconds).
+Note that the execution of the function can take a few minutes (below
+around 90 seconds).
 
 ```{r}
 #| code-summary: "getFullUsage() - Application"
+#| cache: true
 startIdent <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #AT Data Order Step 3
 tic()
 handleWorkflowUsage <- getFullUsage(ident = startIdent,from = pwd(),workflowEnv = NULL,depth = -1) #returns a data frame with one row; last AT of the workflow (reporting); each (here one) is a step;
@@ -308,58 +375,78 @@ toc()
 handleWorkflowUsage #"d4ea0ac2-dad4-42e3-8b61-3082d1c85d99"
 ```
 
-The workflowHandle `r handleWorkflowUsage` is stored in `stepCache` as key under which the handles of all the
-individual steps which form part of the usage are stored. 
+The workflowHandle `r handleWorkflowUsage` is stored in `stepCache` as
+key under which the handles of all the individual steps which form part
+of the usage are stored.
 
 ```{r}
 #| code-summary: "Inspect stepCache for workflowHandle"
+#| cache: true
 
 usageSteps <- improveR:::stepCache[[handleWorkflowUsage]] #inspect the stepCache environment for the workflowHandle
 length(usageSteps) #number of steps in the usage workflow
 ```
 
-Feeding the workflow handle obtained via `getFullUsage()` 
-into `retrieveWorkflow()` returns a data frame
-with all steps. 
+Feeding the workflow handle obtained via `getFullUsage()` into
+`retrieveWorkflow()` returns a data frame with all steps.
 
 ```{r}
 #| code-summary: "getFullUsage - retrieve all steps which form part of the usage"
+#| cache: true
 elementsWorkflowUsage <- retrieveWorkflow(handleWorkflowUsage) 
 elementsWorkflowUsage #retrieve the workflow from the handle
 nrow(elementsWorkflowUsage) #number of steps in the usage workflow
 ```
 
-Check: The steps returned by `retrieveWorkflow()` have indeed the 
-step handles which were stored in the `stepCache` environment under the workflowHandle,
-when using getFullUsage().
+Check: The steps returned by `retrieveWorkflow()` have indeed the step
+handles which were stored in the `stepCache` environment under the
+workflowHandle, when using getFullUsage().
 
 ```{r}
 #| code-summary: "Check"
+#| cache: true
 elementsWorkflowUsage$handle %in% usageSteps #check if the step handles in the workflow are the same as the ones stored in stepCache
 ```
 
-
 # makeStepsRelative
 
-`makeStepsRelative` takes all steps constituting a workflow and makes them relative to each other, meaning it adds to each step information on its relation with other steps.
-For this purpose two new columns are added to the dataframe: `dependenicies` and `usage`. 
+`makeStepsRelative` takes all steps constituting a workflow and makes
+them relative to each other, meaning it adds to each step information on
+its relation with other steps. For this purpose two new columns are
+added to the dataframe: `dependenicies` and `usage`.
 
-#@HACKLM minor question on wording/consisteny: plural vs singular: "usage" and "dependency" vs "usages" and "dependencies".
 
-`dependencies` contains the handle id of one or more steps on which the step in question depends on, e.g. by
-linking to files created by the steps featured under `dependencies`. In other words, steps in `dependencies`
-are `to the left` in the lineage of the respective step; they are 'upstream' in the data analysis workflow.
+```{r}
+#| eval: false
+#| include: false
+#| cache: true
+ 
+#@HACKLM minor question on wording/consisteny: plural vs singular:
+# "usage" and "dependency" vs "usages" and "dependencies".
 
-`usage` features those steps which use the output created by the step in question. In other words, these steps
-are 'to the right' in the lineage of the respective step; they are 'downstream' in the data analysis workfow.
+```
 
-Steps which are at the end of a workflow (leaves) do not feature usage steps. Root steps do not feature dependencies.
 
-By linking each step's own handle with the handles of its dependency and usage steps, it becomes possible to represent the complete
-workflow.
+`dependencies` contains the handle id(s) of one or more steps on which the
+step in question depends on. Generally, the dependency is due to linkage to files created by the
+steps featured under `dependencies`. In other words, steps in
+`dependencies` are `to the left` in the lineage of the respective step;
+they are 'upstream' in the data analysis workflow.
+
+`usage` features those steps which use the output created by the step in
+question. In other words, these steps are 'to the right' in the lineage
+of the respective step; they are 'downstream' in the data analysis
+workfow.
+
+Steps which are at the end of a workflow (leaves) do not feature usage
+steps. Root steps do not feature dependencies.
+
+By linking each step's own handle with the handles of its dependency and
+usage steps, it becomes possible to represent the complete workflow.
 
 ```{r}
 #| code-summary: "Make steps relative"
+#| cache: true
 
 print(identTargetStep)
 
@@ -374,31 +461,39 @@ names(workflowLineage)
 glimpse(workflowLineage)
 ```
 
-
 ```{r}
-#| code-summary: "relative relations by dependencies and usage"
+#| code-summary: "relative relations by dependencies and usage (scroll right to see full table)"
+#| cache: true
 workflowLineage %>%
 select(handle, entityId, description, dependencies, usage)
 ```
 
 # 'detach' functions
 
-When working with workflows it can be helpful to detach a workflow from its resources or trees. This facilitates the workflow's portability which is needed when it comes e.g. to execute the workflow with a  different source data set or modify its desired eventual outcome report.
+When working with workflows it can be helpful to detach a workflow from
+its resources or trees. This facilitates the workflow's portability
+which is needed when it comes e.g. to execute the workflow with a
+different source data set or modify its desired eventual outcome report.
 
-In this context, there are three functions which come into play: `detachStep()`, `detachWorkflowFromResources()`, and`detachWorkflowFromTrees()`.
+In this context, there are three functions which come into play:
+`detachStep()`, `detachWorkflowFromResources()`,
+and`detachWorkflowFromTrees()`.
 
 ## detachStep()
 
-`detachStep` removes a step from its parent step. A child step becomes a rootstep. The step remains located in the
-its analysis tree. 
+`detachStep` removes a step from its parent step. A child step becomes a
+rootstep. The step remains located in the its analysis tree.
 
-*Note*: The column `parentId` in the step data frame contains the resource id of the Analysis Tree in which the step is located. *`parentId` does not refer to the parent step of the step in question*.
+*Note*: The column `parentId` in the step data frame contains the
+resource id of the Analysis Tree in which the step is located.
+*`parentId` does not refer to the parent step of the step in question*.
 
-To demonstrate the function's use, let's detach Step 10 in AT Modeling.
+To demonstrate the function's use, let's detach Step 6 in analysis tree 'Modeling'.
 
 ```{r}
 #| include: false
 #| eval: false
+#| cache: true
 
 #IMPROVEMENT - add info on where workflowResourcesDetached/workflowTreeDetached are stored? include reference to stepCache?
 
@@ -408,12 +503,13 @@ To demonstrate the function's use, let's detach Step 10 in AT Modeling.
 #| code-summary: "detachStep: Function definition"
 #| eval: false
 #| include: false
+#| cache: true
 
 function (ident, from = pwd()) 
 {
     stepEntity <- loadResource(ident, from) #returns a df
     tree <- stepEntity$parentId #resource id of the AT Modeling
-    parentStep <- loadParentStep(stepEntity) #NULL since step 10 has no parent step 
+    parentStep <- loadParentStep(stepEntity) #NULL since step 6 has no parent step 
     result <- authenticatedREST("/resources/{treeId}/steps/{stepId}/detachStepFromParent", 
         urlParams = list(stepId = stepEntity$resourceId, treeId = tree), 
         restType = "PUT") #sends PUT to API
@@ -423,11 +519,11 @@ function (ident, from = pwd())
 }
 ```
 
-
 ```{r}
 #| include: false
 #| code-summary: "Check loadParentStep"
 #| eval: false
+#| cache: true
 
 #AT Modeling - Step 6 (Parent Step is Step 1)
 
@@ -436,9 +532,9 @@ step6ATModelingParentStep <- loadParentStep(ident=identStep6)
 improveR::updateResource(ident=identStep6) #update resource to get the latest version of the step
 ```
 
-
 ```{r}
 #| code-sumamry: "Detach a step from its parent"
+#| cache: true
 
 identStep6 <- "envhost1.hc.scintecodev.internal-5310:ST-54651"
 
@@ -446,10 +542,11 @@ step6ATModeling_beforeDetach <- loadResource(ident = identStep6) #load step 6 of
 
 step6ATModeling_detached <- improveR::detachStep(ident = identStep6)
 ```
- 
+
 ```{r}
 #| include: false
 #| eval: false
+#| cache: true
 step6ATModeling_detached <- loadResource(ident = identStep6) #check if step is still there
 names(step6ATModeling_detached)
 
@@ -479,24 +576,41 @@ cat("Names before detach:", length(names(step6ATModeling_beforeDetach)), "\n")
 cat("Names after detach:", length(names(step6ATModeling_detached)), "\n")
 ```
 
-After applying `detachStep`, the step - previously a child step - becomes a root step in its analysis tree. 
+
+```{r}
+#| echo: false
+#| fig-cap: "Analysis Tree structure before detaching step"
+#| cache: true
+knitr::include_graphics("img/detachStep_afterAttach.png")
+```
+
+After applying `detachStep`, the step - previously a child step -
+becomes a root step in its analysis tree.
 
 ```{r}
 #| echo: false
 #| fig-cap: "Analysis Tree structure after detaching step"
+#| cache: true
 knitr::include_graphics("img/detachStep_afterDetach.png")
 ```
 
-Note that there is no information in the step data frame which would indicate that the step is no longer an 'attached' child step but a root step. The step's `parentId` is still the resource id of the analysis tree in which the step is located. However, 
-a) checking for a parent step via `loadParentStep()` returns NULL, and 
-b) checking the children of the parent step Step 1 reveals that Step 6 is no longer appearing among the child steps.
-
+Note that there is no information in the data frame pertaining to Step 6 which would
+indicate that the step is no longer an 'attached' child step but has become a root
+step. The step's `parentId` is still the resource id of the analysis
+tree in which the step is located. However, a) checking for a parent
+step via `loadParentStep()` returns NULL, and b) checking the children
+of the parent step Step 1 reveals that Step 6 is no longer appearing
+among the child steps.
 
 ```{r}
 #| code-summary: "Check (previous) parent step after detachStep"
+#| cache: true
 
-loadParentStep(ident = identStep6) # returns NULL, no parentStep anymore
+# Step 6 no longer features a parent step anymore
+loadParentStep(ident = identStep6) 
 
+# Step 1 (the former parent step) no longer features
+# Step 6 as a child (only other children)
 identStep1 <- "envhost1.hc.scintecodev.internal-5310:ST-54635"
 step1AT <- loadResource(ident = identStep1)$parentId
 step1ChildSteps <- loadChildSteps(ident = identStep1)
@@ -509,10 +623,12 @@ step1ChildSteps$data %>%
 
 ### attachStep()
 
-The conceptual coutnerpart of `detachStep` is `attachStep()` which adds a step to a workflow data frame.
+The conceptual coutnerpart of `detachStep` is `attachStep()` which adds
+a step to a parent step.
 
 ```{r}
 #| code-summary: "attachStep"
+#| cache: true
 
 #Step 1 of AT Modeling
 identParentStep1 <- "envhost1.hc.scintecodev.internal-5310:ST-54635"
@@ -526,12 +642,14 @@ step6ATModeling_afterAtach
 
 ```{r}
 #| echo: false
-#| fig-cap: "Analysis Tree structure after detaching step"
+#| fig-cap: "Analysis Tree structure after (re-)attaching step"
+#| cache: true
 knitr::include_graphics("img/detachStep_afterAttach.png")
 ```
 
 ```{r}
 #| code-summary: "Check step after attachStep"
+#| cache: true
 loadParentStep(ident = identStep6) # returns parent step, i.e. Step 1 of AT Modeling
 
 identStep1 <- "envhost1.hc.scintecodev.internal-5310:ST-54635"
@@ -546,15 +664,31 @@ step1ChildSteps$data %>%
 
 ## detachWorkflowFromResources()
 
-`detachWorkflowFromResources` deletes all entity ids from a workflow data dataframe.
-After applying `detachWorflowFromResources` the dataframe no longer contains a column
-with the name `entityId`. Note that the function only returns the workflowHandle as
-an output to the console. The changes made to the dataframe are not visibly returned.
+`detachWorkflowFromResources` deletes all entity ids from a workflow
+data dataframe. After applying `detachWorflowFromResources` the
+dataframe no longer contains a column with the name `entityId`. 
+
+In the context of this function 'resources' refers to the steps, including their
+related files, constitutiong the workflow. After applying the function the 'substance' of 
+the steps and their related files are still part of the workflow, but they are now detached from
+the steps' idents. #IMPROVEMENT #CHECK
+
+Note
+that the function only returns the workflowHandle as an output to the
+console. The changes made to the dataframe are not visibly returned.
+
+```{r}
+#| eval: false
+#| include: false
+#| cache: true
+#TODO make clear what resources refers to; it's not about the inventory 
+```
 
 ```{r}
 #| eval: false
 #| include: false
 #| code-summary: "detachWorkflowFromResources: Function definition"
+#| cache: true
 
 detachWorkflowFromResources <- function(workflowHandle) {
   workflow <- retrieveWorkflow(workflowHandle)
@@ -564,9 +698,9 @@ detachWorkflowFromResources <- function(workflowHandle) {
 }
 ```
 
-
 ```{r}
 #| code-summary: "detachWorkflowFromResources: Apply function"
+#| cache: true
 
 #Get names of workflow dataframe to demonstrate function's consequence
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
@@ -587,23 +721,31 @@ workflowHandle_demoDetach %>%
 workflowResourcesDetached <- workflowHandle_demoDetach %>%
 improveR::retrieveWorkflow()
 
-"entityId" %in% names(workflowResourcesDetached) #entityId column is no longer present
+#entityId column is no longer present
+"entityId" %in% names(workflowResourcesDetached) 
 ```
 
-`detachWorkflowFromResources()` is a one-way function. There is no 'attach' equivalent to `detachWorkflowFromResources()` as with `detachStep()` and `attachStep()`.
-Applying `detachWorkflowFromResources()` does not result in any changes visible in the editor area in the improve client (as it is the case with e.g. `detachStep()`).
+`detachWorkflowFromResources()` is a one-way function. There is no
+'attach' equivalent to `detachWorkflowFromResources()` as with
+`detachStep()` and `attachStep()`. Applying
+`detachWorkflowFromResources()` does not result in any changes visible
+in the editor area in the improve client (as it is the case with e.g.
+`detachStep()`). However, see `setWorkflowTreeIdent()` below (@sec-setworkflowtreeident).
 
-## detachWorkflowFromTrees() 
+## detachWorkflowFromTrees()
 
-The `detachWorkflowFromTrees` function is similar to `detachWorkflowFromResources` from above.
-However, instead of setting the `entityId` to NULL, it sets the `treeIdent` to NULL and hence
-removes the connection between a step and its tree(s).
+The `detachWorkflowFromTrees` function is similar to
+`detachWorkflowFromResources` from above. However, instead of setting
+the `entityId` to NULL, it sets the `treeIdent` to NULL and hence
+removes the connection between the workflow's steps and their tree(s).
 
-**Note**: the column `treeName` remains in the data frame (retrieved via `retrieveWorkflow()`).
-This is not an ommission, but ensures that steps still follow the original grouping into different trees.
+*Note*: At this point, the column `treeName` remains in the data frame (retrieved via
+`retrieveWorkflow()`). This is not an ommission, but facilitates that steps
+still follow the original grouping into different trees.
 
 ```{r}
 #| code-summary: "detachWorflowFromTrees: Apply function"
+#| cache: true
 
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
 workflowHandle_demoDetach <- improveR::getFullLineage(identTargetStep) 
@@ -627,37 +769,56 @@ workflowTreeDetached
 "treeIdent" %in% names(workflowTreeDetached)
 ```
 
-`detachWorkflowFromTrees()` is a one-way function. There is no 'attach' equivalent to `detachWorkflowFromTrees()` as with `detachStep()` and `attachStep()`. However, you can assign all steps of a workflow to a single tree by using `setWorkflowTreeIdent()`. 
+`detachWorkflowFromTrees()` is a one-way function. There is no 'attach'
+equivalent to `detachWorkflowFromTrees()` as with `detachStep()` and
+`attachStep()`. However, you can assign all steps of a workflow to a
+single tree by using `setWorkflowTreeIdent()`.
 
-Applying `detachWorkflowFromTrees()` does not result in any changes visible in the editor area in the improve client (as it is the case with e.g. `detachStep()`).
+Applying `detachWorkflowFromTrees()` does not result in any changes
+visible in the editor area in the improve client (as it is the case with
+e.g. `detachStep()`).
 
-@HACKLM is there a more intuitive way of naming functions?
-detachStep <-> attachStep
-detachWorkflowFromTrees <-> currently: setWorkflowTreeIdent; would attachWorkFlowTreeIdent be substantively justified?
+
+```{r}
+#| eval: false
+#| include: false
+#| cache: true
+# @HACKLM is there a more intuitive way of naming functions? 
+# detachStep - attachStep 
+# detachWorkflowFromTrees - currently: setWorkflowTreeIdent; would attachWorkFlowTreeIdent be substantively
+# justified?
+```
+
 
 # 'setWorkflow' functions
 
-The improveR package provides for three 'workflow setting' functions: `setWorkflowTreeIdent()`, `setWorkflowTreeRootFolder()`, and `setWorkflowTreeName()`.
+The improveR package provides for three 'workflow setting' functions:
+`setWorkflowTreeIdent()`, `setWorkflowTreeRootFolder()`, and
+`setWorkflowTreeName()`.
 
+## setWorkflowTreeIdent() {#sec-setworkflowtreeident}
 
-## setWorkflowTreeIdent()
+`setWorkflowTreeIdent()` takes the ident of an analysis tree and assigns
+('sets') it to all elements (steps) of a workflow dataframe. In other
+words, steps which constitue a single workflow but are located in
+different trees are assigned to a single tree(Ident). The changes made
+to the workflow dataframe are subsequently saved to the stepCache
+environment (`persistWorkflowChanges()`).
 
-`setWorkflowTreeIdent()` takes the ident of an analysis tree and assigns ('sets') it to all elements (steps) of a workflow dataframe. In other words, steps which constitue a single workflow but are located in different trees are assigned to a single tree(Ident). The changes made to the workflow dataframe are subsequently saved
-to the stepCache environment (`persistWorkflowChanges()`).
+Note that the function does not create a new tree, but rather assigns
+the ident of an existing tree to all of the workflow's steps. Also note
+that `setWorkflowTreeIdent()` only changes the `treeIdent` of a step,
+but leaves `treeName` unchanged. To change the `treeName` of a step, use
+`setWorkflowTreeName()`.
 
-Note that the function does not create a new tree, but rather assigns the ident of an existing tree to all of the workflow's steps. Also note that `setWorkflowTreeIdent()` only changes the `treeIdent` of a step, but leaves `treeName` unchanged. To change the `treeName` of a step, use `setWorkflowTreeName()`.
+To remove the newly assigned tree ident use `detachWorkflowFromTrees()`.
 
-To remove the newly assigned treeident use `detachWorkflowFromTrees()`. 
-
-#TODO - CHECKLIST
-?when is this function used
-?what is its purpose
-ok ?what does it do
-?relation to other functions; which functions 'undo' its effects.
 
 ```{r}
 #| code-summary: "setWorkflowTreeIdent(): Definition of function"
 #| eval: false
+#| code-fold: true
+#| cache: true
 setWorkflowTreeIdent <- function(workflowHandle,treeIdent) {
   tree <- loadResource(treeIdent) #loads a tree by its id; tree is of class data.frame; 1 row;
   workflow <- retrieveWorkflow(workflowHandle) 
@@ -667,11 +828,13 @@ setWorkflowTreeIdent <- function(workflowHandle,treeIdent) {
 }
 ```
 
-The chunk below demonstrates the use of `setWorkflowTreeIdent()` and reveals the
-changed `treeIdent` of the workflow's steps after the application of the function
+The chunk below demonstrates the use of `setWorkflowTreeIdent()` and
+reveals the changed `treeIdent` of the workflow's steps after the
+application of the function
 
 ```{r}
 #| code-summary: "setWorkflowTreeIdent(): Apply function"
+#| cache: true
 
 #get workflow handle
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
@@ -684,21 +847,37 @@ workflowElements %>%
 # treeIdent of analysis tree of which the ident is used
 treeIdentATModeling <- "envhost1.hc.scintecodev.internal-5310:AT-54634" #AT Modeling
 setWorkflowTreeIdent(workflowHandle,treeIdent = treeIdentATModeling) #assigns the treeIdent of AT Modeling to all steps in the workflow
+
 workflowElements_new <- workflowHandle %>% retrieveWorkflow()  
+
+#All steps of the workflow feature now the same treeIdent
 workflowElements_new %>%
   select(entityId, description, treeIdent, treeName)
 ```
 
 ## setWorkflowTreeRootFolder()
 
-`setWorkflowTreeRootFolder()` takes the elements (steps) of a workflow and sets their `treePath` to a common root folder.
-Subsequently, it stores the changes (stepCache). 
+`setWorkflowTreeRootFolder()` takes the elements (steps) of a workflow
+and sets their `treePath` to a common root folder. Subsequently, it
+stores the changes in the environment `stepCache`.
 
-@HACKLM wording: "setWorkFlowTreePath" instead of "setWorkflowTreeRootFolder"? The function sets the `treePath`, like set TreeIdent or TreeName with relate functions; "root folder" is value to wich treePath is set;
+```{r}
+#| eval: false
+#| include: false
+#| cache: true
+
+# @HACKLM sugggest change in wording: "setWorkFlowTreePath" instead of "setWorkflowTreeRootFolder"? 
+# The function sets the `treePath`, like set
+# TreeIdent or TreeName with related functions; "root folder" is value to
+# wich treePath is set;
+
+```
 
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
+#| code-fold: true
+#| cache: true
 
 setWorkflowTreeRootFolder <- function(workflowHandle,rootFolder) {
   workflow <- retrieveWorkflow(workflowHandle) #get workflow elements
@@ -710,6 +889,7 @@ setWorkflowTreeRootFolder <- function(workflowHandle,rootFolder) {
 
 ```{r}
 #| code-summary: "setWorkflowTreeRootFolder: Apply function"
+#| cache: true
 
 #get workflow handle
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
@@ -737,16 +917,19 @@ workflowElements %>%
   select(entityId, description, treePath, treeName) 
 ```
 
-
 ## setWorkflowTreeName()
 
-`setWorkflowTreeName' takes the elements (steps) of a workflow and sets their `treeName` to a common name. Subsequently, it stores the changes (stepCache). 
+`setWorkflowTreeName` takes the elements (steps) of a workflow and sets their`treeName\`
+to a common name. Subsequently, it stores the changes (stepCache).
 
-Note that `setWorkflowTreeName()` only changes the `treeIdent` of a step, but leaves `treeName` unchanged. To change the `treeName` of a step, use `setWorkflowTreeIdent()`.
+Note that `setWorkflowTreeName()` only changes the `treeIdent` of a
+step, but leaves `treeName` unchanged. To change the `treeName` of a
+step, use `setWorkflowTreeIdent()`.
 
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
+#| cache: true
 setWorkflowTreeName <- function(workflowHandle,treeName) {
   workflow <- retrieveWorkflow(workflowHandle)
   workflow$treeName <- treeName
@@ -757,6 +940,7 @@ setWorkflowTreeName <- function(workflowHandle,treeName) {
 
 ```{r}
 #| code-summary: "setWorkflowTreeName: Apply function"
+#| cache: true
 
 #get workflow handle
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
@@ -775,27 +959,30 @@ workflowElements_new %>%
 
 ```
 
-
 # 'handleFrom' functions
 
-There two 'handle(s)From' functions: `handleFromStep()` and `handlesFromTree()`. The first one assigns a handle to a step and
-stores all pretaining metadata, processes, files, and dependencies of the step in the `stepCache` environment. The second one assigns a handle to an analysis tree and stores all handles of the tree's steps under the tree's handle in the `stepCache` environment.
-
+There two 'handle(s)From' functions: `handleFromStep()` and
+`handlesFromTree()`. The first one assigns a handle to a step and stores
+all pretaining metadata, processes, files, and dependencies of the step
+in the `stepCache` environment. The second one assigns a handle to an
+analysis tree and stores all handles of the tree's steps under the
+tree's handle in the `stepCache` environment.
 
 ```{r}
 #| eval: false
 #| include: false
-#@HACKLM wording: we have getHandleForResource() which gets/returns a handle; handlesFromTree/Step has no verb in the begining of the function obsuring a bit the direction/purpose
-of the function; would "setHandleFromTree/Step" not be more
-intuitive. I am also not sure about the 'From'; to me 'from'
-suggests that something is taken/infered from soemthing; AFAIK this is not the case here. We have a tree/step and assign a handle to it. Wouldn't "setHandleForTree/Step" be more intuitive?
+#| cache: true
+#@HACKLM wording: we have getHandleForResource() which gets/returns a handle; handlesFromTree/Step has no verb in the begining of the function obsuring a bit the direction/purpose of the function; would "setHandleFromTree/Step" not be more
+# intuitive. I am also not sure about the 'From'; to me 'from'
+# suggests that something is taken/infered from soemthing; AFAIK this is not the case here. We have a tree/step and assign a handle to it. 
+# Wouldn't "setHandleForTree/Step" be more intuitive?
 
 ```
 
-
 ```{r}
 #| include: false
 #| eval: false
+#| cache: true
 #TODO 
 - relation to other functions: relation to detach-functions
 - when do I need this function
@@ -803,14 +990,15 @@ suggests that something is taken/infered from soemthing; AFAIK this is not the c
 
 ## handleFromStep()
 
-`handleFromStep()` takes a step id as an input and:
-*   creates a unique handle for the step
-*   uses the handle to store the step's metadata, processes, files, and dependencies in the stepCache environment.
+`handleFromStep()` takes a step id as an input and: \* creates a unique
+handle for the step \* uses the handle to store the step's metadata,
+processes, files, and dependencies in the stepCache environment.
 
 ```{r}
 #| code-summary: "handleFromStep(): Function definition"
 #| eval: false
 #| code-fold: true
+#| cache: true
 
 handleFromStep <- function(stepId) {
 
@@ -897,6 +1085,7 @@ handleFromStep <- function(stepId) {
 
 ```{r}
 #| code-summary: "handleFromStep: Demonstrate function"
+#| cache: true
 
 stepIdent <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of Data Order
 
@@ -912,13 +1101,16 @@ names(improveR:::stepCache[[handleStep]])
 
 ## handlesFromTree()
 
-`handlesFromTree()` takes an analysis tree ident as an input and creates a handle for the tree.
-This handle is stored in the `stepCache` environment as a key, under which the handles of all steps of the tree are stored.
+`handlesFromTree()` takes an analysis tree ident as an input and creates
+a handle for the tree. This handle is stored in the `stepCache`
+environment as a key, under which the handles of all steps of the tree
+are stored.
 
 ```{r}
 #| code-summary: "handlesFromTree: Function definition"
 #| eval: false
 #| code-fold: true
+#| cache: true
 
 handlesFromTree <- function(ident,from=pwd(),includeSelf=F) {
   workflowHandle <- uuid::UUIDgenerate()
@@ -957,7 +1149,7 @@ handlesFromTree <- function(ident,from=pwd(),includeSelf=F) {
             relativeStep <- entityIdIndex[parentStep$entityId][[1]]
           }
         }
-      }
+      }cal
     }
 
   }
@@ -967,9 +1159,9 @@ handlesFromTree <- function(ident,from=pwd(),includeSelf=F) {
 }
 ```
 
-
 ```{r}
 #| code-summary: "Demonstrate function with AT Data Order"
+#| cache: true
 
 treeIdent <- "envhost1.hc.scintecodev.internal-5310:AT-54614" #AT Data Order
 
@@ -978,37 +1170,35 @@ handleTree
 
 improveR:::stepCache[[handleTree]] #reveal stepHandles which are stored under the handle returned by handlesFromTree()
 length(improveR:::stepCache[[handleTree]]) #length 3 since three steps in AT Data Order
-as.list(improveR:::stepCache[[handleTree]]) #list of handles of the steps in the AT Data 
-
 
 ```
 
 ```{r}
 #| include: false
-#| eval. false
+#| eval: false
+#| cache: true
 #listviewer::jsonedit(improveR:::stepCache[[handleTree]]) #view handles of the steps in the AT Data Order
 #listviewer::jsonedit(as.list(improveR:::stepCache))
 ```
 
-
-```{r}
-knitr::knit_exit()
-```
-
 # getHandleForResource()
 
-`getHandleForResource()` retrieves an already created stepHandle for a specific resource in a workflow.
+`getHandleForResource()` retrieves an already created stepHandle for a
+specific resource in a workflow.
 
-Returns the stepHandle for a specific step resource.
-Only works if a prepared step has been executed or a workflow was pulled from the repository and not detached via detachWorkflowFromResources
+Returns the stepHandle for a specific step resource. Only works if a
+prepared step has been executed or a workflow was pulled from the
+repository and not detached via detachWorkflowFromResources
 
-#@HACKLM why is column in workflow called "handle" and not "stepHandle"? For consistency might be good to harmonize names. 
-Or can retrieveWorkflow return a dataframe with  elements other than steps?
+\#@HACKLM why is column in workflow called "handle" and not
+"stepHandle"? For consistency might be good to harmonize names. Or can
+retrieveWorkflow return a dataframe with elements other than steps?
 
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
 #| code-fold: true
+#| cache: true
 getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
   workflow <- retrieveWorkflow(workflowHandle) #get dataframe with workflow steps
   resource <- loadResource(ident,from) #load specified resource; allows for different ident types.
@@ -1022,10 +1212,14 @@ getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
 }
 ```
 
-- Is this a different handle than the one obtained for a specific step after calling getfullLineage() > retrieveWorkflow()? No. It's the same. The function only filters the workflow elements for a specific resourceId and return the resource's handle.
+-   Is this a different handle than the one obtained for a specific step
+    after calling getfullLineage() \> retrieveWorkflow()? No. It's the
+    same. The function only filters the workflow elements for a specific
+    resourceId and return the resource's handle.
 
 ```{r}
 #| code-summary: "Use getHandleForResource()"
+#| cache: true
 identStepResource <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of Data Order
 
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516"
@@ -1035,15 +1229,139 @@ workflowTargetStep <- retrieveWorkflow(workflowHandleTargetStep)
 stepHandle_ATDataOrder_Step3 <- getHandleForResource(workflowHandle=workflowHandleTargetStep, ident=identStepResource)
 ```
 
+# 'create' functions
 
-# retrieveStep()
+## createFolder()
 
-Gets a step's data as stored in the `stepCache` environment.
-Essentially a wrapper for `get0` with stepCahe provided as a constant.
+`createFolder()` creates a new folder in a specified target folder.
+Changes are implemented on the repository (on the server, not memory-only).
+
+```{r}
+#| code-summary: "Create new folder"
+#| cache: true
+
+#get ident of target folder 'improve-tutorial' in which the new folder should be created
+identFolderImproveTutorial <- query('name.exact:"improve-tutorial"') %>%
+pull(entityId)
+identFolderImproveTutorial
+
+#@HACKLM - wording: why do we call this "target folder" and not e.g. "parent"? The latter seems more intuitive to me, particularly
+#since we already use 'target' in the context of a workflow.
+createFolder(targetIdent=identFolderImproveTutorial, folderName="newFolder")
+```
+
+![New folder 'newFolder' created in 'improve-tutorial' folder](img/createFolderWNewFolder.png){width="50%"}
+
+
+```{r}
+#| code-summary: "Create new folder - #BUG"
+#| include: false
+#| eval: false
+#| cache: true
+
+#BUG when - wrongly - inserting a character string (e.g. "improve-tutorial") as targetident, 
+# the function does not throw an error (and neither creates a new folder). 
+
+targetFolderIdent <- "improve-tutorial"
+createFolder(targetIdent=targetFolderIdent, folderName="newFolder")
+```
+
+## createAnalysisTree()
+
+`createAnalysisTree()` creates a new analysis tree in a specified target
+folder, i.e. the above created `newFolder`.
+
+```{r}
+#| code-summary: "Create analysis tree"
+#| cache: true
+
+#get ident of target folder 'newFolder' inside 'improve-tutorial', in which the new analysis tree should be created.
+identNewFolder <- identFolderImproveTutorial %>% loadChildResources() %>%
+  select(data) %>%
+  unnest_longer(data) %>%
+  unnest_wider(data) %>%
+  filter(name == "newFolder") %>%
+  pull(entityId)
+identNewFolder
+
+createAnalysisTree(targetIdent=identNewFolder, treeName="newAnalysisTree")
+```
+
+!['newAnalysisTree' added to folder 'newFolder' inside
+'improve-tutorial'](img/createNewAnalysisTreeWNewTree.png){width="50%"}
+
+```{r}
+#| include: false
+#| echo: false
+#| eval: false
+#| cache: true
+
+#BUG #CHECK
+#calling the queryFolder statement below does not return the newFolder inside the improve-tutorial folder, but
+#returns other matches outside of the improve-tutorial folder. 
+#targetIdentFolder: resourceId of folder 'improve-tutorial'
+targetIdentFolder <- queryFolder(queryString='name.exact:"newFolder"', ident=targetIdentFolder) %>%
+pull(resourceId)
+targetIdentFolder
+
+```
+
+## createStep()
+
+`createStep()` creates a new step under a specified analysis tree.
+Optionally, the step can be added as a child step to an already existing
+step.
+
+```{r}
+#| code-summary: "create new step in analysis tree 'newAnalysisTree'"
+#| cache: true
+
+identNewAnalysisTree <- identNewFolder %>% loadChildResources()  %>%
+select(data) %>%
+unnest_wider(data) %>%
+filter(name=="newAnalysisTree") %>%
+pull(entityId)
+identNewAnalysisTree
+
+createStep(treeIdent=identNewAnalysisTree, parentStepIdent = NULL, toolId = NULL)
+
+```
+
+!['Step 1' added to analysis tree 'newAnalysisTree'](img/createNewStep.png){width="50%"}
+
+
+# delete()
+
+`delete()` deletes a resource by its ident. The function is used to
+delete folders, analysis trees, and steps. 
+
+```{r}
+#| code-summary: "delete 'newFolder' folder"
+#| cache: true
+
+delete(res=identNewFolder) #delete folder 'newFolder' inside 'improve-tutorial'
+
+```
+
+# retrieve functions
+
+There are three `retrieve` functions: `retrieveStep()`, `retrieveMainProcess()`, and `retrieveWorkflow()`.
+All three functions retrieve data held in the `stepCache` environment (in-memory only), and do not access
+the repository as stored on the server (in contrast to e.g. `loadResource()` or `loadChildResources()`).
+
+## retrieveStep()
+
+`retrireveStep()` retrieves a step's data by its handle. Critically, the function only retrieves the data which is stored
+in the environement `stepCache` and not as stored on the server (in-memory only). It's essentially a wrapper for `get0` with `stepCache` provided as a constant. `retrieveStep()` returns
+a data frame containing the following columns: `handle`, `processes`, `treeIdent`, `treeName`, `treePath`, `description`, `entityId`, `remoteFiles`, `workflowHandle`, and `rationale`.
+
+Important distinction: This is different from `loadResource()` - `retrieveStep() `works with workflow handles in memory,
+while `loadResource()` loads actual steps from the repository.
 
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
+#| cache: true
 
 retrieveStep <- function(stepHandle) {
   get0(stepHandle,envir=stepCache)
@@ -1052,23 +1370,30 @@ retrieveStep <- function(stepHandle) {
 
 ```{r}
 #| code-summary: "Use retrieveStep"
-stepHandle_ATDataOrder_Step3 <- workflowTargetStep %>% filter(entityId=="ST-54627") %>% pull(handle) #get handle of AT Data Order Step 3
+#| cache: true
+stepHandle_ATDataOrder_Step3 <- workflowTargetStep %>%
+    filter(entityId == "ST-54627") %>%
+    pull(handle) # get handle of AT Data Order Step 3
+
 stepHandle_ATDataOrder_Step3
 
-stepData <- retrieveStep(stepHandle=stepHandle_ATDataOrder_Step3) #Step 3 of Data Order
+stepData <- retrieveStep(stepHandle = stepHandle_ATDataOrder_Step3) # Step 3 of Data Order
+
 class(stepData)
 glimpse(stepData)
+names(stepData)
 ```
 
+## retrieveMainProcess()
 
-# retrieveMainProcess()
-
-Retrieves the main process data frame of a step by its handle 
-#@HACKLM Is "main" simply a name of a process or a type?
+`retrieveMainProcess()` is a function that retrieves the main process of a step via the step's handle in the `stepCache` environment. 
+The function  first calls `retrieveStep()`, then extracts, if available, the main process data. If no main process is found, it returns NULL. 
 
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
+#| code-fold: true
+#| cache: true
 retrieveMainProcess <- function(stepHandle) {
   stepData <- retrieveStep(stepHandle) 
   processes <- stepData$processes[[1]]
@@ -1081,41 +1406,273 @@ retrieveMainProcess <- function(stepHandle) {
 
 ```{r}
 #| code-summary: "Demonstrate retrieveMainProcess"
+#| cache: true
 
-#get handle of AT Data Order Step 
-stepHandle_ATDataOrder_Step3 <- workflowTargetStep  %>% filter(entityId=="ST-54627") %>% pull(handle) 
+# get handle of AT Data Order Step
+stepHandle_ATDataOrder_Step3 <- workflowTargetStep %>%
+    filter(entityId == "ST-54627") %>% 
+    pull(handle)
 
-#use function
-mainProcess_ATDataOrder_Step3 <- retrieveMainProcess(stepHandle=stepHandle_ATDataOrder_Step3) 
+# use function
+mainProcess_ATDataOrder_Step3 <- retrieveMainProcess(stepHandle = stepHandle_ATDataOrder_Step3)
 
-#check results
+# check results
 class(mainProcess_ATDataOrder_Step3)
 glimpse(mainProcess_ATDataOrder_Step3)
 mainProcess_ATDataOrder_Step3
 ```
 
+## retrieveWorkflow()
+
+For a description of `retrieveWorkflow()` see the above at @sec-retrieveworkflow.
 
 
-# exportWorkflow() (not exported)
+# exportWorkflow() 
 
-`exportWorkflow` exports a workflow to a folder. The exported workflow comprises 
-- for each step two folders: one for the step inputs and one for the step's outputs; folder names start wit the step's handle;
-- workflow.json with each step and its elements as an element.
+`exportWorkflow` exports a workflow to a specified folder (e.g. on your drive, not a folder
+inside improve). 
 
 ```{r}
 #| code-summary: "Apply function exportWorkflow"
+#| cache: false
 
-improveR:::exportWorkflow(workflowTargetStep, "workflowATReportingStep1",targetFolder="./data/exportedWorkflows")
+workflowTargetStep <- retrieveWorkflow(workflowHandleTargetStep)
+workflowFolderName <- "workflowATReportingStep1"
+
+#if folder already exists remove it; avoid accummulating outdated Handles 
+#@HACKLM removing a previouly existing folder with the same name/path might be something we want
+#to integrate into the function exportWorkflow() itself. 
+folder_path <- file.path("./data/exportedWorkflows", workflowFolderName)
+if (dir.exists(folder_path)) {
+  unlink(folder_path, recursive = TRUE, force = TRUE)
+} 
+
+#export workflow to folder
+improveR:::exportWorkflow(
+  workflow=workflowTargetStep, 
+  workflowName = workflowFolderName,
+  targetFolder = "./data/exportedWorkflows"
+)
+
 nrow(workflowTargetStep)
 ```
 
-# getLineageLinkedStepsinOtherTrees 
+```{r}
+#| eval: false
+#| include: false
+#| cache: true
 
-Returns all steps in other trees that are referenced via link from a specific step.
+#BUG #@HACKLM
+#when calling exportWorkflow() there are repeated prompts in the terminal to authenticate.
+#Maybe as many authentication requests as there are steps in the workflow? Or folders/files
+#to be exported? Currently the created folders are all empty; workflow.json however is created.
+
+# Starting JAR: "C:\Users\rschmidt\AppData\Local\R\WIN-LI~1\4.4\improveR\IMPROV~1\lib\improve-cli-1.0.0-SNAPSHOT.jar" with parameters: clone -resource ST-54047 -repository C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/7703ef55-3662-453f-bbe4-5b9f99d96cea -userProfile improveR
+# To authenticate go to: https://5371.envhost1.hc.scinteco.com:1443/realms/improve/device?user_code=XQWJ-YNRV
+# Exception in thread "main" com.scinteco.improve.cli.rest.RestException: Code 500: Error requesting resource for: ST-54047
+#         at com.scinteco.improve.cli.rest.RestUtil.checkResponse(RestUtil.java:17)
+#         at com.scinteco.improve.cli.improveapi.v1.ResourceApiV1.getResource(ResourceApiV1.java:138)
+#         at com.scinteco.improve.cli.commands.clone.CmdClone.run(CmdClone.java:75)
+#         at com.scinteco.improve.cli.commands.clone.CmdClone.run(CmdClone.java:63)
+#         at com.scinteco.improve.cli.ImproveCLI.run(ImproveCLI.java:45)
+#         at com.scinteco.improve.cli.ImproveCLI.main(ImproveCLI.java:23)
+# [1] 0
+# Starting JAR: "C:\Users\rschmidt\AppData\Local\R\WIN-LI~1\4.4\improveR\IMPROV~1\lib\improve-cli-1.0.0-SNAPSHOT.jar" with parameters: clone -resource ST-57280 -repository C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/7659c6f9-68db-43ec-84a6-a122842c9dfd -userProfile improveR
+# To authenticate go to: https://5371.envhost1.hc.scinteco.com:1443/realms/improve/device?user_code=DKLS-EKWA
+
+#WARNINGS
+# Warning messages:
+# 1: In file.rename(outsideLinkPath, storedLinkPath) :
+#   cannot rename file 'C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/c002bf81-0861-4e0f-bf4e-5a4bf1cdb7d2/graphConcentrationDurationSubject.png' to 'C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/links/6968D0A3AD3244FB858E5F24713A60FA', reason 'The system cannot find the file specified'
+# 2: In file.rename(outsideLinkPath, storedLinkPath) :
+#   cannot rename file 'C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/c002bf81-0861-4e0f-bf4e-5a4bf1cdb7d2/tableResultsCompared.png' to 'C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/links/445535CB37514F588D8D56ED059F4058', reason 'The system cannot find the file specified'
+# 3: In file.rename(outsideLinkPath, storedLinkPath) :
+#   cannot rename file 'C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/c002bf81-0861-4e0f-bf4e-5a4bf1cdb7d2/tabmodWtEstimates.png' to 'C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/links/44A53A6511F642B5812053B62C3975CE', reason 'The system cannot find the file specified'
+# 4: In file.rename(outsideLinkPath, storedLinkPath) :
+#   cannot rename file 'C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/c002bf81-0861-4e0f-bf4e-5a4bf1cdb7d2/missingData.png' to 'C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/links/1F76561AE113422AB19DFFBF3F7F2CC1', reason 'The system cannot find the file specified'
+
+
+```
+
+Below the folder created by the call to `exportWorkflow()`.
+
+```{r}
+#| code-summary: "Content of workflow folder export"
+#| cache: false
+library(fs)
+dir_tree(path="./data/exportedWorkflows/workflowATReportingStep1", recurse=TRUE)
+
+folderContent <- list.files(path="./data/exportedWorkflows/workflowATReportingStep1")
+length(folderContent) #
+
+```
+
+In total, this folder contains `r length(folderContent)` files and directories:
+
+-  workflow.json: a JSON file with the workflow's metadata
+-  folder-pairs with handles and ending with intputFiles/outputFiles
+-  unique folders with handles as their name
+-  links: a folder 
+
+Let's investigate each of them.
+
+## workflow.json
+
+```{r}
+#| code-summary: "Check workflow.json"
+#| cache: false
+workflowJson <- jsonlite::read_json("./data/exportedWorkflows/workflowATReportingStep1/workflow.json") 
+
+class(workflowJson)
+length(workflowJson) 
+nrow(workflowTargetStep) #must be same as length(workflowJson)
+
+listviewer::jsonedit(workflowJson)
+```
+
+The `workflow.json` represents the entire workflow in json format. It contains, in this example, `r length(workflowJson)` elements, one for each step, as previously obtained via `retrieveWorkflow()` (see @sec-retrieveworkflow). For each step all details and metadata are included: `r names(workflowJson[[1]]) %>% glue::glue_collapse(sep = ", ", last=", and ")`. Note that the elements
+in `workflow.json` are not stored in any particular order.
+
+
+## Folders named after step handles
+
+```{r}
+#| code-summary: "Check folders named after step handles"
+#| cache: false
+
+#get folders with step handles
+foldersStepHandles <- folderContent %>% str_subset(., pattern = "(Files|json|links)$", negate=T) 
+foldersStepHandles
+length(foldersStepHandles) #43
+
+length(workflowTargetStep$handle) #12
+#view handles of steps in workflowTargetStep
+listviewer::jsonedit(workflowTargetStep$handle) 
+
+#check if folders are in workflowTargetStep$handle
+foldersStepHandles %in% workflowTargetStep$handle 
+```
+
+There are `r length(foldersStepHandles)` folders named after step handles. 
+These handles are identical to the handles retrieved via `retrieveWorkflow()`.
+
+Each of the folders named after a step handle contains two folders: inputFiles and outputFiles, which contain
+the input and output files of the step, respectively. 
+
+```{r}
+#| code-summary: "Check inputfiles/outputFiles folders of one 'step' folder"
+
+folderContentStep <- list.files(path=glue::glue("./data/exportedWorkflows/workflowATReportingStep1/{foldersStepHandles[1]}"), 
+full.names = TRUE, recursive = TRUE, all.files = TRUE, include.dirs=TRUE)
+folderContentStep
+```
+
+
+## Folder-pairs with input/output in name
+
+```{r}
+#| code-summary: "Folder-pairs with input/output files"
+#| cache: true
+
+folderContentFiles <- str_subset(folderContent, pattern = "Files$") #get folders ending with "Files"
+folderContentFiles
+length(folderContentFiles)
+```
+
+There are `r length(folderContentFiles)`  folders which contain input and outputfiles of `r length(folderContentFiles)/2` steps. Note that the handles in the folders names are *not* step handles.
+
+For more details, let's look at the first folder pair.
+
+```{r}
+#| code-summary: "Check content of exported workflow folder: input/output folders"
+#| cache: true
+
+#first input/outut folder pair
+handleFirst <- folderContentFiles[1] %>% str_remove("[A-Za-z]+$")
+handleFirst
+str_subset(folderContentFiles, pattern = handleFirst)
+```
+
+*other folders*
+
+```{r}
+#| cache: true
+folderContentSteps <- str_subset(folderContent, pattern = "Files|links|json$", negate=TRUE) 
+length(folderContentSteps) #CONTINUE
+```
+
+
+*Folder `links`*
+
+```{r}
+#| code-summary: "Check folder `links`"
+#| cache: true
+
+
+```
+
+
+# importWorkflow()
+
+`importWorflow()` facilitates importing a previously exported workflow to a new folder on the repository.
+It requires a `workflowFile` which is a zip file containing the exported workflow folder; and
+`importRepoFolder`, which is the folder on the repository where the workflow should be imported to.
+
+```{r}
+#| code-summary: "importWorkflow"
+
+importWorkflow()
+```
+
+
+```{r}
+knitr::knit_exit()
+```
+
+# executeWorkflow()
+
+`executeWorkflow` takes a workflow handle or a dataframe with worfklow steps as an input and
+executes a workflow by running the pertaining steps in the correct dependency order.
+
+```{r}
+#| code-summary: "executeWorkflow()"
+
+identATDataOrderStep3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of AT Data Order
+workflowHandleATDataOrderStep3 <- getFullLineage(ident=identATDataOrderStep3)
+workflowHandleATDataOrderStep3
+
+executeWorkflow(workflow=workflowHandleATDataOrderStep3)
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+#BUG #@HACKLM
+# > executeWorkflow(workflow=workflowHandleATDataOrderStep3)
+# 2025-06-25 10:07:43.089504 INFO::remDataStd.csv already exists in /improve-tutorial/DataOrder/Step 3
+# 2025-06-25 10:07:43.100904 WARNING::/improve-tutorial/DataOrder/Step 3/missingData.png already exists, cannot copy
+# 2025-06-25 10:07:43.112422 WARNING::/improve-tutorial/DataOrder/Step 3/_STDOUT.txt already exists, cannot copy
+# 2025-06-25 10:07:43.124372 WARNING::/improve-tutorial/DataOrder/Step 3/.gridhost already exists, cannot copy
+# 2025-06-25 10:07:43.135894 WARNING::/improve-tutorial/DataOrder/Step 3/missingDataLocationFrequency.png already exists, cannot copy     
+# 2025-06-25 10:07:43.146727 WARNING::/improve-tutorial/DataOrder/Step 3/rtConcNA.html already exists, cannot copy
+# 2025-06-25 10:07:43.158975 WARNING::/improve-tutorial/DataOrder/Step 3/checkData.R already exists, cannot copy
+# 2025-06-25 10:07:43.170346 WARNING::/improve-tutorial/DataOrder/Step 3/_STDERR.txt already exists, cannot copy
+# 2025-06-25 10:07:43.17997 WARNING::/improve-tutorial/DataOrder/Step 3/remDataQuality.csv already exists, cannot copy
+# 2025-06-25 10:07:43.413069 WARNING::Resource with ID: ST-54627 could not be loaded
+# Error in if (getStepState(handle) == "INITIAL" && run) { :
+#   missing value where TRUE/FALSE needed
+```
+
+# getLineageLinkedStepsinOtherTrees
+
+Returns all steps in other trees that are referenced via link from a
+specific step.
 
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
+#| cache: true
 getLineageLinkedStepsinOtherTrees <- function(ident,from=pwd()) {
   lineageStep <- loadResource(ident,from) #load step in question
   lineageTree <- loadResource(lineageStep$parentId) #get parent id of step
@@ -1142,6 +1699,7 @@ getLineageLinkedStepsinOtherTrees <- function(ident,from=pwd()) {
 
 ```{r}
 #| code-summary: "Use getLineageLinkedStepsinOtherTrees function with Step 1 on AT Reporting"
+#| cache: true
 
 #Step 1 of Reporting; there multiple graphs from steps outside of AT Reporting linked to Step 1.
 
@@ -1156,15 +1714,26 @@ linkedSteps %>%
 janitor::get_dupes(resourceId)
 ```
 
-Does getLineateLinkedStepsinOtherTrees return only steps outside of the own tree? Yes.
-How many steps are linked to Step 1 of AT Reporting? 18 steps are linked to Step 1 of AT Reporting.
-#@HACKLM #BUG some steps are returned multiple times. There is one row for each linked resource (!),
-and not a single row for each linked step.
+Does getLineateLinkedStepsinOtherTrees return only steps outside of the
+own tree? Yes. How many steps are linked to Step 1 of AT Reporting? 18
+steps are linked to Step 1 of AT Reporting. 
+
+```{r}
+#| eval: false
+#| include: false
+
+#@HACKLM #BUG some steps
+# are returned multiple times. There is one row for each linked resource
+# (!), and not a single row for each linked step.
+
+```
+
 
 Check additionally with another step:
 
 ```{r}
 #| code-summary: "Use getLineageLinkedStepsinOtherTrees function with Step 10 on AT Modeling"
+#| cache: true
 
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-59463" #Step 10 of AT Modeling;
 #using AT Modeling ST 10 returned NULL. Possibily because the step was outdated at this point;
@@ -1176,16 +1745,17 @@ class(linkedSteps)
 glimpse(linkedSteps)
 ```
 
-
 ## addMultiTreeUsage()
 
 `addMultiTreeUsage` is an internal recursion function for getFullUsage
-workflowHandle: handle of the tree where the step for which the usage is to be retrieved is located
-stepHandle: handle for the step wfor which the usage is to be retrieved
+workflowHandle: handle of the tree where the step for which the usage is
+to be retrieved is located stepHandle: handle for the step wfor which
+the usage is to be retrieved
 
 ```{r}
 #| eval: false
 #| code-summary: "addMultiTreeUsage: Function definition"
+#| cache: true
 
 x <- improveR:::addMultiTreeUsage(workflowHandle="61fde958-65ea-47d6-8074-9f92dc91a366", 
 stepHandle="b9d41edb-0dce-4f2d-b404-9452e7aa868b")
@@ -1220,24 +1790,27 @@ addMultiTreeUsage <- function(workflowHandle,stepHandle,workflowEnv=new.env(),de
 
 ```{r}
 #| code-summary: "Demonstrate addMultiTreeUsage()"
+#| cache: true
 
 used <- improveR:::addMultiTreeUsage(workflowHandle=workflowHandleATDataOrder, stepHandle=stepHandleATDataOrderST3, workflowEnv=new.env(), depth=-1)
 ```
 
 ```{r}
+#| cache: true
 class(used)
 glimpse(used) #data frame with usage of Step 3 of AT Data Order
 ```
 
-
-
 # persistWorkflowChanges()
 
-`persistWorkflowChanges` takes all the changes made to a workflow data frame and makes them persitant them by storing each step, including its details, with its handle in the environment `stepCache`.
+`persistWorkflowChanges` takes all the changes made to a workflow data
+frame and makes them persitant them by storing each step, including its
+details, with its handle in the environment `stepCache`.
 
 ```{r}
 #| code-summary: "persistantWorkflowChanges: Function definition"
 #| eval: false
+#| cache: true
 
 persistWorkflowChanges <- function(workflowDf) {
   i<-byNotEmpty(workflowDf,function(stepData) {
@@ -1248,19 +1821,26 @@ persistWorkflowChanges <- function(workflowDf) {
 }
 ```
 
-Overall, `persistWorkflowChanges()` stores data on the indiviudal steps (step details, under the step handle; cacheStep$handle)
+Overall, `persistWorkflowChanges()` stores data on the indiviudal steps
+(step details, under the step handle; cacheStep$handle)
 and the entire workflow (details on steps inside the workflow, stored under the workflow handle; cacheStep$workflowHandle).
 
-More specifically, `persistWorkflowChanges()`:
-- it takes the workflow dataframe which contains in each row details on a specific step
-- iterates over these rows - if not empty - and stores the step details into the environment `stepCache`
-- each step's details are stored under the step's handle as the key
-- Finally, it stores all step handles with the workflowHandle as the key in the environment `stepCache`
+More specifically, `persistWorkflowChanges()`: - it takes the workflow
+dataframe which contains in each row details on a specific step -
+iterates over these rows - if not empty - and stores the step details
+into the environment `stepCache` - each step's details are stored under
+the step's handle as the key - Finally, it stores all step handles with
+the workflowHandle as the key in the environment `stepCache`
 
-*Note*: `persistWorkflowChanges()` does not persisently/permanently store the data. They are only stored in a cache (`stepCache`) and hence lost once the session ends. To inspect `stepCache` use `ls(improveR:::stepCache)` (or `listviewer::jsonlite(improveR:::stepCache)`).
+*Note*: `persistWorkflowChanges()` does not persisently/permanently
+store the data. They are only stored in a cache (`stepCache`) and hence
+lost once the session ends. To inspect `stepCache` use
+`ls(improveR:::stepCache)` (or
+`listviewer::jsonlite(improveR:::stepCache)`).
 
 ```{r}
 #| code-summary: "persistWorkflowChanges: Demonstrate function"
+#| cache: true
 result <- persistWorkflowChanges(workflowTreeDetached)
 
 # reveal contents of cacheStep where workflow and step details are stored.
@@ -1270,22 +1850,24 @@ View(as.list(improveR:::stepCache))
 listviewer::jsonedit(as.list(improveR:::stepCache))
 ```
 
-
 # deepWorkflowCopy()
 
-The purpose of the function is to create a copy of a workflow.
-However, the copy is not identical to the originial workflow, but
-is modified in such a way that its elements (steps) are independent of the original workflow.
-More specifically, this means that the function a) assigns to each step of the copied
-workflow a new handle (alphanumeric strings), and b) assigns a new value to 
-worklfowHandle, i.e. the alphanumeric string under which the steps of the
-workflow are saved; c) the entityIds of the steps are removed. This modified copy is stored 
-to the repository's `stepCache` environment. In sum, eventually, there two workflows which are 
-identical with the exception of the values of their workflow and step handles.
+The purpose of the function is to create a copy of a workflow. However,
+the copy is not identical to the originial workflow, but is modified in
+such a way that its elements (steps) are independent of the original
+workflow. More specifically, this means that the function a) assigns to
+each step of the copied workflow a new handle (alphanumeric strings),
+and b) assigns a new value to worklfowHandle, i.e. the alphanumeric
+string under which the steps of the workflow are saved; c) the entityIds
+of the steps are removed. This modified copy is stored to the
+repository's `stepCache` environment. In sum, eventually, there two
+workflows which are identical with the exception of the values of their
+workflow and step handles.
 
 ```{r}
 #| code-summary: "deepWorkflowCopy: Function definition"
 #| eval: false
+#| cache: true
 
 deepWorkflowCopy <- function(workflow,targetTree=NULL,createParentalRelation=F,preserveEntityId=F) {
 
@@ -1351,12 +1933,14 @@ deepWorkflowCopy <- function(workflow,targetTree=NULL,createParentalRelation=F,p
 }
 ```
 
-Below a demonstration of the function `deepWorkflowCopy()`. We create a copy of the workflow
-leading from Step 3 of the Analysis Tree "Data Order" to Step 1 of the Analysis Tree "Reporting" (in
-the repository envhost1.hc.scintecodev.internal-5310 > improve-tutorial).
+Below a demonstration of the function `deepWorkflowCopy()`. We create a
+copy of the workflow leading from Step 3 of the Analysis Tree "Data
+Order" to Step 1 of the Analysis Tree "Reporting" (in the repository
+envhost1.hc.scintecodev.internal-5310 \> improve-tutorial).
 
 ```{r}
 #| code-summary: "Demonstrate deepWorkflowCopy()"
+#| cache: true
 
 
 #Workflow to be copied
@@ -1385,27 +1969,33 @@ diffdf::diffdf(
 )
 ```
 
-How to demonstrate that there are now two workflows which are identical with the exception of values of their workflow and step handles?
+How to demonstrate that there are now two workflows which are identical
+with the exception of values of their workflow and step handles?
 
 ```{r}
+#| cache: true
 
 ```
-
 
 # Special cases
 
 ## Outdated links between steps and missing workflow elements {#sec-incomplete-workflow}
 
-#@HACKLM why are step 2 and step 4 of AT DataOrder not included in the workflow?
+\#@HACKLM why are step 2 and step 4 of AT DataOrder not included in the
+workflow?
 
-![DMG AT DataOrder](img/dmg_ATDataOrder_OutdatedLinks_onlyStep3includedInWorkflow.png)
+![DMG AT
+DataOrder](img/dmg_ATDataOrder_OutdatedLinks_onlyStep3includedInWorkflow.png)
 
-The image above shows the DMG with the elements depending on Step 3 (AT Data Order) being outdated.
-The steps inside the Analysis Tree "Data Order" are updated.
-Note that in this case, `retrieveWorkflow()` only returns the elements from the taregetStep (here Step 1 in 
-the AT Reporting) down to Step 3 in the AT Data Order. The preceding steps in the AT Data Order are *not included in the workflow*!
+The image above shows the DMG with the elements depending on Step 3 (AT
+Data Order) being outdated. The steps inside the Analysis Tree "Data
+Order" are updated. Note that in this case, `retrieveWorkflow()` only
+returns the elements from the taregetStep (here Step 1 in the AT
+Reporting) down to Step 3 in the AT Data Order. The preceding steps in
+the AT Data Order are *not included in the workflow*!
 
 ```{r}
+#| cache: true
 workflowIncompleteDMG <- readr::read_csv("data/specialCase_workflowTargetStep_outdatedLink_incompleteWorkflow.csv") %>%
   # select(handle, entityId, description, treeIdent, treeName, treePath) %>%
   arrange(treeName) %>%
@@ -1413,57 +2003,63 @@ workflowIncompleteDMG <- readr::read_csv("data/specialCase_workflowTargetStep_ou
 workflowIncompleteDMG
 ```
 
-*Check*: Even if all Steps are related via uptodate links, the workflow is incomplete.
-The rupture in the workflow seems to have been caused because Step 3 had no variable bound to it.
+*Check*: Even if all Steps are related via uptodate links, the workflow
+is incomplete. The rupture in the workflow seems to have been caused
+because Step 3 had no variable bound to it.
 
 Check workflow only for AT Data Order to see why workflow is incomplete.
-Result: Even when looking only at the lineage and workflow inside of the AT Data Order, the workflow is incomplete.
-The workflow only contains Step 3, i.e. the target step, and no preceding steps.
+Result: Even when looking only at the lineage and workflow inside of the
+AT Data Order, the workflow is incomplete. The workflow only contains
+Step 3, i.e. the target step, and no preceding steps.
+
 ```{r}
+#| cache: true
 ident_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of Data Order
 workflowHandle_ATDataOrder_Step3 <- getFullLineage(ident=ident_ATDataOrder_Step3, depth = -1)
 workflow_ATDataOrder_Step3 <- retrieveWorkflow(workflowHandle_ATDataOrder_Step3)
 ```
 
 Check whether cacheStep is uptodate
+
 ```{r}
+#| cache: true
 View(as.list(improveR:::stepCache))
 ```
 
-
 ## other special cases
-
 
 Below a few other steps which lead to surprising results:
 
-**runSteps > DMG L1 > Step 4 (ST-64139)**
+**runSteps \> DMG L1 \> Step 4 (ST-64139)**
 
 This is how to DMG looks inside the improve client.
 
 ![DMG L1 - Step 4](img/dmg_5310_ST-64139.png)
 
 ```{r}
-#| cache: false
+#| cache: true
 identStepTarget_check <- "envhost1.hc.scintecodev.internal-5310:ST-64139" #runSteps > DMG L1 > Step 3 
 workflowHandle_myTargetStep <- getFullLineage(ident=identStepTarget_check)
 workflow_myTargetStep <- retrieveWorkflow(workflowHandle_myTargetStep)
 glimpse(workflow_myTargetStep)
 ```
 
-Surprisingly, the data frame workflow_myTargetStep contains only one row, i.e. one step - `r workflow_myTargetStep$description` with the entityId `r workflow_myTargetStep$entityId`, which is the targetStep itself. Looking at the DMG in the improve client, however, suggests that there are two steps which preced the step, e.g. Step 2 and Step 3.
-
-
-
+Surprisingly, the data frame workflow_myTargetStep contains only one
+row, i.e. one step - `r workflow_myTargetStep$description` with the
+entityId `r workflow_myTargetStep$entityId`, which is the targetStep
+itself. Looking at the DMG in the improve client, however, suggests that
+there are two steps which preced the step, e.g. Step 2 and Step 3.
 
 # Auxiliary functions (change)
 
 ### updateProcessesForStep()
 
--  reloads the processes for a step
+-   reloads the processes for a step
 
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
+#| cache: true
 updateProcessesForStep <- function(stepIdent) {
   unloadProcessesForStep(stepIdent)
   res <- loadProcessesForStep(stepIdent)
@@ -1473,6 +2069,7 @@ updateProcessesForStep <- function(stepIdent) {
 
 ```{r}
 #| code-summary: "Demonstrate updateProcessesForStep()"
+#| cache: true
 
 stepId_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627"
 res <- updateProcessesForStep(stepIdent=stepId_ATDataOrder_Step3)
@@ -1481,7 +2078,6 @@ names(res)
 glimpse(res) #QUESTION where is this data in improve client?
 ```
 
-
 ### loadProcessesForStep()
 
 Returns a data frame with the processes of a step.
@@ -1489,6 +2085,7 @@ Returns a data frame with the processes of a step.
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
+#| cache: true
 loadProcessesForStep <- function(stepIdent) {
   step <- loadResource(stepIdent) #loads a step via its ident
   if (is.null(step)) {
@@ -1504,9 +2101,9 @@ loadProcessesForStep <- function(stepIdent) {
 }
 ```
 
-
 ```{r}
 #| code-summary: "Demonstrate loadProcessesForStep()"
+#| cache: true
 stepId_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" 
 
 processes_ATDataOrder_Step3 <- loadProcessesForStep(stepIdent=stepId_ATDataOrder_Step3)
@@ -1517,19 +2114,21 @@ processes_ATDataOrder_Step3$runs
 
 ### getFromCache()
 
-- unexported function
-- returns dataframe with details on process step
-- key is the step's resourceId
-- func is the function to load the step's processes
-- cacheList is the list of caches to search in
-- argument is the argument to write to the cache
-- ... are additional arguments to pass to the function
-- if the key is found in the cache, it returns the value
-- if the key is not found, it calls the function to load the step's processes and writes the value to the cache
-- if the value is NULL, it does not write to the cache
+-   unexported function
+-   returns dataframe with details on process step
+-   key is the step's resourceId
+-   func is the function to load the step's processes
+-   cacheList is the list of caches to search in
+-   argument is the argument to write to the cache
+-   ... are additional arguments to pass to the function
+-   if the key is found in the cache, it returns the value
+-   if the key is not found, it calls the function to load the step's
+    processes and writes the value to the cache
+-   if the value is NULL, it does not write to the cache
 
 ```{r}
 #| eval: false
+#| cache: true
 getFromCache <- function(key,func,cacheList,argument,...) {
   improveConnected()
   if (is.character(key)) {
@@ -1555,6 +2154,7 @@ getFromCache <- function(key,func,cacheList,argument,...) {
 
 ```{r}
 #| code-summary: "Demonstrate getFromCache()"
+#| cache: true
 
 ident_ATDataOrder_Step3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" 
 
@@ -1563,15 +2163,16 @@ class(res_getFromCache)
 glimpse(res_getFromCache)
 ```
 
-
 ### fullProcess()
 
-`fullProcess` creates a data frame with the details of a process, including the step handle, process type, and other relevant information.
+`fullProcess` creates a data frame with the details of a process,
+including the step handle, process type, and other relevant information.
 Returns a data frame
 
 ```{r}
 #| code-summary: "Function definition"
 #| eval: false
+#| cache: true
 
 fullProcess <- function(process,stepHandle) {
   processId <- process$id
@@ -1614,17 +2215,19 @@ fullProcess <- function(process,stepHandle) {
 }
 ```
 
-
-# EXAMPLE OF WORKFLOW MANAGMENT 
+# EXAMPLE OF WORKFLOW MANAGMENT
 
 ## Define target step
 
 ```{r}
+#| cache: true
 targetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #AT Reporting Step 1
 ```
 
 ## 1. Get existing workflow
+
 ```{r}
+#| cache: true
 tic()
 
 multiTreeWorkflow <- getFullLineage(ident=targetStep) 
@@ -1647,16 +2250,18 @@ retrieveWorkflow()
 toc()
 ```
 
--  mutliTreeWorkflow is a single workflow handle as character string.
--  there string is not changed by calling makeStepsRelative, detachworkFromResources, or detachWorkflowFromTrees.
--  did something happen in stepCache? 
+-   mutliTreeWorkflow is a single workflow handle as character string.
+-   there string is not changed by calling makeStepsRelative,
+    detachworkFromResources, or detachWorkflowFromTrees.
+-   did something happen in stepCache?
 
 ```{r}
+#| cache: true
 improveR::stepCache
 ```
 
-
 ```{r}
+#| cache: true
 class(multiTreeWorkflow)
 multiTreeWorkflow
 
