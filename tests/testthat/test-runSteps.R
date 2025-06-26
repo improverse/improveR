@@ -281,7 +281,7 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
   }
   handle <- handle %>% improveR::realiseStep() %>%
     improveR::finishRun()
-
+?get
   inventory <- improveR::getStepInventory(handle)$data[[1]]
   dataSet <- inventory %>%
     dplyr::filter(name == "chapter15_example_cleaned.rds") %>%

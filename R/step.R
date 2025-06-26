@@ -190,7 +190,7 @@ createProcessFileVariable <- function(ident, processId,name,variableType,positio
 detachStep <- function(ident,  from=pwd()) {
   stepEntity <- loadResource(ident,from)
   tree <- stepEntity$parentId
-  parentStep <- loadParentStep(stepEntity)
+  parentStep <- loadParentStep(stepEntity) #NULL 
   result <- authenticatedREST("/resources/{treeId}/steps/{stepId}/detachStepFromParent",
                                             urlParams = list(stepId=stepEntity$resourceId,treeId=tree),
                                             restType = "PUT"

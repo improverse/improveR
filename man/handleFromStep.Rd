@@ -3,7 +3,7 @@
 \name{handleFromStep}
 \alias{handleFromStep}
 \title{handleFromStep
-reads a step and it´s processes and generates a new handle}
+reads a step and its processes and generates a new handle}
 \usage{
 handleFromStep(stepId)
 }
@@ -12,7 +12,7 @@ handleFromStep(stepId)
 }
 \description{
 handleFromStep
-reads a step and it´s processes and generates a new handle
+reads a step and its processes and generates a new handle
 }
 \references{
 ics1213

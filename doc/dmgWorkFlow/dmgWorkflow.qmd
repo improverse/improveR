@@ -61,16 +61,19 @@ http://envhost1.hc.scintecodev.internal:5310/repository is used.
 #| code-fold: true
 #| cache: false
 
-Sys.setenv(IMPROVER_REPO_URL="http://envhost1.hc.scintecodev.internal:5310/repository")
+Sys.setenv(
+    IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
+)
+Sys.setenv(IMPROVER_STEP = "envhost1.hc.scintecodev.internal-5310:FO-19756")
 
-Sys.setenv(NONMEM_RUNSERVER="runserver")
-Sys.setenv(NONMEM_TOOL_INSTANCE="nonmem_7.4")
-Sys.setenv(NONMEM_TOOL="nonmem_7.5")
+Sys.setenv(NONMEM_RUNSERVER = "runserver")
+Sys.setenv(NONMEM_TOOL_INSTANCE = "nonmem_7.4")
+Sys.setenv(NONMEM_TOOL = "nonmem_7.5")
 
-Sys.setenv(R_RUNSERVER="runserver")
-Sys.setenv(R_TOOL_INSTANCE="rbatch")
-Sys.setenv(R_TOOL="R_4.2")
-Sys.setenv(TEST_SERVER="5310")
+Sys.setenv(R_RUNSERVER = "runserver")
+Sys.setenv(R_TOOL_INSTANCE = "rbatch")
+Sys.setenv(R_TOOL = "R_4.2")
+Sys.setenv(TEST_SERVER = "5310")
 
 clearConnectionData()
 improveConnect()
@@ -725,6 +728,7 @@ improveR::retrieveWorkflow()
 "entityId" %in% names(workflowResourcesDetached) 
 ```
 
+
 `detachWorkflowFromResources()` is a one-way function. There is no
 'attach' equivalent to `detachWorkflowFromResources()` as with
 `detachStep()` and `attachStep()`. Applying
@@ -1372,7 +1376,8 @@ retrieveStep <- function(stepHandle) {
 #| code-summary: "Use retrieveStep"
 #| cache: true
 stepHandle_ATDataOrder_Step3 <- workflowTargetStep %>%
-    filter(entityId == "ST-54627") %>%
+    #filter(entityId == "ST-54627") %>%
+    filter(str_detect(entityId, "ST-54627")) %>% # filter for Step 3 of Data Order  
     pull(handle) # get handle of AT Data Order Step 3
 
 stepHandle_ATDataOrder_Step3
@@ -1410,7 +1415,8 @@ retrieveMainProcess <- function(stepHandle) {
 
 # get handle of AT Data Order Step
 stepHandle_ATDataOrder_Step3 <- workflowTargetStep %>%
-    filter(entityId == "ST-54627") %>% 
+    # filter(entityId == "ST-54627") %>% 
+    filter(str_detect(entityId, "ST-54627")) %>% # filter for Step 3 of Data Order
     pull(handle)
 
 # use function
@@ -1430,8 +1436,9 @@ For a description of `retrieveWorkflow()` see the above at @sec-retrieveworkflow
 # exportWorkflow() 
 
 `exportWorkflow` exports a workflow to a specified folder (e.g. on your drive, not a folder
-inside improve). 
-
+inside improve). Here, the workflow not only comprises the combinationtion of steps, including their input files,
+but also the resulting output files. Note that this is in contrast to what we get when retrieving the elements
+of (via) a workflow (handle) `retrieveWorkflow()`, which does not include the latter.
 ```{r}
 #| code-summary: "Apply function exportWorkflow"
 #| cache: false
@@ -1439,7 +1446,7 @@ inside improve).
 workflowTargetStep <- retrieveWorkflow(workflowHandleTargetStep)
 workflowFolderName <- "workflowATReportingStep1"
 
-#if folder already exists remove it; avoid accummulating outdated Handles 
+#if folder already exists remove it; avoids accummulating outdated Handles 
 #@HACKLM removing a previouly existing folder with the same name/path might be something we want
 #to integrate into the function exportWorkflow() itself. 
 folder_path <- file.path("./data/exportedWorkflows", workflowFolderName)
@@ -1457,28 +1464,13 @@ improveR:::exportWorkflow(
 nrow(workflowTargetStep)
 ```
 
+
 ```{r}
 #| eval: false
 #| include: false
-#| cache: true
+#| cache: false
 
-#BUG #@HACKLM
-#when calling exportWorkflow() there are repeated prompts in the terminal to authenticate.
-#Maybe as many authentication requests as there are steps in the workflow? Or folders/files
-#to be exported? Currently the created folders are all empty; workflow.json however is created.
-
-# Starting JAR: "C:\Users\rschmidt\AppData\Local\R\WIN-LI~1\4.4\improveR\IMPROV~1\lib\improve-cli-1.0.0-SNAPSHOT.jar" with parameters: clone -resource ST-54047 -repository C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/7703ef55-3662-453f-bbe4-5b9f99d96cea -userProfile improveR
-# To authenticate go to: https://5371.envhost1.hc.scinteco.com:1443/realms/improve/device?user_code=XQWJ-YNRV
-# Exception in thread "main" com.scinteco.improve.cli.rest.RestException: Code 500: Error requesting resource for: ST-54047
-#         at com.scinteco.improve.cli.rest.RestUtil.checkResponse(RestUtil.java:17)
-#         at com.scinteco.improve.cli.improveapi.v1.ResourceApiV1.getResource(ResourceApiV1.java:138)
-#         at com.scinteco.improve.cli.commands.clone.CmdClone.run(CmdClone.java:75)
-#         at com.scinteco.improve.cli.commands.clone.CmdClone.run(CmdClone.java:63)
-#         at com.scinteco.improve.cli.ImproveCLI.run(ImproveCLI.java:45)
-#         at com.scinteco.improve.cli.ImproveCLI.main(ImproveCLI.java:23)
-# [1] 0
-# Starting JAR: "C:\Users\rschmidt\AppData\Local\R\WIN-LI~1\4.4\improveR\IMPROV~1\lib\improve-cli-1.0.0-SNAPSHOT.jar" with parameters: clone -resource ST-57280 -repository C:/dev/git-repos/improver-base/improveR/doc/dmgWorkFlow/data/exportedWorkflows/workflowATReportingStep1/7659c6f9-68db-43ec-84a6-a122842c9dfd -userProfile improveR
-# To authenticate go to: https://5371.envhost1.hc.scinteco.com:1443/realms/improve/device?user_code=DKLS-EKWA
+#@HACKLM Warnings still persist
 
 #WARNINGS
 # Warning messages:
@@ -1502,17 +1494,16 @@ Below the folder created by the call to `exportWorkflow()`.
 library(fs)
 dir_tree(path="./data/exportedWorkflows/workflowATReportingStep1", recurse=TRUE)
 
-folderContent <- list.files(path="./data/exportedWorkflows/workflowATReportingStep1")
+folderContent <- list.files(path="/data/exportedWorkflows/workflowATReportingStep1",)
 length(folderContent) #
 
 ```
 
-In total, this folder contains `r length(folderContent)` files and directories:
+In broad terms, exported workflow folder contains three categories:
 
--  workflow.json: a JSON file with the workflow's metadata
--  folder-pairs with handles and ending with intputFiles/outputFiles
--  unique folders with handles as their name
--  links: a folder 
+-  `workflow.json`: a JSON file with the workflow's metadata
+-  folders named after their pertaining step handles: each folder contains the input and output files of the relevant step 
+-  `links`: a folder containing revision ids of files which are *linked from outside* of the workflow, i.e. files which are not created by the workflow's steps, but are used as input files in the workflow. 
 
 Let's investigate each of them.
 
@@ -1531,7 +1522,7 @@ listviewer::jsonedit(workflowJson)
 ```
 
 The `workflow.json` represents the entire workflow in json format. It contains, in this example, `r length(workflowJson)` elements, one for each step, as previously obtained via `retrieveWorkflow()` (see @sec-retrieveworkflow). For each step all details and metadata are included: `r names(workflowJson[[1]]) %>% glue::glue_collapse(sep = ", ", last=", and ")`. Note that the elements
-in `workflow.json` are not stored in any particular order.
+in `workflow.json` are not sorted in any particular order.
 
 
 ## Folders named after step handles
@@ -1541,9 +1532,9 @@ in `workflow.json` are not stored in any particular order.
 #| cache: false
 
 #get folders with step handles
-foldersStepHandles <- folderContent %>% str_subset(., pattern = "(Files|json|links)$", negate=T) 
+foldersStepHandles <- folderContent %>% str_subset(., pattern = "links|workflow\\.json", negate=T) 
 foldersStepHandles
-length(foldersStepHandles) #43
+length(foldersStepHandles) #12
 
 length(workflowTargetStep$handle) #12
 #view handles of steps in workflowTargetStep
@@ -1563,54 +1554,87 @@ the input and output files of the step, respectively.
 #| code-summary: "Check inputfiles/outputFiles folders of one 'step' folder"
 
 folderContentStep <- list.files(path=glue::glue("./data/exportedWorkflows/workflowATReportingStep1/{foldersStepHandles[1]}"), 
-full.names = TRUE, recursive = TRUE, all.files = TRUE, include.dirs=TRUE)
-folderContentStep
+full.names = FALSE, recursive = TRUE, all.files = TRUE, include.dirs=F)
+
+str_subset(folderContentStep, regex("input"))
+str_subset(folderContentStep, regex("output"))
 ```
 
+## Folder `links
 
-## Folder-pairs with input/output in name
+The folder `links` contains references to files which are linked from outside of the *workflow*. 
+They are an external dependency. Each reference appears only once in the links folder, even if it can be linked multiple times
+to different steps inside the workflow.
+The references to the linked files are their version identifiers (in the improve client they are provided under the property 'Revision'). These version identifiers are stored in the `remoteFiles` list column of the workflow's steps.
 
-```{r}
-#| code-summary: "Folder-pairs with input/output files"
-#| cache: true
-
-folderContentFiles <- str_subset(folderContent, pattern = "Files$") #get folders ending with "Files"
-folderContentFiles
-length(folderContentFiles)
-```
-
-There are `r length(folderContentFiles)`  folders which contain input and outputfiles of `r length(folderContentFiles)/2` steps. Note that the handles in the folders names are *not* step handles.
-
-For more details, let's look at the first folder pair.
-
-```{r}
-#| code-summary: "Check content of exported workflow folder: input/output folders"
-#| cache: true
-
-#first input/outut folder pair
-handleFirst <- folderContentFiles[1] %>% str_remove("[A-Za-z]+$")
-handleFirst
-str_subset(folderContentFiles, pattern = handleFirst)
-```
-
-*other folders*
-
-```{r}
-#| cache: true
-folderContentSteps <- str_subset(folderContent, pattern = "Files|links|json$", negate=TRUE) 
-length(folderContentSteps) #CONTINUE
-```
-
-
-*Folder `links`*
+#@HACKLM `version` = `Revision` in improve client; harmonize names?
 
 ```{r}
 #| code-summary: "Check folder `links`"
-#| cache: true
+#| cache: false
 
-
+folderContentLinks <- list.files(path="./data/exportedWorkflows/workflowATReportingStep1/links") 
+length(folderContentLinks)
+folderContentLinks
 ```
 
+For a better understanding of what's going on, let's take first our retrieved workflow elements, `workflowTargetStep`, and check the `remoteFiles` column.
+```{r}
+#| code-summary: "Check remoteFiles column of workflowTargetStep"
+workflowUnnested <- workflowTargetStep %>%
+    select(entityId, handle, description, remoteFiles) %>%
+    unnest_longer(remoteFiles, keep_empty=TRUE) %>%
+    unnest_wider(remoteFiles, names_sep="_") 
+
+workflowUnnested
+```
+
+The obtained dataframe `workflowUnnested` contains all steps of the workflow, with their `remoteFiles` expanded into multiple columns.
+In the present context, two columns are of particular relevance: `remoteFiles_asLink` and `remoteFiles_version` (to avoid confusion, the column names 'asLink' and 'version' are here pre-fixed with the host column name 'remoteFiles').
+
+<!-- retrieveWorfklow nur input; exported Worklfow has also output files;
+links have also an ident because they can't have a handle which was created by make steps relative;  -->
+
+<!-- Let's start with `remoteFiles_asLink`. It indicates whether the file is linked to the inventory of a specific step or not.
+If TRUE it is linked from outside of the step.  -->
+
+To start with, let's get all rows of the expanded `workflowUnnested` where the `remoteFiles_version` is identical to the references
+stored in the `links` folder of the exported workflow.
+
+```{r}
+#| code-summary: "Check remoteFiles_version == links"
+
+remoteFilesVersionLinks <- workflowUnnested %>%
+    filter(remoteFiles_version %in% folderContentLinks)
+remoteFilesVersionLinks
+nrow(remotFilesVersionLinks)
+
+remoteFilesVersionLinks %>%
+count(remoteFiles_version, sort=T)
+```
+
+As already mentioned above, and demonstrated here, a version identifier (revision id) present in the 'links' folder of the exported workflow, can occur multiple times in the workflow. While there are `r length(folderContentLinks)` elements in the 'links' folder, there are `r nrow(remoteFilesVersionLinks)` rows in the `remoteFilesVersionLinks` dataframe.
+
+For an inductive approach, let's take one element of the `remoteFilesVersionLinks` dataframe and check its properties.
+
+```{r}
+remoteFilesVersionLinks[1,] #envhost1.hc.scintecodev.internal-5310:FI-59096, 6968D0A3AD3244FB858E5F24713A60FA
+```
+
+The file with the ident `r remoteFilesVersionLinks[1,"remoteFiles_ident"]` and the `r`remoteFilesVersionLinks[1,"remoteFiles_version"] is the file `r remoteFilesVersionLinks[1,"remoteFiles_name"]`.  This file is linked to the step with the ident `r remoteFilesVersionLinks[1,"entityId"]` and the description `r remoteFilesVersionLinks[1,"description"]` (AT Reporting, Step 1).
+
+Checking visually in the client reveals that the file forms part of Step 6 'Analyse dynamics of concentration over time" of the analysis tree "EDA". This result appears puzzling since we know from the content of `workflowTargetStep` (the workflow elements retrieved via retriveWorkflow) that this step forms part of our workflow. Hence, it is not clear why such a file would feature in the folder 'links' which by definition includes only elements linked from outside of the workflow. #@HACKLM
+
+Let's check another reference from inside the 'links' folder. The entry B2DF573959344918A3BFBB253DDF800D appears 9 times in the column `remoteFiles_version` of `remoteFilesVersionLinks`. Surprisingly, the reference refers to two different files: remDataSubject.csv (envhost1.hc.scintecodev.internal-5310:FI-57666) and remDataDuration.csv (envhost1.hc.scintecodev.internal-5310:FI-57667). This highlights the notion that version refers not a specific resource/file, but to a process, i.e. a distinct revision during which specific files were linked/added. 
+Both files are located in Step 5 of the analysis tree EDA, again a step which forms part of the workflow. It is not clear why such resources
+would be considered to be external to the workflow.
+
+
+```{r}
+knitr::knit_exit()
+```
+
+########## draft below
 
 # importWorkflow()
 
@@ -1634,12 +1658,16 @@ knitr::knit_exit()
 `executeWorkflow` takes a workflow handle or a dataframe with worfklow steps as an input and
 executes a workflow by running the pertaining steps in the correct dependency order.
 
+Note that executeWorkflow() currently requires to apply detachWorkflowFromResources() in advance.
+
 ```{r}
 #| code-summary: "executeWorkflow()"
 
 identATDataOrderStep3 <- "envhost1.hc.scintecodev.internal-5310:ST-54627" #Step 3 of AT Data Order
 workflowHandleATDataOrderStep3 <- getFullLineage(ident=identATDataOrderStep3)
 workflowHandleATDataOrderStep3
+
+detachWorkflowFromResources(workflowHandleATDataOrderStep3) 
 
 executeWorkflow(workflow=workflowHandleATDataOrderStep3)
 ```

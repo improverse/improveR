@@ -1,6 +1,6 @@
 [
   {
-    "handle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+    "handle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
     "processes": [
       {
         "handle": "F61B6F562A5642139D92E1E87A794D3F",
@@ -22,10 +22,10 @@
     "treeName": "Reporting",
     "treePath": "/improve-tutorial",
     "description": "Collect results and create report",
-    "entityId": "ST-62516",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-62516",
     "remoteFiles": [
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59096",
         "version": "6968D0A3AD3244FB858E5F24713A60FA",
         "filehash": "805632B6C67430605E728E6291A5BBDFFB847836FD2E7AB15372C4BF92617233",
@@ -34,16 +34,16 @@
         "name": "graphConcentrationDurationSubject.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63422",
         "version": "445535CB37514F588D8D56ED059F4058",
         "filehash": "01A5B56A4A9B58E51279EEFADCD5EBE98208FFC36866DD6CF5B24F328E4CDDEE",
-        "maxVersion": "445535CB37514F588D8D56ED059F4058",
+        "maxVersion": "6E7C5F526B46457F9A815F4919B7D3EF",
         "asLink": true,
         "name": "tableResultsCompared.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63423",
         "version": "44A53A6511F642B5812053B62C3975CE",
         "filehash": "3F8B439F1F5161D7266DE91318360C0E57BCF5777E6612C785434A09DA1D90E8",
@@ -52,7 +52,7 @@
         "name": "tabmodWtEstimates.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54665",
         "version": "1F76561AE113422AB19DFFBF3F7F2CC1",
         "filehash": "CF76A9CD498A40E87DD3CC801559B84B81104483D980AD9F3C30826CFAF13554",
@@ -61,7 +61,7 @@
         "name": "missingData.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63396",
         "version": "719F5E1D63434847BD821C9A5E47D2C6",
         "filehash": "4B36FD99D60C4C4D3B8E3AA410FCDED8560B49FFB67D0F69CC3935EAD1B79118",
@@ -70,7 +70,7 @@
         "name": "tableStatsAge.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59533",
         "version": "F4FBC408A6224D3F97E474D20E6024AC",
         "filehash": "516296629CD26D66BE8919FBCBC6D86D6DFDCB6959035A3ACD8F1FFA8B3EDA87",
@@ -79,7 +79,7 @@
         "name": "graphPerformanceModWtAgeSex.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59100",
         "version": "7F2DBEE04A57407EAFB6FE6AF596F4E1",
         "filehash": "77F02D18E8720FB0F9446D325A27C672AEF8B1EBA7621659E07AEF7580AE1564",
@@ -88,7 +88,7 @@
         "name": "graphDistributionSexAge.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63428",
         "version": "823620052F984B07A119AC4C4B5174D3",
         "filehash": "49FE4F2FADBF8B65AF01D39707B68CACD1221512A76A23142A363733DBB83184",
@@ -97,7 +97,7 @@
         "name": "tabmodWtSexEstimates.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59429",
         "version": "823620052F984B07A119AC4C4B5174D3",
         "filehash": "ECAA5C9EB1B5D1B40F01CD5BD7BCC0F0D95A779DD4BB4399C2A5E79EA3D6A928",
@@ -106,7 +106,7 @@
         "name": "graphPerformanceModWtSex.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63429",
         "version": "B2E812B00DFA400F8760B55394F390F5",
         "filehash": "F75CDD12CAD35DBE491F40699FCB7A0117189B019BD2256989C007D73ACD5724",
@@ -115,7 +115,7 @@
         "name": "tabmodWtAgeEstimates.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-56117",
         "version": "1F76561AE113422AB19DFFBF3F7F2CC1",
         "filehash": "AA3EC7C8B9F6B441AF916E84F5810A139799C97BCA26E99869012E1D6FC5021C",
@@ -124,7 +124,7 @@
         "name": "missingDataLocationFrequency.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59425",
         "version": "B42D68A97CCE480C9E8D6CCE4ECCD498",
         "filehash": "2618BE89A29228FFA4B706538BB56DE8893889AC761C9A8CB24B27ABDA1EDE6F",
@@ -133,7 +133,7 @@
         "name": "graphModelComparison.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63432",
         "version": "F4FBC408A6224D3F97E474D20E6024AC",
         "filehash": "5CDCA0E28A63BFC433ED3212AA20C71F3B191B08CDE5FF3869C1D79617078B01",
@@ -142,7 +142,7 @@
         "name": "tabmodWtAgeSexEstimates.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63397",
         "version": "719F5E1D63434847BD821C9A5E47D2C6",
         "filehash": "9A9E502B6CD8989A48ACEC0EB00F9F50F1CDD96A7ACE9C37D016A8B26AA77C22",
@@ -151,7 +151,7 @@
         "name": "tableStatsSex.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63391",
         "version": "719F5E1D63434847BD821C9A5E47D2C6",
         "filehash": "5BC97DB2904191C71827881BC5391FC0872888B39DEF5705FC0B5D24099CC8D2",
@@ -160,7 +160,7 @@
         "name": "tableStatsAll.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59530",
         "version": "44A53A6511F642B5812053B62C3975CE",
         "filehash": "EF48193AB2DEBFB831052A52C2E7F8E935B0BE5018E9501FE7241ADB99D27A1F",
@@ -169,7 +169,7 @@
         "name": "graphPerformanceModWt.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59095",
         "version": "6968D0A3AD3244FB858E5F24713A60FA",
         "filehash": "8D52754F479BA73880AF6D788489AD5E05541FCD228A51E192B6D243DB3B042A",
@@ -178,7 +178,7 @@
         "name": "graphConcentrationDuration.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59532",
         "version": "B2E812B00DFA400F8760B55394F390F5",
         "filehash": "6DD5BCA6F25CC448481D2B1392913376BBDCC611F81A68D5361BDECB2C30AF40",
@@ -187,45 +187,45 @@
         "name": "graphPerformanceModWtAge.png"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-62615",
         "filehash": "2B6B02507118154319D9B6F68AFF2226C7DD4019DC92DF84B0643AF32B25ED76",
         "asLink": false,
         "name": "report.html"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-62616",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-62517",
         "filehash": "C087D89993CF67B7C2EDB23B04E05DB1B5FD9898D46CD824AEE4E6F802E8725C",
         "asLink": false,
         "name": "report.qmd"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-62617",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "57fffb71-0148-4b49-a384-a2d7ab21f92e",
+        "stepHandle": "89b14f55-c1ed-41e5-9d5e-e69dc4f797a7",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-62618",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2"
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89"
   },
   {
-    "handle": "ac5b69f8-c337-4347-8206-42651ebeba17",
+    "handle": "dfa158de-5550-46de-b9c6-debb2fd19b9d",
     "processes": [
       {
         "handle": "4A1E56E76D67404DACAF01D24CE1B972",
@@ -247,10 +247,10 @@
     "treeName": "EDA",
     "treePath": "/improve-tutorial",
     "description": "Analyse dynamics of concentration over time",
-    "entityId": "ST-54049",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-54049",
     "remoteFiles": [
       {
-        "stepHandle": "ac5b69f8-c337-4347-8206-42651ebeba17",
+        "stepHandle": "dfa158de-5550-46de-b9c6-debb2fd19b9d",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54661",
         "version": "1F76561AE113422AB19DFFBF3F7F2CC1",
         "filehash": "F21D65B0F128F524D0D9F76E4092AF8AEE5DE345158A63BFE885307FCF096A9D",
@@ -259,7 +259,7 @@
         "name": "remDataQuality.csv"
       },
       {
-        "stepHandle": "ac5b69f8-c337-4347-8206-42651ebeba17",
+        "stepHandle": "dfa158de-5550-46de-b9c6-debb2fd19b9d",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57667",
         "version": "B2DF573959344918A3BFBB253DDF800D",
         "filehash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
@@ -268,42 +268,42 @@
         "name": "remDataDuration.csv"
       },
       {
-        "stepHandle": "ac5b69f8-c337-4347-8206-42651ebeba17",
+        "stepHandle": "dfa158de-5550-46de-b9c6-debb2fd19b9d",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54298",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "ac5b69f8-c337-4347-8206-42651ebeba17",
+        "stepHandle": "dfa158de-5550-46de-b9c6-debb2fd19b9d",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59095",
         "filehash": "8D52754F479BA73880AF6D788489AD5E05541FCD228A51E192B6D243DB3B042A",
         "asLink": false,
         "name": "graphConcentrationDuration.png"
       },
       {
-        "stepHandle": "ac5b69f8-c337-4347-8206-42651ebeba17",
+        "stepHandle": "dfa158de-5550-46de-b9c6-debb2fd19b9d",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54300",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       },
       {
-        "stepHandle": "ac5b69f8-c337-4347-8206-42651ebeba17",
+        "stepHandle": "dfa158de-5550-46de-b9c6-debb2fd19b9d",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59096",
         "filehash": "805632B6C67430605E728E6291A5BBDFFB847836FD2E7AB15372C4BF92617233",
         "asLink": false,
         "name": "graphConcentrationDurationSubject.png"
       },
       {
-        "stepHandle": "ac5b69f8-c337-4347-8206-42651ebeba17",
+        "stepHandle": "dfa158de-5550-46de-b9c6-debb2fd19b9d",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54299",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "ac5b69f8-c337-4347-8206-42651ebeba17",
+        "stepHandle": "dfa158de-5550-46de-b9c6-debb2fd19b9d",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54050",
         "filehash": "0DDEE266456568C9CEC49D089992E13DB0FEF59FC2DE6F6AF6B95824853E506D",
         "asLink": false,
@@ -312,18 +312,17 @@
         "variableProcess": "Main"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "additional EDA"
   },
   {
-    "handle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
+    "handle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
     "processes": [
       {
         "handle": "45B3491DF8A74932B479A8B461AB3B6F",
         "runserverName": "runserver",
         "toolName": "rs4robot_desktop-pmalkg2_cflandorfer",
         "runserverToolName": "rs4robot_desktop-pmalkg2_cflandorfer",
-        "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:1.2.0blatest",
         "toolDeletePatterns": ".config\r\n.local\r\n.RData\r\n.Rhistory\r\nconf.json\r\nrstudio\r\nshare\r\ntemp",
         "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
         "selected": true,
@@ -338,10 +337,10 @@
     "treeName": "DataOrder",
     "treePath": "/improve-tutorial",
     "description": "Checks data set for missing data",
-    "entityId": "ST-54627",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-54627",
     "remoteFiles": [
       {
-        "stepHandle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
+        "stepHandle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54795",
         "version": "311737DFA1B04748921CAB186390EA91",
         "filehash": "796B725F4E1E0497BE0B0F62E0327650136F1BC520AB9DD67205484E023459C8",
@@ -350,69 +349,67 @@
         "name": "remDataStd.csv"
       },
       {
-        "stepHandle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
+        "stepHandle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54665",
         "filehash": "CF76A9CD498A40E87DD3CC801559B84B81104483D980AD9F3C30826CFAF13554",
         "asLink": false,
         "name": "missingData.png"
       },
       {
-        "stepHandle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
+        "stepHandle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54662",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
+        "stepHandle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54663",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
+        "stepHandle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-56117",
         "filehash": "AA3EC7C8B9F6B441AF916E84F5810A139799C97BCA26E99869012E1D6FC5021C",
         "asLink": false,
         "name": "missingDataLocationFrequency.png"
       },
       {
-        "stepHandle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
+        "stepHandle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-55982",
         "filehash": "9FD0C6D6DF7BFE3291C5C3FCCB16E16A588EAC5E100E1BE9ED7E50A210AE116C",
         "asLink": false,
         "name": "rtConcNA.html"
       },
       {
-        "stepHandle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
+        "stepHandle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54628",
         "filehash": "14D34CD340F8362132F13936DD911DBDE97DF69F4A1C90E75B1D0B1C124F0060",
         "asLink": false,
-        "name": "checkData.R",
-        "variableName": "command-file",
-        "variableProcess": "Main"
+        "name": "checkData.R"
       },
       {
-        "stepHandle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
-        "ident": "envhost1.hc.scintecodev.internal-5310:FI-54661",
-        "filehash": "F21D65B0F128F524D0D9F76E4092AF8AEE5DE345158A63BFE885307FCF096A9D",
-        "asLink": false,
-        "name": "remDataQuality.csv"
-      },
-      {
-        "stepHandle": "d380a7ba-fae9-4c99-9c78-c69af9e51583",
+        "stepHandle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54664",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
+      },
+      {
+        "stepHandle": "62baaca6-8ad6-4b4d-9784-29f69ae18a63",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-54661",
+        "filehash": "F21D65B0F128F524D0D9F76E4092AF8AEE5DE345158A63BFE885307FCF096A9D",
+        "asLink": false,
+        "name": "remDataQuality.csv"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "Ensures missing data are accounted for before proceeding with analysis."
   },
   {
-    "handle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+    "handle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
     "processes": [
       {
         "handle": "1ED7AF24CBE3498D809A9F0B40A467AF",
@@ -434,94 +431,101 @@
     "treeName": "Modeling",
     "treePath": "/improve-tutorial",
     "description": "Create combined regression table for Jama",
-    "entityId": "ST-59463",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-59463",
     "remoteFiles": [
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59531",
-        "version": "FB38AF705B2141C587911C6686235C01",
+        "version": "B2E812B00DFA400F8760B55394F390F5",
         "filehash": "6F399D03E7C0D1A156B1D4A5B73660A1137601B57495C989090C2D9BEBB8BBCB",
         "maxVersion": "B2E812B00DFA400F8760B55394F390F5",
         "asLink": true,
         "name": "modWtAge.RDS"
       },
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59428",
-        "version": "0229E1EBB52D424BAB67D20D1FE5245D",
+        "version": "823620052F984B07A119AC4C4B5174D3",
         "filehash": "A409542B9867D3B0FC8F004E5CB70847EEF6E1524EC8EDBAB61BF01D6E03357E",
         "maxVersion": "823620052F984B07A119AC4C4B5174D3",
         "asLink": true,
         "name": "modWtSex.RDS"
       },
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59426",
-        "version": "779271CE39A74873B56E76136093F1B5",
+        "version": "44A53A6511F642B5812053B62C3975CE",
         "filehash": "8ABCE1BCDA55F2B47CE99EE65A79DD7FC2EA4587F9EC7C26F74CB9E3A372280F",
         "maxVersion": "44A53A6511F642B5812053B62C3975CE",
         "asLink": true,
         "name": "modWt.RDS"
       },
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59534",
-        "version": "00A3F41D87CE440DA50C4DAAD73FFFA1",
+        "version": "F4FBC408A6224D3F97E474D20E6024AC",
         "filehash": "D9838E88D19B5D697355F42F29E8DA5D76277DDCD2233408540D0ACC6644CAF0",
         "maxVersion": "F4FBC408A6224D3F97E474D20E6024AC",
         "asLink": true,
         "name": "modWtAgeSex.RDS"
       },
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59543",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       },
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59540",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59541",
-        "filehash": "A6D2FB583549B9FD68927ACBBA6BD2FCDE460A14E2970EC71F5C0CE7903F1471",
+        "filehash": "4A07606D68711E4844FF126EDE81EE9DC5002DC1A2CB6C9728967D1025AEB51D",
         "asLink": false,
         "name": "tableResultsCompared.html"
       },
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59542",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59544",
         "filehash": "3E15CEEC3AE26B38ACF34C6880EB2814781E7E296C7A85CAD3652BA7516CEE79",
         "asLink": false,
         "name": "tableResultsCompared.rtf"
       },
       {
-        "stepHandle": "b812fec2-e435-4964-8ca1-3efb453f1fdd",
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59464",
         "filehash": "FFE83F3C010FC276953304994B53D615B6B29FD0F2D596DAE625D080BFE485F4",
         "asLink": false,
         "name": "getModelComparison.r",
         "variableName": "command-file",
         "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "94a418f1-47c2-452c-a6bc-2c48030932f1",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-63422",
+        "filehash": "01A5B56A4A9B58E51279EEFADCD5EBE98208FFC36866DD6CF5B24F328E4CDDEE",
+        "asLink": false,
+        "name": "tableResultsCompared.png"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "Model results"
   },
   {
-    "handle": "cad37b34-8e02-4517-80ef-c089d469466e",
+    "handle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
     "processes": [
       {
         "handle": "1F604DC1F4024F67A9B205E6A2D849E7",
@@ -543,10 +547,10 @@
     "treeName": "Modeling",
     "treePath": "/improve-tutorial",
     "description": "Model 1: Duration ~ Wt",
-    "entityId": "ST-54635",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-54635",
     "remoteFiles": [
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
         "version": "B2DF573959344918A3BFBB253DDF800D",
         "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
@@ -555,49 +559,49 @@
         "name": "remDataSubject.csv"
       },
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59530",
         "filehash": "EF48193AB2DEBFB831052A52C2E7F8E935B0BE5018E9501FE7241ADB99D27A1F",
         "asLink": false,
         "name": "graphPerformanceModWt.png"
       },
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54781",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63424",
         "filehash": "1FCFD651F13B8A18175ACADC5C30F0BE41085911E12C55FFD377F62458FFAF58",
         "asLink": false,
         "name": "tabmodWtEstimates.html"
       },
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63423",
         "filehash": "3F8B439F1F5161D7266DE91318360C0E57BCF5777E6612C785434A09DA1D90E8",
         "asLink": false,
         "name": "tabmodWtEstimates.png"
       },
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59426",
         "filehash": "8ABCE1BCDA55F2B47CE99EE65A79DD7FC2EA4587F9EC7C26F74CB9E3A372280F",
         "asLink": false,
         "name": "modWt.RDS"
       },
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59536",
         "filehash": "FBEF0A844474D6968922FFA2070C0697284D693E15408D519560315F724EB885",
         "asLink": false,
         "name": "tabModWtEstimates.csv"
       },
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54636",
         "filehash": "6DF66C52DE8526A52A5B84751969FC5776B9795BD9201796FA12DC749DBE0C1C",
         "asLink": false,
@@ -606,25 +610,25 @@
         "variableProcess": "Main"
       },
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54780",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "cad37b34-8e02-4517-80ef-c089d469466e",
+        "stepHandle": "1f636ce2-4093-41ef-9906-ecd7f7367f18",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54782",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "Check linear relationship between duration and weight"
   },
   {
-    "handle": "3b008bc9-678c-4724-aa3b-0f81f7778d27",
+    "handle": "8cb14a49-d49b-4237-8b53-bb90f45bc6a3",
     "processes": [
       {
         "handle": "B324E356D5C5485EA36DA7295611EF9D",
@@ -646,10 +650,10 @@
     "treeName": "EDA",
     "treePath": "/improve-tutorial",
     "description": "Create subject level data. Transforms data set from panel structure to cross-section structure for individual subject data.",
-    "entityId": "ST-54047",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-54047",
     "remoteFiles": [
       {
-        "stepHandle": "3b008bc9-678c-4724-aa3b-0f81f7778d27",
+        "stepHandle": "8cb14a49-d49b-4237-8b53-bb90f45bc6a3",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54661",
         "version": "1F76561AE113422AB19DFFBF3F7F2CC1",
         "filehash": "F21D65B0F128F524D0D9F76E4092AF8AEE5DE345158A63BFE885307FCF096A9D",
@@ -658,42 +662,42 @@
         "name": "remDataQuality.csv"
       },
       {
-        "stepHandle": "3b008bc9-678c-4724-aa3b-0f81f7778d27",
+        "stepHandle": "8cb14a49-d49b-4237-8b53-bb90f45bc6a3",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
         "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
         "asLink": false,
         "name": "remDataSubject.csv"
       },
       {
-        "stepHandle": "3b008bc9-678c-4724-aa3b-0f81f7778d27",
+        "stepHandle": "8cb14a49-d49b-4237-8b53-bb90f45bc6a3",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54258",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "3b008bc9-678c-4724-aa3b-0f81f7778d27",
+        "stepHandle": "8cb14a49-d49b-4237-8b53-bb90f45bc6a3",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54259",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       },
       {
-        "stepHandle": "3b008bc9-678c-4724-aa3b-0f81f7778d27",
+        "stepHandle": "8cb14a49-d49b-4237-8b53-bb90f45bc6a3",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54257",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "3b008bc9-678c-4724-aa3b-0f81f7778d27",
+        "stepHandle": "8cb14a49-d49b-4237-8b53-bb90f45bc6a3",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57667",
         "filehash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
         "asLink": false,
         "name": "remDataDuration.csv"
       },
       {
-        "stepHandle": "3b008bc9-678c-4724-aa3b-0f81f7778d27",
+        "stepHandle": "8cb14a49-d49b-4237-8b53-bb90f45bc6a3",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57665",
         "filehash": "550D2462BD499BCBB0F1576E25D4F2C8D0615658D1724907B31C81739BF2BCD4",
         "asLink": false,
@@ -702,11 +706,11 @@
         "variableProcess": "Main"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "EDA"
   },
   {
-    "handle": "be8303d6-47fb-495c-9d83-475193ef1139",
+    "handle": "e89e67fe-3369-47f0-8c33-5330255a58de",
     "processes": [
       {
         "handle": "BEDE2CA823154B48BEBD8743C76229DB",
@@ -728,10 +732,10 @@
     "treeName": "EDA",
     "treePath": "/improve-tutorial",
     "description": "Conduct explenatory data analysis.",
-    "entityId": "ST-57280",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-57280",
     "remoteFiles": [
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
         "version": "B2DF573959344918A3BFBB253DDF800D",
         "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
@@ -740,7 +744,7 @@
         "name": "remDataSubject.csv"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57667",
         "version": "B2DF573959344918A3BFBB253DDF800D",
         "filehash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
@@ -749,63 +753,63 @@
         "name": "remDataDuration.csv"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59083",
         "filehash": "B77CF0CAE6152F9A07B5277BBF48A4CF3548DC016DCE40142821FB1BBB9088BC",
         "asLink": false,
         "name": "tableStatsSex.html"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63391",
         "filehash": "5BC97DB2904191C71827881BC5391FC0872888B39DEF5705FC0B5D24099CC8D2",
         "asLink": false,
         "name": "tableStatsAll.png"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59094",
         "filehash": "D4E8A04F7CCCAB52F9F8B09FA358CA9E6EDD2158064699BE70EC19392A426BBD",
         "asLink": false,
         "name": "tableStatsAll.rtf"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57670",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59093",
         "filehash": "258E6C1954D7E36C22A5587958566985F7C891EF2B1A45A73EEBA0D480CF2F39",
         "asLink": false,
         "name": "tableStatsAll.html"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59088",
         "filehash": "F1A6B23A61F81F9D33745B767FC49D9663248F449DF164F141DB6EAAA55AE311",
         "asLink": false,
         "name": "tableStatsAge.rtf"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57668",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63397",
         "filehash": "9A9E502B6CD8989A48ACEC0EB00F9F50F1CDD96A7ACE9C37D016A8B26AA77C22",
         "asLink": false,
         "name": "tableStatsSex.png"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57281",
         "filehash": "7382CF37C03DB1B71ED2B9FB32159469C266203AA174499017A9C2044621CC3B",
         "asLink": false,
@@ -814,46 +818,46 @@
         "variableProcess": "Main"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63396",
         "filehash": "4B36FD99D60C4C4D3B8E3AA410FCDED8560B49FFB67D0F69CC3935EAD1B79118",
         "asLink": false,
         "name": "tableStatsAge.png"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59092",
         "filehash": "443FBBFDB4F44DCFB16D6B119A981760BB4E7606AC99C78C2EC2034601250F01",
         "asLink": false,
         "name": "graphDistributionSexAge.png"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59085",
         "filehash": "4A8B1C2BA091037E37F748E6A7A705AAC26BC1852B99A4C7D5D63FF40D75337C",
         "asLink": false,
         "name": "tableStatsSex.rtf"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57669",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "be8303d6-47fb-495c-9d83-475193ef1139",
+        "stepHandle": "e89e67fe-3369-47f0-8c33-5330255a58de",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59086",
         "filehash": "B86FABDC6AC324B7828EB7EF527D126937ABF7C2FDCF59E60D8B04DB5CFE70BD",
         "asLink": false,
         "name": "tableStatsAge.html"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "Get EDA"
   },
   {
-    "handle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+    "handle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
     "processes": [
       {
         "handle": "629C848091524899908D5611BE653133",
@@ -875,10 +879,10 @@
     "treeName": "Modeling",
     "treePath": "/improve-tutorial",
     "description": "Model: Duration ~ Wt+Age+Sex",
-    "entityId": "ST-54675",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-54675",
     "remoteFiles": [
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
         "version": "B2DF573959344918A3BFBB253DDF800D",
         "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
@@ -887,7 +891,7 @@
         "name": "remDataSubject.csv"
       },
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54676",
         "filehash": "BA2D74BA1A54EEB77C7C6C37E2C579B94001ADC3BF96F4B37CC129276B6BD5D1",
         "asLink": false,
@@ -896,67 +900,67 @@
         "variableProcess": "Main"
       },
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54776",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59539",
         "filehash": "AD1908E250BE81174DE8232D1318759A4FB149B1E82ABF4B94A661BEEC505442",
         "asLink": false,
         "name": "tabModWtAgeSexEstimates.csv"
       },
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54777",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       },
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63431",
         "filehash": "4AFF4E9E436E29BD894FBC13CA3AAF886109C1078B8911C0528C4FF19FB54017",
         "asLink": false,
         "name": "tabmodWtAgeSexEstimates.html"
       },
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59533",
         "filehash": "516296629CD26D66BE8919FBCBC6D86D6DFDCB6959035A3ACD8F1FFA8B3EDA87",
         "asLink": false,
         "name": "graphPerformanceModWtAgeSex.png"
       },
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59534",
         "filehash": "D9838E88D19B5D697355F42F29E8DA5D76277DDCD2233408540D0ACC6644CAF0",
         "asLink": false,
         "name": "modWtAgeSex.RDS"
       },
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54775",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "70df3068-4c55-48f9-afa3-ec84303c0d43",
+        "stepHandle": "76b8fbea-8167-49a5-bd3e-0bc2a69d0229",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63432",
         "filehash": "5CDCA0E28A63BFC433ED3212AA20C71F3B191B08CDE5FF3869C1D79617078B01",
         "asLink": false,
         "name": "tabmodWtAgeSexEstimates.png"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "Extend model 1 by including Age and Sex as an additional explanatory variable;\r\nCheck linear relationship between duration and weight as well as age and sex."
   },
   {
-    "handle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+    "handle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
     "processes": [
       {
         "handle": "B57AC17A2C0F4F82A84D6C3B6EC94161",
@@ -978,10 +982,10 @@
     "treeName": "EDA",
     "treePath": "/improve-tutorial",
     "description": "Tables of Step 6 are reproduced using JAMA theme.",
-    "entityId": "ST-59046",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-59046",
     "remoteFiles": [
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
         "version": "B2DF573959344918A3BFBB253DDF800D",
         "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
@@ -990,7 +994,7 @@
         "name": "remDataSubject.csv"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57667",
         "version": "B2DF573959344918A3BFBB253DDF800D",
         "filehash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
@@ -999,28 +1003,28 @@
         "name": "remDataDuration.csv"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59102",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59097",
         "filehash": "DCF30C3437D991D4BA80DE966DDD119F447DFBFB8117BE573D721EC0F8F2142B",
         "asLink": false,
         "name": "tableStatsAgeJama.rtf"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59106",
         "filehash": "AE13904F4788C386324038614C0636F8C65009C118274FBC7A08705C95AB4B57",
         "asLink": false,
         "name": "tableStatsAllJama.rtf"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59047",
         "filehash": "B9648908EB331C0B7864B916ECDCAE0407E659677257804880D055F773D01164",
         "asLink": false,
@@ -1029,60 +1033,60 @@
         "variableProcess": "Main"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59105",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59103",
         "filehash": "1AF30556AB96EE0459BAE0B4DFD7CAB1B0417D68571D58626DAB4DA91CD3FB8E",
         "asLink": false,
         "name": "tableStatsSexJama.rtf"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59101",
         "filehash": "B51E5306424283934CF58806F57F03C8ABDD50F911360CA543E97E072E7FD9B7",
         "asLink": false,
         "name": "tableStatsAllJama.html"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59098",
         "filehash": "77A71974C96AF29CD4C847F2B4C318E6A07C15FD1D97E8A7DD79DEA2911642DE",
         "asLink": false,
         "name": "tableStatsAgeJama.html"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59099",
         "filehash": "16CE7360AF07145DEFF130DE831B0FF3E8C026A702CFB9768EB2BB92A070ADB2",
         "asLink": false,
         "name": "tableStatsSexJama.html"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59100",
         "filehash": "77F02D18E8720FB0F9446D325A27C672AEF8B1EBA7621659E07AEF7580AE1564",
         "asLink": false,
         "name": "graphDistributionSexAge.png"
       },
       {
-        "stepHandle": "87ec612f-5e43-4be3-b0f4-c1d388a4bbd6",
+        "stepHandle": "616aadd3-d6cb-49c9-acf6-9694fa4e4fa2",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59104",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "Get EDA"
   },
   {
-    "handle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+    "handle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
     "processes": [
       {
         "handle": "DAC85788FEFB4EB981B7A0992968D0EB",
@@ -1104,10 +1108,10 @@
     "treeName": "Modeling",
     "treePath": "/improve-tutorial",
     "description": "Model 2: Duration ~ Wt + Sex",
-    "entityId": "ST-54651",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-54651",
     "remoteFiles": [
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
         "version": "B2DF573959344918A3BFBB253DDF800D",
         "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
@@ -1116,7 +1120,7 @@
         "name": "remDataSubject.csv"
       },
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54652",
         "filehash": "4C737FDAC203FD645EBCBF701C65DFF852C394A4D37EBD23C335F035B8756F8E",
         "asLink": false,
@@ -1125,67 +1129,67 @@
         "variableProcess": "Main"
       },
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54767",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59429",
         "filehash": "ECAA5C9EB1B5D1B40F01CD5BD7BCC0F0D95A779DD4BB4399C2A5E79EA3D6A928",
         "asLink": false,
         "name": "graphPerformanceModWtSex.png"
       },
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63427",
         "filehash": "B362B4528985D001A13A23A9ADF5C8AA2964FDBA65075B828F4972CFA44BA913",
         "asLink": false,
         "name": "tabmodWtSexEstimates.html"
       },
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54769",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       },
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59535",
         "filehash": "B660A23F9E741968C5DA0A984F501E8FD870982EF6CA926D6DF73F0ED010DAAF",
         "asLink": false,
         "name": "tabModWtSexEstimates.csv"
       },
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63428",
         "filehash": "49FE4F2FADBF8B65AF01D39707B68CACD1221512A76A23142A363733DBB83184",
         "asLink": false,
         "name": "tabmodWtSexEstimates.png"
       },
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59428",
         "filehash": "A409542B9867D3B0FC8F004E5CB70847EEF6E1524EC8EDBAB61BF01D6E03357E",
         "asLink": false,
         "name": "modWtSex.RDS"
       },
       {
-        "stepHandle": "39dbb650-3f3d-4977-8e30-c66bdcdc3c36",
+        "stepHandle": "1071d956-8898-4ebb-bcad-9d1b9ade1afa",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54768",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "Extend model 1 by including Sex as an additional explanatory variable;\r\nCheck linear relationship between duration and weight as well as sex."
   },
   {
-    "handle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+    "handle": "990a6762-d789-4480-952f-43b73fe012a4",
     "processes": [
       {
         "handle": "706FB54D304649B9AE3F8E6EE422159D",
@@ -1207,10 +1211,10 @@
     "treeName": "Modeling",
     "treePath": "/improve-tutorial",
     "description": "Model: Duration ~ Wt + Age",
-    "entityId": "ST-54672",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-54672",
     "remoteFiles": [
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
         "version": "B2DF573959344918A3BFBB253DDF800D",
         "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
@@ -1219,21 +1223,21 @@
         "name": "remDataSubject.csv"
       },
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63429",
         "filehash": "F75CDD12CAD35DBE491F40699FCB7A0117189B019BD2256989C007D73ACD5724",
         "asLink": false,
         "name": "tabmodWtAgeEstimates.png"
       },
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59538",
         "filehash": "C677091567C9B46E8907C848D6DFE9D42186DE5C77F45FB092F6FFC3D63D6823",
         "asLink": false,
         "name": "tabModWtAgeEstimates.csv"
       },
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54673",
         "filehash": "C7202DB9C88A21DCC695A5F9A48532F37108EE6307E0659CB4A118176731FFC9",
         "asLink": false,
@@ -1242,53 +1246,53 @@
         "variableProcess": "Main"
       },
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54770",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54772",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59531",
         "filehash": "6F399D03E7C0D1A156B1D4A5B73660A1137601B57495C989090C2D9BEBB8BBCB",
         "asLink": false,
         "name": "modWtAge.RDS"
       },
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59532",
         "filehash": "6DD5BCA6F25CC448481D2B1392913376BBDCC611F81A68D5361BDECB2C30AF40",
         "asLink": false,
         "name": "graphPerformanceModWtAge.png"
       },
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-63430",
         "filehash": "C9C9B9D171189A95E194A94716BB61B2A9106DF5BC0BB85D8926912F3FBF911B",
         "asLink": false,
         "name": "tabmodWtAgeEstimates.html"
       },
       {
-        "stepHandle": "09e83f44-3f4f-4609-8ba8-ac920dcfe0c3",
+        "stepHandle": "990a6762-d789-4480-952f-43b73fe012a4",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54773",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "Extend model 1 by including Age as an additional explanatory variable;\r\nCheck linear relationship between duration and weight as well as age."
   },
   {
-    "handle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+    "handle": "edf7e84d-0346-4a41-8696-993421e135df",
     "processes": [
       {
         "handle": "7FBE4F2628694A958EAB7CA184579BDA",
@@ -1310,10 +1314,10 @@
     "treeName": "Modeling",
     "treePath": "/improve-tutorial",
     "description": "Compare performances of different model specifications",
-    "entityId": "ST-54678",
+    "entityId": "envhost1.hc.scintecodev.internal-5310:ST-54678",
     "remoteFiles": [
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59531",
         "version": "B2E812B00DFA400F8760B55394F390F5",
         "filehash": "6F399D03E7C0D1A156B1D4A5B73660A1137601B57495C989090C2D9BEBB8BBCB",
@@ -1322,7 +1326,7 @@
         "name": "modWtAge.RDS"
       },
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59426",
         "version": "44A53A6511F642B5812053B62C3975CE",
         "filehash": "8ABCE1BCDA55F2B47CE99EE65A79DD7FC2EA4587F9EC7C26F74CB9E3A372280F",
@@ -1331,7 +1335,7 @@
         "name": "modWt.RDS"
       },
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59534",
         "version": "F4FBC408A6224D3F97E474D20E6024AC",
         "filehash": "D9838E88D19B5D697355F42F29E8DA5D76277DDCD2233408540D0ACC6644CAF0",
@@ -1340,7 +1344,7 @@
         "name": "modWtAgeSex.RDS"
       },
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59428",
         "version": "823620052F984B07A119AC4C4B5174D3",
         "filehash": "A409542B9867D3B0FC8F004E5CB70847EEF6E1524EC8EDBAB61BF01D6E03357E",
@@ -1349,28 +1353,28 @@
         "name": "modWtSex.RDS"
       },
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54786",
         "filehash": "7EF9BF88F165A96D487832CB98A42D8C9D4C47C3528EE52F9E59C397207372A0",
         "asLink": false,
         "name": "_STDOUT.txt"
       },
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54787",
         "filehash": "346840D5A3D9FE9B61CE99955BB98DF3DB872090732C96AA5DF1D83CB1F3E85A",
         "asLink": false,
         "name": ".gridhost"
       },
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59425",
         "filehash": "2618BE89A29228FFA4B706538BB56DE8893889AC761C9A8CB24B27ABDA1EDE6F",
         "asLink": false,
         "name": "graphModelComparison.png"
       },
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54679",
         "filehash": "8DC7D7203AE81A8A520760EB8F057BCDDA6FB03F1ECA0A198B5025EAFE870669",
         "asLink": false,
@@ -1379,21 +1383,21 @@
         "variableProcess": "Main"
       },
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-54788",
         "filehash": "A32266ABEB4AC2A5AA5242F2A0B82A1EF987D4B7CE17646B54FD431ECC4D5DB1",
         "asLink": false,
         "name": "_STDERR.txt"
       },
       {
-        "stepHandle": "19d1181d-ad57-46b2-9540-a473e2e2ebbe",
+        "stepHandle": "edf7e84d-0346-4a41-8696-993421e135df",
         "ident": "envhost1.hc.scintecodev.internal-5310:FI-59424",
         "filehash": "3D55BB5CDF76AEEE6C5D97B269A78419D2FB1A58DCA5872BEB00B4B3522BE0F5",
         "asLink": false,
         "name": "modelComparison.csv"
       }
     ],
-    "workflowHandle": "7a2830ea-5530-46d4-8b78-17386cd837d2",
+    "workflowHandle": "7f524fba-48b1-4ea2-9c82-467c7266be89",
     "rationale": "Model results"
   }
 ]

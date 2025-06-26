@@ -46,7 +46,7 @@ fullProcess <- function(process,stepHandle) {
 }
 
 #' handleFromStep
-#' reads a step and it´s processes and generates a new handle
+#' reads a step and its processes and generates a new handle
 #' @param stepId the ident of the step
 #' @references ics1213
 #' @export

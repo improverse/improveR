@@ -159,7 +159,6 @@ getFullUsage <- function(ident,from=pwd(),workflowEnv=NULL,depth=-1) {
 #' @param depth, the depth of recursion when retrieving additional trees. -1 takes all trees into account
 addMultiTreeUsage <- function(workflowHandle,stepHandle,workflowEnv=new.env(),depth=-1) {
 
-
   used <- usage(workflow = workflowHandle,stepHandle = stepHandle)
   if (depth!=0) {
     depth<-depth-1
