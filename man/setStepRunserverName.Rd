@@ -4,12 +4,14 @@
 \alias{setStepRunserverName}
 \title{sets the runserver by name}
 \usage{
-setStepRunserverName(stepHandle, runserverName)
+setStepRunserverName(stepHandle, runserverName, process = "Main")
 }
 \arguments{
 \item{stepHandle}{id of the prepared step}
 
 \item{runserverName}{name of the runserver}
+
+\item{process}{the name of the process, default = Main. If the process does not yet exist it is created}
 }
 \description{
 sets the runserver by name

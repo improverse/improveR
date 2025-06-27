@@ -4,7 +4,7 @@
 \alias{addStepGridArgument}
 \title{adds a new grid argument to the step}
 \usage{
-addStepGridArgument(stepHandle, argumentName, argumentValue)
+addStepGridArgument(stepHandle, argumentName, argumentValue, process = "Main")
 }
 \arguments{
 \item{stepHandle}{id of the prepared step}
@@ -12,6 +12,8 @@ addStepGridArgument(stepHandle, argumentName, argumentValue)
 \item{argumentName}{the ident of the file in the repository}
 
 \item{argumentValue}{leave empty if you want to use the same name as the used file}
+
+\item{process}{the name of the process, default = Main. If the process does not yet exist it is created}
 }
 \description{
 adds a new grid argument to the step

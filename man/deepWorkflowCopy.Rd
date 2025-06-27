@@ -4,7 +4,12 @@
 \alias{deepWorkflowCopy}
 \title{deepWorkflowCopy}
 \usage{
-deepWorkflowCopy(workflow, targetTree = NULL, createParentalRelation = F)
+deepWorkflowCopy(
+  workflow,
+  targetTree = NULL,
+  createParentalRelation = F,
+  preserveEntityId = F
+)
 }
 \arguments{
 \item{workflow}{a workflow handle or a workflow data.frame, changes to steps in workflow data.frame will be persisted by execution. consider creating a deep copy}
@@ -12,6 +17,8 @@ deepWorkflowCopy(workflow, targetTree = NULL, createParentalRelation = F)
 \item{targetTree}{the tree the steps should be executed in, default NULL, if NULL treeIdent of the steps is kept}
 
 \item{createParentalRelation}{create the step as child step of the step in the source workflow, default FALSE}
+
+\item{preserveEntityId}{keeps the entityId for each step in any case}
 }
 \description{
 deepWorkflowCopy

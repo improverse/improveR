@@ -207,146 +207,6 @@ httptest::with_mock_dir("loadChildSteps", {
   })
 })
 
-nonmemBatchStep <- function(testTree) {
-  nonmem_runserver <- Sys.getenv("NONMEM_RUNSERVER")
-  nonmem_tool <- Sys.getenv("NONMEM_TOOL")
-  nonmem_tool_instance <- Sys.getenv("NONMEM_TOOL_INSTANCE")
-
-  handle <- improveR::prepareStep(testTree) %>%
-    improveR::setStepRunserverName(nonmem_runserver) %>%
-    improveR::setStepToolName(nonmem_tool) %>%
-    improveR::setStepCommandLine("<command-file>\r\noutput<process>.txt", append = F) %>%
-    improveR::setStepRunserverToolName(nonmem_tool_instance)
-  return(handle)
-}
-
-rBatchStep <- function(testTree) {
-  r_runserver <- Sys.getenv("R_RUNSERVER")
-  r_tool <- Sys.getenv("R_TOOL")
-  r_tool_instance <- Sys.getenv("R_TOOL_INSTANCE")
-
-  handle <- improveR::prepareStep(testTree) %>%
-    improveR::setStepRunserverName(r_runserver) %>%
-    improveR::setStepToolName(r_tool) %>%
-    improveR::setStepRunserverToolName(r_tool_instance)
-  return(handle)
-}
-
-test_that("load Child steps|ics1140,ics1205,ics1209,ics1225", {
-  # Create tree
-  testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "ChildSteps")
-
-  # Create root step
-  handle <- rBatchStep(testTree) %>%
-    improveR::setStepDescription("Data Manipulation") %>%
-    improveR::setStepRationale("to manipulate data") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv")) %>%
-    improveR::realiseStep()
-
-  rootStep <- improveR::getStepResource(handle)
-
-  # Create child1
-  handle <- rBatchStep(testTree) %>%
-    improveR::setStepParent(rootStep$resourceId) %>%
-    improveR::setStepDescription("Data Manipulation") %>%
-    improveR::setStepRationale("to manipulate data") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv")) %>%
-    improveR::realiseStep()
-
-  child1 <- improveR::getStepResource(handle)
-
-  # Create grandchild one
-  handle <- rBatchStep(testTree) %>%
-    improveR::setStepParent(child1$resourceId) %>%
-    improveR::setStepDescription("Data Manipulation") %>%
-    improveR::setStepRationale("to manipulate data") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv")) %>%
-    improveR::realiseStep()
-
-  child11 <- improveR::getStepResource(handle)
-
-  # Create grandchild 2
-  handle <- rBatchStep(testTree) %>%
-    improveR::setStepParent(child1$resourceId) %>%
-    improveR::setStepDescription("Data Manipulation") %>%
-    improveR::setStepRationale("to manipulate data") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv")) %>%
-    improveR::realiseStep()
-
-  child12 <- improveR::getStepResource(handle)
-
-  # Load child steps tree
-  childStepsTree <- improveR::loadChildSteps(testTree)
-  expect_null(childStepsTree)
-
-  # Child is child of root
-  childStepsRootSteps <- improveR::loadChildSteps(rootStep)
-  expect_equal(1, nrow(childStepsRootSteps))
-  childStepsRootSteps <- childStepsRootSteps$data[[1]]
-  expect_equal(1, nrow(childStepsRootSteps))
-  expect_true(child1$resourceId %in% childStepsRootSteps$resourceId)
-
-  # Grandchildren children of child
-  childStepsRootSteps <- improveR::loadChildSteps(child1)
-  expect_equal(1, nrow(childStepsRootSteps))
-  childStepsRootSteps <- childStepsRootSteps$data[[1]]
-  expect_equal(2, nrow(childStepsRootSteps))
-  expect_true(child11$resourceId %in% childStepsRootSteps$resourceId)
-  expect_true(child12$resourceId %in% childStepsRootSteps$resourceId)
-
-  # Grandchildren do not have children
-  children <- rbind(child11, child12)
-  childStepsRootSteps <- improveR::loadChildSteps(children)
-  expect_equal(2, nrow(childStepsRootSteps))
-  childStepsRootSteps <- childStepsRootSteps$data[[1]]
-  expect_equal(0, nrow(childStepsRootSteps))
-
-  # Back up to root
-  parentStep <- improveR::loadParentStep(child12)
-  expect_equal(parentStep$resourceId, child1$resourceId)
-  parentStep <- improveR::loadParentStep(child1)
-  expect_equal(parentStep$resourceId, rootStep$resourceId)
-  parentStep <- improveR::loadParentStep(rootStep)
-  expect_null(parentStep)
-
-  # Disconnect all
-  improveR::detachStep(child1)
-  improveR::detachStep(child11)
-  improveR::detachStep(child12)
-
-  # Check all disconnected
-  parentStep <- improveR::loadParentStep(child12)
-  expect_null(parentStep)
-  parentStep <- improveR::loadParentStep(child11)
-  expect_null(parentStep)
-  parentStep <- improveR::loadParentStep(child1)
-  expect_null(parentStep)
-  parentStep <- improveR::loadParentStep(rootStep)
-  expect_null(parentStep)
-
-  # Reconnect other way round
-  improveR::attachStep(rootStep, child12)
-  improveR::attachStep(child1, child12)
-  improveR::attachStep(child12, child11)
-
-  # Check reconnect
-  parentStep <- improveR::loadParentStep(child12)
-  expect_equal(parentStep$resourceId, child11$resourceId)
-  parentStep <- improveR::loadParentStep(child1)
-  expect_equal(parentStep$resourceId, child12$resourceId)
-  parentStep <- improveR::loadParentStep(rootStep)
-  expect_equal(parentStep$resourceId, child12$resourceId)
-  parentStep <- improveR::loadParentStep(child11)
-  expect_null(parentStep)
-})
 
 test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "subfolderInventory")
@@ -421,7 +281,7 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
   }
   handle <- handle %>% improveR::realiseStep() %>%
     improveR::finishRun()
-
+?get
   inventory <- improveR::getStepInventory(handle)$data[[1]]
   dataSet <- inventory %>%
     dplyr::filter(name == "chapter15_example_cleaned.rds") %>%
@@ -446,32 +306,127 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   s2t2 <- mockStep(dmgL2, s1t2, "S2T2", "processing", dataSet2 = i2)
 
   s1t3 <- mockStep(dmgL3, s1t2, "S1T3", "report", dataSet2 = s2t2)
-  # Ran without error
-  expect_true(T)
+
+
+
+  fullLineageFolder <- createFolder(TEST_FOLDER,"fullLineage")
+
+  lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
+    getFullLineage() %>%
+      makeStepsRelative() %>%
+      detachWorkflowFromResources() %>%
+      detachWorkflowFromTrees() %>%
+      setWorkflowTreeRootFolder(fullLineageFolder$path) %>%
+      executeWorkflow()
+
+  expect_equal(nrow(loadChildResources(fullLineageFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources("./DMG L1",fullLineageFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources("./DMG L2",fullLineageFolder)$data[[1]]),2)
+  expect_equal(nrow(loadChildResources("./DMG L3",fullLineageFolder)$data[[1]]),1)
+
+  lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
+    getFullLineage(depth=1) %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromResources() %>%
+    detachWorkflowFromTrees() %>%
+    setWorkflowTreeRootFolder(fullLineageFolder$path) %>%
+    setWorkflowTreeName("AllInOne") %>%
+    executeWorkflow()
+
+  expect_equal(nrow(loadChildResources(fullLineageFolder)$data[[1]]),4)
+  expect_equal(nrow(loadChildResources("./AllInOne",fullLineageFolder)$data[[1]]),3)
+
+  fullUsageFolder <- createFolder(TEST_FOLDER,"fullUsage")
+
+  usageWorkflowHandle <- loadFullChildResources(dmgL1)%>%strip() %>%
+    dplyr::filter(description=="Initial 2")%>%
+    getFullUsage() %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromResources() %>%
+    detachWorkflowFromTrees() %>%
+    setWorkflowTreeRootFolder(fullUsageFolder$path) %>%
+    executeWorkflow()
+
+  expect_equal(nrow(loadChildResources(fullUsageFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources("./DMG L1",fullUsageFolder)$data[[1]]),1)
+  expect_equal(nrow(loadChildResources("./DMG L2",fullUsageFolder)$data[[1]]),1)
+  expect_equal(nrow(loadChildResources("./DMG L3",fullUsageFolder)$data[[1]]),1)
+
+  usageWorkflowHandle <- loadFullChildResources(dmgL1)%>%strip() %>%
+    dplyr::filter(description=="Initial 2")%>%
+    getFullUsage(depth=1) %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromResources() %>%
+    detachWorkflowFromTrees() %>%
+    setWorkflowTreeRootFolder(fullUsageFolder$path) %>%
+    setWorkflowTreeName("AllInOne") %>%
+    executeWorkflow()
+
+  expect_equal(nrow(loadChildResources(fullUsageFolder)$data[[1]]),4)
+  expect_equal(nrow(loadChildResources("./AllInOne",fullUsageFolder)$data[[1]]),2)
+
+
+  lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
+    getFullLineage() %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromResources() %>%
+    executeWorkflow()
+
+  expect_equal(nrow(loadChildResources("./DMG L1",TEST_FOLDER)$data[[1]]),7)
+  expect_equal(nrow(loadChildResources("./DMG L2",TEST_FOLDER)$data[[1]]),4)
+  expect_equal(nrow(loadChildResources("./DMG L3",TEST_FOLDER)$data[[1]]),2)
+
+
+  #import export
+  reports <- loadChildResources(dmgL3)%>%strip()
+  workflowToexport  <-  reports[1,]%>%
+    getFullLineage() %>%
+    makeStepsRelative() %>%
+    detachWorkflowFromTrees() %>%
+    retrieveWorkflow()
+  exportWorkflow(workflowToexport,workflowName = "lineageDMG")
+
+  importRepoFolder <- file.path(TEST_FOLDER,"import1")
+  createFolder(dirname(importRepoFolder),basename(importRepoFolder))
+  importWorkflow("lineageDMG.zip",importRepoFolder)
+  #externalLinkMapping
+
+
+  #DMG L3 why is Initial 1 not included
+
+  #test externalLinks
+  #test with subfolders, test with also inputfiles
+  #integrate cache
+  #zip handling and tempfolderHandling
+#mapping of input file variables
+  #parental relations in workflows
+
+
+
 })
 
 test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213", {
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleNonmem")
 
   handleNonmem <- nonmemBatchStep(testTree) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), name = "folder/file.txt", variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/example-new.dat"), variableName = "dataset") %>%
-    improveR::setStepCommandLine("<command-file>\r\noutput<process>.txt", append = F) %>%
-    improveR::setStepDescription("description1") %>%
-    improveR::setStepRationale("rational") %>%
-    improveR::realiseStep() %>%
-    improveR::finishRun()
+    addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), variableName = "command-file") %>%
+    addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), name = "folder/file.txt", variableName = "command-file") %>%
+    addStepRemoteFile(paste0(TEST_FOLDER, "/example-new.dat"), variableName = "dataset") %>%
+    setStepCommandLine("<command-file>\r\noutput<process>.txt", append = F) %>%
+    setStepDescription("description1") %>%
+    setStepRationale("rational") %>%
+    realiseStep() %>%
+    finishRun()
 
-  dN <- improveR::getCopy(paste0(TEST_FOLDER, "/STEP1.ctl"))
+  dN <- getCopy(paste0(TEST_FOLDER, "/STEP1.ctl"))
 
   handleNonmem <- nonmemBatchStep(testTree) %>%
-    improveR::addStepLocalFile(dN$path, variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/example-new.dat"), variableName = "dataset") %>%
-    improveR::setStepDescription("I am showing a nonmem step") %>%
-    improveR::setStepRationale("so you have seen it") %>%
-    improveR::realiseStep() %>%
-    improveR::finishRun()
+    addStepLocalFile(dN$path, variableName = "command-file") %>%
+    addStepRemoteFile(paste0(TEST_FOLDER, "/example-new.dat"), variableName = "dataset") %>%
+    setStepDescription("I am showing a nonmem step") %>%
+    setStepRationale("so you have seen it") %>%
+    realiseStep() %>%
+    finishRun()
 
   inventory <- improveR::getStepInventory(handleNonmem)
   inv <- inventory$data[[1]]
@@ -546,14 +501,13 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
 
   copyGrid <- improveR::deepWorkflowCopy(checkGrid, targetTree = testTree3)
   copyGridFlow <- improveR::retrieveWorkflow(copyGrid)
-  copyGridFlow$entityId <- NULL
   improveR::executeWorkflow(copyGrid)
 
   checkGridCompare <- improveR::handlesFromTree(testTree3)
   checkGridFlowCompare <- improveR::retrieveWorkflow(checkGrid)
 
-  args <- dplyr::filter(checkGridFlow, description == "I am showing a nonmem step")$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
-  argsCompare <- dplyr::filter(checkGridFlowCompare, description == "I am showing a nonmem step")$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
+  args <- dplyr::filter(checkGridFlow, description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
+  argsCompare <- dplyr::filter(checkGridFlowCompare, description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
   expect_equal(args, argsCompare)
   expect_equal(nrow(args), 4)
 })

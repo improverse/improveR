@@ -1,0 +1,48 @@
+/*-- scss:defaults --*/
+$h1-font-size: 1.5rem !default;
+$h2-font-size: 1.1rem !default;
+$headings-font-weight: 500 !default;
+$toc-color: black;
+
+
+.sidebar nav[role="doc-toc"] ul>li>a.hover {
+  color: black !important;
+  font-weight: bold;
+}
+
+
+.sidebar nav[role="doc-toc"] ul>li>a.active {
+  color: black !important;
+  font-weight: bold;
+}
+
+
+h2,
+.h2 {
+  border-bottom: none !important;
+  text-decoration: none !important;
+}
+
+
+.header-section-number {
+  color: black !important;
+}
+
+
+.main-container {
+  max-width: 600px !important;
+}
+
+pre {
+  max-height: 800px !important;
+  overflow-y: auto !important;
+  overflow-x: scroll !important;
+}
+
+pre code {
+  white-space: pre
+}
+
+code {
+  color: #00beed !important;
+}

@@ -1,0 +1,613 @@
+[
+  {
+    "handle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+    "processes": [
+      {
+        "handle": "85A4CA05259B40B1BB134DB9D8CD1C0E",
+        "runserverName": "Local (generic)",
+        "toolName": "rStudio",
+        "runserverToolName": "rStudio",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "Reporting",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69750",
+        "filehash": "CEAB6CD4290354FFE2085B37E1E664AD9DA1E5751304C67C968902606C483482",
+        "asLink": false,
+        "name": "report.html"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69753",
+        "filehash": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+        "asLink": false,
+        "name": ".Rhistory"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69754",
+        "filehash": "AE25F84FB5E46E7E558A0035E6A5391D54E018FA84161B9F8801788172D893F3",
+        "asLink": false,
+        "name": "_ENV_REPORT.txt"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69751",
+        "filehash": "7EB70257593DA06F682A3DDDA54A9D260D4FC514F645237F5CA74B08F8DA61A6",
+        "asLink": false,
+        "name": "_STDOUT.txt"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69752",
+        "filehash": "C087D89993CF67B7C2EDB23B04E05DB1B5FD9898D46CD824AEE4E6F802E8725C",
+        "asLink": false,
+        "name": "report.qmd",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69755",
+        "filehash": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+        "asLink": false,
+        "name": "_STDERR.txt"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "missingData.png",
+        "variableProcess": "Main",
+        "sourceHandle": "19b4194e-b226-48cc-94e1-599fe5cd0420",
+        "sourceName": "missingData.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "graphModelComparison.png",
+        "variableProcess": "Main",
+        "sourceHandle": "02cb350e-730d-4bf2-a055-2900b43f95da",
+        "sourceName": "graphModelComparison.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "graphPerformanceModWtSex.png",
+        "variableProcess": "Main",
+        "sourceHandle": "0828027c-258b-44d5-9ffe-54ce8798e5fe",
+        "sourceName": "graphPerformanceModWtSex.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "tabmodWtEstimates.png",
+        "variableProcess": "Main",
+        "sourceHandle": "adaced87-ceb4-49ad-80a9-34ef3bde0ab9",
+        "sourceName": "tabmodWtEstimates.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "graphPerformanceModWtAge.png",
+        "variableProcess": "Main",
+        "sourceHandle": "4bfd4054-33e8-47ad-aaea-f02d823c284c",
+        "sourceName": "graphPerformanceModWtAge.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "tableStatsAge.png",
+        "variableProcess": "Main",
+        "sourceHandle": "97ac243b-7872-4d52-b010-800d441c3d9e",
+        "sourceName": "tableStatsAge.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "tableStatsSex.png",
+        "variableProcess": "Main",
+        "sourceHandle": "97ac243b-7872-4d52-b010-800d441c3d9e",
+        "sourceName": "tableStatsSex.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "graphConcentrationDurationSubject.png",
+        "variableProcess": "Main",
+        "sourceHandle": "30146183-e414-47d2-9298-39b9a100862d",
+        "sourceName": "graphConcentrationDurationSubject.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "tabmodWtSexEstimates.png",
+        "variableProcess": "Main",
+        "sourceHandle": "0828027c-258b-44d5-9ffe-54ce8798e5fe",
+        "sourceName": "tabmodWtSexEstimates.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "graphDistributionSexAge.png",
+        "variableProcess": "Main",
+        "sourceHandle": "97ac243b-7872-4d52-b010-800d441c3d9e",
+        "sourceName": "graphDistributionSexAge.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "graphPerformanceModWtAgeSex.png",
+        "variableProcess": "Main",
+        "sourceHandle": "f5eb65f0-5ed6-4b48-bcb2-28babd7eefab",
+        "sourceName": "graphPerformanceModWtAgeSex.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "tabmodWtAgeEstimates.png",
+        "variableProcess": "Main",
+        "sourceHandle": "4bfd4054-33e8-47ad-aaea-f02d823c284c",
+        "sourceName": "tabmodWtAgeEstimates.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "graphConcentrationDuration.png",
+        "variableProcess": "Main",
+        "sourceHandle": "30146183-e414-47d2-9298-39b9a100862d",
+        "sourceName": "graphConcentrationDuration.png"
+      },
+      {
+        "stepHandle": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+        "asLink": true,
+        "name": "tableStatsAll.png",
+        "variableProcess": "Main",
+        "sourceHandle": "97ac243b-7872-4d52-b010-800d441c3d9e",
+        "sourceName": "tableStatsAll.png"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "dependencies": "19b4194e-b226-48cc-94e1-599fe5cd0420,02cb350e-730d-4bf2-a055-2900b43f95da,0828027c-258b-44d5-9ffe-54ce8798e5fe,adaced87-ceb4-49ad-80a9-34ef3bde0ab9,4bfd4054-33e8-47ad-aaea-f02d823c284c,97ac243b-7872-4d52-b010-800d441c3d9e,97ac243b-7872-4d52-b010-800d441c3d9e,30146183-e414-47d2-9298-39b9a100862d,0828027c-258b-44d5-9ffe-54ce8798e5fe,97ac243b-7872-4d52-b010-800d441c3d9e,f5eb65f0-5ed6-4b48-bcb2-28babd7eefab,4bfd4054-33e8-47ad-aaea-f02d823c284c,30146183-e414-47d2-9298-39b9a100862d,97ac243b-7872-4d52-b010-800d441c3d9e",
+    "breakpoint": true
+  },
+  {
+    "handle": "19b4194e-b226-48cc-94e1-599fe5cd0420",
+    "processes": [
+      {
+        "handle": "6000077FE1EE46AE9742DA8CC5783592",
+        "runserverName": "Local (generic)",
+        "toolName": "rbatchdemo",
+        "runserverToolName": "rbatchdemo",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "DataOrder",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "19b4194e-b226-48cc-94e1-599fe5cd0420",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69678",
+        "version": "14CF0ACA70D4425099524D33CF657295",
+        "filehash": "4092B2DE1BFF76F89330F03E66FE0E00A5AFABFB4E3F8813BBE02C196E0E3173",
+        "maxVersion": "14CF0ACA70D4425099524D33CF657295",
+        "asLink": true,
+        "name": "remDataStd.csv"
+      },
+      {
+        "stepHandle": "19b4194e-b226-48cc-94e1-599fe5cd0420",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69556",
+        "filehash": "52B691BC5CCD39AA92AEBFA5FF861E1CDBC11A34972603F9B32C25CDF71A2319",
+        "asLink": false,
+        "name": "checkData.R",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "description": "data qc check for missing data",
+    "usage": "acc36162-0d8d-4606-bdfe-75ede23d7383,aa06ba45-93b3-4eba-9c4b-180f8b5439c0,30146183-e414-47d2-9298-39b9a100862d",
+    "breakpoint": true
+  },
+  {
+    "handle": "02cb350e-730d-4bf2-a055-2900b43f95da",
+    "processes": [
+      {
+        "handle": "BD9502EF14F0484A890ED209D437A901",
+        "runserverName": "Local (generic)",
+        "toolName": "rbatchdemo",
+        "runserverToolName": "rbatchdemo",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "LinearModeling",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "02cb350e-730d-4bf2-a055-2900b43f95da",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69743",
+        "filehash": "C51A65C075999A6DB5B34863BBC568AEBF8B2B837E8CFFEBECB16E730DDEDB4B",
+        "asLink": false,
+        "name": "getModelComparison.r",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "02cb350e-730d-4bf2-a055-2900b43f95da",
+        "asLink": true,
+        "name": "modWtSex.RDS",
+        "variableProcess": "Main",
+        "sourceHandle": "0828027c-258b-44d5-9ffe-54ce8798e5fe",
+        "sourceName": "modWtSex.RDS"
+      },
+      {
+        "stepHandle": "02cb350e-730d-4bf2-a055-2900b43f95da",
+        "asLink": true,
+        "name": "modWtAgeSex.RDS",
+        "variableProcess": "Main",
+        "sourceHandle": "f5eb65f0-5ed6-4b48-bcb2-28babd7eefab",
+        "sourceName": "modWtAgeSex.RDS"
+      },
+      {
+        "stepHandle": "02cb350e-730d-4bf2-a055-2900b43f95da",
+        "asLink": true,
+        "name": "modWtAge.RDS",
+        "variableProcess": "Main",
+        "sourceHandle": "4bfd4054-33e8-47ad-aaea-f02d823c284c",
+        "sourceName": "modWtAge.RDS"
+      },
+      {
+        "stepHandle": "02cb350e-730d-4bf2-a055-2900b43f95da",
+        "asLink": true,
+        "name": "modWt.RDS",
+        "variableProcess": "Main",
+        "sourceHandle": "adaced87-ceb4-49ad-80a9-34ef3bde0ab9",
+        "sourceName": "modWt.RDS"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "dependencies": "0828027c-258b-44d5-9ffe-54ce8798e5fe,f5eb65f0-5ed6-4b48-bcb2-28babd7eefab,4bfd4054-33e8-47ad-aaea-f02d823c284c,adaced87-ceb4-49ad-80a9-34ef3bde0ab9",
+    "usage": "acc36162-0d8d-4606-bdfe-75ede23d7383",
+    "breakpoint": true
+  },
+  {
+    "handle": "0828027c-258b-44d5-9ffe-54ce8798e5fe",
+    "processes": [
+      {
+        "handle": "252BBA683D6C4C97829B506324276965",
+        "runserverName": "Local (generic)",
+        "toolName": "rbatchdemo",
+        "runserverToolName": "rbatchdemo",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "LinearModeling",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "0828027c-258b-44d5-9ffe-54ce8798e5fe",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69567",
+        "filehash": "57A17C4A7F74C4F35D8E1FFDAB579B8F5FD69BCBE9042112798DBE1858A0C2FA",
+        "asLink": false,
+        "name": "Model.r",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "0828027c-258b-44d5-9ffe-54ce8798e5fe",
+        "asLink": true,
+        "name": "remDataSubject.csv",
+        "variableProcess": "Main",
+        "sourceHandle": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+        "sourceName": "remDataSubject.csv"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "description": "testing weight and sex",
+    "dependencies": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+    "usage": "acc36162-0d8d-4606-bdfe-75ede23d7383,acc36162-0d8d-4606-bdfe-75ede23d7383,02cb350e-730d-4bf2-a055-2900b43f95da",
+    "breakpoint": true
+  },
+  {
+    "handle": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+    "processes": [
+      {
+        "handle": "6F22CF07D70E41B3ABD521E8A3BA5B6F",
+        "runserverName": "Local (generic)",
+        "toolName": "rbatchdemo",
+        "runserverToolName": "rbatchdemo",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "EDA",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69560",
+        "filehash": "550D2462BD499BCBB0F1576E25D4F2C8D0615658D1724907B31C81739BF2BCD4",
+        "asLink": false,
+        "name": "getSubjectData.r",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+        "asLink": true,
+        "name": "remDataQuality.csv",
+        "variableProcess": "Main",
+        "sourceHandle": "19b4194e-b226-48cc-94e1-599fe5cd0420",
+        "sourceName": "remDataQuality.csv"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "description": "transform dataset to subjects",
+    "dependencies": "19b4194e-b226-48cc-94e1-599fe5cd0420",
+    "usage": "0828027c-258b-44d5-9ffe-54ce8798e5fe,adaced87-ceb4-49ad-80a9-34ef3bde0ab9,4bfd4054-33e8-47ad-aaea-f02d823c284c,97ac243b-7872-4d52-b010-800d441c3d9e,f5eb65f0-5ed6-4b48-bcb2-28babd7eefab",
+    "breakpoint": true
+  },
+  {
+    "handle": "adaced87-ceb4-49ad-80a9-34ef3bde0ab9",
+    "processes": [
+      {
+        "handle": "CBBFB4ACCE49486BB33314F7F5F9F0C2",
+        "runserverName": "Local (generic)",
+        "toolName": "rbatchdemo",
+        "runserverToolName": "rbatchdemo",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "LinearModeling",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "adaced87-ceb4-49ad-80a9-34ef3bde0ab9",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69570",
+        "filehash": "6ADED54E320BA5A65BD4113E0DA9BB29F59A3E165B834B64882AD8A7229D7376",
+        "asLink": false,
+        "name": "Model.r",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "adaced87-ceb4-49ad-80a9-34ef3bde0ab9",
+        "asLink": true,
+        "name": "remDataSubject.csv",
+        "variableProcess": "Main",
+        "sourceHandle": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+        "sourceName": "remDataSubject.csv"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "description": "testing weight",
+    "rationale": "test rational",
+    "dependencies": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+    "usage": "acc36162-0d8d-4606-bdfe-75ede23d7383,02cb350e-730d-4bf2-a055-2900b43f95da",
+    "breakpoint": true
+  },
+  {
+    "handle": "4bfd4054-33e8-47ad-aaea-f02d823c284c",
+    "processes": [
+      {
+        "handle": "F2419F567E3147BC87F6BB1DC0C8D7DC",
+        "runserverName": "Local (generic)",
+        "toolName": "rbatchdemo",
+        "runserverToolName": "rbatchdemo",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "LinearModeling",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "4bfd4054-33e8-47ad-aaea-f02d823c284c",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69579",
+        "filehash": "50C06C7BB679B98C404EB6B681648674648E00C66ABAE3A35CD983C279C095AC",
+        "asLink": false,
+        "name": "Model.r",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "4bfd4054-33e8-47ad-aaea-f02d823c284c",
+        "asLink": true,
+        "name": "remDataSubject.csv",
+        "variableProcess": "Main",
+        "sourceHandle": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+        "sourceName": "remDataSubject.csv"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "description": "testing weight and age",
+    "dependencies": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+    "usage": "acc36162-0d8d-4606-bdfe-75ede23d7383,acc36162-0d8d-4606-bdfe-75ede23d7383,02cb350e-730d-4bf2-a055-2900b43f95da",
+    "breakpoint": true
+  },
+  {
+    "handle": "97ac243b-7872-4d52-b010-800d441c3d9e",
+    "processes": [
+      {
+        "handle": "03F6FC49199046529B424A135B87BC0C",
+        "runserverName": "Local (generic)",
+        "toolName": "rbatchdemo",
+        "runserverToolName": "rbatchdemo",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "EDA",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "97ac243b-7872-4d52-b010-800d441c3d9e",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69573",
+        "filehash": "10EC7C759D9ACCB7CAF0677291F3FD8008BC01F7045C5A88D970CB4DD6198D4A",
+        "asLink": false,
+        "name": "getEDA.r",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "97ac243b-7872-4d52-b010-800d441c3d9e",
+        "asLink": true,
+        "name": "remDataSubject.csv",
+        "variableProcess": "Main",
+        "sourceHandle": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+        "sourceName": "remDataSubject.csv"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "description": "plot distributions of demographic vars vs clearance",
+    "dependencies": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+    "usage": "acc36162-0d8d-4606-bdfe-75ede23d7383,acc36162-0d8d-4606-bdfe-75ede23d7383,acc36162-0d8d-4606-bdfe-75ede23d7383,acc36162-0d8d-4606-bdfe-75ede23d7383",
+    "breakpoint": true
+  },
+  {
+    "handle": "30146183-e414-47d2-9298-39b9a100862d",
+    "processes": [
+      {
+        "handle": "0648A03954F44D1196AE90FB42FBB981",
+        "runserverName": "Local (generic)",
+        "toolName": "rbatchdemo",
+        "runserverToolName": "rbatchdemo",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "EDA",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "30146183-e414-47d2-9298-39b9a100862d",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69563",
+        "filehash": "0DDEE266456568C9CEC49D089992E13DB0FEF59FC2DE6F6AF6B95824853E506D",
+        "asLink": false,
+        "name": "getConcentrationOverTime.r",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "30146183-e414-47d2-9298-39b9a100862d",
+        "asLink": true,
+        "name": "remDataQuality.csv",
+        "variableProcess": "Main",
+        "sourceHandle": "19b4194e-b226-48cc-94e1-599fe5cd0420",
+        "sourceName": "remDataQuality.csv"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "description": "plot concentrations",
+    "dependencies": "19b4194e-b226-48cc-94e1-599fe5cd0420",
+    "usage": "acc36162-0d8d-4606-bdfe-75ede23d7383,acc36162-0d8d-4606-bdfe-75ede23d7383",
+    "breakpoint": true
+  },
+  {
+    "handle": "f5eb65f0-5ed6-4b48-bcb2-28babd7eefab",
+    "processes": [
+      {
+        "handle": "444E4E0C6E19418B9C8949BEE3DAE413",
+        "runserverName": "Local (generic)",
+        "toolName": "rbatchdemo",
+        "runserverToolName": "rbatchdemo",
+        "toolArgs": "<command-file>",
+        "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+        "selected": true,
+        "gridTool": false,
+        "main": true,
+        "name": "Main",
+        "processType": "main",
+        "position": 1
+      }
+    ],
+    "treeName": "LinearModeling",
+    "treePath": "/demos/MWintegration3",
+    "remoteFiles": [
+      {
+        "stepHandle": "f5eb65f0-5ed6-4b48-bcb2-28babd7eefab",
+        "ident": "envhost1.hc.scintecodev.internal-5310:FI-69576",
+        "filehash": "ABF021BF161D7E28B838196D6563E4FD9BB0B3D1E1B6C67F9508F78814FBCB54",
+        "asLink": false,
+        "name": "Model.r",
+        "variableName": "command-file",
+        "variableProcess": "Main"
+      },
+      {
+        "stepHandle": "f5eb65f0-5ed6-4b48-bcb2-28babd7eefab",
+        "asLink": true,
+        "name": "remDataSubject.csv",
+        "variableProcess": "Main",
+        "sourceHandle": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+        "sourceName": "remDataSubject.csv"
+      }
+    ],
+    "workflowHandle": "e14ef2bd-1532-4b44-b89a-8af2d0cac33a",
+    "description": "test weight, sex, age",
+    "dependencies": "aa06ba45-93b3-4eba-9c4b-180f8b5439c0",
+    "usage": "acc36162-0d8d-4606-bdfe-75ede23d7383,02cb350e-730d-4bf2-a055-2900b43f95da",
+    "breakpoint": true
+  }
+]

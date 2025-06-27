@@ -35,9 +35,10 @@ updateHandles <- function(workflow,oldHandle,newHandle) {
 #' @param workflow a workflow handle or a workflow data.frame, changes to steps in workflow data.frame will be persisted by execution. consider creating a deep copy
 #' @param targetTree the tree the steps should be executed in, default NULL, if NULL treeIdent of the steps is kept
 #' @param createParentalRelation create the step as child step of the step in the source workflow, default FALSE
+#' @param preserveEntityId keeps the entityId for each step in any case
 #' @references ics1211
 #' @export
-deepWorkflowCopy <- function(workflow,targetTree=NULL,createParentalRelation=F) {
+deepWorkflowCopy <- function(workflow,targetTree=NULL,createParentalRelation=F,preserveEntityId=F) {
 
   if (is.character(workflow)) {
     workflow <- retrieveWorkflow(workflow)
@@ -78,9 +79,12 @@ deepWorkflowCopy <- function(workflow,targetTree=NULL,createParentalRelation=F) 
       }
 
     }
-    if (is.null(workflow$reuse) || !workflow$reuse) {
-      workflow$entityId<-NULL
+    if (!preserveEntityId) {
+      if (is.null(workflow$reuse) || !workflow$reuse) {
+        workflow$entityId<-NULL
+      }
     }
+
 
     for (i in 1:nrow(workflow)) {
       storeStep(stepHandle = workflow[i,]$handle,stepList = workflow[i,])
@@ -103,9 +107,11 @@ deepWorkflowCopy <- function(workflow,targetTree=NULL,createParentalRelation=F) 
 #' @references ics1212
 #' @export
 executeWorkflow <- function(workflow) {
-  #persist changed steps if data.frame!
+
   if (is.character(workflow)) {
     workflow <- retrieveWorkflow(workflow)
+  } else {
+    workflow <- persistWorkflowChanges(workflow)
   }
   orderedWorkflow <- executionOrder(workflow)
   executionList <- c()

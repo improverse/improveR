@@ -1,3 +1,6 @@
+
+
+
 #' sets the containing tree
 #'
 #' @param stepHandle id of the prepared step
@@ -73,10 +76,11 @@ setStepFinishCondition <- function(stepHandle,runserverName,runserverTool) {
 #'
 #' @param stepHandle id of the prepared step
 #' @param runserverName name of the runserver
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepRunserverName <- function(stepHandle,runserverName) {
-  setStepValue(stepHandle,"runserverName",runserverName)
+setStepRunserverName <- function(stepHandle,runserverName,process="Main") {
+  setProcessValue(stepHandle,process,"runserverName",runserverName)
 }
 
 #' sets the name of the step
@@ -115,31 +119,34 @@ setStepRationale <- function(stepHandle,rationale) {
 #' @param stepHandle id of the prepared step
 #' @param commandline the new command line or command line appendix
 #' @param append if the complete command line is replaced or this is appended defaults to TRUE
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepCommandLine <- function(stepHandle,commandline,append=T) {
-  setStepValue(stepHandle,"commandline",commandline)
-  setStepValue(stepHandle,"appendCommandline",append)
+setStepCommandLine <- function(stepHandle,commandline,append=T,process="Main") {
+  setProcessValue(stepHandle,process,"commandline",commandline)
+  setProcessValue(stepHandle,process,"appendCommandline",append)
 }
 
 #' sets the runserver tool by name
 #'
 #' @param stepHandle id of the prepared step
 #' @param runserverToolName name of the runserver tool
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepRunserverToolName <- function(stepHandle,runserverToolName) {
-  setStepValue(stepHandle,"runserverToolName",runserverToolName)
+setStepRunserverToolName <- function(stepHandle,runserverToolName,process="Main") {
+  setProcessValue(stepHandle,process,"runserverToolName",runserverToolName)
 }
 
 #' sets the tool by name
 #'
 #' @param stepHandle id of the prepared step
 #' @param toolName name of the  tool
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepToolName <- function(stepHandle,toolName) {
-  setStepValue(stepHandle,"toolName",toolName)
+setStepToolName <- function(stepHandle,toolName,process="Main") {
+  setProcessValue(stepHandle,process,"toolName",toolName)
 }
 
 #' adds a new remote file to the step
@@ -151,9 +158,10 @@ setStepToolName <- function(stepHandle,toolName) {
 #' @param variableName the name of the variable the file should be bound to, optional
 #' @param sourceHandle stepHandle if ident is relative to another step in the workflow
 #' @param sourceName name if ident is relative to another step in the workflow
+#' @param variableProcess if the file is bound to a variable, the process name the variable belongs to
 #'
 #' @export
-addStepRemoteFile <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variableName=NULL,sourceHandle=NULL,sourceName=NULL) {
+addStepRemoteFile <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variableName=NULL,sourceHandle=NULL,sourceName=NULL,variableProcess="Main") {
 
 
   ###TODO incorporate sourceHandles and specific versions
@@ -162,9 +170,13 @@ addStepRemoteFile <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variableN
     resource <- loadResource(ident)
     if (resource$nodeType=="File") {
       fileList["ident"]<-resource$entityId
+      fileList["filehash"]<- resource$fileHash
     } else if (resource$nodeType=="Link"){
-
       fileList["ident"]<-resource$targetEntityId
+      fileList["version"] <- resource$targetRevisionId
+      target <- loadResource(resource$targetEntityId)
+      fileList["filehash"]<- target$fileHash
+      fileList["maxVersion"]<-target$revisionId
     } else {
       logging::logwarn("Only files or resources can be added to an inventory")
       logging::logwarn(ident)
@@ -175,6 +187,7 @@ addStepRemoteFile <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variableN
   fileList["asLink"]<-asLink
   fileList["name"]<-name
   fileList["variableName"]<-variableName
+  fileList["variableProcess"]<-variableProcess
   if (!is.null(sourceHandle)) {
     fileList["sourceHandle"]<-sourceHandle
     fileList["sourceName"]<-sourceName
@@ -319,6 +332,38 @@ changeStepRemoteFile <- function(stepHandle,name,asLink=NULL,newName=NULL,newIde
   storeStep(stepHandle = stepHandle,stepList=stepData)
 }
 
+changeStepRemoteFileDf <- function(stepHandle,name,df) {
+  stepData <- retrieveStep(stepHandle)
+  remoteFiles <- stepData$remoteFiles[[1]]
+  remoteFiles <- byNotEmptyAsDf(remoteFiles,function(file) {
+    if ("name" %in% names(file)) {
+      fileName <- file$name
+      if (fileName!=name) {
+        return(file)
+      } else {
+        df
+      }
+    }
+  })
+  stepData$remoteFiles <- list(remoteFiles)
+  storeStep(stepHandle = stepHandle,stepList=stepData)
+}
+
+changeStepProcessDf <- function(stepHandle,name,df) {
+  stepData <- retrieveStep(stepHandle)
+  processes <- stepData$processes[[1]]
+  processes <- byNotEmptyAsDf(processes,function(proc) {
+    if ("name" %in% names(proc)) {
+      if (proc$name!=name) {
+        return(proc)
+      } else {
+        df
+      }
+    }
+  })
+  stepData$processes <- list(processes)
+  storeStep(stepHandle = stepHandle,stepList=stepData)
+}
 
 replaceFileFields <- function(fileDf,asLink,newName,newIdent) {
   if (!is.null(asLink)) {
@@ -338,21 +383,23 @@ replaceFileFields <- function(fileDf,asLink,newName,newIdent) {
 #' @param stepHandle id of the prepared step
 #' @param argumentName the ident of the file in the repository
 #' @param argumentValue leave empty if you want to use the same name as the used file
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-addStepGridArgument <- function(stepHandle,argumentName,argumentValue) {
+addStepGridArgument <- function(stepHandle,argumentName,argumentValue,process="Main") {
   gridList <- data.frame(argumentName=argumentName,
                          argumentValue=argumentValue)
-  addStepValue(stepHandle,"gridArguments",gridList)
+  addProcessValue(stepHandle,"gridArguments",gridList,process)
 }
 
 #' removes all grid arguments from the step
 #'
 #' @param stepHandle id of the prepared step
+#' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-removeStepGridArguments <- function(stepHandle) {
-  removeStepValue(stepHandle,"gridArguments")
+removeStepGridArguments <- function(stepHandle,process="Main") {
+  removeProcessValue(stepHandle,"gridArguments",process)
   return(stepHandle)
 }
 
@@ -373,12 +420,127 @@ addStepLineage <- function(stepHandle,lineageHandle) {
 #' @param path local path to the file
 #' @param name leave empty if you want to use the same name as the used file
 #' @param variableName the name of the variable the file should be bound to, optional
+#' @param variableProcess the name of the process for the variable the file should be bound to, optional
 #'
 #' @export
-addStepLocalFile <- function(stepHandle,path,name=NULL,variableName=NULL) {
+addStepLocalFile <- function(stepHandle,path,name=NULL,variableName=NULL,variableProcess="Main") {
   fileList <- data.frame(stepHandle=stepHandle)
   fileList["name"]<-name
   fileList["variableName"]<-variableName
+  fileList["variableProcess"]<-variableProcess
   fileList["path"]<-path
   addStepValue(stepHandle,"localFiles",fileList)
 }
+
+
+
+#' retrieveMainProcess
+#' retrieves the main process data frame of a step by handle
+#'
+#' @param stepHandle id of the prepared step
+#'
+#' @export
+
+retrieveMainProcess <- function(stepHandle) {
+  stepData <- retrieveStep(stepHandle)
+  processes <- stepData$processes[[1]]
+  if (nrow(processes)>0 && ("main" %in% processes$processType)) {
+    return(processes[processes$processType=="main",])
+  }
+  return(NULL)
+}
+
+#' getHandleForResource
+#' returns the stepHandle for a specific step resource.
+#' Only works if a prepared step has been executed or a workflow was pulled from the repository and not detached via detachWorkflowFromResources
+#'
+#' @param workflowHandle the workflow to seach for the step
+#' @param ident ident of the resource
+#' @param from, path for relative pathes, default pwd()
+#'
+#' @export
+getHandleForResource <- function(workflowHandle,ident,from=pwd()) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  resource <- loadResource(ident,from)
+  if (nrow(resource)==1) {
+    workflow <- workflow[workflow$entityId==resource$entityId,]
+    if (nrow(workflow)==1) {
+      return(workflow$handle)
+    }
+  }
+  return(NULL)
+}
+#' detachWorkflowFromResources
+#' deletes all entity ids from a workflow, switches from in place execution to creation of new steps
+#'
+#' @param workflowHandle handle of the workflow
+#'
+#' @export
+detachWorkflowFromResources <- function(workflowHandle) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$entityId <- NULL
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+#' detachWorkflowFromTrees
+#' removes coupling to a specific tree for an entire workflow.
+#' if no treeIdent is provided treeName and treePath have to be provided.
+#'
+#' @param workflowHandle handle of the workflow
+#'
+#' @export
+detachWorkflowFromTrees <- function(workflowHandle) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$treeIdent <- NULL
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+#' setWorkflowTreeRootFolder
+#' sets the path to a root folder for the tree that the steps are created in. Only used if no treeIdent is set.
+#' Use detachWorkflowFromTrees to remove treeIdent
+#'
+#' @param workflowHandle handle of the workflow
+#' @param rootFolder path to the rootFolder
+#'
+#' @export
+setWorkflowTreeRootFolder <- function(workflowHandle,rootFolder) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$treePath <- rootFolder
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+#' setWorkflowTreeName
+#' sets the name for the tree that the steps are created in. Only used if no treeIdent is set.
+#' Use detachWorkflowFromTrees to remove treeIdent
+#'
+#' @param workflowHandle handle of the workflow
+#' @param treeName name of the tree
+#'
+#' @export
+setWorkflowTreeName <- function(workflowHandle,treeName) {
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$treeName <- treeName
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+#' setWorkflowTreeIdent
+#' sets the ident for the existing tree that the steps are created in.
+#' Use detachWorkflowFromTrees to remove treeIdent again.
+#'
+#' @param workflowHandle handle of the workflow
+#' @param treeIdent ident of the tree
+#'
+#' @export
+setWorkflowTreeIdent <- function(workflowHandle,treeIdent) {
+  tree <- loadResource(treeIdent)
+  workflow <- retrieveWorkflow(workflowHandle)
+  workflow$treeIdent <- tree$resourceId
+  workflow<- persistWorkflowChanges(workflow)
+  return(workflowHandle)
+}
+
+

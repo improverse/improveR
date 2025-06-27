@@ -1,6 +1,6 @@
 #' returns a data frame of all users
 #'
-#' @ics1142
+#' @references ics1142
 #' @export
 users <- function() {
   improveConnected()

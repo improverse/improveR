@@ -61,7 +61,6 @@ clearConnectionData <- function(includeRepoData=F) {
   Sys.setenv(IMPROVER_PASSWORD="")
   Sys.setenv(IMPROVER_TOKEN="")
   Sys.setenv(IMPROVER_REFRESH_TOKEN="")
-  Sys.setenv(TEST_FOLDER = "")
   improveDisconnect()
 }
 
@@ -174,7 +173,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
       improveLogin(repo = repoUrl, user = user, password = password, logLevel = logLevel, secure = secure, shortEntityId = stepId)
       return()
     } else if (reqToken=="") {
-      improveOAuth(repoUrl)
+      improveOAuth(repoUrl,shortEntityId = stepId)
       return()
     }
     workspace <- Sys.getenv("IMPROVER_WORKSPACE")

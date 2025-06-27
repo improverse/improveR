@@ -16,7 +16,12 @@ setProcessVariables(
   toolIgnorePatterns = "",
   mainProcess = T,
   gridTool,
-  toolArguments = NULL
+  toolArguments = NULL,
+  position = 1,
+  parentProcessId = NULL,
+  toolBrowserUrl = NULL,
+  toolDeletePatterns = NULL,
+  toolStreamablePatterns = ""
 )
 }
 \arguments{
@@ -43,6 +48,16 @@ setProcessVariables(
 \item{gridTool}{gridTool}
 
 \item{toolArguments}{toolArguments}
+
+\item{position}{the position in the process list}
+
+\item{parentProcessId}{only to use when processType equals sub}
+
+\item{toolBrowserUrl}{a URL improve uses to automatically open while the step is running}
+
+\item{toolDeletePatterns}{files that wont get checked in}
+
+\item{toolStreamablePatterns}{file that can be streamed to monitor the step}
 }
 \description{
 setProcessVariables
