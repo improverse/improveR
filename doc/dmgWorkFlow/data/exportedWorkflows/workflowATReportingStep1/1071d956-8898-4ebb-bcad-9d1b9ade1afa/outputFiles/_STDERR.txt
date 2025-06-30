@@ -1,8 +1,0 @@
-useradd: warning: the home directory /home/rstudio already exists.
-useradd: Not copying any file from skel directory into it.
-No password supplied
-No password supplied
-No password supplied
-chpasswd: (user rstudio) pam_chauthtok() failed, error:
-Authentication token manipulation error
-chpasswd: (line 1, user rstudio) password not changed
