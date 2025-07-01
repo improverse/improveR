@@ -144,6 +144,14 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     cacheEnv$reproducible <- T
   }
 
+  if (autoRefreshRunning()) {
+    readRefreshed()
+
+  }
+
+
+
+
   noCommandArgs <- length(commandArgs(trailingOnly = TRUE))
   if (noCommandArgs >= 4) {
     reqToken <- commandArgs(trailingOnly = TRUE)[[1]]
@@ -227,6 +235,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
       }
     )
   }
+
   if (is.na(conf()$reqToken) || is.null(conf()$reqToken) || conf()$reqToken == "") {
     if (Sys.getenv("IMPROVER_USER") == "") {
       logging::logwarn("Using Basic Authentication, use this just for development, the password is stored in plain text in conf.json")

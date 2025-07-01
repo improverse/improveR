@@ -38,7 +38,8 @@ Imports:
     readxl,
     uuid,
     properties,
-    zip
+    zip,
+    callr
 Suggests: 
     httptest,
     testthat (>= 3.0.0),

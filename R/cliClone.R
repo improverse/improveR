@@ -4,6 +4,7 @@
 #'
 #' @param ident The identifier of the resource to clone.
 #' @param localPath The local path where the resource will be cloned.
+#' @export
 cloneCli <- function(ident, localPath) {
   checkInit()
   resource <- loadResource(ident)

@@ -38,6 +38,8 @@ httptest::with_mock_dir("testCaching",{
     improveConnect(persistentCaching = T)
     folder <- loadResource(TEST_FOLDER)
 
+  cacheEnv<-improveR:::cacheEnv
+
     resourceIdCache <-cacheEnv$resourceIdCache
     resourceEntityIdCache <- cacheEnv$resourceEntityIdCache
     resourceEntityVersionIdCache <- cacheEnv$resourceEntityVersionIdCache
@@ -72,7 +74,8 @@ httptest::with_mock_dir("testCaching",{
 
     resetCache()
 
-
+    resetCache()
+    cacheEnv<-improveR:::cacheEnv
     folder <- loadResource(TEST_FOLDER)
     newFolder <- createFolder(folder,"versionFolder")
 
@@ -81,7 +84,6 @@ httptest::with_mock_dir("testCaching",{
     secondEntityVersionId <- movedFolder$entityVersionId
     entityId <- newFolder$entityId
 
-    resetCache()
 
     oldVersion <- loadResource(firstEntityVersionId)
 
@@ -160,11 +162,7 @@ httptest::with_mock_dir("normalisePath",{
   })
 })
 
-httptest::with_mock_dir("improveConnect",{
-  test_that("improve Connect", {
-    TEST_FOLDER <- baseFilesSetup()
-  })
-})
+
 
 httptest::with_mock_dir("loadAuditTrail",{
   test_that("load audit trail|ics1097", {

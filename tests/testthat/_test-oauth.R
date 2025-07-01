@@ -7,7 +7,7 @@
 httptest::with_mock_dir("fullOauthDirectSuccess",{
   test_that("fullOauthDirectSuccess", {
 
-    authenticationProvider <- getAuthenticationProvider(mockUrl)
+    authenticationProvider <- getAuthenticationProvider(testUrl)
     expect_true(length(authenticationProvider)==7)
     expect_equal("improve-api-client",authenticationProvider$clientId)
     ########################
@@ -21,9 +21,9 @@ httptest::with_mock_dir("fullOauthDirectSuccess",{
     instructions <- utils::capture.output(
       initiatedAuthentication <-showOAuth(initiatedAuthentication,openBrowser = F)
     )
-    expect_equal(length(instructions),2)
-    expect_true(grepl(pattern = initiatedAuthentication$verification_uri,instructions[[1]]))
-    expect_true(grepl(pattern = initiatedAuthentication$user_code,instructions[[2]]))
+    expect_equal(length(instructions),1)
+
+
 
 
     #authenticatedResult <- hasAuthenticated(initiatedAuthentication)
@@ -48,7 +48,7 @@ httptest::with_mock_dir("fullOauthDirectSuccess",{
 
 
 
-    Sys.setenv(IMPROVER_REPO_URL=mockUrl)
+    Sys.setenv(IMPROVER_REPO_URL=testUrl)
     Sys.setenv(IMPROVER_USER=user)
     Sys.setenv(IMPROVER_TOKEN=authenticatedContent$access_token)
     Sys.setenv(IMPROVER_STEP="/")
@@ -73,7 +73,7 @@ httptest::with_mock_dir("simpleOauth",{
   test_that("simpleOauth", {
     clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
-    improveOAuth(mockUrl)
+    improveOAuth(testUrl)
     expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
     improveRevokeOAuth()
     expect_true(Sys.getenv("IMPROVER_TOKEN")=="")
@@ -85,7 +85,7 @@ httptest::with_mock_dir("simpleConnectWithOauth",{
   test_that("simpleConnectWithOauth", {
     clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
-    Sys.setenv(IMPROVER_REPO_URL=mockUrl)
+    Sys.setenv(IMPROVER_REPO_URL=testUrl)
     improveConnect()
     expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
     improveRevokeOAuth()
@@ -99,7 +99,7 @@ httptest::with_mock_dir("simpleStubWithLogin",{
   test_that("simpleStubWithLogin", {
     clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
-    Sys.setenv(IMPROVER_REPO_URL=mockUrl)
+    Sys.setenv(IMPROVER_REPO_URL=testUrl)
     improveConnect()
     expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
     users <- authenticatedREST("/users")

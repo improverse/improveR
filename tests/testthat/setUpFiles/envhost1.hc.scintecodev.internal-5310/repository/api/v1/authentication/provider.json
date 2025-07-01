@@ -1,9 +1,0 @@
-{
-    "clientId": "improve-rcp-client",
-    "authorizationUri": "https://5371.envhost1.hc.scinteco.com:1443/realms/improve/protocol/openid-connect/auth",
-    "tokenUri": "https://5371.envhost1.hc.scinteco.com:1443/realms/improve/protocol/openid-connect/token",
-    "jwksUri": "https://5371.envhost1.hc.scinteco.com:1443/realms/improve/protocol/openid-connect/certs",
-    "revocationUri": "https://5371.envhost1.hc.scinteco.com:1443/realms/improve/protocol/openid-connect/revoke",
-    "logoutUri": "https://5371.envhost1.hc.scinteco.com:1443/realms/improve/protocol/openid-connect/logout",
-    "deviceAuthUri": "https://5371.envhost1.hc.scinteco.com:1443/realms/improve/protocol/openid-connect/auth/device"
-}

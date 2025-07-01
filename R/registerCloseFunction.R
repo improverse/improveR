@@ -5,6 +5,10 @@ improveCloseToken = new.env(parent=emptyenv())
 
 .onLoad <- function(libname, pkgname) {
   reg.finalizer(improveCloseToken, function(a) {
+    if (!is.null(autoRefreshProcess$autoRefreshProcess)) {
+      cleanRefreshFiles()
+    }
+
     functions <- sort(ls(envir=improveCloseToken))
     if (length(functions)>0) {
       for (i in 1:length(functions)) {
@@ -19,8 +23,8 @@ improveCloseToken = new.env(parent=emptyenv())
 
 #NOTE alphabetical order of number is not always as expected. 1, 10, 2. Details needs rewording.
 #' registerCloseFunction
-#' @details registerCloseFunction registers a function that is called when the R session is ended. 
-#' In a batch job the R session is ended when the run is over. In RStudio the session is ended, 
+#' @details registerCloseFunction registers a function that is called when the R session is ended.
+#' In a batch job the R session is ended when the run is over. In RStudio the session is ended,
 #' when the user either closes RStudio with the close button or selects terminate or restart session.
 #' the close functions are executed in alphabetical order, so numbering as prefix can guarantee an order.
 #' @param name Name of the function. This name is used for the alphabetical ordering and unregistering.

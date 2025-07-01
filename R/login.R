@@ -140,6 +140,11 @@ refreshToken <- function(alwaysRefresh=F) {
       lastAccess <- as.numeric(Sys.getenv("IMPROVER_LAST_ACCESS"))
       timeDiff <- as.numeric(Sys.time())-lastAccess
       if (timeDiff > (expirationSeconds/2) || alwaysRefresh) {
+
+        if (autoRefreshRunning()) {
+          readRefreshed()
+        } else {
+
         log_info("refreshing token")
         Sys.setenv(IMPROVER_LAST_ACCESS=as.numeric(Sys.time()))
         # TODO more elegant solution
@@ -151,7 +156,7 @@ refreshToken <- function(alwaysRefresh=F) {
           }
         )
 
-
+      }
       }
     }
   }

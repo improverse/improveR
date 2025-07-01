@@ -1,8 +1,0 @@
-{
-    "device_code": "3Mrh0b2NiowjGMwuG75vZuVRqffiFZ94CQKGL6C3Qn8",
-    "user_code": "OOVP-MVTG",
-    "verification_uri": "https://4271.envhost1.hc.scinteco.com:1443/realms/improve/device",
-    "verification_uri_complete": "https://4271.envhost1.hc.scinteco.com:1443/realms/improve/device?user_code=OOVP-MVTG",
-    "expires_in": 600,
-    "interval": 5
-}
