@@ -615,6 +615,8 @@ createPreparedStep <- function(stepEnv) {
   prepStep <- this$stepDf
   mainPrep <- this$retrieveMainProcess()
 
+
+
   toolInstances <- improveR:::getToolInstances()
   #TODO missing category
   fullToolName <- paste(mainPrep$toolName,mainPrep$runserverToolName,mainPrep$runserverName)
@@ -626,6 +628,10 @@ createPreparedStep <- function(stepEnv) {
   }
 
   mainTool <- toolInstances[[toolNames]]
+
+  mainPrep$runServerId <- mainTool$runserverId
+  mainPrep$runserverToolId <- mainTool$id
+  mainPrep$
 
   treeIdent <- prepStep$treeIdent
   if (is.null(treeIdent) || is.na(treeIdent)) {
