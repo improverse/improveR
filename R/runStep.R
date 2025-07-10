@@ -1,4 +1,4 @@
-#' getStep
+#' realiseStep
 #'
 #' @param handle check if a step with the same configuration already exists in the tree
 #' @param force, force creates a new step even if an equivalent step already exists

@@ -69,12 +69,12 @@ nonmemBatchStep <- function(testTree) {
   nonmem_tool <- Sys.getenv("NONMEM_TOOL")
   nonmem_tool_instance <- Sys.getenv("NONMEM_TOOL_INSTANCE")
 
-  handle <- prepareStep(testTree) %>%
+  stepEnv <- createStepEnv(treeIdent=testTree) %>%
     setStepRunserverName(nonmem_runserver) %>%
     setStepToolName(nonmem_tool) %>%
     setStepCommandLine("<command-file>\r\noutput<process>.txt", append = F) %>%
     setStepRunserverToolName(nonmem_tool_instance)
-  return(handle)
+  return(stepEnv)
 }
 
 rBatchStep <- function(testTree) {
@@ -82,11 +82,11 @@ rBatchStep <- function(testTree) {
   r_tool <- Sys.getenv("R_TOOL")
   r_tool_instance <- Sys.getenv("R_TOOL_INSTANCE")
 
-  handle <- prepareStep(testTree) %>%
-    setStepRunserverName(r_runserver) %>%
-    setStepToolName(r_tool) %>%
-    setStepRunserverToolName(r_tool_instance)
-  return(handle)
+  stepEnv <- createStepTemplateEnv(treeIdent=testTree)
+  stepEnv$setStepRunserverName(r_runserver)
+  stepEnv$setStepToolName(r_tool)
+  stepEnv$setStepRunserverToolName(r_tool_instance)
+  return(stepEnv)
 }
 
 httptest::with_mock_dir("loadChildSteps", {
@@ -95,13 +95,13 @@ httptest::with_mock_dir("loadChildSteps", {
     testTree <- createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "ChildSteps")
 
     # Create root step
-    handle <- rBatchStep(testTree) %>%
-      setStepDescription("Data Manipulation") %>%
-      setStepRationale("to manipulate data") %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv")) %>%
-      realiseStep()
+    stepEnv <- rBatchStep(testTree)
+    stepEnv$setStepDescription("Data Manipulation")
+    stepEnv$setStepRationale("to manipulate data")
+    stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
+    stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
+    stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+    stepEnv$realiseStep()
 
     rootStep <- getStepResource(handle)
 

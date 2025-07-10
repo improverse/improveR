@@ -1,0 +1,16 @@
+IMPROVER_STEP="envhost1.hc.scintecodev.internal-5310:FO-19756"
+IMPROVER_REPO_URL="http://envhost1.hc.scintecodev.internal:5310/repository"
+TEST_FOLDER = "/Projects/Tests"
+GOOGLE_GEMINI_API_KEY="AIzaSyC4kTHw48LUNQAhzWLOgwUv0ZfORlVrUKQ"
+OPENAI_API_KEY="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"
+NONMEM_RUNSERVER="runserver"
+NONMEM_TOOL_INSTANCE="nonmem_7.4"
+NONMEM_TOOL="nonmem_7.5"
+
+internalFolder="C:/dev/improveWorkFolder"
+
+R_RUNSERVER="runserver"
+R_TOOL_INSTANCE="rbatch"
+R_TOOL="R_4.2"
+TEST_SERVER="5310"
+IMPROVER_HIGGS = "/Projects/improVerticles/mainJson"
