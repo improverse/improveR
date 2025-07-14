@@ -563,63 +563,17 @@ retrieveMainProcess <- function() {
 
 
 
-#' realise
-#'
-#' @param handle check if a step with the same configuration already exists in the tree
-#' @param force, force creates a new step even if an equivalent step already exists
-#' @param run, automatically run the step after creation (T is overridden by the setStepBreakpoint)
-#' @references ics1140
-#' @export
-realise <-function(stepEnv,force=T,run=T) {
-  improveEditable()
-  breakPoint <- stepEnv$getStepValue("breakpoint")
-  reuse <- stepEnv$getStepValue("reuse")
-  if (!is.null(breakPoint) && breakPoint==T) {
-    run <-F
-  }
-  if (!is.null(reuse) && reuse==T) {
-    force <-F
-  }
-  newStep <- NULL
-  #if (!force) {
-  #  logging::logdebug("check step equality")
-    #TODO still needed?
-    #newStep <- existsInTargetTree(handle)
-    #if (!is.null(newStep)) {
-    #  setStepValue(handle,"entityId",as.character(newStep$entityId))
-    #  return(handle)
-    #}
-  #}
-  newStep <- createPreparedStep(handle)
-  setStepValue(handle,"entityId",as.character(newStep$entityId))
-  tree <- loadResource(newStep$parentId)
-  setStepValue(handle,"treeIdent",tree$resourceId)
-  setStepValue(handle,"treeName",tree$name)
-  setStepValue(handle,"treePath",dirname(tree$path))
-  if (getStepState(handle)=="INITIAL" && run) {
-    runStep(handle)
-  }
-  return(handle)
-}
-
-
-#' creates the prepared step in the repository
-#'
-#' @param stepHandle id of the prepared step
-#' @references ics1140
-#' @export
-createPreparedStep <- function(stepEnv) {
-  improveEditable()
-  logging::logdebug("createPreparedStep")
-  timing("createPreparedStep")
-  prepStep <- this$stepDf
-  mainPrep <- this$retrieveMainProcess()
 
 
 
+prepareProcess <- function(processName) {
+  process <- dplyr::filter(this$stepDf$processes[[1]],name==processName)
   toolInstances <- improveR:::getToolInstances()
   #TODO missing category
-  fullToolName <- paste(mainPrep$toolName,mainPrep$runserverToolName,mainPrep$runserverName)
+  if (is.null(process$toolLabel)) { process$toolLabel<-process$toolName }
+  if (is.null(process$toolInstance)) { process$toolInstance<-process$runserverToolName }
+  if (is.null(process$runserverLabel)) { process$runserverLabel<-process$runserverName }
+  fullToolName <- paste(process$toolLabel,process$toolInstance,process$runserverLabel)
   toolNames <- ls(envir=toolInstances)
   toolNames <- toolNames[grepl(pattern = fullToolName,x = toolNames)]
   if (length(toolNames)!=1) {
@@ -627,17 +581,84 @@ createPreparedStep <- function(stepEnv) {
     stop("tool error")
   }
 
-  mainTool <- toolInstances[[toolNames]]
+  usedTool <- toolInstances[[toolNames]]
 
-  mainPrep$runServerId <- mainTool$runserverId
-  mainPrep$runserverToolId <- mainTool$id
-  mainPrep$
+  process$runserverId <- usedTool$runserverId
+  process$runserverToolId <- usedTool$id
 
-  treeIdent <- prepStep$treeIdent
+
+  if (is.null(process$toolArgs)) { process$toolArgs<-"" }
+  process <- dplyr::select(process,name,main,runserverId,runserverToolId,toolArgs)
+  #filter out not needed values
+
+  remoteFiles <- this$stepDf$remoteFiles[[1]]
+  processFiles <- dplyr::filter(remoteFiles,variableProcess==processName & !is.na(variableName))
+  if (nrow(processFiles)>0) {
+    variables <- NULL
+    resources <- NULL
+    for (i in 1:nrow(processFiles)) {
+      processFile <- processFiles[i,]
+      variable <- data.frame(type="processVariable" ,
+                             name=processFile$variableName,
+                             position=i,
+                             variableType="fileRef",
+                               stringsAsFactors = F)
+      variables <- plyr::rbind.fill(variables,variable)
+      processResource <- improveR::loadResource(processFile$ident)
+      resource <- data.frame(sourceResourceId=processResource$resourceId,
+                             variableName=processFile$variableName,
+                             stringsAsFactors = F)
+      if ("name" %in% names(processFile) && !is.null(processFile$name) && !is.na(processFile$name)) {
+        resource$targetName<-processFile$name
+      }
+      if (!processFile$asLink) {
+        resource$operation="COPY"
+      }
+      resources <- plyr::rbind.fill(resources,resource)
+    }
+    process$resources<-list(resources)
+    process$variables <- list(variables)
+  }
+  if (processName=="Main") {
+    processFiles <- dplyr::filter(remoteFiles,is.null(variableName) | is.na(variableName) )
+    if (nrow(processFiles)>0) {
+      resources <- process$resources[[1]]
+      for (i in 1:nrow(processFiles)) {
+        processFile <- processFiles[i,]
+        processResource <- improveR::loadResource(processFile$ident)
+        resource <- data.frame(sourceResourceId=processResource$resourceId,
+                               stringsAsFactors = F)
+        if ("name" %in% names(processFile) && !is.null(processFile$name) && !is.na(processFile$name)) {
+          resource$targetName<-processFile$name
+        }
+        if (!processFile$asLink) {
+          resource$operation="COPY"
+        }
+        resources <- plyr::rbind.fill(resources,resource)
+      }
+      print(nrow(resources))
+      process$resources<-list(resources)
+    }
+  }
+  return(process)
+}
+
+#' creates the prepared step in the repository
+#'
+#' @param stepHandle id of the prepared step
+#' @references ics1140
+#' @export
+create <- function() {
+  improveEditable()
+  logging::logdebug("createPreparedStep")
+  timing("createPreparedStep")
+
+  prepStep <- this$stepDf
+  treeIdent <- this$stepDf$treeIdent
   if (is.null(treeIdent) || is.na(treeIdent)) {
     tryCatch( {
-      targetResource <- loadResource(prepStep$treePath)
-      treeIdent <- createAnalysisTree(targetResource,treeName = prepStep$treeName)$resourceId
+      targetResource <- loadResource(this$stepDf$treePath)
+      treeIdent <- createAnalysisTree(targetResource,treeName = this$stepDf$treeName)$resourceId
     },error=function(e) {
       log_error(e)
       log_error("treeIdent or treePath and treeName need to be specified in order to create the step")
@@ -645,179 +666,127 @@ createPreparedStep <- function(stepEnv) {
     })
   }
 
-  runserver <- loadRunserver(mainPrep$runserverName)
-  tools  <- loadToolsForRunserver(runserver$id)
-  tool <- loadToolForRunserver(runserver$id,mainPrep$toolName,mainPrep$runserverToolName)
-  newStep <- NULL
-  if (!is.null(prepStep$entityId)) {
-    newStep <- loadResource(prepStep$entityId)
-  } else {
-    if (is.null(prepStep$parentIdent)) {
-      newStep <- createStep(treeIdent,NULL,toolId=tool$toolId)
-    } else {
-      parent <- loadResource(prepStep$parentIdent)
-      if (prepStep$inheritFromParent) {
-        newStep <- createStep(treeIdent,prepStep$parentIdent,toolId=parent$toolId)
-      } else {
-        toolId <- as.character(tools[tools$toolId!=parent$toolId,]$toolId[1])
-        newStep <- createStep(treeIdent,prepStep$parentIdent,toolId=toolId)
-      }
-    }
-  }
-  logging::logdebug("created")
+  if (is.null(prepStep$description)) {prepStep$description=""}
+  if (is.null(prepStep$rationale)) {prepStep$rationale=""}
+  if (is.null(prepStep$comment)) {prepStep$comment=""}
+  if (is.null(prepStep$keyStep)) {prepStep$keyStep=FALSE}
+  if (is.null(prepStep$baseModel)) {prepStep$baseModel=FALSE}
+  if (is.null(prepStep$fullModel)) {prepStep$fullModel=FALSE}
+  if (is.null(prepStep$finalModel)) {prepStep$finalModel=FALSE}
+  if (is.null(prepStep$referenceModel)) {prepStep$referenceModel=FALSE}
 
-  timing("created")
+  prepStep <- dplyr::select(prepStep,
+                            rationale,
+                            description,
+                            comment,
+                            keyStep,
+                            baseModel,
+                            fullModel,
+                            finalModel,
+                            referenceModel
+                            )
 
+  prepList <- as.list(prepStep)
+  processNames <- this$stepDf$processes[[1]]$name
 
-  processes <- prepStep$processes[[1]]
-
-  if (nrow(processes)>0) {
-    processes <- processes[order(processes$position),]
-    for (i in 1:nrow(processes)) {
-      process <- processes[i,]
-
-      runserver <- loadRunserver(process$runserverName)
-      tools  <- loadToolsForRunserver(runserver$id)
-      tool <- loadToolForRunserver(runserver$id,process$toolName,process$runserverToolName)
-
-      toolArguments <- NULL
-      if (!is.null(process$commandline)) {
-        toolArguments <- ""
-        if (process$appendCommandline) {
-          toolArguments <- paste0(repoProcess$toolArgs,"\r\n")
-        }
-        toolArguments <- paste0(toolArguments,process$commandline)
-      }
-
-      repoProcess <- NULL
-      if (process$processType=="main") {
-        repoProcess <- getMainProcess(newStep$resourceId)
-        setProcessVariables(newStep$resourceId,
-                            repoProcess$id,
-                            runserverId=runserver$id,
-                            toolId=tool$toolId,
-                            runserverToolId=tool$id,
-                            gridTool=!is.na(tool$gridProvider),
-                            toolArguments=toolArguments,
-                            position = process$position,
-                            processType = process$processType,
-                            name=process$name,
-                            mainProcess=process$main,
-                            toolDeletePatterns = process$toolDeletePatterns,
-                            toolStreamablePatterns = process$toolStreamablePatterns,
-                            toolIgnorePatterns = process$toolIgnorePatterns,
-                            toolBrowserUrl = process$toolBrowserUrl,
-                            selected = process$selected,
-                            parentProcessId = process$parentProcessId
-        )
-      } else {
-        repoProcess <- createProcess(
-          newStep$resourceId,
-          runserverId=runserver$id,
-          toolId=tool$toolId,
-          runserverToolId=tool$id,
-          gridTool=!is.na(tool$gridProvider),
-          toolArguments=toolArguments,
-          position = process$position,
-          processType = process$processType,
-          name=process$name,
-          mainProcess=process$main,
-          toolDeletePatterns = process$toolDeletePatterns,
-          toolStreamablePatterns = process$toolStreamablePatterns,
-          toolIgnorePatterns = process$toolIgnorePatterns,
-          toolBrowserUrl = process$toolBrowserUrl,
-          selected = process$selected,
-          parentProcessId = process$parentProcessId
-        )
-      }
-      gridArguments <- process$gridArguments[[1]]
-      byNotEmpty(gridArguments,function(gridArgument) {
-        setGridArgument(repoProcess$id,gridArgument$argumentName,gridArgument$argumentValue,update=T)
-      })
-
-      logging::logdebug("grid arguments set")
-
-      timing("grid arguments set")
-
-    }
-  }
-  logging::logdebug("process variables set")
-  timing("process variables set")
-  repoProcesses <- updateProcessesForStep(newStep$resourceId)
-
-  if (!is.null(prepStep$stepName)) {
-    stepName <- prepStep$stepName
-    testResource <- loadResource(paste0("./",stepName),from = newStep$parentId)
-    if (!is.null(testResource)) {
-      nameNotCleared <- T
-      counter <- 1
-      while (nameNotCleared) {
-        stepName <- paste(prepStep$stepName,counter)
-        counter <- counter+1
-        testResource <- loadResource(paste0("./",stepName),newStep$parentId)
-        nameNotCleared <- !is.null(testResource)
-      }
-    }
-    setStepValue(stepHandle,"stepName",stepName)
-    move(newStep,newStep$parentId,targetName = stepName)
+  if (length(processNames)==0) {
+    stop("cannot create a step without process")
   }
 
-  if (!is.null(prepStep$description)) {
-    changeStepDescription(newStep,description = prepStep$description)
+  processes <- NULL
+  for (i in 1:length(processNames)) {
+    processDf <- prepareProcess(processNames[i])
+    processes<-plyr::rbind.fill(processes,processDf)
   }
+  prepList$processes <- processes
+  print(jsonlite::toJSON(prepList,auto_unbox = T,pretty=T))
 
-  if (!is.null(prepStep$rationale)) {
-    changeStepRationale(newStep,rationale = prepStep$rationale)
+  createResult <- improveR::authenticatedREST("/resources/{treeIdent}/steps",
+                              urlParams = list(treeIdent=treeIdent),
+                              data = prepList,
+                              restType = "POST")
+  if (createResult$status_code==201) {
+    createContent <- httr::content(createResult)
+    newStep <- improveR::loadResource(createContent$resourceId)
+    return(newStep)
   }
+  return(NULL)
 
-  logging::logdebug("step names and descriptions set")
-  timing("step names and descriptions set")
-
-
-  #a bit hacky
-  #unloadResource(newStep)
-  #unloadChildResources(newStep)
-  #unloadFullChildResources(newStep)
-  #unloadChildResources(newStep$parentId)
-  #unloadFullChildResources(newStep$parentId)
-  newStep <- updateResource(newStep)
-
-  timing("all unloads")
-
-  remoteFiles <- prepStep$remoteFiles[[1]]
-  byNotEmpty(remoteFiles,function(filePrep) {
-    addFileToStep(newStep,filePrep,F)
-  })
-
-  logging::logdebug("remote files set")
-  timing("remote files set")
-
-  localFiles <- prepStep$localFiles[[1]]
-  byNotEmpty(localFiles,function(filePrep) {
-    addFileToStep(newStep,filePrep,T)
-  })
-
-  extLinks <- prepStep$extLinks[[1]]
-  byNotEmpty(extLinks,function(filePrep) {
-    addExtLinkToStep(newStep,filePrep)
-  })
-
-  logging::logdebug("local files set")
-  timing("local files set")
-
-
-  #unloadResource(newStep)
-  #unloadChildResources(newStep)
-  #unloadFullChildResources(newStep)
-  #unloadChildResources(newStep$parentId)
-  #unloadFullChildResources(newStep$parentId)
-  newStep <- updateResource(newStep)
-
-  logging::logdebug("reloaded")
-  timing("reloaded")
-  return(newStep)
 }
 
 
+#' realise
+#'
+#' @param handle check if a step with the same configuration already exists in the tree
+#' @param force, force creates a new step even if an equivalent step already exists
+#' @param run, automatically run the step after creation (T is overridden by the setStepBreakpoint)
+#' @references ics1140
+#' @export
+realise <-function(force=T,run=T) {
+  improveEditable()
+  breakPoint <- this$getStepValue("breakpoint")
+  reuse <- this$getStepValue("reuse")
+  if (!is.null(breakPoint) && breakPoint==T) {
+    run <-F
+  }
+  if (!is.null(reuse) && reuse==T) {
+    force <-F
+  }
+  newStep <- NULL
+  if (!force) {
+    logging::logdebug("check step equality")
+   # newStep <- existsInTargetTree(handle)
+  #  if (!is.null(newStep)) {
+  #    setStepValue(handle,"entityId",as.character(newStep$entityId))
+  #    return(handle)
+   # }
+  }
+  newStep <- this$create()
+  this$setStepValue("entityId",as.character(newStep$entityId))
+  tree <- improveR::loadResource(newStep$parentId)
+  this$setStepValue("treeIdent",tree$resourceId)
+  this$setStepValue("treeName",tree$name)
+  this$setStepValue("treePath",dirname(tree$path))
+  if (this$getStepState()=="INITIAL" && run) {
+    this$run()
+  }
+  return(this)
+}
 
 
+#' run
+#'
+#' @param handle check if a step with the same configuration already exists in the tree
+#' @references ics1140
+#' @export
+run <- function() {
+  improveEditable()
+  newStep <- this$getStepResource()
+  result <- improveR::authenticatedREST("resources/{stepId}/run",
+                              urlParams = list(stepId=newStep$resourceId),
+                              restType = "POST")
+  return(this)
+}
+
+
+#' getStepState
+#'
+
+#' @references ics1221
+#' @export
+getStepState <- function() {
+  entityId <- this$getStepValue("entityId")
+  step<-improveR:::internalLoadResourceFromServer(entityId)
+  return(step$runStatus)
+}
+
+#' getStepResource
+#'
+#' @references ics1221
+#' @export
+getStepResource <- function() {
+  entityId <- this$getStepValue("entityId")
+  if (!is.null(entityId)) {
+    return(improveR::loadResource(entityId))
+  }
+}

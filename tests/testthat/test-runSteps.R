@@ -101,7 +101,7 @@ httptest::with_mock_dir("loadChildSteps", {
     stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
     stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
     stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
-    stepEnv$realiseStep()
+    stepEnv$realise()
 
     rootStep <- getStepResource(handle)
 

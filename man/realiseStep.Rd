@@ -2,7 +2,7 @@
 % Please edit documentation in R/runStep.R
 \name{realiseStep}
 \alias{realiseStep}
-\title{getStep}
+\title{realiseStep}
 \usage{
 realiseStep(handle, force = T, run = T)
 }
@@ -14,7 +14,7 @@ realiseStep(handle, force = T, run = T)
 \item{run, }{automatically run the step after creation (T is overridden by the setStepBreakpoint)}
 }
 \description{
-getStep
+realiseStep
 }
 \references{
 ics1140

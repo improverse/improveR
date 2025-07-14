@@ -1,4 +1,4 @@
-devtools::load_all()
-improveR::clearConnectionData()
-improveR::improveConnect()
+#devtools::load_all()
+#improveR::clearConnectionData()
+#improveR::improveConnect()
 #improveR::autoRefreshStart()

@@ -9,6 +9,8 @@ getStep(ident, workflow = NULL)
 }
 \arguments{
 \item{ident}{the ident of the step}
+
+\item{workflow}{the step should be added to}
 }
 \description{
 getStep
