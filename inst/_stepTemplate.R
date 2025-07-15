@@ -3,7 +3,7 @@ setStepValue <- function(key,value) {
   stepList <- this$stepDf
   stepList[key]<-value
   this$stepDf <- stepList
-  return(this)
+  invisible(this)
 }
 
 setProcessValue <- function(processName,key,value){
@@ -35,7 +35,7 @@ setProcessValue <- function(processName,key,value){
   })
   stepData$processes <- list(processes)
   this$stepDf <- stepData
-  return(this)
+  invisible(this)
 }
 
 getStepValue <- function(key) {
@@ -83,7 +83,7 @@ addStepValue <- function(key,value) {
   }
 
   this$stepDf <- stepList
-  return(this)
+  invisible(this)
 }
 
 
@@ -100,7 +100,7 @@ removeProcessValue <- function(key,processName) {
     return(process)
   })
   this$stepDf <- stepList
-  return(this)
+  invisible(this)
 }
 
 addProcessValue <- function(key,value,processName) {
@@ -137,7 +137,7 @@ addProcessValue <- function(key,value,processName) {
   })
   stepData$processes <- list(processes)
   this$stepDf <- stepList
-  return(this)
+  invisible(this)
 }
 
 
@@ -148,6 +148,7 @@ addProcessValue <- function(key,value,processName) {
 setStepTree <- function(treeIdent) {
   tree <- loadResource(treeIdent)
   this$setStepValue("treeIdent",tree$resourceId)
+  invisible(this)
 }
 
 #' sets the improveR workflow
@@ -156,6 +157,7 @@ setStepTree <- function(treeIdent) {
 #'
 setStepWorkflow <- function(workflowHandle) {
   this$setStepValue("workflowHandle",workflowHandle)
+  invisible(this)
 }
 
 #' sets the parent step
@@ -172,6 +174,7 @@ setStepParent <- function(parentIdent,inheritFromParent=F) {
     this$setStepValue("parentIdent",NULL)
     this$setStepValue("inheritFromParent",NULL)
   }
+  invisible(this)
 }
 
 #' sets a step breakpoint, the step run is not started even if realiseStep is called with run=T
@@ -192,21 +195,21 @@ setStepReuse <- function(reuse=T) {
 
 #' sets the finish runserver and runserver tool by name, finishStep only stops if the step is executed and finished with this combination
 #'
-#' @param runserverName name of the runserver
+#' @param runserverLabel name of the runserver
 #' @param runserverTool name of the runserverTool
 #'
-setStepFinishCondition <- function(runserverName,runserverTool) {
-  this$setStepValue("finishRunserverName",runserverName)
+setStepFinishCondition <- function(runserverLabel,runserverTool) {
+  this$setStepValue("finishRunserverLabel",runserverLabel)
   this$setStepValue("finishRunserverTool",runserverTool)
 }
 
-#' sets the runserver by name
+#' sets the runserver label
 #'
-#' @param runserverName name of the runserver
+#' @param runserverLabel name of the runserver
 #' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
-setStepRunserverName <- function(runserverName,process="Main") {
-  this$setProcessValue(process,"runserverName",runserverName)
+setStepRunserverLabel <- function(runserverLabel,process="Main") {
+  this$setProcessValue(process,"runserverLabel",runserverLabel)
 }
 
 #' sets the name of the step
@@ -249,24 +252,24 @@ setStepCommandLine <- function(commandline,append=T,process="Main") {
   this$setProcessValue(process,"appendCommandline",append)
 }
 
-#' sets the runserver tool by name
+#' sets the toolInstance
 #'
-#' @param runserverToolName name of the runserver tool
+#' @param toolInstance name of the runserver tool
 #' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepRunserverToolName <- function(runserverToolName,process="Main") {
-  this$setProcessValue(process,"runserverToolName",runserverToolName)
+setStepToolInstance <- function(toolInstance,process="Main") {
+  this$setProcessValue(process,"toolInstance",toolInstance)
 }
 
-#' sets the tool by name
+#' sets the tool label
 #'
-#' @param toolName name of the  tool
+#' @param toolLabel name of the  tool
 #' @param process the name of the process, default = Main. If the process does not yet exist it is created
 #'
 #' @export
-setStepToolName <- function(toolName,process="Main") {
-  this$setProcessValue(process,"toolName",toolName)
+setStepToolLabel <- function(toolLabel,process="Main") {
+  this$setProcessValue(process,"toolLabel",toolLabel)
 }
 
 #' adds a new remote file to the step
@@ -563,16 +566,34 @@ retrieveMainProcess <- function() {
 
 
 
+completeToolPresets <- function(processName=NULL,overwrite=F) {
+  if (is.null(processName)) {
+    processNames <- this$stepDf$processes[[1]]$name
 
+    if (length(processNames)==0) {
+      stop("cannot complete a step without process")
+    }
 
+    processes <- NULL
+    for (i in 1:length(processNames)) {
+      processDf <- completeToolPresets(processNames[i])
+      #processes<-plyr::rbind.fill(processes,processDf)
+    }
+  } else {
+    usedTool <- this$getToolForProcess(processName)
+    parameters <- usedTool$parameters[[1]]
+    #TODO also take other arguments
+    #check if overwrite
+    commandLine <- parameters[parameters$name=="Tool Arguments",]$value
+    this$setStepCommandLine(commandLine,append = F,process = processName)
+    #gridTools <- usedTool$gridArguments[[1]]
+  }
+}
 
-prepareProcess <- function(processName) {
+getToolForProcess <- function(processName) {
   process <- dplyr::filter(this$stepDf$processes[[1]],name==processName)
   toolInstances <- improveR:::getToolInstances()
   #TODO missing category
-  if (is.null(process$toolLabel)) { process$toolLabel<-process$toolName }
-  if (is.null(process$toolInstance)) { process$toolInstance<-process$runserverToolName }
-  if (is.null(process$runserverLabel)) { process$runserverLabel<-process$runserverName }
   fullToolName <- paste(process$toolLabel,process$toolInstance,process$runserverLabel)
   toolNames <- ls(envir=toolInstances)
   toolNames <- toolNames[grepl(pattern = fullToolName,x = toolNames)]
@@ -582,14 +603,29 @@ prepareProcess <- function(processName) {
   }
 
   usedTool <- toolInstances[[toolNames]]
+  return(usedTool)
+}
+
+prepareProcess <- function(processName) {
+  process <- dplyr::filter(this$stepDf$processes[[1]],name==processName)
+
+  usedTool <- getToolForProcess(processName)
 
   process$runserverId <- usedTool$runserverId
   process$runserverToolId <- usedTool$id
 
 
-  if (is.null(process$toolArgs)) { process$toolArgs<-"" }
+
+  #TODO: appendCommandline
+  if (is.null(process$toolArgs)) {
+    process$toolArgs<-process$commandline
+  }
   process <- dplyr::select(process,name,main,runserverId,runserverToolId,toolArgs)
   #filter out not needed values
+
+
+  #subFolderNameMapping
+  subFolderNameMapping <- list()
 
   remoteFiles <- this$stepDf$remoteFiles[[1]]
   processFiles <- dplyr::filter(remoteFiles,variableProcess==processName & !is.na(variableName))
@@ -609,7 +645,15 @@ prepareProcess <- function(processName) {
                              variableName=processFile$variableName,
                              stringsAsFactors = F)
       if ("name" %in% names(processFile) && !is.null(processFile$name) && !is.na(processFile$name)) {
-        resource$targetName<-processFile$name
+        targetName <- processFile$name
+        if (startsWith(targetName,"./")) {
+          targetName <- substr(targetName,3,nchar(targetName))
+        }
+        if (grepl("/",targetName,fixed = T)) {
+          subFolderNameMapping[[processResource$resourceId]]<-targetName
+          targetName <- processResource$resourceId
+        }
+        resource$targetName<-targetName
       }
       if (!processFile$asLink) {
         resource$operation="COPY"
@@ -629,7 +673,15 @@ prepareProcess <- function(processName) {
         resource <- data.frame(sourceResourceId=processResource$resourceId,
                                stringsAsFactors = F)
         if ("name" %in% names(processFile) && !is.null(processFile$name) && !is.na(processFile$name)) {
-          resource$targetName<-processFile$name
+          targetName <- processFile$name
+          if (startsWith(targetName,"./")) {
+            targetName <- substr(targetName,3,nchar(targetName))
+          }
+          if (grepl("/",targetName,fixed = T)) {
+            subFolderNameMapping[[processResource$resourceId]]<-targetName
+            targetName <- processResource$resourceId
+          }
+          resource$targetName<-targetName
         }
         if (!processFile$asLink) {
           resource$operation="COPY"
@@ -640,8 +692,47 @@ prepareProcess <- function(processName) {
       process$resources<-list(resources)
     }
   }
+  if (length(subFolderNameMapping)>0) {
+    process$subFolderNameMapping<-subFolderNameMapping
+  }
+
   return(process)
 }
+
+moveSubFolderNameMapping <- function(subFolderNameMapping,newStep) {
+  #applySubfolderMapping
+  #subFolderNameMapping
+  if (length(subFolderNameMapping)>0) {
+    moveResources <- names(subFolderNameMapping)
+    for (i in 1:length(moveResources)) {
+      moveResource<- moveResources[i]
+      fileName <- subFolderNameMapping[[moveResource]]
+      pathParts <- strsplit(x=fileName,split="/",fixed=T)[[1]]
+      createTarget <- NULL
+      if (length(pathParts)!=2) {
+        improveR::log_error("maximum folder depth allowed is 1, by filename in realise step")
+        improveR::log_error(fileName)
+        stop()
+      }
+      folderName <- pathParts[1]
+      fileName<- pathParts[2]
+      children <- loadChildResources(newStep)
+      folder <- children[children$name==folderName,]
+      if (nrow(folder)==1 && folder$nodeType!="Folder") {
+        improveR::log_error(folderName)
+        improveR::log_error("already exists but not as folder")
+        stop()
+      }
+      if (nrow(folder)==1) {
+        createTarget<-folder
+      } else {
+        createTarget <- createFolder(newStep,folderName=folderName)
+      }
+      improveR::move(file.path(newStep$path,moveResource),createTarget,fileName)
+    }
+  }
+}
+
 
 #' creates the prepared step in the repository
 #'
@@ -686,6 +777,12 @@ create <- function() {
                             referenceModel
                             )
 
+  if ("parentIdent" %in% names(this$stepDf) && !is.null(this$stepDf$parentIdent) && !is.null(this$stepDf$parentIdent)) {
+    prepStep$parentStepId<-this$stepDf$parentIdent
+  }
+
+  #TODO inheritFromParent
+
   prepList <- as.list(prepStep)
   processNames <- this$stepDf$processes[[1]]$name
 
@@ -694,8 +791,12 @@ create <- function() {
   }
 
   processes <- NULL
+  subFolderNameMapping <- NULL
+
   for (i in 1:length(processNames)) {
     processDf <- prepareProcess(processNames[i])
+    subFolderNameMapping <- c(subFolderNameMapping,processDf$subFolderNameMapping)
+    processDf$subFolderNameMapping<-NULL
     processes<-plyr::rbind.fill(processes,processDf)
   }
   prepList$processes <- processes
@@ -708,6 +809,9 @@ create <- function() {
   if (createResult$status_code==201) {
     createContent <- httr::content(createResult)
     newStep <- improveR::loadResource(createContent$resourceId)
+    invisible(improveR::unloadChildResources(newStep$parentId))
+    invisible(improveR::unloadFullChildResources(newStep$parentId))
+    moveSubFolderNameMapping(subFolderNameMapping,newStep)
     return(newStep)
   }
   return(NULL)
@@ -790,3 +894,117 @@ getStepResource <- function() {
     return(improveR::loadResource(entityId))
   }
 }
+
+
+#' finishRun
+#'
+#' @param runserverName if this is set, the step only counts as finished if it was finished with this runserver (needs to be combined with tool), overridden by settings in stephandle
+#' @param runserverToolName if this is set, the step only counts as finished if it was finished with this tool (needs to be combined with runserver), overridden by settings in stephandle
+#' @references ics1140
+#' @export
+finishRun <- function(runserverName=NULL, runserverToolName=NULL) {
+
+  #TODO finish conditions
+
+
+
+  toolId<-NULL
+  running<-TRUE
+  #frn <- this$getStepValue("finishRunserverName")
+  #frt <- this$getStepValue("finishRunserverTool")
+  # runserverName<-NULL
+  # runserverToolName<-NULL
+  #
+  # if (!is.null(frn) && !is.null(frn)) {
+  #   runserverName<-frn
+  #   runserverToolName<-frt
+  # }
+  #
+  # toolId <- NULL
+  # if (!is.null(runserverName)&&!is.null(runserverToolName)) {
+  #   toolId <- getToolId(runserverName, runserverToolName)
+  #   print(toolId)
+  # } else if (!is.null(runserverName)||!is.null(runserverToolName)) {
+  #   logging::logwarn("runServerName and runServerToolName must be provided in finishRun, or none of them")
+  # }
+  # running<-TRUE
+  # wrongRun <- ""
+  #
+  # if (!is.null(toolId)) {
+  #   step <- getStepWithoutCache(handle)
+  #   state<-step$runStatus
+  #   if (state=="FINISHED") {
+  #     processes <- actualLoadProcessesForStep(step$resourceId)
+  #     process <- dplyr::filter(processes,.data$processType=="main")
+  #     stepTool <- processes$runserverToolId[1]
+  #     if (toolId!=stepTool) {
+  #       tryCatch({
+  #         run <- actualLoadProcessRuns(process$id)
+  #         run <- run[run$startedAt==max(run$startedAt),]
+  #         currentRun <-run$id
+  #         wrongRun <- currentRun
+  #       },
+  #       error=function(cond) {
+  #         Sys.sleep(5)
+  #       }
+  #       )
+  #     }
+  #   }
+  # }
+
+  while(running) {
+    step <- this$getStepWithoutCache()
+    state<-step$runStatus
+    if (is.null(toolId)) {
+      if (state=="FINISHED") {
+        running<-F
+      } else {
+        Sys.sleep(2)
+      }
+    }
+    # else {
+    #   processes <- actualLoadProcessesForStep(step$resourceId)
+    #   process <- dplyr::filter(processes,.data$processType=="main")
+    #   stepTool <- processes$runserverToolId[1]
+    #   tryCatch({
+    #     run <- actualLoadProcessRuns(process$id)
+    #     run <- run[run$startedAt==max(run$startedAt),]
+    #     currentRun <-run$id
+    #     if (state=="FINISHED" && toolId==stepTool && currentRun!=wrongRun) {
+    #       running<-F
+    #     } else {
+    #       if (toolId!=stepTool && state!="FINISHED") {
+    #         wrongRun <- currentRun
+    #       }
+    #
+    #
+    #       Sys.sleep(5)
+    #     }
+    #   },
+    #   error=function(cond) {
+    #     Sys.sleep(5)
+    #   }
+    #   )
+    # }
+  }
+  invisible(this)
+}
+getStepWithoutCache <- function() {
+  entityId <- this$getStepValue("entityId")
+  step<-improveR:::internalLoadResourceFromServer(entityId)
+  return(step)
+}
+
+
+#' getStepInventory retrieves all files from the inventory of a handle, if a step was created with this handle
+#'
+
+#' @param recurse if the complete inventory should be retrieved or only the top level
+#' @param update unloads the cached resources, default true
+#' @references ics1221
+#' @export
+getStepInventory <- function(recurse=F,update=T) {
+  step <- this$getStepResource()
+  return(improveR:::getStepResourceInventory(step,recurse,update))
+}
+

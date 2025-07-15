@@ -16,20 +16,6 @@
 
 
 
-getToolInstances <- function() {
-  runservers <- improveR::loadRunservers()
-  runservers <- dplyr::filter(runservers,!local)
-  runserverTools <- byNotEmptyAsDf(runservers,function(runserver) {
-    return(loadToolsForRunserver(runserver$id))
-  })
-  runserverTools <- dplyr::mutate(runserverTools,fullName=paste(categoryName,toolName,name,label))
-  toolInstanceEnv <- new.env()
-  x <- byNotEmpty(runserverTools,function(runserverTool) {
-    assign(x=runserverTool$fullName,value=runserverTool,envir =toolInstanceEnv )
-  })
-  return(toolInstanceEnv)
-}
-
 
 #check grid arguments
 #check links

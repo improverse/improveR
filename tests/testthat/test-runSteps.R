@@ -83,9 +83,10 @@ rBatchStep <- function(testTree) {
   r_tool_instance <- Sys.getenv("R_TOOL_INSTANCE")
 
   stepEnv <- createStepTemplateEnv(treeIdent=testTree)
-  stepEnv$setStepRunserverName(r_runserver)
-  stepEnv$setStepToolName(r_tool)
-  stepEnv$setStepRunserverToolName(r_tool_instance)
+  stepEnv$setStepRunserverLabel(r_runserver)
+  stepEnv$setStepToolLabel(r_tool)
+  stepEnv$setStepToolInstance(r_tool_instance)
+  stepEnv$completeToolPresets()
   return(stepEnv)
 }
 
@@ -101,45 +102,46 @@ httptest::with_mock_dir("loadChildSteps", {
     stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
     stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
     stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+
     stepEnv$realise()
 
-    rootStep <- getStepResource(handle)
+    rootStep <- stepEnv$getStepResource()
 
     # Create child1
-    handle <- rBatchStep(testTree) %>%
-      setStepParent(rootStep$resourceId) %>%
-      setStepDescription("Data Manipulation") %>%
-      setStepRationale("to manipulate data") %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv")) %>%
-      realiseStep()
+    stepEnv <- rBatchStep(testTree)
+    stepEnv$setStepParent(rootStep$resourceId)
+    stepEnv$setStepDescription("Data Manipulation")
+    stepEnv$setStepRationale("to manipulate data")
+    stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
+    stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
+    stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+    stepEnv$realise()
 
-    child1 <- getStepResource(handle)
+    child1 <- stepEnv$getStepResource()
 
     # Create grandchild one
-    handle <- rBatchStep(testTree) %>%
-      setStepParent(child1$resourceId) %>%
-      setStepDescription("Data Manipulation") %>%
-      setStepRationale("to manipulate data") %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv")) %>%
-      realiseStep()
+    stepEnv <- rBatchStep(testTree)
+      stepEnv$setStepParent(child1$resourceId)
+      stepEnv$setStepDescription("Data Manipulation")
+      stepEnv$setStepRationale("to manipulate data")
+      stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
+      stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
+      stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+      stepEnv$realise()
 
-    child11 <- getStepResource(handle)
+    child11 <- stepEnv$getStepResource()
 
     # Create grandchild 2
-    handle <- rBatchStep(testTree) %>%
-      setStepParent(child1$resourceId) %>%
-      setStepDescription("Data Manipulation") %>%
-      setStepRationale("to manipulate data") %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-      addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv")) %>%
-      realiseStep()
+    stepEnv <- rBatchStep(testTree)
+    stepEnv$setStepParent(child1$resourceId)
+    stepEnv$setStepDescription("Data Manipulation")
+    stepEnv$setStepRationale("to manipulate data")
+    stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
+    stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
+    stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+    stepEnv$realise()
 
-    child12 <- getStepResource(handle)
+    child12 <- stepEnv$getStepResource()
 
     # Load child steps tree
     childStepsTree <- loadChildSteps(testTree)
@@ -211,17 +213,17 @@ httptest::with_mock_dir("loadChildSteps", {
 test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "subfolderInventory")
 
-  handle <- rBatchStep(testTree) %>%
-    improveR::setStepDescription("Data Manipulation") %>%
-    improveR::setStepRationale("to manipulate data") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"), name = "subfolder/test.Rmd", asLink = F) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv")) %>%
-    improveR::realiseStep() %>%
-    improveR::finishRun()
+  stepEnv <- rBatchStep(testTree)
+  stepEnv$setStepDescription("Data Manipulation")
+  stepEnv$setStepRationale("to manipulate data")
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"), name = "subfolder/test.Rmd", asLink = F)
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+  stepEnv$realise()
+  stepEnv$finishRun()
 
-  step <- improveR::getStepResource(handle)
-  inventory <- improveR::getStepInventory(handle, recurse = T) %>%
+  step <- stepEnv$getStepResource()
+  inventory <- stepEnv$getStepInventory( recurse = T) %>%
     improveR::strip() %>%
     dplyr::filter(name == "test.Rmd")
 
@@ -236,15 +238,15 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
   expect_equal(file.info(checkFile$path)$size, 1387)
 
   # Link file from subfolder in workflow
-  handleEDA <- rBatchStep(testTree) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/EDA.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(inventory, name = "data.csv") %>%
-    improveR::realiseStep() %>%
-    improveR::finishRun()
+  stepEnv <- rBatchStep(testTree)
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/EDA.R"), variableName = "command-file")
+  stepEnv$addStepRemoteFile(inventory, name = "data.csv")
+  stepEnv$realise()
+  stepEnv$finishRun()
 
   # Check update to subfolder file
-  retry <- improveR::handlesFromTree(testTree)
-  retryFlow <- improveR::retrieveWorkflow(retry)
+###################here
+  retryFlow <- getWorkflow(testTree)
 
   updateFile <- dplyr::filter(retryFlow, description == "Data Manipulation") %>%
     dplyr::pull(handle) %>%
@@ -254,6 +256,28 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
     improveR::updateFileContent(localPath = "improver.log")
 
   improveR::rerunChangedAndOutdated(testTree)
+
+  dmgResult <- authenticatedREST("/resources/{resourceId}/dmg",
+                              list(resourceId=loadResource(testTree)$resourceId),queryParams = list(depth=2))
+  dmg <- httr::content(dmgResult)
+#ask for working copies?
+  changedTask <- dmg$tasks[[2]]
+  stoppedAt <- changedTask$stoppedAt
+  files <- changedTask$inventory
+  inputs <- Filter(function(x)
+    {
+    print(stoppedAt)
+    print(x$lastModified)
+    return(!is.null(x)) && !x$outdatedLink
+    },
+                   lapply(files,function(f) {
+    if (is.null(f$output)) {
+      return(f)
+    }
+    return(NULL)
+  }))
+  files <- files[[!files$output]]
+
 
   # Check reexecution of link from and to subfolder
   retry <- improveR::handlesFromTree(testTree)
