@@ -247,20 +247,26 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
   # Check update to subfolder file
 ###################here
   retryFlow <- getWorkflow(testTree)
-
-  updateFile <- dplyr::filter(retryFlow, description == "Data Manipulation") %>%
-    dplyr::pull(handle) %>%
-    improveR::getStepInventory(recurse = T) %>%
+  retryFlowDf <- retryFlow$df()
+  updateFileStep <- dplyr::filter(retryFlowDf, description == "Data Manipulation") %>%
+    dplyr::pull(fullName)
+  updateFileStepEnv <- retryFlow$steps[[updateFileStep]]
+  updateFileStepEnv$getStepInventory(recurse = T) %>%
     improveR::strip() %>%
     dplyr::filter(inventoryPath == "subfolder/test.Rmd") %>%
     improveR::updateFileContent(localPath = "improver.log")
 
+  #remove methods for workflowtemplate
+
+  cAO <- retryFlow$changedAndOutdatedFiles()
+
   improveR::rerunChangedAndOutdated(testTree)
 
-  dmgResult <- authenticatedREST("/resources/{resourceId}/dmg",
-                              list(resourceId=loadResource(testTree)$resourceId),queryParams = list(depth=2))
-  dmg <- httr::content(dmgResult)
+
+
+
 #ask for working copies?
+  #ticket, add changed flag to dmg
   changedTask <- dmg$tasks[[2]]
   stoppedAt <- changedTask$stoppedAt
   files <- changedTask$inventory

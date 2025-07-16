@@ -38,13 +38,7 @@ setProcessValue <- function(processName,key,value){
   invisible(this)
 }
 
-getStepValue <- function(key) {
-  stepList <- this$stepDf
-  if (key %in% names(stepList)) {
-    return(as.character(stepList[key]))
-  }
-  return(NULL)
-}
+
 
 removeStepValue <- function(key) {
   stepList <- this$stepDf
@@ -549,20 +543,6 @@ addStepLocalFile <- function(path,name=NULL,variableName=NULL,variableProcess="M
 
 
 
-#' retrieveMainProcess
-#' retrieves the main process data frame of a step by handle
-#'
-#'
-#' @export
-
-retrieveMainProcess <- function() {
-  stepData <- this$stepDf
-  processes <- stepData$processes[[1]]
-  if (nrow(processes)>0 && ("main" %in% processes$processType)) {
-    return(processes[processes$processType=="main",])
-  }
-  return(NULL)
-}
 
 
 
@@ -873,27 +853,6 @@ run <- function() {
 }
 
 
-#' getStepState
-#'
-
-#' @references ics1221
-#' @export
-getStepState <- function() {
-  entityId <- this$getStepValue("entityId")
-  step<-improveR:::internalLoadResourceFromServer(entityId)
-  return(step$runStatus)
-}
-
-#' getStepResource
-#'
-#' @references ics1221
-#' @export
-getStepResource <- function() {
-  entityId <- this$getStepValue("entityId")
-  if (!is.null(entityId)) {
-    return(improveR::loadResource(entityId))
-  }
-}
 
 
 #' finishRun
@@ -989,22 +948,29 @@ finishRun <- function(runserverName=NULL, runserverToolName=NULL) {
   }
   invisible(this)
 }
+
+#' getStepResource
+#'
+#' @references ics1221
+#' @export
+getStepResource <- function() {
+  entityId <- this$getStepValue("entityId")
+  if (!is.null(entityId)) {
+    return(improveR::loadResource(entityId))
+  }
+}
+
+#' @references ics1221
+#' @export
+getStepState <- function() {
+  entityId <- this$getStepValue("entityId")
+  step<-improveR:::internalLoadResourceFromServer(entityId)
+  return(step$runStatus)
+}
+
 getStepWithoutCache <- function() {
   entityId <- this$getStepValue("entityId")
   step<-improveR:::internalLoadResourceFromServer(entityId)
   return(step)
-}
-
-
-#' getStepInventory retrieves all files from the inventory of a handle, if a step was created with this handle
-#'
-
-#' @param recurse if the complete inventory should be retrieved or only the top level
-#' @param update unloads the cached resources, default true
-#' @references ics1221
-#' @export
-getStepInventory <- function(recurse=F,update=T) {
-  step <- this$getStepResource()
-  return(improveR:::getStepResourceInventory(step,recurse,update))
 }
 

@@ -102,7 +102,7 @@ createStepEnv <- function(treeIdent=NULL,stepDf = NULL,workflow=NULL) {
     stepEnv$this<-stepEnv
     if (is.null(workflow)) {
       workflow <- new.env()
-      workflowSource <- system.file("_step.R", package = "improveR")
+      workflowSource <- system.file("_workflow.R", package = "improveR")
       source(workflowSource,local=workflow)
       workflow$this <- workflow
     }
