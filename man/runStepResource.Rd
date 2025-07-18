@@ -2,7 +2,7 @@
 % Please edit documentation in R/runStep.R
 \name{runStepResource}
 \alias{runStepResource}
-\title{runStep}
+\title{runStepResource}
 \usage{
 runStepResource(ident)
 }
@@ -10,7 +10,7 @@ runStepResource(ident)
 \item{ident}{check if a step with the same configuration already exists in the tree}
 }
 \description{
-runStep
+runStepResource
 }
 \references{
 ics1140

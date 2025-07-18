@@ -206,7 +206,8 @@ httptest::with_mock_dir("loadChildSteps", {
     expect_equal(parentStep$resourceId, child12$resourceId)
     parentStep <- loadParentStep(child11)
     expect_null(parentStep)
-  })
+
+    })
 })
 
 
