@@ -258,31 +258,14 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
 
   #remove methods for workflowtemplate
 
-  cAO <- retryFlow$changedAndOutdatedFiles()
-
-  improveR::rerunChangedAndOutdated(testTree)
+  retryFlow$rerunChangedAndOutdated()
 
 
 
 
 #ask for working copies?
   #ticket, add changed flag to dmg
-  changedTask <- dmg$tasks[[2]]
-  stoppedAt <- changedTask$stoppedAt
-  files <- changedTask$inventory
-  inputs <- Filter(function(x)
-    {
-    print(stoppedAt)
-    print(x$lastModified)
-    return(!is.null(x)) && !x$outdatedLink
-    },
-                   lapply(files,function(f) {
-    if (is.null(f$output)) {
-      return(f)
-    }
-    return(NULL)
-  }))
-  files <- files[[!files$output]]
+
 
 
   # Check reexecution of link from and to subfolder
