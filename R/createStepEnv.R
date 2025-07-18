@@ -2,14 +2,7 @@ stepDf <- NULL
 this <- NULL
 
 workflow <- new.env()
-lineage <- new.env()
-usage <- new.env()
-parent <- new.env()
-children <- new.env()
-lineage[["load"]]<- function() {}
-usage[["load"]]<- function() {}
-parent[["load"]]<- function() {}
-children[["load"]]<- function() {}
+
 
 
 getStepValue <- function(key) {
@@ -145,6 +138,15 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
     return(step)
   }
 
+
+
+
+
+  #removestep method to workflow
+  #add usage,parent an children to load
+  #implement fullLineage and fullusage
+  #print tree
+
   #' Retrieves all files from the inventory of a handle, if a step was created with this handle
   #' @param recurse If the complete inventory should be retrieved or only the top level
   #' @param update Unloads the cached resources, default TRUE
@@ -155,10 +157,38 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   }
 
   # Navigation envs: add placeholder load functions (to be implemented)
-  env$lineage$load <- function() {}
+  env$lineage$load <- function() {
+    step <- env$getStepResource()
+    lineageResult <- authenticatedREST("/resources/{resourceId}/dependencies",
+                      urlParams = list(resourceId=step$resourceId))
+    if (lineageResult$status_code==200) {
+      lineageContent <- httr::content(lineageResult)
+
+      if (length(lineageContent)>0) {
+        stepsDf <- env$workflow$df()
+        links <- lapply(lineageContent,function(lStep) {
+          if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
+            log_info("adding ",lStep$name,lStep$entityId,"to lineage")
+            lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
+            env$lineage[[lStepEnv$stepDf$fullName]]<-lStepEnv
+            lStepEnv$usage[[env$stepDf$fullName]]<-env
+          }
+
+        })
+      }
+    }
+  }
   env$usage$load <- function() {}
   env$parent$load <- function() {}
   env$children$load <- function() {}
+
+
+
+  stepName <- createStepName(env)
+  env$stepDf$fullName <- stepName
+  env$workflow$steps[[stepName]]<-env
+
+  .workflow_private$collectInternalLinks(env$workflow)
 
   env
 }

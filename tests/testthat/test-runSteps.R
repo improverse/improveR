@@ -86,7 +86,7 @@ rBatchStep <- function(testTree) {
   stepEnv$setStepRunserverLabel(r_runserver)
   stepEnv$setStepToolLabel(r_tool)
   stepEnv$setStepToolInstance(r_tool_instance)
-  stepEnv$completeToolPresets()
+
   return(stepEnv)
 }
 

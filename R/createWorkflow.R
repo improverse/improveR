@@ -8,11 +8,15 @@ library(magrittr)
 
 .workflow_private$collectInternalLinks <- function(env) {
   stepsDf <- env$df()
-  remoteFiles <- improveR:::byNotEmptyAsDf(stepsDf, function(step) {
-    rf <- step$remoteFiles[[1]]
-    rf$targetStep <- step$fullName
+  remoteFiles <- byNotEmptyAsDf(stepsDf, function(stepInstance) {
+    rf <- stepInstance$remoteFiles[[1]]
+    if (is.null(rf) || nrow(rf)==0) {return(NULL)}
+    rf$targetStep <- stepInstance$fullName
     return(rf)
   })
+  if (is.null(remoteFiles) || nrow(remoteFiles)==0) {
+    return(NULL)
+  }
   remoteFiles <- remoteFiles %>% dplyr::mutate(entityId = ident) %>%
     dplyr::filter(asLink) %>%
     dplyr::select(entityId, targetStep)
@@ -32,6 +36,20 @@ library(magrittr)
         foundTargets$sourceStep <- stepName
         allTargets <- plyr::rbind.fill(allTargets, foundTargets)
       }
+    }
+    if (!is.null(allTargets) && nrow(allTargets)>0) {
+      x<-byNotEmpty(allTargets,function(connect) {
+        sourceStep <- connect$sourceStep
+        targetStep <- connect$targetStep
+        sourceStepEnv <- env$steps[[sourceStep]]
+        targetStepEnv <- env$steps[[targetStep]]
+        if (!(targetStep %in% ls(sourceStepEnv$usage))) {
+          env$steps[[sourceStep]]$usage[[targetStep]]<-targetStepEnv
+        }
+        if (!(sourceStep %in% ls(targetStepEnv$lineage))) {
+          env$steps[[targetStep]]$lineage[[sourceStep]]<-sourceStepEnv
+        }
+      })
     }
     env$internalLinks <- allTargets
   }

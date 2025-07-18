@@ -77,6 +77,21 @@ createStepName <- function(step) {
 #' @references ics1213
 #' @export
 getStep <- function(ident,workflow=NULL) {
+
+  if (!is.null(workflow)) {
+    stepEntity <- loadResource(ident)
+    if (!is.null(stepEntity) && stepEntity$nodeType=="Step") {
+      allSteps <- workflow$df()
+      selectedStep <- allSteps[allSteps$sourceEntityId==stepEntity$entityId,]
+      if (nrow(selectedStep)==1) {
+        return(workflow$steps[[selectedStep$fullName]])
+      }
+    } else {
+      log_warn(ident,"does not exist or is not a Step")
+      return(NULL)
+    }
+  }
+
   stepDf <- getStepDf(ident)
   return(prepareStepEnv(stepDf=stepDf,workflow=workflow))
 }
@@ -104,9 +119,8 @@ prepareStepEnv <- function(treeIdent=NULL,stepDf = NULL,workflow=NULL) {
       #source(workflowSource,local=workflow)
       workflow <- createWorkflow()
     }
-    createStepEnv(stepDf, workflow)
-    stepName <- createStepName(stepEnv)
-    workflow$steps[[stepName]]<-stepEnv
+    stepEnv <- createStepEnv(stepDf, workflow)
+
     return(stepEnv)
 }
 
