@@ -78,14 +78,12 @@ createStepName <- function(step) {
 #' @export
 getStep <- function(ident,workflow=NULL) {
   stepDf <- getStepDf(ident)
-  return(createStepEnv(stepDf=stepDf,workflow=workflow))
+  return(prepareStepEnv(stepDf=stepDf,workflow=workflow))
 }
 
-createStepTemplateEnv <- function(treeIdent=NULL,stepDf = NULL,workflow=NULL) {
-  return(transforStepToTemplate(createStepEnv(treeIdent,stepDf,workflow)))
-}
 
-createStepEnv <- function(treeIdent=NULL,stepDf = NULL,workflow=NULL) {
+
+prepareStepEnv <- function(treeIdent=NULL,stepDf = NULL,workflow=NULL) {
     stepHandle <- uuid::UUIDgenerate()
 
     if (is.null(stepDf)) {
@@ -95,18 +93,18 @@ createStepEnv <- function(treeIdent=NULL,stepDf = NULL,workflow=NULL) {
       resourceId <- loadResource(treeIdent)$resourceId
       stepDf$treeIdent<-resourceId
     }
-    stepSource <- system.file("_step.R", package = "improveR")
-    stepEnv <- new.env()
-    source(stepSource,local=stepEnv)
-    stepEnv$stepDf<-stepDf
-    stepEnv$this<-stepEnv
+    #stepSource <- system.file("_step.R", package = "improveR")
+    #stepEnv <- new.env()
+    #source(stepSource,local=stepEnv)
+    #stepEnv$stepDf<-stepDf
+    #stepEnv$this<-stepEnv
     if (is.null(workflow)) {
       #workflow <- new.env()
       #workflowSource <- system.file("_workflow.R", package = "improveR")
       #source(workflowSource,local=workflow)
       workflow <- createWorkflow()
     }
-    stepEnv$workflow <- workflow
+    createStepEnv(stepDf, workflow)
     stepName <- createStepName(stepEnv)
     workflow$steps[[stepName]]<-stepEnv
     return(stepEnv)
