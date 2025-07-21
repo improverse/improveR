@@ -3,15 +3,15 @@
 ## Roadmap & Implementation Plan
 
 ### 1. Interactive Step Navigation
-- Implement `usage`, `children`, and `parent` navigation environments, analogous to `lineage`.
-- Each navigation env should support `$load()` to populate related steps for interactive exploration.
+- Implement `usage`, `children`, and `parent` navigation environments, analogous to `lineage`. check
+- Each navigation env should support `$load()` to populate related steps for interactive exploration. check 
 
 ### 2. Workflow Editing
-- Add a method to remove a step from a workflow, enabling tailored workflows.
+- Add a method to remove a step from a workflow, enabling tailored workflows. check 
 
 ### 3. Full Graph Traversal
 - Implement `fullLineage`, `fullUsage`, `fullParent`, and `fullChildren` methods.
-- These methods should traverse the step graph recursively, with configurable depth limits.
+- These methods should traverse the step graph recursively, with configurable depth limits. (treeDepth and stepDepth) check
 
 ### 4. Workflow Templates
 - Enable creation of a workflow template from an existing workflow.

@@ -1,6 +1,7 @@
 delete("/Projects/Tests/runFiles")
 devtools::document()
 devtools::load_all()
+improveR::clearConnectionData()
 improVerticleDevelopment:::login()
 
 #reporting
@@ -9,4 +10,13 @@ improVerticleDevelopment:::login()
 #stepEnv <- getStep("repo_alias_todo:ST-655")
 
 #workflowEnv <- getWorkflow("/Projects/demoDev/template1/LinearModeling")
+
+
+
+stepEnv <- getStep("repo_alias_todo:ST-713")
+
+
+
+
+
 

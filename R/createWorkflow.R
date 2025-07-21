@@ -53,6 +53,20 @@ library(magrittr)
     }
     env$internalLinks <- allTargets
   }
+
+
+  #resolv parent kram
+
+  byNotEmpty(stepsDf,function(oneStep) {
+    stepEnv <- env$steps[[oneStep$fullName]]
+    if (length(ls(stepEnv$parent))==1) {
+      parentStep <- improveR::loadParentStep(oneStep$sourceEntityId)
+      if (!is.null(parentStep) && parentStep$entityId %in% stepsDf$sourceEntityId) {
+        stepEnv$parent$load()
+      }
+    }
+  })
+
 }
 
 .workflow_private$executionOrder <- function(env, plan) {
@@ -343,6 +357,34 @@ createWorkflow <- function() {
         improveR::finishRunResource(env$steps[[item]]$stepDf$sourceEntityId)
       }
     }
+  }
+
+
+  env$removeStep <- function(step) {
+    stepEnv <- NULL
+    if (is.environment(step)) {
+
+      step <- step$stepDf$fullName
+    } else if (is.data.frame(step)) {
+      step <- step$fullName
+    }
+    stepEnv <- env$steps[[step]]
+    rm(list=c(step),pos=env$steps)
+    removeBacklinks <- function(toLink,backLink) {
+      affected <- ls(stepEnv[[toLink]])
+      affected<-affected[affected!="load"]
+      x<-lapply(affected,function(blRemoveTarget) {
+        targetEnv <- env$steps[[blRemoveTarget]][[backLink]]
+        rm(list=c(step),pos=targetEnv)
+      })
+    }
+    suppressWarnings({
+      removeBacklinks("children","parent")
+      removeBacklinks("parent","children")
+      removeBacklinks("lineage","usage")
+      removeBacklinks("usage","lineage")
+    })
+
   }
 
   # Only public methods are attached to env

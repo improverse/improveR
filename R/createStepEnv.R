@@ -156,93 +156,140 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
     return(improveR:::getStepResourceInventory(step, recurse, update))
   }
 
+
+  recursiveNavigate <- function(stepEnv,action,stepDepth,treeDepth) {
+    actionEnv <- stepEnv[[action]]
+    #here limit step and treeDepth to 0
+    actionEnv$load()
+    stepDepth <- stepDepth-1
+    if (stepDepth==0) {
+      invisible(NULL)
+    }
+    actionSteps <- ls(actionEnv)
+    actionSteps <- actionSteps[actionSteps!="load"]
+    x<- lapply(actionSteps,function(actionStep) {
+      actionStepEnv <- actionEnv[[actionStep]]
+      newTreeDepth <- treeDepth
+      if (actionStepEnv$stepDf$treeIdent != stepEnv$stepDf$treeIdent) {
+        newTreeDepth <- newTreeDepth-1
+      }
+      if (newTreeDepth!=0) {
+        recursiveNavigate(actionStepEnv,action,stepDepth,newTreeDepth)
+      }
+    })
+  }
+
+
+
   # Navigation envs: add placeholder load functions (to be implemented)
-  env$lineage$load <- function() {
-    step <- env$getStepResource()
-    lineageResult <- authenticatedREST("/resources/{resourceId}/dependencies",
-                      urlParams = list(resourceId=step$resourceId))
-    if (lineageResult$status_code==200) {
-      lineageContent <- httr::content(lineageResult)
+  env$lineage$load <- function(stepDepth=1,treeDepth=1) {
+    if (stepDepth==1 && treeDepth==1) {
+      step <- env$getStepResource()
+      lineageResult <- authenticatedREST("/resources/{resourceId}/dependencies",
+                                         urlParams = list(resourceId=step$resourceId))
+      if (lineageResult$status_code==200) {
+        lineageContent <- httr::content(lineageResult)
 
-      if (length(lineageContent)>0) {
-        stepsDf <- env$workflow$df()
-        links <- lapply(lineageContent,function(lStep) {
-          if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
-            log_info("adding ",lStep$name,lStep$entityId,"to lineage")
-            lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
-            env$lineage[[lStepEnv$stepDf$fullName]]<-lStepEnv
-            lStepEnv$usage[[env$stepDf$fullName]]<-env
-          }
+        if (length(lineageContent)>0) {
+          stepsDf <- env$workflow$df()
+          links <- lapply(lineageContent,function(lStep) {
+            if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
+              log_info("adding ",lStep$name,lStep$entityId,"to lineage")
+              lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
+              env$lineage[[lStepEnv$stepDf$fullName]]<-lStepEnv
+              lStepEnv$usage[[env$stepDf$fullName]]<-env
+            }
 
-        })
+          })
+        }
       }
+    } else {
+      recursiveNavigate(env,"lineage",stepDepth,treeDepth)
+    }
+
+  }
+  env$usage$load <- function(stepDepth=1,treeDepth=1) {
+    if (stepDepth==1 && treeDepth==1) {
+      step <- env$getStepResource()
+      usageResult <- authenticatedREST("/resources/{resourceId}/usages",
+                                         urlParams = list(resourceId=step$resourceId))
+      if (usageResult$status_code==200) {
+        useageContent <- httr::content(usageResult)
+
+        if (length(useageContent)>0) {
+          stepsDf <- env$workflow$df()
+          links <- lapply(useageContent,function(lStep) {
+            if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
+              log_info("adding ",lStep$name,lStep$entityId,"to usage")
+              lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
+              env$usage[[lStepEnv$stepDf$fullName]]<-lStepEnv
+              lStepEnv$lineage[[env$stepDf$fullName]]<-env
+            }
+
+          })
+        }
+      }
+    } else {
+      recursiveNavigate(env,"usage",stepDepth,treeDepth)
     }
   }
-  env$usage$load <- function() {
-    step <- env$getStepResource()
-    usageResult <- authenticatedREST("/resources/{resourceId}/usages",
-                                       urlParams = list(resourceId=step$resourceId))
-    if (usageResult$status_code==200) {
-      useageContent <- httr::content(usageResult)
 
-      if (length(useageContent)>0) {
-        stepsDf <- env$workflow$df()
-        links <- lapply(useageContent,function(lStep) {
-          if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
-            log_info("adding ",lStep$name,lStep$entityId,"to usage")
-            lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
-            env$usage[[lStepEnv$stepDf$fullName]]<-lStepEnv
-            lStepEnv$lineage[[env$stepDf$fullName]]<-env
-          }
 
-        })
+
+  env$parent$load <- function(stepDepth=1,treeDepth=1) {
+    if (stepDepth==1 && treeDepth==1) {
+      step <- env$getStepResource()
+      parent <- updateParentStep(step)
+      if (is.null(parent)) {
+        parent <- data.frame()
       }
-    }
-  }
-
-
-
-  env$parent$load <- function() {
-    step <- env$getStepResource()
-    parent <- updateParentStep(step)
-
-    parentContent <- ls(env$parent)
-    parentContent <- parentContent[parentContent!="load"]
-    if (length(parentContent)==0 && nrow(parent)==1) {
-      parentStep <- getStep(parent$resourceId,workflow = env$workflow)
-      parentStep$children[[env$stepDf$fullName]]<-env
-      env$parent[[parentStep$stepDf$fullName]]<-parentStep
-    } else if (length(parentContent)==1 && nrow(parent)==1) {
-      if (env$parent[[parentContent]]$stepDf$sourceEntityId!=parent$entityId) {
+      parentContent <- ls(env$parent)
+      parentContent <- parentContent[parentContent!="load"]
+      if (length(parentContent)==0 && nrow(parent)==1) {
         parentStep <- getStep(parent$resourceId,workflow = env$workflow)
         parentStep$children[[env$stepDf$fullName]]<-env
         env$parent[[parentStep$stepDf$fullName]]<-parentStep
+      } else if (length(parentContent)==1 && nrow(parent)==1) {
+        if (env$parent[[parentContent]]$stepDf$sourceEntityId!=parent$entityId) {
+          parentStep <- getStep(parent$resourceId,workflow = env$workflow)
+          parentStep$children[[env$stepDf$fullName]]<-env
+          env$parent[[parentStep$stepDf$fullName]]<-parentStep
+        }
+      } else if (length(parentContent)==1 && nrow(parent)==0) {
+        rm(list=c(parentContent),pos = env$parent)
       }
-    } else if (length(parentContent)==1 && nrow(parent)==0) {
-      rm(list=c(parentContent),pos = env$parent)
+    } else {
+      recursiveNavigate(env,"parent",stepDepth,treeDepth)
     }
 
-
   }
-  env$children$load <- function() {
-    step <- env$getStepResource()
-    children <- updateChildSteps(step)$data[[1]]
+  env$children$load <- function(stepDepth=1,treeDepth=1) {
+    if (stepDepth==1 && treeDepth==1) {
+      step <- env$getStepResource()
+      children <- updateChildSteps(step)$data[[1]]
 
 
-      if (nrow(children)>0) {
-        stepsDf <- env$workflow$df()
-        links <- byNotEmpty(children,function(lStep) {
-          if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
-            log_info("adding ",lStep$name,lStep$entityId,"to children")
-            lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
-            env$children[[lStepEnv$stepDf$fullName]]<-lStepEnv
-            lStepEnv$parent[[env$stepDf$fullName]]<-env
-          }
+        if (nrow(children)>0) {
+          stepsDf <- env$workflow$df()
+          links <- byNotEmpty(children,function(lStep) {
+            lStepEnv <- NULL
+            if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
+              log_info("adding ",lStep$name,lStep$entityId,"to children")
+              lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
+            } else {
+              lStepEnv <- env$workflow$steps[[stepsDf[stepsDf$sourceEntityId==lStep$entityId,]$fullName]]
+            }
+              env$children[[lStepEnv$stepDf$fullName]]<-lStepEnv
+              lStepEnv$parent[[env$stepDf$fullName]]<-env
 
-        })
-      }
 
+          })
+        }
+    } else {
+      recursiveNavigate(env,"children",stepDepth,treeDepth)
+    }
   }
+
 
 
 
