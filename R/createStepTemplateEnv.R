@@ -20,6 +20,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   env$this <- env
   env$stepDf <- stepDf
   env$workflow <- workflow
+  env$step <- NULL
 
   # --- Private helpers ---
   .template_private <- new.env(parent = emptyenv())
@@ -678,6 +679,12 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     }
   }
 
+  env$getStepEnv <- function() {
+    if (is.null(env$step)) {
+      env$step <- improveR::getStep(env$getStepResource())
+    }
+    return(env$step)
+  }
 
   env$getStepValue <- function(key) {
     stepList <- env$stepDf

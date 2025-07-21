@@ -1,7 +1,26 @@
-stepDf <- NULL
-this <- NULL
 
-workflow <- new.env()
+
+recursiveNavigate <- function(stepEnv,action,stepDepth,treeDepth) {
+  actionEnv <- stepEnv[[action]]
+  #here limit step and treeDepth to 0
+  actionEnv$load()
+  stepDepth <- stepDepth-1
+  if (stepDepth==0) {
+    invisible(NULL)
+  }
+  actionSteps <- ls(actionEnv)
+  actionSteps <- actionSteps[actionSteps!="load"]
+  x<- lapply(actionSteps,function(actionStep) {
+    actionStepEnv <- actionEnv[[actionStep]]
+    newTreeDepth <- treeDepth
+    if (actionStepEnv$stepDf$treeIdent != stepEnv$stepDf$treeIdent) {
+      newTreeDepth <- newTreeDepth-1
+    }
+    if (newTreeDepth!=0) {
+      recursiveNavigate(actionStepEnv,action,stepDepth,newTreeDepth)
+    }
+  })
+}
 
 
 
@@ -101,6 +120,12 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
     return(NULL)
   }
 
+
+  env$createTemplate <- function(workflow=NULL) {
+    createStepTemplateEnv(treeIdent = env$stepDf$treeIdent, stepDf = env$stepDf, workflow = workflow)
+  }
+
+
   #' Retrieves the main process data frame of a step
   #' @return Data frame of the main process, or NULL if not found
   env$retrieveMainProcess <- function() {
@@ -157,27 +182,6 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   }
 
 
-  recursiveNavigate <- function(stepEnv,action,stepDepth,treeDepth) {
-    actionEnv <- stepEnv[[action]]
-    #here limit step and treeDepth to 0
-    actionEnv$load()
-    stepDepth <- stepDepth-1
-    if (stepDepth==0) {
-      invisible(NULL)
-    }
-    actionSteps <- ls(actionEnv)
-    actionSteps <- actionSteps[actionSteps!="load"]
-    x<- lapply(actionSteps,function(actionStep) {
-      actionStepEnv <- actionEnv[[actionStep]]
-      newTreeDepth <- treeDepth
-      if (actionStepEnv$stepDf$treeIdent != stepEnv$stepDf$treeIdent) {
-        newTreeDepth <- newTreeDepth-1
-      }
-      if (newTreeDepth!=0) {
-        recursiveNavigate(actionStepEnv,action,stepDepth,newTreeDepth)
-      }
-    })
-  }
 
 
 

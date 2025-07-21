@@ -13,9 +13,15 @@
 - Implement `fullLineage`, `fullUsage`, `fullParent`, and `fullChildren` methods.
 - These methods should traverse the step graph recursively, with configurable depth limits. (treeDepth and stepDepth) check
 
-### 4. Workflow Templates
-- Enable creation of a workflow template from an existing workflow.
-- Support execution of workflow templates to instantiate new workflows and steps.
+### 4. Workflow Templates (Next Steps)
+- Implement `createWorkflowTemplateEnv(workflow)` to generate templates from existing workflows.
+- Implement `executeWorkflowTemplate(template, ...)` to instantiate and run workflow templates.
+- Ensure new workflow template system supports:
+  - Creating templates from trees/workflows
+  - Making steps relative
+  - Executing workflows (dispatcher support)
+  - Managing handles, files, dependencies, and parameters
+- Port/replace legacy logic (`handlesFromTree`, `makeStepsRelative`, `executeWorkflow`) as needed.
 
 ### 5. Execution State Persistence
 - Persist the execution state of workflows and steps for reproducibility and tracking.

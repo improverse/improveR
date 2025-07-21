@@ -1,8 +1,9 @@
-delete("/Projects/Tests/runFiles")
+
 devtools::document()
 devtools::load_all()
 improveR::clearConnectionData()
 improVerticleDevelopment:::login()
+delete("/Projects/Tests/runFiles")
 
 #reporting
 #stepEnv <- getStep("repo_alias_todo:ST-713")
@@ -16,6 +17,8 @@ improVerticleDevelopment:::login()
 stepEnv <- getStep("repo_alias_todo:ST-713")
 
 
+reportingTemplate <- stepEnv$createTemplate()
+reportingTemplate$realise()
 
 
 
