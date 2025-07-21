@@ -144,15 +144,12 @@ getStepDf <- function(ident) {
   restContent <- httr::content(restResult)
 
 
-  processes <- loadProcessesForStep(ident)
+  processes <- updateProcessesForStep(stepIdent = ident)
 
   #if run exists take toolArgs from run
   if (nrow(processes)==0) {
     return (NULL)
   }
-
-
-  processes <- updateProcessesForStep(stepIdent = ident)
   processes <- processes[order(processes$position),]
   processes <- processes[processes$selected,]
 
@@ -191,7 +188,7 @@ getStepDf <- function(ident) {
   variableProcesses <- dplyr::pull(dplyr::distinct(variables,processId))
   variables <- lapply(variableProcesses,
                       function(proc) {
-                        return(loadProcessVariables(proc))
+                        return(actualLoadProcessVariables(proc))
                       }
   )
   variables <- mergeListToDataframe(variables)
@@ -199,6 +196,9 @@ getStepDf <- function(ident) {
 
   variables$variableName <- variables$name
   variables$variableProcess <- processes[processes$id==variables$processId,]$name
+  if (!("valueResourceId" %in% names(variables))) {
+    variables$valueResourceId <- NA
+  }
   variables <- dplyr::select(variables,valueResourceId,variableName,variableProcess)
 
 
@@ -211,7 +211,7 @@ getStepDf <- function(ident) {
 
   #TODO nodeTypes
 
-  inventory <- dplyr::full_join(inventory,variables,c("resourceId" = "valueResourceId"))
+  inventory <- dplyr::left_join(inventory,variables,c("resourceId" = "valueResourceId"))
 
   inputFiles <- inventory[inventory$nodeType=="FIV" | inventory$nodeType=="File",]
   if (step$runStatus!="INITIAL") {

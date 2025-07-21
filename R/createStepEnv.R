@@ -178,9 +178,71 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
       }
     }
   }
-  env$usage$load <- function() {}
-  env$parent$load <- function() {}
-  env$children$load <- function() {}
+  env$usage$load <- function() {
+    step <- env$getStepResource()
+    usageResult <- authenticatedREST("/resources/{resourceId}/usages",
+                                       urlParams = list(resourceId=step$resourceId))
+    if (usageResult$status_code==200) {
+      useageContent <- httr::content(usageResult)
+
+      if (length(useageContent)>0) {
+        stepsDf <- env$workflow$df()
+        links <- lapply(useageContent,function(lStep) {
+          if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
+            log_info("adding ",lStep$name,lStep$entityId,"to usage")
+            lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
+            env$usage[[lStepEnv$stepDf$fullName]]<-lStepEnv
+            lStepEnv$lineage[[env$stepDf$fullName]]<-env
+          }
+
+        })
+      }
+    }
+  }
+
+
+
+  env$parent$load <- function() {
+    step <- env$getStepResource()
+    parent <- updateParentStep(step)
+
+    parentContent <- ls(env$parent)
+    parentContent <- parentContent[parentContent!="load"]
+    if (length(parentContent)==0 && nrow(parent)==1) {
+      parentStep <- getStep(parent$resourceId,workflow = env$workflow)
+      parentStep$children[[env$stepDf$fullName]]<-env
+      env$parent[[parentStep$stepDf$fullName]]<-parentStep
+    } else if (length(parentContent)==1 && nrow(parent)==1) {
+      if (env$parent[[parentContent]]$stepDf$sourceEntityId!=parent$entityId) {
+        parentStep <- getStep(parent$resourceId,workflow = env$workflow)
+        parentStep$children[[env$stepDf$fullName]]<-env
+        env$parent[[parentStep$stepDf$fullName]]<-parentStep
+      }
+    } else if (length(parentContent)==1 && nrow(parent)==0) {
+      rm(list=c(parentContent),pos = env$parent)
+    }
+
+
+  }
+  env$children$load <- function() {
+    step <- env$getStepResource()
+    children <- updateChildSteps(step)$data[[1]]
+
+
+      if (nrow(children)>0) {
+        stepsDf <- env$workflow$df()
+        links <- byNotEmpty(children,function(lStep) {
+          if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
+            log_info("adding ",lStep$name,lStep$entityId,"to children")
+            lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
+            env$children[[lStepEnv$stepDf$fullName]]<-lStepEnv
+            lStepEnv$parent[[env$stepDf$fullName]]<-env
+          }
+
+        })
+      }
+
+  }
 
 
 
