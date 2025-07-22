@@ -388,12 +388,7 @@ createWorkflow <- function() {
   }
 
   env$createTemplate <- function() {
-    workflowTemplate <- new.env()
-    steps <- ls(env$steps)
-    x<- lapply(steps,function(st) {
-      env$steps[[st]]$createTemplate(workflowTemplate)
-    })
-    return(workflowTemplate)
+    return(createWorkflowTemplateEnv(env))
   }
 
 

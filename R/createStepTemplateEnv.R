@@ -98,7 +98,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       processes <- plyr::rbind.fill(processes, processDf)
     }
     prepList$processes <- processes
-    print(jsonlite::toJSON(prepList, auto_unbox = TRUE, pretty = TRUE))
+    #print(jsonlite::toJSON(prepList, auto_unbox = TRUE, pretty = TRUE))
 
     createResult <- improveR::authenticatedREST("/resources/{treeIdent}/steps",
       urlParams = list(treeIdent = treeIdent),
@@ -565,6 +565,19 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   }
 
   env$prepareProcess <- function(processName) {
+
+    resolveRelativeFiles <- function(pF) {
+      if ("sourceInventoryPath" %in% names(pF)) {
+        pF <- improveR:::byNotEmptyAsDf(pF,function(processFile) {
+          if (!is.na(processFile$sourceInventoryPath)) {
+            processFile$ident<- improveR::loadResource(processFile$sourceInventoryPath,from=env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId)$entityId
+          }
+          return(processFile)
+        })
+      }
+      return(pF)
+    }
+
     process <- dplyr::filter(env$stepDf$processes[[1]], name == processName)
     usedTool <- env$getToolForProcess(processName)
     process$runserverId <- usedTool$runserverId
@@ -576,7 +589,13 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     subFolderNameMapping <- list()
     remoteFiles <- env$stepDf$remoteFiles[[1]]
     processFiles <- dplyr::filter(remoteFiles, variableProcess == processName & !is.na(variableName))
+    processFiles <- resolveRelativeFiles(processFiles)
     if (nrow(processFiles) > 0) {
+
+
+
+
+
       variables <- NULL
       resources <- NULL
       for (i in 1:nrow(processFiles)) {
@@ -614,6 +633,8 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     }
     if (processName == "Main") {
       processFiles <- dplyr::filter(remoteFiles, is.null(variableName) | is.na(variableName))
+      processFiles <- resolveRelativeFiles(processFiles)
+
       if (nrow(processFiles) > 0) {
         resources <- process$resources[[1]]
         for (i in 1:nrow(processFiles)) {

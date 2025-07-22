@@ -223,14 +223,14 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
   stepEnv$realise()
   stepEnv$finishRun()
 
-  step <- stepEnv$getStepResource()
-  inventory <- stepEnv$getStepInventory( recurse = T) %>%
+  step <- stepEnv$getStepEnv()
+  inventory <- step$getStepInventory( recurse = T) %>%
     improveR::strip() %>%
     dplyr::filter(name == "test.Rmd")
 
   expect_equal(nrow(inventory), 1)
   expect_equal(inventory$path,
-    file.path(step$path,
+    file.path(step$getStepResource()$path,
       "subfolder",
       inventory$name))
 
@@ -252,6 +252,7 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
   updateFileStep <- dplyr::filter(retryFlowDf, description == "Data Manipulation") %>%
     dplyr::pull(fullName)
   updateFileStepEnv <- retryFlow$steps[[updateFileStep]]
+
   updateFileStepEnv$getStepInventory(recurse = T) %>%
     improveR::strip() %>%
     dplyr::filter(inventoryPath == "subfolder/test.Rmd") %>%
@@ -259,6 +260,7 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
 
   #remove methods for workflowtemplate
 
+  #TODO rerun, checkin include pattern for input files
   retryFlow$rerunChangedAndOutdated()
 
 
@@ -267,16 +269,14 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
 #ask for working copies?
   #ticket, add changed flag to dmg
 
+  retryFlow <- getWorkflow(testTree)
 
 
-  # Check reexecution of link from and to subfolder
-  retry <- improveR::handlesFromTree(testTree)
-  improveR::makeStepsRelative(retry)
 
-  retryWorkflow <- improveR::retrieveWorkflow(retry)
-  retryWorkflow$entityId <- NULL
-  improveR::persistWorkflowChanges(retryWorkflow)
-  improveR::executeWorkflow(retry)
+  retryTemplate <- retryFlow$createTemplate()
+  retryTemplate$realise()
+
+
 })
 
 mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3 = NULL) {
@@ -286,6 +286,9 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
     improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
     improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
     improveR::addStepRemoteFile(dataSet, name = "data.csv")
+
+
+
 
   if (!is.null(dataSet2)) {
     improveR::addStepRemoteFile(handle, dataSet2, name = "data2.csv")

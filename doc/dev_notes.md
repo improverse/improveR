@@ -22,6 +22,10 @@
   - Executing workflows (dispatcher support)
   - Managing handles, files, dependencies, and parameters
 - Port/replace legacy logic (`handlesFromTree`, `makeStepsRelative`, `executeWorkflow`) as needed.
+-getCommandFIleContent
+-addContent instead of addLocalFile
+unify execute from workflow and workflow template
+return workflow after realise
 
 ### 5. Execution State Persistence
 - Persist the execution state of workflows and steps for reproducibility and tracking.
@@ -66,3 +70,6 @@ This plan will enable interactive navigation, flexible workflow editing, advance
 - Commented out code in completeToolPresets for future aggregation of process data frames.
 - Validation message: Only files or resources can be added to an inventory.
 - Validation message: cannot complete a step without process.
+
+
+
