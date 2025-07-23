@@ -191,6 +191,9 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
       step <- env$getStepResource()
       lineageResult <- authenticatedREST("/resources/{resourceId}/dependencies",
                                          urlParams = list(resourceId=step$resourceId))
+      if (is.null(lineageResult)) {
+        return(NULL)
+      }
       if (lineageResult$status_code==200) {
         lineageContent <- httr::content(lineageResult)
 
@@ -217,6 +220,9 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
       step <- env$getStepResource()
       usageResult <- authenticatedREST("/resources/{resourceId}/usages",
                                          urlParams = list(resourceId=step$resourceId))
+      if (is.null(usageResult)) {
+        return(NULL)
+      }
       if (usageResult$status_code==200) {
         useageContent <- httr::content(usageResult)
 

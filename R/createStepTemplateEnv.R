@@ -661,6 +661,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         }
         process$resources <- list(resources)
       }
+      process$resources <- list(dplyr::distinct(process$resources[[1]],targetName,.keep_all = T))
     }
     if (length(subFolderNameMapping) > 0) {
       process$subFolderNameMapping <- subFolderNameMapping
@@ -716,7 +717,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   }
 
 
-  env$realise <- function(force = TRUE, run = TRUE) {
+  env$realise <- function(force = TRUE, run = TRUE,workflow=NULL) {
     improveEditable()
     breakPoint <- env$getStepValue("breakpoint")
     reuse <- env$getStepValue("reuse")
@@ -744,7 +745,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     if (env$getStepState() == "INITIAL" && run) {
       env$run()
     }
-    return(env)
+    return(getStep(newStep$entityId,workflow = workflow))
   }
 
   env$run <- function() {

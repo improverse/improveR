@@ -26,9 +26,11 @@
 -addContent instead of addLocalFile
 unify execute from workflow and workflow template
 return workflow after realise
+for relative files also allow patterns
 
 ### 5. Execution State Persistence
 - Persist the execution state of workflows and steps for reproducibility and tracking.
+execute in step.
 
 ### 6. Testing & Validation
 - Develop comprehensive tests for navigation, workflow editing, template instantiation, and execution state persistence.

@@ -39,13 +39,18 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
   importWF <- jsonlite::read_json(
     file.path(importFolder,"workflow.json",fsep = "/"),
     simplifyVector = T
-  ) %>% persistWorkflowChanges() %>%
-    dplyr::pull(workflowHandle) %>%
-    unique() %>%
-    detachWorkflowFromResources() %>%
-    detachWorkflowFromTrees() %>%
-    setWorkflowTreeRootFolder(importRepoFolder) %>%
-    retrieveWorkflow()
+  )
+  if (nrow(importWF)==0) {
+    return(NULL)
+  }
+  workflow<-createWorkflow()
+  for (i in 1:nrow(importWF)) {
+    stepEnv <- createStepEnv(stepDf = importWF[i,],workflow = workflow)
+  }
+  workflowTemplate <- createWorkflowTemplateEnv(workflow)
+
+
+
 
   #uploadLinks
   #map outsideLinks
@@ -74,8 +79,11 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       if (is.null(linkMapping[[providedLinks[i]]])) {
         linkName <- providedLinks[i]
         importLine <- importMapping[importMapping$key==providedLinks[i],]
-        if (is.character(importLine$name) && !grepl(pattern = ",",x = importLine$name,fixed = T)) {
+        if (nrow(importLine) >0 && is.character(importLine$name) && !grepl(pattern = ",",x = importLine$name,fixed = T)) {
           linkName <- importLine$name
+        }
+        if (startsWith(linkName,"./")) {
+          linkName<- substr(linkName,3,nchar(linkName))
         }
         linkResource <- createFile(importRepoFolderResource,
                                    fileName = linkName,
@@ -93,7 +101,10 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
   )
   outsideLinks$ident<-mappedIdents
   x<-byNotEmpty(outsideLinks,function(oL) {
-    changeStepRemoteFileDf(oL$stepHandle,oL$name,oL)
+    #changeStepRemoteFileDf(oL$stepHandle,oL$name,oL)
+    targetStepName <- oL$targetStep
+    targetStep <- workflowTemplate$stepTemplates[[targetStepName]]
+    targetStep$changeStepRemoteFile(oL$name,oL$asLink,oL$name,oL$ident)
   })
 
   #map tools
@@ -101,7 +112,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     dirname(normalizePath(workflowFile)),
     paste0(workflowName,"ToolMapping.json")
   )
-  if (file.exists(toolMappingPath)) {
+  if (FALSE && file.exists(toolMappingPath)) {
     importMapping <-jsonlite::read_json(toolMappingPath,simplifyVector = T)
     processes <- byNotEmptyAsDf(importWF,function(task) {
       return(task$processes[[1]])
@@ -121,39 +132,38 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     })
   }
 
-  importWF <- retrieveWorkflow(importWF)
 
-  orderedWorkflow <- executionOrder(importWF)
+  orderedWorkflow  <- workflowTemplate$createExecutionPlan()
   executionList <- c()
   for (i in 1:nrow(orderedWorkflow)) {
     nextData <- orderedWorkflow[i,]
-    nextItem <- nextData$handle
+    nextItem <- nextData$fullName
+
+    template <- workflowTemplate$stepTemplates[[nextItem]]
 
 
-
-
-    if ("dependencies" %in% names(nextData) && !is.na(nextData$dependencies)) {
-      dependencies <- unique(strsplit(nextData$dependencies,",")[[1]])
+    if ("lineage" %in% names(nextData) && !is.na(nextData$lineage)) {
+      dependencies <- unique(strsplit(nextData$lineage,",")[[1]])
       for (j in 1:length(dependencies)) {
         dependency <- dependencies[j]
         if (dependency %in% executionList) {
           logging::loginfo("waiting to finish")
-          finishRun(dependency)
+          #finishRun(dependency)
           executionList <- executionList[executionList!=dependency]
         }
       }
     }
     #create step, add links
     #remove inputfiles
-    remoteFiles <- nextData$remoteFiles[[1]]
+    remoteFiles <- template$stepDf$remoteFiles[[1]]
     remoteFiles <- remoteFiles[remoteFiles$asLink,]
-    nextData$remoteFiles[[1]]<- remoteFiles
-    storeStep(stepHandle = nextItem,stepList = nextData)
-    realiseStep(nextItem,run = F)
-    nextStep <- getStepResource(nextItem)
-    stepInputFolderPath <- paste0("import",nextItem)
+    template$stepDf$remoteFiles[[1]]<- remoteFiles
+    template$realise(run=F)
+
+    nextStep <- improveR::loadResource(template$stepDf$entityId)
+    stepInputFolderPath <- paste0("import",uuid::UUIDgenerate()  )
     dir.create(stepInputFolderPath,showWarnings = F,recursive = T)
-    stepInputFolderPath <- normalizePath(paste0("import",nextItem),winslash = "/")
+    stepInputFolderPath <- normalizePath(stepInputFolderPath,winslash = "/")
     cloneCli(nextStep,localPath = stepInputFolderPath)
 
     # push input files

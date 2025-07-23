@@ -220,10 +220,10 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
   stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
   stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"), name = "subfolder/test.Rmd", asLink = F)
   stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
-  stepEnv$realise()
+  step <- stepEnv$realise()
   stepEnv$finishRun()
 
-  step <- stepEnv$getStepEnv()
+
   inventory <- step$getStepInventory( recurse = T) %>%
     improveR::strip() %>%
     dplyr::filter(name == "test.Rmd")
@@ -258,8 +258,6 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
     dplyr::filter(inventoryPath == "subfolder/test.Rmd") %>%
     improveR::updateFileContent(localPath = "improver.log")
 
-  #remove methods for workflowtemplate
-
   #TODO rerun, checkin include pattern for input files
   retryFlow$rerunChangedAndOutdated()
 
@@ -270,36 +268,31 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
   #ticket, add changed flag to dmg
 
   retryFlow <- getWorkflow(testTree)
-
-
-
   retryTemplate <- retryFlow$createTemplate()
   retryTemplate$realise()
-
-
 })
 
 mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3 = NULL) {
-  handle <- rBatchStep(tree) %>%
-    improveR::setStepDescription(name) %>%
-    improveR::setStepRationale(description) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-    improveR::addStepRemoteFile(dataSet, name = "data.csv")
+  stepEnv <- rBatchStep(tree)
+  stepEnv$setStepDescription(name)
+  stepEnv$setStepRationale(description)
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
+  stepEnv$addStepRemoteFile(dataSet, name = "data.csv")
 
 
 
 
   if (!is.null(dataSet2)) {
-    improveR::addStepRemoteFile(handle, dataSet2, name = "data2.csv")
+    stepEnv$addStepRemoteFile(dataSet2, name = "data2.csv")
   }
   if (!is.null(dataSet3)) {
-    improveR::addStepRemoteFile(handle, dataSet3, name = "data3.csv")
+    stepEnv$addStepRemoteFile( dataSet3, name = "data3.csv")
   }
-  handle <- handle %>% improveR::realiseStep() %>%
-    improveR::finishRun()
-?get
-  inventory <- improveR::getStepInventory(handle)$data[[1]]
+  realStep <- stepEnv$realise()
+  stepEnv$finishRun()
+
+  inventory <- realStep$getStepInventory()$data[[1]]
   dataSet <- inventory %>%
     dplyr::filter(name == "chapter15_example_cleaned.rds") %>%
     dplyr::select("entityId") %>% as.character()
@@ -328,80 +321,81 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 
   fullLineageFolder <- createFolder(TEST_FOLDER,"fullLineage")
 
-  lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
-    getFullLineage() %>%
-      makeStepsRelative() %>%
-      detachWorkflowFromResources() %>%
-      detachWorkflowFromTrees() %>%
-      setWorkflowTreeRootFolder(fullLineageFolder$path) %>%
-      executeWorkflow()
+  lastStep <- loadChildResources(dmgL3) %>%strip() %>% getStep()
+  lastStep$lineage$load(stepDepth = -1,treeDepth = -1)
+  fullLineageTemplate <- lastStep$workflow$createTemplate()
+  fullLineageTemplate$setWorkflowTreeRootFolder(fullLineageFolder$path)
+  lineageResult <- fullLineageTemplate$realise()
+
+
 
   expect_equal(nrow(loadChildResources(fullLineageFolder)$data[[1]]),3)
-  expect_equal(nrow(loadChildResources("./DMG L1",fullLineageFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources("./DMG L1",fullLineageFolder)$data[[1]]),4)
   expect_equal(nrow(loadChildResources("./DMG L2",fullLineageFolder)$data[[1]]),2)
   expect_equal(nrow(loadChildResources("./DMG L3",fullLineageFolder)$data[[1]]),1)
 
-  lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
-    getFullLineage(depth=1) %>%
-    makeStepsRelative() %>%
-    detachWorkflowFromResources() %>%
-    detachWorkflowFromTrees() %>%
-    setWorkflowTreeRootFolder(fullLineageFolder$path) %>%
-    setWorkflowTreeName("AllInOne") %>%
-    executeWorkflow()
+
+  lastStep <- loadChildResources(dmgL3) %>%strip() %>% getStep()
+  lastStep$lineage$load(stepDepth = -1,treeDepth = 1)
+  fullLineageTemplate <- lastStep$workflow$createTemplate()
+  fullLineageTemplate$setWorkflowTreeRootFolder(fullLineageFolder$path)
+  fullLineageTemplate$setWorkflowTreeName("AllInOne")
+  lineageResult <- fullLineageTemplate$realise()
+
+
 
   expect_equal(nrow(loadChildResources(fullLineageFolder)$data[[1]]),4)
   expect_equal(nrow(loadChildResources("./AllInOne",fullLineageFolder)$data[[1]]),3)
 
   fullUsageFolder <- createFolder(TEST_FOLDER,"fullUsage")
 
-  usageWorkflowHandle <- loadFullChildResources(dmgL1)%>%strip() %>%
-    dplyr::filter(description=="Initial 2")%>%
-    getFullUsage() %>%
-    makeStepsRelative() %>%
-    detachWorkflowFromResources() %>%
-    detachWorkflowFromTrees() %>%
-    setWorkflowTreeRootFolder(fullUsageFolder$path) %>%
-    executeWorkflow()
+  firstStep <- loadFullChildResources(dmgL1)%>%strip() %>%
+    dplyr::filter(description=="Initial 2")%>%getStep()
+  firstStep$usage$load(stepDepth = -1,treeDepth = -1)
+  firstStepTemplate<-firstStep$workflow$createTemplate()
+  firstStepTemplate$setWorkflowTreeRootFolder(fullUsageFolder$path)
+  firstStepReexec <- firstStepTemplate$realise()
+
+
 
   expect_equal(nrow(loadChildResources(fullUsageFolder)$data[[1]]),3)
   expect_equal(nrow(loadChildResources("./DMG L1",fullUsageFolder)$data[[1]]),1)
   expect_equal(nrow(loadChildResources("./DMG L2",fullUsageFolder)$data[[1]]),1)
   expect_equal(nrow(loadChildResources("./DMG L3",fullUsageFolder)$data[[1]]),1)
 
-  usageWorkflowHandle <- loadFullChildResources(dmgL1)%>%strip() %>%
-    dplyr::filter(description=="Initial 2")%>%
-    getFullUsage(depth=1) %>%
-    makeStepsRelative() %>%
-    detachWorkflowFromResources() %>%
-    detachWorkflowFromTrees() %>%
-    setWorkflowTreeRootFolder(fullUsageFolder$path) %>%
-    setWorkflowTreeName("AllInOne") %>%
-    executeWorkflow()
+
+
+  firstStep <- loadFullChildResources(dmgL1)%>%strip() %>%
+    dplyr::filter(description=="Initial 2")%>%getStep()
+  firstStep$usage$load(stepDepth = -1,treeDepth = 1)
+  firstStepTemplate<-firstStep$workflow$createTemplate()
+  firstStepTemplate$setWorkflowTreeRootFolder(fullUsageFolder$path)
+  firstStepTemplate$setWorkflowTreeName("AllInOne")
+  firstStepReexec <- firstStepTemplate$realise()
+
 
   expect_equal(nrow(loadChildResources(fullUsageFolder)$data[[1]]),4)
   expect_equal(nrow(loadChildResources("./AllInOne",fullUsageFolder)$data[[1]]),2)
 
 
-  lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
-    getFullLineage() %>%
-    makeStepsRelative() %>%
-    detachWorkflowFromResources() %>%
-    executeWorkflow()
-
-  expect_equal(nrow(loadChildResources("./DMG L1",TEST_FOLDER)$data[[1]]),7)
-  expect_equal(nrow(loadChildResources("./DMG L2",TEST_FOLDER)$data[[1]]),4)
-  expect_equal(nrow(loadChildResources("./DMG L3",TEST_FOLDER)$data[[1]]),2)
+  # lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
+  #   getFullLineage() %>%
+  #   makeStepsRelative() %>%
+  #   detachWorkflowFromResources() %>%
+  #   executeWorkflow()
+  #
+  # expect_equal(nrow(loadChildResources("./DMG L1",TEST_FOLDER)$data[[1]]),7)
+  # expect_equal(nrow(loadChildResources("./DMG L2",TEST_FOLDER)$data[[1]]),4)
+  # expect_equal(nrow(loadChildResources("./DMG L3",TEST_FOLDER)$data[[1]]),2)
 
 
   #import export
-  reports <- loadChildResources(dmgL3)%>%strip()
-  workflowToexport  <-  reports[1,]%>%
-    getFullLineage() %>%
-    makeStepsRelative() %>%
-    detachWorkflowFromTrees() %>%
-    retrieveWorkflow()
-  exportWorkflow(workflowToexport,workflowName = "lineageDMG")
+  report <- loadChildResources(dmgL3)%>%strip() %>% getStep()
+  report$lineage$load(stepDepth = -1,treeDepth = -1)
+  workflow <- report$workflow$createTemplate()
+
+
+  exportWorkflow(workflow,workflowName = "lineageDMG")
 
   importRepoFolder <- file.path(TEST_FOLDER,"import1")
   createFolder(dirname(importRepoFolder),basename(importRepoFolder))

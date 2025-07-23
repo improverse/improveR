@@ -2,40 +2,50 @@ filterOutsideLinks <- function(workflow) {
    outsideLinks <- byNotEmptyAsDf(workflow,function(workflowTask) {
     remoteFiles <- workflowTask$remoteFiles[[1]]
     if (!is.null(remoteFiles)) {
-      oLinks <- remoteFiles[remoteFiles$asLink & !is.na(remoteFiles$ident),]
+      remoteFiles$targetStep <- workflowTask$fullName
+      oLinks <- remoteFiles[remoteFiles$asLink & is.na(remoteFiles$sourceStep),]
       return(oLinks)
     }
     return(NULL)
-  }) %>%
-    dplyr::distinct(stepHandle,version,.keep_all = T)
+  })%>%
+    dplyr::distinct(targetStep,version,.keep_all = T)
    return(outsideLinks)
 }
 
 
 exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
   #list of external links
-  outsideLinks <- filterOutsideLinks(workflow) %>%
-    dplyr::select(stepHandle,name,version,filehash,maxVersion)
+  workFlowDf<- workflow$df()
+  outsideLinks <- filterOutsideLinks(workFlowDf) %>%
+    dplyr::select(stepHandle,targetStep,name,version,filehash,maxVersion)
 
-  insideLinks <- byNotEmptyAsDf(workflow,function(workflowTask) {
+  insideLinks <- byNotEmptyAsDf(workflow$df(),function(workflowTask) {
     remoteFiles <- workflowTask$remoteFiles[[1]]
     if (!is.null(remoteFiles)) {
-      oLinks <- remoteFiles[remoteFiles$asLink & is.na(remoteFiles$ident),]
-      return(oLinks)
+      oLinks <- remoteFiles[remoteFiles$asLink & !is.na(remoteFiles$sourceStep),]
+      if (nrow(oLinks)>0) {
+        return(oLinks %>% dplyr::distinct(targetStep,sourceStep,sourceInventoryPath,.keep_all = T))
+      }
     }
     return(NULL)
-  }) %>%
-    dplyr::select(stepHandle,name)
+  })
 
-  inputs <- byNotEmptyAsDf(workflow,function(workflowTask) {
+  #%>%
+  #  dplyr::select(targetStep,name)
+
+  inputs <- byNotEmptyAsDf(workFlowDf,function(workflowTask) {
     remoteFiles <- workflowTask$remoteFiles[[1]]
     if (!is.null(remoteFiles)) {
       oLinks <- remoteFiles[!remoteFiles$asLink,]
+      if (nrow(oLinks)>0) {
+        oLinks$name <- improveR::loadResource(oLinks$ident)$name
+        oLinks$targetStep<-workflowTask$fullName
+      }
       return(oLinks)
     }
     return(NULL)
   })%>%
-    dplyr::select(stepHandle,name)
+    dplyr::select(stepHandle,targetStep,name)
 
   #pull all steps
   workflowFolder <- file.path(targetFolder,workflowName,fsep = "/")
@@ -44,10 +54,11 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
   linkDir <- file.path(exportDir,"links",fsep = "/")
   dir.create(linkDir)
 
-  taskDirs <- byNotEmptyAsDf(workflow,function(exportTask) {
+
+  taskDirs <- byNotEmptyAsDf(workFlowDf,function(exportTask) {
     taskDir <- file.path(exportDir,exportTask$handle)
     dir.create(taskDir)
-    cloneCli(exportTask$entityId,taskDir)
+    cloneCli(exportTask$sourceEntityId,taskDir)
     return(data.frame(taskDir=taskDir,handle=exportTask$handle))
   })
 
@@ -67,7 +78,7 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
       }
 
       taskOutsideLinks <- outsideLinks[outsideLinks$stepHandle==taskDf$handle,]
-      if (length(taskOutsideLinks)>0) {
+      if (nrow(taskOutsideLinks)>0) {
         for (i in 1:length(taskOutsideLinks)) {
           outsideLink <- taskOutsideLinks[i,]
           outsideLinkPath <- file.path(taskDf$taskDir,taskOutsideLinks[i,]$name,fsep = "/")
@@ -111,17 +122,17 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
       file.rename(inputFolderPath,file.path(taskDf$taskDir,"inputFiles"))
     }
   }
-  jsonlite::write_json(workflow,
+  jsonlite::write_json(workFlowDf,
                        file.path(exportDir,"workflow.json"),
                        pretty = T)
 
 
   #create tool mapping
 
-  toolMapping <- byNotEmptyAsDf(workflow,function(task) {
+  toolMapping <- byNotEmptyAsDf(workFlowDf,function(task) {
     processes <- task$processes[[1]] %>%
-      dplyr::select(runserverName,toolName,runserverToolName,gridTool) %>%
-      dplyr::mutate(key=paste(runserverName,toolName,runserverToolName,gridTool,sep=":::"))
+      dplyr::select(runserverLabel,toolLabel,toolInstance,gridTool) %>%
+      dplyr::mutate(key=paste(runserverLabel,toolLabel,toolInstance,gridTool,sep=":::"))
     return(processes)
   }) %>%
     dplyr::distinct(key,.keep_all = T)
@@ -134,7 +145,7 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
 
   #create link mapping
   #add stepname / treename
-  outsideLinks <- filterOutsideLinks(workflow) %>%
+  outsideLinks <- filterOutsideLinks(workFlowDf) %>%
     dplyr::select(ident,version,filehash,name) %>%
     byNotEmptyAsDf(function(link) {
       sameNames <- unique(

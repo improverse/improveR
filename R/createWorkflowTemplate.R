@@ -10,6 +10,11 @@ createWorkflowTemplateEnv <- function(workflow) {
   env$this <- env
   env$workflow <- workflow
 
+
+
+
+
+
   internalLinks <- dplyr::select(workflow$internalLinks,entityId,fileHash,revisionId,path,targetStep,sourceStep)
 
   # Extract steps and their templates
@@ -20,33 +25,27 @@ createWorkflowTemplateEnv <- function(workflow) {
     stepDf <- stepEnv$stepDf
 
     workflowLinks <- internalLinks[internalLinks$targetStep==stepName,]
-    print("links")
-    print(workflowLinks)
     if (nrow(workflowLinks)>0) {
       remoteFiles <- stepDf$remoteFiles[[1]]
+      if (!("sourceStep"%in%names(remoteFiles))) {
+        jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("ident"="entityId"))
 
-      jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("ident"="entityId"))
+        jointRemoteFiles <-byNotEmptyAsDf(jointRemoteFiles,function(remoteFile) {
 
-      jointRemoteFiles <-byNotEmptyAsDf(jointRemoteFiles,function(remoteFile) {
-
-        if (!is.na(remoteFile$sourceStep)) {
-          sourceStepPath <- improveR::loadResource(workflow$steps[[remoteFile$sourceStep]]$stepDf$sourceEntityId)$path
-          inventoryPath <- paste0("./",substr(remoteFile$path,nchar(sourceStepPath)+2,nchar(remoteFile$path)))
-          remoteFile$sourceInventoryPath <- inventoryPath
-        }
-        if (is.na(remoteFile$name)) {
-          remoteFile$name<-paste0("./",improveR::loadResource(remoteFile$ident)$name)
-        }
-        return(remoteFile)
-      })
-      print("joint")
-      print(jointRemoteFiles)
-      stepDf$remoteFiles<-list(jointRemoteFiles)
-
+          if (!is.na(remoteFile$sourceStep)) {
+            sourceStepPath <- improveR::loadResource(workflow$steps[[remoteFile$sourceStep]]$stepDf$sourceEntityId)$path
+            inventoryPath <- paste0("./",substr(remoteFile$path,nchar(sourceStepPath)+2,nchar(remoteFile$path)))
+            remoteFile$sourceInventoryPath <- inventoryPath
+          }
+          if (is.na(remoteFile$name)) {
+            remoteFile$name<-paste0("./",improveR::loadResource(remoteFile$ident)$name)
+          }
+          return(remoteFile)
+        })
+        stepDf$remoteFiles<-list(jointRemoteFiles)
+      }
 
     }
-    print("final")
-    print(stepDf$remoteFiles)
     stepTemplates[[stepName]] <- createStepTemplateEnv(
       stepDf = stepDf,
       workflow = env
@@ -75,6 +74,20 @@ createWorkflowTemplateEnv <- function(workflow) {
     })
   }
 
+  env$setWorkflowTreeRootFolder <- function(rootFolder) {
+    .workflow_template_private$setValue("treePath",rootFolder)
+    .workflow_template_private$setValue("treeIdent",NULL)
+    #treeName
+    #treeIdent
+  }
+
+  env$setWorkflowTreeName <- function(treeName) {
+    .workflow_template_private$setValue("treeName",treeName)
+    .workflow_template_private$setValue("treeIdent",NULL)
+    #treeName
+    #treeIdent
+  }
+
   #' Create a re-execution plan for outdated steps
   #' @return A data.frame describing the execution plan
   env$createExecutionPlan <- function() {
@@ -88,9 +101,9 @@ createWorkflowTemplateEnv <- function(workflow) {
       internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
       usingSteps <- env$internalLinks[env$internalLinks$sourceStep == st$fullName, ]$targetStep
       usedSteps <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]$sourceStep
-      st$lineage <- paste(usedSteps, collapse = ",", sep = "/")
+      st$lineage <- paste(unique(usedSteps), collapse = ",", sep = "/")
       if (st$lineage == "") st$lineage <- NA
-      st$usage <- paste(usingSteps, collapse = ",", sep = "/")
+      st$usage <- paste(unique(usingSteps), collapse = ",", sep = "/")
       if (st$usage == "") st$usage <- NA
       st$toUpdate<-NA
       return(st)
@@ -116,6 +129,7 @@ createWorkflowTemplateEnv <- function(workflow) {
   #' @return Invisibly returns NULL
   env$executePlan <- function(executionPlan) {
     orderedWorkflow <-  .workflow_template_private$executionOrder(env, executionPlan)
+    workflow <- NULL
     executionList <- c()
     for (i in seq_len(nrow(orderedWorkflow))) {
       nextData <- orderedWorkflow[i, ]
@@ -138,7 +152,10 @@ createWorkflowTemplateEnv <- function(workflow) {
         improveR::runStepResource(nextData$sourceEntityId)
       } else {
         stepEnv <- env$stepTemplates[[nextData$fullName]]
-        stepEnv$realise()
+        returnStep <- stepEnv$realise(workflow=workflow)
+        if (is.null(workflow)) {
+          workflow<-returnStep$workflow
+        }
       }
       executionList <- c(executionList, nextItem)
     }
@@ -147,83 +164,100 @@ createWorkflowTemplateEnv <- function(workflow) {
         improveR::finishRunResource(env$steps[[item]]$stepDf$sourceEntityId)
       }
     }
+    return(workflow)
   }
 
 
   env$realise <- function() {
-    env$executePlan(env$createExecutionPlan())
+    return(env$executePlan(env$createExecutionPlan()))
   }
+
+
+  # --- Private/Internal Methods (not exported to user) ---
+
+  .workflow_template_private <- new.env(parent = emptyenv())
+
+  .workflow_template_private$collectInternalLinks <- function(env) {
+    stepsDf <- env$df()
+    remoteFiles <- byNotEmptyAsDf(stepsDf, function(stepInstance) {
+      rf <- stepInstance$remoteFiles[[1]]
+      if (is.null(rf) || nrow(rf)==0) {return(NULL)}
+      return(rf)
+    })
+    if (is.null(remoteFiles) || nrow(remoteFiles)==0) {
+      return(NULL)
+    }
+    if ("sourceStep" %in% names(remoteFiles)) {
+      allTargets <- remoteFiles[!is.na(remoteFiles$sourceStep),]
+      env$internalLinks <- allTargets
+    }
+
+  }
+
+
+  .workflow_template_private$executionOrder <- function(env, plan) {
+    .workflow_template_private$executionOrderInternal(env, plan)
+  }
+
+  .workflow_template_private$executionOrderInternal <- function(env, plan, startSteps = NULL, counter = 0) {
+    counter <- counter + 1
+    if (!"lineage" %in% names(plan)) {
+      plan$lineage <- NA
+    }
+    if (!"usage" %in% names(plan)) {
+      plan$usage <- ""
+    }
+    if (is.null(startSteps)) {
+      startSteps <- plan[is.na(plan$lineage), ]
+      plan <- plan[!is.na(plan$lineage), ]
+    }
+    if (is.null(startSteps) || nrow(startSteps) == 0) {
+      logging::logwarn("No step without dependency, no executable order")
+      return(NULL)
+    }
+    for (s in seq_len(nrow(startSteps))) {
+      startStep <- startSteps[s, ]
+      lineages <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
+      if (length(lineages) > 0) {
+        for (lineage in lineages) {
+          lineageHandle <- plan[plan$fullName == lineage, ]
+          if (nrow(lineageHandle) == 1 && "lineage" %in% names(lineageHandle)) {
+            dependencies <- strsplit(lineageHandle$lineage, ",", fixed = TRUE)[[1]]
+            if (all(dependencies %in% startSteps$fullName)) {
+              startSteps <- plyr::rbind.fill(startSteps, lineageHandle)
+              plan <- plan[plan$fullName != lineage, ]
+            }
+          }
+        }
+      }
+    }
+    if (nrow(plan) == 0 || counter > 500) {
+      if (counter > 500) {
+        logging::logwarn("could not add all steps to execution order, check for cycles")
+      }
+      return(startSteps)
+    }
+    .workflow_template_private$executionOrderInternal(env, plan, startSteps, counter)
+  }
+
+  .workflow_template_private$setValue <- function(key,value) {
+    stepNames <- data.frame(fullName = ls(env$stepTemplates))
+    stepDf <- byNotEmpty(stepNames, function(stepName) {
+      fullName <- stepName$fullName
+      stepEnv <- env$stepTemplates[[fullName]]
+      stepEnv$setStepValue(key,value)
+      return(NULL)
+    })
+  }
+  ############## INTERNAL METHODS END
+
+
 
   return(env)
 }
 
 
-# --- Private/Internal Methods (not exported to user) ---
 
-.workflow_template_private <- new.env(parent = emptyenv())
-
-.workflow_template_private$collectInternalLinks <- function(env) {
-  stepsDf <- env$df()
-  remoteFiles <- byNotEmptyAsDf(stepsDf, function(stepInstance) {
-    rf <- stepInstance$remoteFiles[[1]]
-    if (is.null(rf) || nrow(rf)==0) {return(NULL)}
-    return(rf)
-  })
-  if (is.null(remoteFiles) || nrow(remoteFiles)==0) {
-    return(NULL)
-  }
-  if ("sourceStep" %in% names(remoteFiles)) {
-    allTargets <- remoteFiles[!is.na(remoteFiles$sourceStep),]
-    env$internalLinks <- allTargets
-  }
-
-  }
-
-
-.workflow_template_private$executionOrder <- function(env, plan) {
-  .workflow_template_private$executionOrderInternal(env, plan)
-}
-
-.workflow_template_private$executionOrderInternal <- function(env, plan, startSteps = NULL, counter = 0) {
-  counter <- counter + 1
-  if (!"lineage" %in% names(plan)) {
-    plan$lineage <- NA
-  }
-  if (!"usage" %in% names(plan)) {
-    plan$usage <- ""
-  }
-  if (is.null(startSteps)) {
-    startSteps <- plan[is.na(plan$lineage), ]
-    plan <- plan[!is.na(plan$lineage), ]
-  }
-  if (is.null(startSteps) || nrow(startSteps) == 0) {
-    logging::logwarn("No step without dependency, no executable order")
-    return(NULL)
-  }
-  for (s in seq_len(nrow(startSteps))) {
-    startStep <- startSteps[s, ]
-    lineages <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
-    if (length(lineages) > 0) {
-      for (lineage in lineages) {
-        lineageHandle <- plan[plan$fullName == lineage, ]
-        if (nrow(lineageHandle) == 1 && "lineage" %in% names(lineageHandle)) {
-          dependencies <- strsplit(lineageHandle$lineage, ",", fixed = TRUE)[[1]]
-          if (all(dependencies %in% startSteps$fullName)) {
-            startSteps <- plyr::rbind.fill(startSteps, lineageHandle)
-            plan <- plan[plan$fullName != lineage, ]
-          }
-        }
-      }
-    }
-  }
-  if (nrow(plan) == 0 || counter > 500) {
-    if (counter > 500) {
-      logging::logwarn("could not add all steps to execution order, check for cycles")
-    }
-    return(startSteps)
-  }
-  .workflow_template_private$executionOrderInternal(env, plan, startSteps, counter)
-}
 
   # TODO resolv parent kram
 
