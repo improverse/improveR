@@ -3,6 +3,9 @@ filterOutsideLinks <- function(workflow) {
     remoteFiles <- workflowTask$remoteFiles[[1]]
     if (!is.null(remoteFiles)) {
       remoteFiles$targetStep <- workflowTask$fullName
+      if (!("sourceStep" %in% names(remoteFiles))) {
+        remoteFiles$sourceStep<-NA
+      }
       oLinks <- remoteFiles[remoteFiles$asLink & is.na(remoteFiles$sourceStep),]
       return(oLinks)
     }
@@ -79,7 +82,7 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
 
       taskOutsideLinks <- outsideLinks[outsideLinks$stepHandle==taskDf$handle,]
       if (nrow(taskOutsideLinks)>0) {
-        for (i in 1:length(taskOutsideLinks)) {
+        for (i in 1:nrow(taskOutsideLinks)) {
           outsideLink <- taskOutsideLinks[i,]
           outsideLinkPath <- file.path(taskDf$taskDir,taskOutsideLinks[i,]$name,fsep = "/")
           createdLinks <- dir(linkDir)
@@ -97,8 +100,8 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
                                    paste0(taskDf$handle,"inputFiles"))
       dir.create(inputFolderPath)
       inputFiles <- inputs[inputs$stepHandle==taskDf$handle,]
-      if (length(inputFiles)>0) {
-        for (i in 1:length(inputFiles)) {
+      if (nrow(inputFiles)>0) {
+        for (i in 1:nrow(inputFiles)) {
           inputPath <- file.path(taskDf$taskDir,inputFiles[i,]$name,fsep = "/")
           outputPath <- file.path(inputFolderPath,inputFiles[i,]$name,fsep = "/")
           dir.create(dirname(outputPath),recursive = T,showWarnings = F)

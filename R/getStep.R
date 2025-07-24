@@ -209,6 +209,13 @@ getStepDf <- function(ident) {
     inventory <- getStepResourceInventory(step,recurse=T)$data[[1]]
   }
 
+  #filter only inputs
+  #try with initial steps
+
+  if ("startedAt" %in% names(processes)) {
+    inventory <- inventory[inventory$revisionFromTime<processes$startedAt,]
+  }
+
   #TODO nodeTypes
 
   inventory <- dplyr::left_join(inventory,variables,c("resourceId" = "valueResourceId"))

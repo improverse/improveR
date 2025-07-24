@@ -69,11 +69,16 @@ nonmemBatchStep <- function(testTree) {
   nonmem_tool <- Sys.getenv("NONMEM_TOOL")
   nonmem_tool_instance <- Sys.getenv("NONMEM_TOOL_INSTANCE")
 
-  stepEnv <- createStepEnv(treeIdent=testTree) %>%
-    setStepRunserverName(nonmem_runserver) %>%
-    setStepToolName(nonmem_tool) %>%
-    setStepCommandLine("<command-file>\r\noutput<process>.txt", append = F) %>%
-    setStepRunserverToolName(nonmem_tool_instance)
+
+  stepEnv <- createStepTemplateEnv(treeIdent=testTree)
+  stepEnv$setStepRunserverLabel(nonmem_runserver)
+  stepEnv$setStepToolLabel(nonmem_tool)
+  stepEnv$setStepToolInstance(nonmem_tool_instance)
+
+
+
+    #setStepCommandLine("<command-file>\r\noutput<process>.txt", append = F) %>%
+
   return(stepEnv)
 }
 
@@ -358,9 +363,9 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 
 
 
-  expect_equal(nrow(loadChildResources(fullUsageFolder)$data[[1]]),3)
-  expect_equal(nrow(loadChildResources("./DMG L1",fullUsageFolder)$data[[1]]),1)
-  expect_equal(nrow(loadChildResources("./DMG L2",fullUsageFolder)$data[[1]]),1)
+  expect_equal(nrow(loadChildResources(fullUsageFolder)$data[[1]]),4)
+  expect_equal(nrow(loadChildResources("./DMG L1",fullUsageFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources("./DMG L2",fullUsageFolder)$data[[1]]),2)
   expect_equal(nrow(loadChildResources("./DMG L3",fullUsageFolder)$data[[1]]),1)
 
 
@@ -375,24 +380,25 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 
 
   expect_equal(nrow(loadChildResources(fullUsageFolder)$data[[1]]),4)
-  expect_equal(nrow(loadChildResources("./AllInOne",fullUsageFolder)$data[[1]]),2)
+  expect_equal(nrow(loadChildResources("./AllInOne",fullUsageFolder)$data[[1]]),10)
 
 
-  # lineageWorkflowHandle <- loadChildResources(dmgL3)%>%strip() %>%
-  #   getFullLineage() %>%
-  #   makeStepsRelative() %>%
-  #   detachWorkflowFromResources() %>%
-  #   executeWorkflow()
-  #
-  # expect_equal(nrow(loadChildResources("./DMG L1",TEST_FOLDER)$data[[1]]),7)
-  # expect_equal(nrow(loadChildResources("./DMG L2",TEST_FOLDER)$data[[1]]),4)
-  # expect_equal(nrow(loadChildResources("./DMG L3",TEST_FOLDER)$data[[1]]),2)
+   lineageWorkflowStep <- loadChildResources(dmgL3)%>%strip() %>%
+     getStep()
+   lineageWorkflowStep$lineage$load(stepDepth = -1,treeDepth = -1)
+
+   lineageWorkflowStep$workflow$createTemplate()$realise()
+
+   expect_equal(nrow(loadChildResources("./DMG L1",TEST_FOLDER)$data[[1]]),8)
+   expect_equal(nrow(loadChildResources("./DMG L2",TEST_FOLDER)$data[[1]]),4)
+   expect_equal(nrow(loadChildResources("./DMG L3",TEST_FOLDER)$data[[1]]),2)
 
 
   #import export
-  report <- loadChildResources(dmgL3)%>%strip() %>% getStep()
-  report$lineage$load(stepDepth = -1,treeDepth = -1)
-  workflow <- report$workflow$createTemplate()
+  report <- loadChildResources(dmgL3)%>%strip()
+  reportStep <- getStep(report[1,])
+  reportStep$lineage$load(stepDepth = -1,treeDepth = -1)
+  workflow <- reportStep$workflow$createTemplate()
 
 
   exportWorkflow(workflow,workflowName = "lineageDMG")

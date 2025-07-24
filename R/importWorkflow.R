@@ -48,7 +48,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     stepEnv <- createStepEnv(stepDf = importWF[i,],workflow = workflow)
   }
   workflowTemplate <- createWorkflowTemplateEnv(workflow)
-
+  workflowTemplate$setWorkflowTreeRootFolder(importRepoFolder)
 
 
 
@@ -167,11 +167,11 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     cloneCli(nextStep,localPath = stepInputFolderPath)
 
     # push input files
-    inputFiles <- dir(file.path(importFolder,nextItem,"inputFiles",fsep = "/"),all.files = T)
+    inputFiles <- dir(file.path(importFolder,template$stepDf$handle,"inputFiles",fsep = "/"),all.files = T)
     inputFiles <- inputFiles[!(inputFiles %in% c(".",".."))]
     if (length(inputFiles)>0) {
       for (iF in 1:length(inputFiles)) {
-        inputPath <- file.path(importFolder,nextItem,"inputFiles",inputFiles[iF],fsep = "/")
+        inputPath <- file.path(importFolder,template$stepDf$handle,"inputFiles",inputFiles[iF],fsep = "/")
         outputPath <- file.path(stepInputFolderPath,inputFiles[iF],fsep = "/")
         dir.create(dirname(outputPath),recursive = T,showWarnings = F)
         file.rename(inputPath,outputPath)
@@ -182,20 +182,20 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
 
     # push output files
     #push run
-    outputFiles <- dir(file.path(importFolder,nextItem,"outputFiles",fsep = "/"),all.files = T)
+    outputFiles <- dir(file.path(importFolder,template$stepDf$handle,"outputFiles",fsep = "/"),all.files = T)
     outputFiles <- outputFiles[!(outputFiles %in% c(".",".."))]
     if (length(outputFiles)>0) {
       for (iF in 1:length(outputFiles)) {
-        inputPath <- file.path(importFolder,nextItem,"outputFiles",outputFiles[iF],fsep = "/")
+        inputPath <- file.path(importFolder,template$stepDf$handle,"outputFiles",outputFiles[iF],fsep = "/")
         outputPath <- file.path(stepInputFolderPath,outputFiles[iF],fsep = "/")
         dir.create(dirname(outputPath),recursive = T,showWarnings = F)
         file.rename(inputPath,outputPath)
       }
     }
     pushRunCli(stepInputFolderPath,command="import")
-    unlink(file.path(importFolder,nextItem),recursive = T,force = T)
+    unlink(file.path(importFolder,template$stepDf$handle),recursive = T,force = T)
     unlink(stepInputFolderPath,recursive = T,force=T)
-    executionList <- c(executionList,nextItem)
+    executionList <- c(executionList,template$stepDf$handle)
   }
   #if (length(executionList)>0) {
   #  for (i in 1:length(executionList)) {

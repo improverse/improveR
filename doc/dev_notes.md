@@ -27,6 +27,7 @@
 unify execute from workflow and workflow template
 return workflow after realise
 for relative files also allow patterns
+try loading initial steps, input filtering ...
 
 ### 5. Execution State Persistence
 - Persist the execution state of workflows and steps for reproducibility and tracking.

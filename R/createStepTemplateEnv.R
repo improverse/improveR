@@ -570,7 +570,9 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       if ("sourceInventoryPath" %in% names(pF)) {
         pF <- improveR:::byNotEmptyAsDf(pF,function(processFile) {
           if (!is.na(processFile$sourceInventoryPath)) {
-            processFile$ident<- improveR::loadResource(processFile$sourceInventoryPath,from=env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId)$entityId
+            fileName <- processFile$sourceInventoryPath
+            sourceStep <- env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId
+            processFile$ident<- improveR::loadResource(fileName,from=sourceStep)$entityId
           }
           return(processFile)
         })
@@ -609,6 +611,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         variables <- plyr::rbind.fill(variables, variable)
         processResource <- improveR::loadResource(processFile$ident)
         resource <- data.frame(sourceResourceId = processResource$resourceId,
+                               targetName=processResource$name,
           variableName = processFile$variableName,
           stringsAsFactors = FALSE
         )
@@ -641,6 +644,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           processFile <- processFiles[i, ]
           processResource <- improveR::loadResource(processFile$ident)
           resource <- data.frame(sourceResourceId = processResource$resourceId,
+                                 targetName=processResource$name,
             stringsAsFactors = FALSE
           )
           if ("name" %in% names(processFile) && !is.null(processFile$name) && !is.na(processFile$name)) {
