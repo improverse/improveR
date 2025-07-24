@@ -425,15 +425,14 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213", {
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleNonmem")
 
-  handleNonmem <- nonmemBatchStep(testTree) %>%
-    addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), variableName = "command-file") %>%
-    addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), name = "folder/file.txt", variableName = "command-file") %>%
-    addStepRemoteFile(paste0(TEST_FOLDER, "/example-new.dat"), variableName = "dataset") %>%
-    setStepCommandLine("<command-file>\r\noutput<process>.txt", append = F) %>%
-    setStepDescription("description1") %>%
-    setStepRationale("rational") %>%
-    realiseStep() %>%
-    finishRun()
+  nonmemStep <- nonmemBatchStep(testTree)
+  nonmemStep$addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), variableName = "command-file")
+  nonmemStep$addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), name = "folder/file.txt", variableName = "command-file")
+  nonmemStep$addStepRemoteFile(paste0(TEST_FOLDER, "/example-new.dat"), variableName = "dataset")
+  nonmemStep$setStepDescription("description1")
+  nonmemStep$setStepRationale("rational")
+  nonmemStep$realise()
+  nonmemStep$finishRun()
 
   dN <- getCopy(paste0(TEST_FOLDER, "/STEP1.ctl"))
 
