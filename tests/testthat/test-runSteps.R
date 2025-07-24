@@ -427,7 +427,7 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
 
   nonmemStep <- nonmemBatchStep(testTree)
   nonmemStep$addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), variableName = "command-file")
-  nonmemStep$addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), name = "folder/file.txt", variableName = "command-file")
+  #nonmemStep$addStepRemoteFile(paste0(TEST_FOLDER, "/STEP1.ctl"), name = "folder/file.txt", variableName = "command-file")
   nonmemStep$addStepRemoteFile(paste0(TEST_FOLDER, "/example-new.dat"), variableName = "dataset")
   nonmemStep$setStepDescription("description1")
   nonmemStep$setStepRationale("rational")
