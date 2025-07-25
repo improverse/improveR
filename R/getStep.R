@@ -154,9 +154,36 @@ getStepDf <- function(ident) {
   processes <- processes[processes$selected,]
 
   processes$handle <- stepHandle
+
+  processes <- improveR::byNotEmptyAsDf(processes,function(pro) {
+    gridArguments <- improveR::updateProcessGridArguments(pro$id)
+    if (!is.null(gridArguments)) {
+      pro$gridArguments <- list(
+        byNotEmptyAsDf(gridArguments,function(ga) {
+          gridHandle <- data.frame(handle=stepHandle)
+          gridHandle$argumentName<- ga$name
+
+          if (ga$gridArgumentType=="LOV") {
+            categoryValues <- ga$category[[1]]$values[[1]]
+            gridHandle$argumentValue <- categoryValues[categoryValues$id==ga$lovValueId,]$text
+          } else if (ga$gridArgumentType=="TEXT") {
+            gridHandle$argumentValue <- ga$textValue
+          } else if (ga$gridArgumentType=="DATE_TIME") {
+            gridHandle$argumentValue <- round(as.numeric(ga$dateValue)/1000)
+          }
+          return(gridHandle)
+        })
+      )
+    } else {
+      pro$gridArguments <-NA
+    }
+    return(pro)
+  })
+
   processDfs <- dplyr::select(processes,
                               handle,runserverLabel,toolLabel,toolInstance,toolArgs,toolStreamablePatterns,
-                              selected,gridTool,main,name,processType,position)
+                              selected,gridTool,main,name,processType,position,gridArguments)
+
 
 
   newHandle <- data.frame(handle=stepHandle,stringsAsFactors = F)
@@ -195,7 +222,10 @@ getStepDf <- function(ident) {
   #workaround end
 
   variables$variableName <- variables$name
-  variables$variableProcess <- processes[processes$id==variables$processId,]$name
+  variables <- improveR::byNotEmptyAsDf(variables,function(v) {
+    v$variableProcess <- processes[processes$id==v$processId,]$name
+    return(v)
+  })
   if (!("valueResourceId" %in% names(variables))) {
     variables$valueResourceId <- NA
   }
@@ -209,26 +239,26 @@ getStepDf <- function(ident) {
     inventory <- getStepResourceInventory(step,recurse=T)$data[[1]]
   }
 
+
+
   #filter only inputs
   #try with initial steps
 
-  if ("startedAt" %in% names(processes)) {
-    inventory <- inventory[inventory$revisionFromTime<processes$startedAt,]
-  }
+  links <- inventory[inventory$nodeType=="LIV" | inventory$nodeType=="Link",]
 
+  files <- inventory[inventory$nodeType=="FIV" | inventory$nodeType=="File",]
+  if ("startedAt" %in% names(processes)) {
+    if (("revisionFromTime" %in% names(files))) {
+      files <- improveR::loadResource(files)
+    }
+    files <- files[files$lastModifiedOn<processes$startedAt,]
+  }
+  inventory <- plyr::rbind.fill(links,files)
   #TODO nodeTypes
 
   inventory <- dplyr::left_join(inventory,variables,c("resourceId" = "valueResourceId"))
 
   inputFiles <- inventory[inventory$nodeType=="FIV" | inventory$nodeType=="File",]
-  if (step$runStatus!="INITIAL") {
-    if (!"revisionFromTime" %in% names(inputFiles)) {
-      inputFiles$revisionFromTime<-inputFiles$createdAt
-    }
-    inputFiles <- inputFiles[inputFiles$revisionFromTime<processes[1,]$startedAt,]
-  }
-
-
 
   #inventoryPath
 
@@ -254,6 +284,7 @@ getStepDf <- function(ident) {
 
   })
   newHandle$extLinks<-linkHandles
+
   return(newHandle)
 }
 

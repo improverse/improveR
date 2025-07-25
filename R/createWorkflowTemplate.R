@@ -5,7 +5,7 @@
 #' @param workflow The workflow environment to template
 #' @return An environment representing the workflow template
 #' @export
-createWorkflowTemplateEnv <- function(workflow) {
+createWorkflowTemplateEnv <- function(workflow,addParental=F) {
   env <- new.env(parent = emptyenv())
   env$this <- env
   env$workflow <- workflow
@@ -13,9 +13,11 @@ createWorkflowTemplateEnv <- function(workflow) {
 
 
 
+  internalLinks<-workflow$internalLinks
+  if (!is.null(internalLinks)) {
+    internalLinks <- dplyr::select(internalLinks,entityId,fileHash,revisionId,path,targetStep,sourceStep)
+  }
 
-
-  internalLinks <- dplyr::select(workflow$internalLinks,entityId,fileHash,revisionId,path,targetStep,sourceStep)
 
   # Extract steps and their templates
   stepTemplates <- list()
@@ -23,9 +25,11 @@ createWorkflowTemplateEnv <- function(workflow) {
     stepEnv <- workflow$steps[[stepName]]
     # Convert each step to a template environment
     stepDf <- stepEnv$stepDf
-
+    if (addParental) {
+      stepDf$parentIdent<-stepDf$sourceEntityId
+    }
     workflowLinks <- internalLinks[internalLinks$targetStep==stepName,]
-    if (nrow(workflowLinks)>0) {
+    if (!is.null(workflowLinks) && nrow(workflowLinks)>0) {
       remoteFiles <- stepDf$remoteFiles[[1]]
       if (!("sourceStep"%in%names(remoteFiles))) {
         jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("ident"="entityId"))
@@ -77,15 +81,24 @@ createWorkflowTemplateEnv <- function(workflow) {
   env$setWorkflowTreeRootFolder <- function(rootFolder) {
     .workflow_template_private$setValue("treePath",rootFolder)
     .workflow_template_private$setValue("treeIdent",NULL)
-    #treeName
-    #treeIdent
   }
 
   env$setWorkflowTreeName <- function(treeName) {
     .workflow_template_private$setValue("treeName",treeName)
     .workflow_template_private$setValue("treeIdent",NULL)
-    #treeName
-    #treeIdent
+  }
+
+  env$setWorkflowTreeIdent <- function(treeIdent,from=improveR::pwd()) {
+
+    treeResource <- improveR::loadResource(treeIdent)
+    if (is.null(treeResource) || treeResource$nodeType!="Analysis Tree") {
+      improveR::log_error(treeIdent,"does not exist or is not a Tree")
+    } else {
+      .workflow_template_private$setValue("treeIdent",treeResource$resourceId)
+      .workflow_template_private$setValue("treeName",treeResource$name)
+      .workflow_template_private$setValue("treePath",improveR::loadResource(treeResource$parentId)$path)
+    }
+
   }
 
   #' Create a re-execution plan for outdated steps
@@ -205,7 +218,7 @@ createWorkflowTemplateEnv <- function(workflow) {
       plan$lineage <- NA
     }
     if (!"usage" %in% names(plan)) {
-      plan$usage <- ""
+      plan$usage <- NA
     }
     if (is.null(startSteps)) {
       startSteps <- plan[is.na(plan$lineage), ]
@@ -217,19 +230,22 @@ createWorkflowTemplateEnv <- function(workflow) {
     }
     for (s in seq_len(nrow(startSteps))) {
       startStep <- startSteps[s, ]
-      lineages <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
-      if (length(lineages) > 0) {
-        for (lineage in lineages) {
-          lineageHandle <- plan[plan$fullName == lineage, ]
-          if (nrow(lineageHandle) == 1 && "lineage" %in% names(lineageHandle)) {
-            dependencies <- strsplit(lineageHandle$lineage, ",", fixed = TRUE)[[1]]
-            if (all(dependencies %in% startSteps$fullName)) {
-              startSteps <- plyr::rbind.fill(startSteps, lineageHandle)
-              plan <- plan[plan$fullName != lineage, ]
+      if (!is.na(startStep$usage)) {
+        lineages <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
+        if (length(lineages) > 0) {
+          for (lineage in lineages) {
+            lineageHandle <- plan[plan$fullName == lineage, ]
+            if (nrow(lineageHandle) == 1 && "lineage" %in% names(lineageHandle)) {
+              dependencies <- strsplit(lineageHandle$lineage, ",", fixed = TRUE)[[1]]
+              if (all(dependencies %in% startSteps$fullName)) {
+                startSteps <- plyr::rbind.fill(startSteps, lineageHandle)
+                plan <- plan[plan$fullName != lineage, ]
+              }
             }
           }
         }
       }
+
     }
     if (nrow(plan) == 0 || counter > 500) {
       if (counter > 500) {

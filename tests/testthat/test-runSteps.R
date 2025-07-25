@@ -409,7 +409,7 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   #externalLinkMapping
 
 
-  #DMG L3 why is Initial 1 not included
+
 
   #test externalLinks
   #test with subfolders, test with also inputfiles
@@ -436,15 +436,15 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
 
   dN <- getCopy(paste0(TEST_FOLDER, "/STEP1.ctl"))
 
-  handleNonmem <- nonmemBatchStep(testTree) %>%
-    addStepLocalFile(dN$path, variableName = "command-file") %>%
-    addStepRemoteFile(paste0(TEST_FOLDER, "/example-new.dat"), variableName = "dataset") %>%
-    setStepDescription("I am showing a nonmem step") %>%
-    setStepRationale("so you have seen it") %>%
-    realiseStep() %>%
-    finishRun()
+  nonmemStep2 <- nonmemBatchStep(testTree)
+  nonmemStep2$addStepLocalFile(dN$path, variableName = "command-file")
+  nonmemStep2$addStepRemoteFile(paste0(TEST_FOLDER, "/example-new.dat"), variableName = "dataset")
+  nonmemStep2$setStepDescription("I am showing a nonmem step")
+  nonmemStep2$setStepRationale("so you have seen it")
+  realStep <- nonmemStep2$realise()
+  nonmemStep2$finishRun()
 
-  inventory <- improveR::getStepInventory(handleNonmem)
+  inventory <- realStep$getStepInventory()
   inv <- inventory$data[[1]]
   inv <- inv[inv$name == "output.txt", ]
 
@@ -453,25 +453,22 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
   unlink(dN$path)
   unlink(invCopy$path)
 
-  handle <- improveR::retrieveStep(handleNonmem)
-  step <- improveR::getStepResource(handleNonmem)
+
+  step <- realStep$getStepResource()
   step <- improveR::updateResource(step)
-  expect_equal(improveR::getStepState(handleNonmem), "FINISHED")
+  expect_equal(realStep$getStepState(), "FINISHED")
   entityId <- step$entityId
 
   process <- improveR::loadProcessesForStep(entityId)
 
   # Create step copy
-  stepCopy <- improveR::handleFromStep(step)
-  copyHandle <- improveR::retrieveStep(stepCopy)
+  copyTemplate <- realStep$workflow$createTemplate()
   testTree2 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleNonmemCopy")
-  stepCopy <- stepCopy %>%
-    improveR::setStepTree(testTree2$resourceId) %>%
-    improveR:::setStepValue("entityId", NULL) %>%
-    improveR::realiseStep() %>%
-    improveR::finishRun()
+  copyTemplate$stepTemplates[[1]]$setStepTree(testTree2$resourceId)
+  copyWorkflow <- copyTemplate$realise()
 
-  handle <- improveR::retrieveStep(stepCopy)
+
+
 
   result <- improveR::deleteGridArgumentsByName(process$id, "queue")
   result <- improveR::deleteGridArgumentsByName(process$id, "cores")
@@ -510,20 +507,18 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
   expect_equal(nrow(result), 4)
 
   # Empty grid values
-  checkGrid <- improveR::handlesFromTree(testTree)
-  checkGridFlow <- improveR::retrieveWorkflow(checkGrid)
-
+  checkgridFlow <- getWorkflow(testTree)
   testTree3 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleNonmemCopy Grid Check")
 
-  copyGrid <- improveR::deepWorkflowCopy(checkGrid, targetTree = testTree3)
-  copyGridFlow <- improveR::retrieveWorkflow(copyGrid)
-  improveR::executeWorkflow(copyGrid)
 
-  checkGridCompare <- improveR::handlesFromTree(testTree3)
-  checkGridFlowCompare <- improveR::retrieveWorkflow(checkGrid)
+  checkGridTemplate <- checkgridFlow$createTemplate()
+  checkGridTemplate$setWorkflowTreeIdent(testTree3)
+  compareFlow <- checkGridTemplate$realise()
 
-  args <- dplyr::filter(checkGridFlow, description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
-  argsCompare <- dplyr::filter(checkGridFlowCompare, description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
+
+  #TODO grid arguments, grid arguments merging
+  args <- dplyr::filter(checkgridFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
+  argsCompare <- dplyr::filter(compareFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
   expect_equal(args, argsCompare)
   expect_equal(nrow(args), 4)
 })
@@ -531,80 +526,75 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
 test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", {
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleWorkflow")
 
-  handle <- rBatchStep(testTree) %>%
-    improveR::setStepDescription("Data Manipulation") %>%
-    improveR::setStepRationale("to manipulate data") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+  dmTemplate  <- rBatchStep(testTree)
+  dmTemplate$setStepDescription("Data Manipulation")
+  dmTemplate$setStepRationale("to manipulate data")
+  dmTemplate$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
+  dmTemplate$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
+  dmTemplate$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
 
-  handle <- improveR::realiseStep(handle)
-  handle <- improveR::finishRun(handle)
+  dmStep <- dmTemplate$realise()
+  dmTemplate$finishRun()
 
-  handle <- rBatchStep(testTree) %>%
-    improveR::setStepDescription("Data Manipulation") %>%
-    improveR::setStepRationale("to manipulate data") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd")) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+  dmStep <- dmTemplate$realise()
+  dmTemplate$finishRun()
 
-  handle <- improveR::realiseStep(handle)
+  expect_equal(dmStep$getStepState(), "FINISHED")
 
-  handle <- improveR::finishRun(handle)
-  expect_equal(improveR::getStepState(handle), "FINISHED")
-
-  inventory <- improveR::getStepInventory(handle)$data[[1]]
+  inventory <- dmStep$getStepInventory()$data[[1]]
 
   cleanDataset <- inventory[inventory$name == "chapter15_example_cleaned.rds", ]
 
-  handleEDA <- rBatchStep(testTree) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/EDA.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(cleanDataset) %>%
-    improveR::realiseStep()
+  edaTemplate <- rBatchStep(testTree)
+  edaTemplate$addStepRemoteFile(paste0(TEST_FOLDER, "/EDA.R"), variableName = "command-file")
+  edaTemplate$addStepRemoteFile(cleanDataset)
+  edaStep <- edaTemplate$realise()
 
-  handleLM <- rBatchStep(testTree) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/test_lm_plot.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(cleanDataset) %>%
-    improveR::realiseStep()
+  lmTemplate <- rBatchStep(testTree)
+  lmTemplate$addStepRemoteFile(paste0(TEST_FOLDER, "/test_lm_plot.R"), variableName = "command-file")
+  lmTemplate$addStepRemoteFile(cleanDataset)
+  lmStep <- lmTemplate$realise()
 
-  handleEDA <- improveR::finishRun(handleEDA)
-  handleLM <- improveR::finishRun(handleLM)
+  lmTemplate$finishRun()
+  edaTemplate$finishRun()
 
-  inventory <- improveR::getStepInventory(handleEDA)$data[[1]]
+  inventory <- edaStep$getStepInventory()$data[[1]]
   byDay <- inventory[inventory$name == "HAMDTL17_by_day.png", ]
   byWeek <- inventory[inventory$name == "HAMDTL17_by_week_therapy.png", ]
   edaTable <- inventory[inventory$name == "EDA_table.html", ]
-  inventoryLM <- improveR::getStepInventory(handleLM)$data[[1]]
+  inventoryLM <- lmStep$getStepInventory()$data[[1]]
   modelFit <- inventoryLM[inventoryLM$name == "model_fit.html", ]
 
-  handleReport <- rBatchStep(testTree) %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/report.R"), variableName = "command-file") %>%
-    improveR::addStepRemoteFile(paste0(TEST_FOLDER, "/report.Rmd")) %>%
-    improveR::addStepRemoteFile(byDay) %>%
-    improveR::addStepRemoteFile(byWeek) %>%
-    improveR::addStepRemoteFile(edaTable) %>%
-    improveR::addStepRemoteFile(modelFit) %>%
-    improveR::realiseStep() %>%
-    improveR::finishRun()
+  reportTemplate <- rBatchStep(testTree)
+  reportTemplate$addStepRemoteFile(paste0(TEST_FOLDER, "/report.R"), variableName = "command-file")
+  reportTemplate$addStepRemoteFile(paste0(TEST_FOLDER, "/report.Rmd"))
+  reportTemplate$addStepRemoteFile(byDay)
+  reportTemplate$addStepRemoteFile(byWeek)
+  reportTemplate$addStepRemoteFile(edaTable)
+  reportTemplate$addStepRemoteFile(modelFit)
+  reportStep <- reportTemplate$realise()
+  reportTemplate$finishRun()
 
   # Reexecute in new tree
-  workflowHandle <- improveR::handlesFromTree(testTree)
-  improveR::makeStepsRelative(workflowHandle)
+  workflow <- getWorkflow(testTree)
   testTree2 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleWorkflow Reexecute")
-  copyHandle <- improveR::deepWorkflowCopy(workflowHandle, testTree2, createParentalRelation = T)
-  improveR::executeWorkflow(copyHandle)
+  reexecuteTemplate <- workflow$createTemplate(addParental = T)
+  reexecuteTemplate$setWorkflowTreeIdent(testTree2)
+  reexecuteTemplate$realise()
+
 
   # Reexecute in same tree
   # With parental
-  workflowHandle <- improveR::handlesFromTree(testTree2)
-  improveR::makeStepsRelative(workflowHandle)
-  copyHandle <- improveR::deepWorkflowCopy(workflowHandle, createParentalRelation = T)
-  improveR::executeWorkflow(copyHandle)
+
+  workflow <- getWorkflow(testTree2)
+  reexecuteTemplate <- workflow$createTemplate(addParental = T)
+  reexecuteTemplate$realise()
+
 
   # Without parental
-  copyHandle <- improveR::deepWorkflowCopy(workflowHandle, createParentalRelation = F)
-  improveR::executeWorkflow(copyHandle)
-
+  reexecuteTemplate <- workflow$createTemplate(addParental = F)
+  reexecuteTemplate$realise()
+#########################################################################
   # Reexecute in same tree, keep part absolute
   testTree3 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleWorkflow Reexecute Partial")
   copyHandle <- improveR::deepWorkflowCopy(workflowHandle, testTree3, createParentalRelation = F)

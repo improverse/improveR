@@ -287,7 +287,10 @@ createWorkflow <- function() {
           dplyr::pull(entityId)
       }
       internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
-      linkIds <- .workflow_private$getLinkTarget(env, internalLinks)
+      linkIds <- NULL
+      if (!is.null(internalLinks)) {
+        linkIds <- .workflow_private$getLinkTarget(env, internalLinks)
+      }
       allUpdates <- Filter(function(x) !is.null(x), unique(c(outDatedLinks, linkIds)))
       st$toUpdate <- list(allUpdates)
       usingSteps <- env$internalLinks[env$internalLinks$sourceStep == st$fullName, ]$targetStep
@@ -387,8 +390,8 @@ createWorkflow <- function() {
 
   }
 
-  env$createTemplate <- function() {
-    return(createWorkflowTemplateEnv(env))
+  env$createTemplate <- function(addParental=F) {
+    return(createWorkflowTemplateEnv(env,addParental))
   }
 
 

@@ -39,6 +39,92 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     return(step)
   }
 
+  .template_private$addFileToStep <- function(newStep, filePrep) {
+    if (is.null(filePrep)) {
+      return()
+    }
+
+    createTarget <- newStep
+
+
+
+    #check all possible fields
+    if (!("name" %in% names(filePrep))) {
+      filePrep$name<-""
+    }
+    fileName <- filePrep$name
+    if (is.na(fileName)) {
+      fileName <-""
+    }
+    if (grepl(pattern = "/", x=fileName,fixed = T)) {
+      pathParts <- strsplit(x=fileName,split="/",fixed=T)[[1]]
+      if (length(pathParts)!=2) {
+        logging::logwarn("maximum folder depth allowed is 1, by filename in realise step")
+        logging::logwarn(fileName)
+        return()
+      }
+      folderName <- pathParts[1]
+      fileName<- pathParts[2]
+      children <- improveR::loadChildResources(newStep)
+      folder <- children[children$name==folderName,]
+      if (nrow(folder)==1 && folder$nodeType!="Folder") {
+        logging::logwarn(folderName)
+        logging::logwarn("already exists but not as folder")
+        return()
+      }
+      if (nrow(folder)==1) {
+        createTarget<-folder
+      } else {
+        createTarget <- improveR::createFolder(newStep,folderName=folderName)
+      }
+    }
+
+    if (!("variableName" %in% names(filePrep))) {
+      filePrep$variableName<-""
+    }
+
+    newFile <- NULL
+    if (is.na(filePrep$path)) {
+      return()
+    }
+    if (is.null(filePrep$name)) {
+       filePrep$name <- basename(filePrep$path)
+    }
+    newFile <- createFile(targetIdent = createTarget,fileName = fileName,localPath = filePrep$path)
+    timing("created")
+    if (!is.na(filePrep$variableName) && !filePrep$variableName=="" && !is.null(newFile)) {
+      timing("variableStart")
+      stepProcesses <- improveR::loadProcessesForStep(newStep$resourceId)
+      variableProcess <- stepProcesses[stepProcesses$name==filePrep$variableProcess,]
+      processId <- as.character(variableProcess$id)
+      variables <- improveR::getProcessFileVariables(newStep,processId)
+      variableId <- as.character(variables[variables$name==filePrep$variableName,]$id)
+      if (length(variableId)==0) {
+        position=1
+        if (!is.null(variables)) {
+          position<- max(variables$position)+1
+        }
+        variable<- improveR:::createProcessFileVariable(ident = newStep$resourceId,processId = processId,name = filePrep$variableName,variableType = "fileRef",position = position)
+        variableId<-variable[[1]][1]
+      }
+
+      result <- improveR::authenticatedREST("/resources/{resourceId}/processes/{processId}/variables/{variableId}",
+                                  urlParams = list(resourceId=newStep$resourceId,
+                                                   processId=processId,
+                                                   variableId=variableId),
+                                  data = list(type= "processVariable",
+                                              id= variableId,
+                                              name= filePrep$variableName,
+                                              position= 1,
+                                              valueResourceId=newFile$resourceId,
+                                              variableType="fileRef"),
+                                  restType = "PUT")
+      timing("variableStart")
+    }
+  }
+
+
+
   .template_private$create <- function() {
     improveEditable()
     logging::logdebug("createPreparedStep")
@@ -78,7 +164,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     )
 
     if ("parentIdent" %in% names(env$stepDf) && !is.null(env$stepDf$parentIdent)) {
-      prepStep$parentStepId <- env$stepDf$parentIdent
+      prepStep$parentStepId <- improveR::loadResource(env$stepDf$parentIdent)$resourceId
     }
 
     prepList <- as.list(prepStep)
@@ -98,7 +184,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       processes <- plyr::rbind.fill(processes, processDf)
     }
     prepList$processes <- processes
-    #print(jsonlite::toJSON(prepList, auto_unbox = TRUE, pretty = TRUE))
+    print(jsonlite::toJSON(prepList, auto_unbox = TRUE, pretty = TRUE))
 
     createResult <- improveR::authenticatedREST("/resources/{treeIdent}/steps",
       urlParams = list(treeIdent = treeIdent),
@@ -108,6 +194,12 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     if (createResult$status_code == 201) {
       createContent <- httr::content(createResult)
       newStep <- improveR::loadResource(createContent$resourceId)
+      localFiles <- env$stepDf$localFiles[[1]]
+      if (!is.null(localFiles)) {
+        byNotEmpty(localFiles,function(filePrep) {
+          .template_private$addFileToStep(newStep,filePrep)
+        })
+      }
       invisible(improveR::unloadChildResources(newStep$parentId))
       invisible(improveR::unloadFullChildResources(newStep$parentId))
       env$moveSubFolderNameMapping(subFolderNameMapping, newStep)
@@ -115,6 +207,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     }
     return(NULL)
   }
+
 
   # --- Public methods (directly attached to env) ---
 
@@ -521,12 +614,12 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   }
 
   env$addStepLocalFile <- function(path, name = NULL, variableName = NULL, variableProcess = "Main") {
-    fileList <- data.frame(stepHandle = stepHandle)
+    fileList <- data.frame(stepHandle=env$stepDf$handle)
     fileList["name"] <- name
     fileList["variableName"] <- variableName
     fileList["variableProcess"] <- variableProcess
     fileList["path"] <- path
-    env$addStepValue(stepHandle, "localFiles", fileList)
+    env$addStepValue( "localFiles", fileList)
     invisible(env)
   }
 
@@ -582,70 +675,65 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
     process <- dplyr::filter(env$stepDf$processes[[1]], name == processName)
     usedTool <- env$getToolForProcess(processName)
+
+    gridArguments <- byNotEmptyAsDf(process$gridArguments[[1]],function(gridArgument) {
+      gridArgumentDefinition <- loadGridArgumentDefinition(usedTool$gridProvider,gridArgument$argumentName)
+      gridEntry <- data.frame(
+        #type=gridArgumentDefinition$gridArgumentType,
+        definitionId=gridArgumentDefinition$id,
+        stringsAsFactors = F)
+      if (gridArgumentDefinition$gridArgumentType=="LOV") {
+        gridValues <- getGridValues()
+        id <- gridValues[gridValues$text==gridArgument$argumentValue,]$id
+        gridEntry$lovValueId<-id
+      } else if(gridArgumentDefinition$gridArgumentType=="TEXT") {
+        gridEntry$textValue<- gridArgument$argumentValue
+      } else if(gridArgumentDefinition$gridArgumentType=="DATE_TIME") {
+        gridEntry$dateValue<- gridArgument$argumentValue
+      }
+      return(gridEntry)
+    })
+
     process$runserverId <- usedTool$runserverId
     process$runserverToolId <- usedTool$id
     if (is.null(process$toolArgs)) {
       process$toolArgs <- process$commandline
     }
     process <- dplyr::select(process, name, main, runserverId, runserverToolId, toolArgs)
+
+
+    if (!is.null(gridArguments)) {
+      process$gridArguments <- list(gridArguments)
+    }
+
+
     subFolderNameMapping <- list()
     remoteFiles <- env$stepDf$remoteFiles[[1]]
-    processFiles <- dplyr::filter(remoteFiles, variableProcess == processName & !is.na(variableName))
-    processFiles <- resolveRelativeFiles(processFiles)
-    if (nrow(processFiles) > 0) {
-
-
-
-
-
-      variables <- NULL
-      resources <- NULL
-      for (i in 1:nrow(processFiles)) {
-        processFile <- processFiles[i, ]
-        variable <- data.frame(type = "processVariable",
-          name = processFile$variableName,
-          position = i,
-          variableType = "fileRef",
-          stringsAsFactors = FALSE
-        )
-        variables <- plyr::rbind.fill(variables, variable)
-        processResource <- improveR::loadResource(processFile$ident)
-        resource <- data.frame(sourceResourceId = processResource$resourceId,
-                               targetName=processResource$name,
-          variableName = processFile$variableName,
-          stringsAsFactors = FALSE
-        )
-        if ("name" %in% names(processFile) && !is.null(processFile$name) && !is.na(processFile$name)) {
-          targetName <- processFile$name
-          if (startsWith(targetName, "./")) {
-            targetName <- substr(targetName, 3, nchar(targetName))
-          }
-          if (grepl("/", targetName, fixed = TRUE)) {
-            subFolderNameMapping[[processResource$resourceId]] <- targetName
-            targetName <- processResource$resourceId
-          }
-          resource$targetName <- targetName
-        }
-        if (!processFile$asLink) {
-          resource$operation = "COPY"
-        }
-        resources <- plyr::rbind.fill(resources, resource)
-      }
-      process$resources <- list(resources)
-      process$variables <- list(variables)
-    }
-    if (processName == "Main") {
-      processFiles <- dplyr::filter(remoteFiles, is.null(variableName) | is.na(variableName))
+    if (!is.null(remoteFiles)) {
+      processFiles <- dplyr::filter(remoteFiles, variableProcess == processName & !is.na(variableName))
       processFiles <- resolveRelativeFiles(processFiles)
-
       if (nrow(processFiles) > 0) {
-        resources <- process$resources[[1]]
+
+
+
+
+
+        variables <- NULL
+        resources <- NULL
         for (i in 1:nrow(processFiles)) {
           processFile <- processFiles[i, ]
+          variable <- data.frame(type = "processVariable",
+                                 name = processFile$variableName,
+                                 position = i,
+                                 variableType = "fileRef",
+                                 stringsAsFactors = FALSE
+          )
+          variables <- plyr::rbind.fill(variables, variable)
           processResource <- improveR::loadResource(processFile$ident)
           resource <- data.frame(sourceResourceId = processResource$resourceId,
                                  targetName=processResource$name,
-            stringsAsFactors = FALSE
+                                 variableName = processFile$variableName,
+                                 stringsAsFactors = FALSE
           )
           if ("name" %in% names(processFile) && !is.null(processFile$name) && !is.na(processFile$name)) {
             targetName <- processFile$name
@@ -664,11 +752,44 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           resources <- plyr::rbind.fill(resources, resource)
         }
         process$resources <- list(resources)
+        process$variables <- list(variables)
       }
-      process$resources <- list(dplyr::distinct(process$resources[[1]],targetName,.keep_all = T))
-    }
-    if (length(subFolderNameMapping) > 0) {
-      process$subFolderNameMapping <- subFolderNameMapping
+      if (processName == "Main") {
+        processFiles <- dplyr::filter(remoteFiles, is.null(variableName) | is.na(variableName))
+        processFiles <- resolveRelativeFiles(processFiles)
+
+        if (nrow(processFiles) > 0) {
+          resources <- process$resources[[1]]
+          for (i in 1:nrow(processFiles)) {
+            processFile <- processFiles[i, ]
+            processResource <- improveR::loadResource(processFile$ident)
+            resource <- data.frame(sourceResourceId = processResource$resourceId,
+                                   targetName=processResource$name,
+                                   stringsAsFactors = FALSE
+            )
+            if ("name" %in% names(processFile) && !is.null(processFile$name) && !is.na(processFile$name)) {
+              targetName <- processFile$name
+              if (startsWith(targetName, "./")) {
+                targetName <- substr(targetName, 3, nchar(targetName))
+              }
+              if (grepl("/", targetName, fixed = TRUE)) {
+                subFolderNameMapping[[processResource$resourceId]] <- targetName
+                targetName <- processResource$resourceId
+              }
+              resource$targetName <- targetName
+            }
+            if (!processFile$asLink) {
+              resource$operation = "COPY"
+            }
+            resources <- plyr::rbind.fill(resources, resource)
+          }
+          process$resources <- list(resources)
+        }
+        process$resources <- list(dplyr::distinct(process$resources[[1]],targetName,.keep_all = T))
+      }
+      if (length(subFolderNameMapping) > 0) {
+        process$subFolderNameMapping <- subFolderNameMapping
+      }
     }
     return(process)
   }

@@ -4,7 +4,7 @@
 \alias{createWorkflowTemplateEnv}
 \title{Create a workflow template environment from an existing workflow}
 \usage{
-createWorkflowTemplateEnv(workflow)
+createWorkflowTemplateEnv(workflow, addParental = F)
 }
 \arguments{
 \item{workflow}{The workflow environment to template}
