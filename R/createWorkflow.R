@@ -387,7 +387,7 @@ createWorkflow <- function() {
       removeBacklinks("lineage","usage")
       removeBacklinks("usage","lineage")
     })
-
+    .workflow_private$collectInternalLinks(env)
   }
 
   env$createTemplate <- function(addParental=F) {

@@ -121,6 +121,10 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
       st$toUpdate<-NA
       return(st)
     })
+    if (!("description" %in% names(executionPlan))) executionPlan$description<-""
+    if (!("rationale" %in% names(executionPlan))) executionPlan$rationale<-""
+    if (!("sourceEntityId" %in% names(executionPlan))) executionPlan$sourceEntityId<-""
+    if (!("sourceName" %in% names(executionPlan))) executionPlan$sourceName<-""
     executionPlan <- dplyr::select(
       executionPlan,
       description,
