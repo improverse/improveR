@@ -160,7 +160,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     template$stepDf$remoteFiles[[1]]<- remoteFiles
     template$realise(run=F)
 
-    nextStep <- improveR::loadResource(template$stepDf$entityId)
+    nextStep <- loadResource(template$stepDf$entityId)
     stepInputFolderPath <- paste0("import",uuid::UUIDgenerate()  )
     dir.create(stepInputFolderPath,showWarnings = F,recursive = T)
     stepInputFolderPath <- normalizePath(stepInputFolderPath,winslash = "/")

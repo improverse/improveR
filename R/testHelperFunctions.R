@@ -46,7 +46,7 @@ baseFilesSetup <- function() {
 
 
   baseFilePath<-createFolderPath("baseFiles")
-  if (nrow(improveR::loadChildResources(baseFilePath)$data[[1]])==0) {
+  if (nrow(loadChildResources(baseFilePath)$data[[1]])==0) {
     testZip <- system.file("testData.zip", package = "improveR")
     utils::unzip(testZip)
     TEMP_FOLDER_NAME <- "rgetTest"
@@ -89,7 +89,7 @@ workflowFilesSetup <- function() {
 
   runFiles<-createFolderPath("runFiles")
 
-  if (nrow(improveR::loadChildResources(runFiles)$data[[1]])==0) {
+  if (nrow(loadChildResources(runFiles)$data[[1]])==0) {
 
     testZip <- system.file("ExampleWorkflow.zip", package = "improveR")
     utils::unzip(testZip)

@@ -57,7 +57,7 @@ runStep <- function(handle) {
 #' @export
 runStepResource <- function(ident) {
   improveEditable()
-  newStep <- improveR::loadResource(ident)
+  newStep <- loadResource(ident)
   result <- authenticatedREST("resources/{stepId}/run",
                               urlParams = list(stepId=newStep$resourceId),
                               restType = "POST")

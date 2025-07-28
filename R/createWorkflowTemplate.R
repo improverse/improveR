@@ -1,8 +1,20 @@
+testEnv <- function() {
+  env <- new.env(parent = emptyenv())
+  env$pwd<- function() {
+    return(pwd())
+  }
+  return(env)
+}
+
+
+
+
 #' Create a workflow template environment from an existing workflow
 #'
 #' Extracts all steps, relationships, parameters, and files from the workflow
 #' and builds a reusable workflow template environment.
 #' @param workflow The workflow environment to template
+#' @param addParental if T the created stepTemplates have the steps from the workflow as parents (default: FALSE)
 #' @return An environment representing the workflow template
 #' @export
 createWorkflowTemplateEnv <- function(workflow,addParental=F) {
@@ -14,8 +26,8 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
 
 
   internalLinks<-workflow$internalLinks
-  if (!is.null(internalLinks)) {
-    internalLinks <- dplyr::select(internalLinks,entityId,fileHash,revisionId,path,targetStep,sourceStep)
+  if (!is.null(internalLinks)) {#
+    internalLinks <- dplyr::select(internalLinks,"entityId","fileHash","revisionId","path","targetStep","sourceStep")
   }
 
 
@@ -37,12 +49,12 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
         jointRemoteFiles <-byNotEmptyAsDf(jointRemoteFiles,function(remoteFile) {
 
           if (!is.na(remoteFile$sourceStep)) {
-            sourceStepPath <- improveR::loadResource(workflow$steps[[remoteFile$sourceStep]]$stepDf$sourceEntityId)$path
+            sourceStepPath <- loadResource(workflow$steps[[remoteFile$sourceStep]]$stepDf$sourceEntityId)$path
             inventoryPath <- paste0("./",substr(remoteFile$path,nchar(sourceStepPath)+2,nchar(remoteFile$path)))
             remoteFile$sourceInventoryPath <- inventoryPath
           }
           if (is.na(remoteFile$name)) {
-            remoteFile$name<-paste0("./",improveR::loadResource(remoteFile$ident)$name)
+            remoteFile$name<-paste0("./",loadResource(remoteFile$ident)$name)
           }
           return(remoteFile)
         })
@@ -88,15 +100,15 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
     .workflow_template_private$setValue("treeIdent",NULL)
   }
 
-  env$setWorkflowTreeIdent <- function(treeIdent,from=improveR::pwd()) {
+  env$setWorkflowTreeIdent <- function(treeIdent,from=pwd()) {
 
-    treeResource <- improveR::loadResource(treeIdent)
+    treeResource <- loadResource(treeIdent)
     if (is.null(treeResource) || treeResource$nodeType!="Analysis Tree") {
-      improveR::log_error(treeIdent,"does not exist or is not a Tree")
+      log_error(treeIdent,"does not exist or is not a Tree")
     } else {
       .workflow_template_private$setValue("treeIdent",treeResource$resourceId)
       .workflow_template_private$setValue("treeName",treeResource$name)
-      .workflow_template_private$setValue("treePath",improveR::loadResource(treeResource$parentId)$path)
+      .workflow_template_private$setValue("treePath",loadResource(treeResource$parentId)$path)
     }
 
   }
@@ -127,14 +139,14 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
     if (!("sourceName" %in% names(executionPlan))) executionPlan$sourceName<-""
     executionPlan <- dplyr::select(
       executionPlan,
-      description,
-      rationale,
-      sourceEntityId,
-      sourceName,
-      fullName,
-      toUpdate,
-      lineage,
-      usage
+      "description",
+      "rationale",
+      "sourceEntityId",
+      "sourceName",
+      "fullName",
+      "toUpdate",
+      "lineage",
+      "usage"
     )
     executionPlan$inPlace <- FALSE
     return(executionPlan)
@@ -157,7 +169,7 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
         for (dependency in dependencies) {
           if (dependency %in% executionList) {
             logging::loginfo("waiting to finish")
-            improveR::finishRunResource(env$stepTemplates[[dependency]]$stepDf$entityId)
+            finishRunResource(env$stepTemplates[[dependency]]$stepDf$entityId)
             executionList <- executionList[executionList != dependency]
           }
         }
@@ -166,7 +178,7 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
         updateLinks(nextData$toUpdate[[1]])
       }
       if ("inPlace" %in% names(nextData) && nextData$inPlace) {
-        improveR::runStepResource(nextData$sourceEntityId)
+        runStepResource(nextData$sourceEntityId)
       } else {
         stepEnv <- env$stepTemplates[[nextData$fullName]]
         returnStep <- stepEnv$realise(workflow=workflow)
@@ -178,7 +190,7 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
     }
     if (length(executionList) > 0) {
       for (item in executionList) {
-        improveR::finishRunResource(env$steps[[item]]$stepDf$sourceEntityId)
+        finishRunResource(env$steps[[item]]$stepDf$sourceEntityId)
       }
     }
     return(workflow)

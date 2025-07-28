@@ -6,6 +6,9 @@
 \usage{
 autoRefreshStart(verbose = F)
 }
+\arguments{
+\item{verbose}{if true a log is written to stdout.txt and stderr.txt}
+}
 \description{
 starts a background process to automatically refresh the token
 }

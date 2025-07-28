@@ -276,7 +276,7 @@ getOutdatedLinks <- function(inventory) {
   })
   targetEntities <- loadResource(targetEntityIds)
   linkTargets<-links %>%
-    dplyr::select(.data$targetRevisionId,.data$targetEntityId,.data$resourceId) %>%
+    dplyr::select("targetRevisionId","targetEntityId","resourceId") %>%
     dplyr::rename(revisionId=.data$targetRevisionId,
                   entityId=.data$targetEntityId,
                   id=.data$resourceId) %>%

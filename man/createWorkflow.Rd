@@ -25,10 +25,12 @@ The workflow object provides methods to:
 Internal state and helper functions are encapsulated and not exposed.
 }
 \examples{
+\dontrun{
 wf <- createWorkflow()
 # Add steps, then:
 wf$df()
 wf$changedAndOutdatedFiles()
 plan <- wf$createReexecutionPlan()
 wf$executePlan(plan)
+}
 }

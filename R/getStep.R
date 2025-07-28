@@ -155,8 +155,8 @@ getStepDf <- function(ident) {
 
   processes$handle <- stepHandle
 
-  processes <- improveR::byNotEmptyAsDf(processes,function(pro) {
-    gridArguments <- improveR::updateProcessGridArguments(pro$id)
+  processes <- byNotEmptyAsDf(processes,function(pro) {
+    gridArguments <- updateProcessGridArguments(pro$id)
     if (!is.null(gridArguments)) {
       pro$gridArguments <- list(
         byNotEmptyAsDf(gridArguments,function(ga) {
@@ -181,8 +181,8 @@ getStepDf <- function(ident) {
   })
 
   processDfs <- dplyr::select(processes,
-                              handle,runserverLabel,toolLabel,toolInstance,toolArgs,toolStreamablePatterns,
-                              selected,gridTool,main,name,processType,position,gridArguments)
+                              "handle","runserverLabel","toolLabel","toolInstance","toolArgs","toolStreamablePatterns",
+                              "selected","gridTool","main","name","processType","position","gridArguments")
 
 
 
@@ -212,7 +212,7 @@ getStepDf <- function(ident) {
 
   #reference should be shown
   variables <- mergeListToDataframe(processes$variables)
-  variableProcesses <- dplyr::pull(dplyr::distinct(variables,processId))
+  variableProcesses <- dplyr::pull(dplyr::distinct(variables,.data$processId))
   variables <- lapply(variableProcesses,
                       function(proc) {
                         return(actualLoadProcessVariables(proc))
@@ -222,14 +222,14 @@ getStepDf <- function(ident) {
   #workaround end
 
   variables$variableName <- variables$name
-  variables <- improveR::byNotEmptyAsDf(variables,function(v) {
+  variables <- byNotEmptyAsDf(variables,function(v) {
     v$variableProcess <- processes[processes$id==v$processId,]$name
     return(v)
   })
   if (!("valueResourceId" %in% names(variables))) {
     variables$valueResourceId <- NA
   }
-  variables <- dplyr::select(variables,valueResourceId,variableName,variableProcess)
+  variables <- dplyr::select(variables,"valueResourceId","variableName","variableProcess")
 
 
 
@@ -249,7 +249,7 @@ getStepDf <- function(ident) {
   files <- inventory[inventory$nodeType=="FIV" | inventory$nodeType=="File",]
   if ("startedAt" %in% names(processes)) {
     if (("revisionFromTime" %in% names(files))) {
-      files <- improveR::loadResource(files)
+      files <- loadResource(files)
     }
     files <- files[files$lastModifiedOn<processes$startedAt,]
   }

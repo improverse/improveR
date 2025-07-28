@@ -8,6 +8,8 @@ createWorkflowTemplateEnv(workflow, addParental = F)
 }
 \arguments{
 \item{workflow}{The workflow environment to template}
+
+\item{addParental}{if T the created stepTemplates have the steps from the workflow as parents (default: FALSE)}
 }
 \value{
 An environment representing the workflow template

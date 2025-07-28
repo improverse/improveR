@@ -54,22 +54,22 @@ getToolInstances <- function() {
     parameters <- getParameterValues()
 
     runservers <- loadRunservers()
-    runservers <- dplyr::filter(runservers,!local)
+    runservers <- dplyr::filter(runservers,!.data$local)
     runserverTools <- byNotEmptyAsDf(runservers,function(runserver) {
       runServerTools <- loadToolsForRunserver(runserver$id)
       runServerTools <- byNotEmptyAsDf(runServerTools,function(runserverTool) {
         #####parameters
-        toolParameterResult<-improveR::authenticatedREST("/configuration/runservers/{runserverId}/tools/{toolId}/parameters",
+        toolParameterResult<-authenticatedREST("/configuration/runservers/{runserverId}/tools/{toolId}/parameters",
                                                          urlParams = list(runserverId=runserverTool$runserverId,toolId=runserverTool$id))
         toolParameters <- mergeListToDataframe(httr::content(toolParameterResult))
         toolParameters <- dplyr::select(
           dplyr::inner_join(parameters,toolParameters,by=c("id"="parameterLovId"))
-          ,lovType,name,description,value)
+          ,"lovType","name","description","value")
         runserverTool$parameters <- list(toolParameters)
         ####gridArguments
         tryCatch( {
           gridArgumentDefinitions <- loadGridArguments(runserverTool$gridProvider)
-          gridArgumentResult<-improveR::authenticatedREST("/configuration/runservers/{runserverId}/tools/{toolId}/gridArguments",
+          gridArgumentResult<-authenticatedREST("/configuration/runservers/{runserverId}/tools/{toolId}/gridArguments",
                                                           urlParams = list(runserverId=runserverTool$runserverId,toolId=runserverTool$id))
           gridArguments <- mergeListToDataframe(httr::content(gridArgumentResult))
           if (nrow(gridArguments)>0) {
@@ -81,8 +81,8 @@ getToolInstances <- function() {
             if (!("text" %in% names(mergedValues))) {
               mergedValues$text <- NA
             }
-            mergedValues <- dplyr::mutate(mergedValues,value=dplyr::if_else(is.na(textValue),text,textValue))
-            gridArguments <- dplyr::select(mergedValues,name,value)
+            mergedValues <- dplyr::mutate(mergedValues,value=dplyr::if_else(is.na(.data$textValue),.data$text,.data$textValue))
+            gridArguments <- dplyr::select(mergedValues,"name","value")
             runserverTool$gridArguments <- list(gridArguments)
           }
 
@@ -94,7 +94,7 @@ getToolInstances <- function() {
 
       return(runServerTools)
     })
-    runserverTools <- dplyr::mutate(runserverTools,fullName=paste(categoryName,toolName,name,label))
+    runserverTools <- dplyr::mutate(runserverTools,fullName=paste(.data$categoryName,.data$toolName,.data$name,.data$label))
     toolInstanceEnv <- new.env()
     x <- byNotEmpty(runserverTools,function(runserverTool) {
       assign(x=runserverTool$fullName,value=runserverTool,envir =toolInstanceEnv )

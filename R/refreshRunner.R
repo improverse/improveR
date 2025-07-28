@@ -57,6 +57,7 @@ cleanRefreshFiles <- function() {
 #' autoRefreshStart
 #'
 #' starts a background process to automatically refresh the token
+#' @param verbose if true a log is written to stdout.txt and stderr.txt
 #'
 #' @export
 autoRefreshStart <- function(verbose=F) {

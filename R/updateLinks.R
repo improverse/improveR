@@ -15,10 +15,10 @@ updateLinks <- function(links, comment = "update outdated") {
   # Accept list of IDs
   links <- unique(unlist(links))
   for (linkId in links) {
-    linkRes <- improveR::loadResource(linkId)
+    linkRes <- loadResource(linkId)
     if (!identical(linkRes$nodeType, "Link")) next
     data <- list(nodeType = "Link", name = linkRes$name, comment = comment)
-    improveR::authenticatedREST(
+    authenticatedREST(
       "/resources/{resourceId}",
       queryParams = list(updateLink = "true"),
       urlParams = list(resourceId = linkRes$resourceId),
@@ -27,8 +27,8 @@ updateLinks <- function(links, comment = "update outdated") {
     )
     # Unload parent and its children to clear cache
     if (!is.null(linkRes$parentId)) {
-      improveR::unloadResource(linkRes$resourceId)
-      improveR::unloadChildResources(linkRes$parentId)
+      unloadResource(linkRes$resourceId)
+      unloadChildResources(linkRes$parentId)
     }
   }
   invisible(NULL)

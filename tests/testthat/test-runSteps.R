@@ -517,8 +517,8 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
 
 
   #TODO grid arguments, grid arguments merging
-  args <- dplyr::filter(checkgridFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
-  argsCompare <- dplyr::filter(compareFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select(argumentName, argumentValue)
+  args <- dplyr::filter(checkgridFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select("argumentName", "argumentValue")
+  argsCompare <- dplyr::filter(compareFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select("argumentName", "argumentValue")
   #expect_equal(args, argsCompare)
   #expect_equal(nrow(args), 4)
 })

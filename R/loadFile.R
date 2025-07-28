@@ -256,7 +256,7 @@ saveImproveJson <- function() {
   unlink(linkJsonFileName)
   if (!is.null(cacheEnv$createdLinks)) {
     # saveDF <- dplyr::select(cacheEnv$createdLinks,.data$path,.data$target)
-    saveDF <- dplyr::select(cacheEnv$createdLinks,path,target) #see note above
+    saveDF <- dplyr::select(cacheEnv$createdLinks,"path","target") #see note above
     saveDF$type<-"link"
     jsonlite::write_json(saveDF,linkJsonFileName)
   }

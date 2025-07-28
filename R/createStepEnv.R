@@ -76,7 +76,7 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   # return Status string
   env$getStepState <- function() {
     entityId <- .step_private$getStepValue("sourceEntityId")
-    step <- improveR:::internalLoadResourceFromServer(entityId)
+    step <- internalLoadResourceFromServer(entityId)
     return(step$runStatus)
   }
 
@@ -85,7 +85,7 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   env$getStepResource <- function() {
     entityId <- .step_private$getStepValue("sourceEntityId")
     if (!is.null(entityId)) {
-      return(improveR::loadResource(entityId))
+      return(loadResource(entityId))
     }
     return(NULL)
   }
@@ -94,7 +94,7 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   # return Resource object
   env$getStepWithoutCache <- function() {
     entityId <- .step_private$getStepValue("sourceEntityId")
-    step <- improveR:::internalLoadResourceFromServer(entityId)
+    step <- internalLoadResourceFromServer(entityId)
     return(step)
   }
 
@@ -113,7 +113,7 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   # return Inventory data
   env$getStepInventory <- function(recurse = FALSE, update = TRUE) {
     step <- env$getStepResource()
-    return(improveR:::getStepResourceInventory(step, recurse, update))
+    return(getStepResourceInventory(step, recurse, update))
   }
 
 

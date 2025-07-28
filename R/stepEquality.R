@@ -138,8 +138,8 @@ existsInTargetTree <- function(handle) {
       return(filterStep)
     }
     if (prepHas && compHas) {
-      prepArguments <- prepArguments[[1]][order(prepArguments[[1]]$argumentName),] %>% dplyr::select(.data$argumentName,.data$argumentValue)
-      compareArguments <- compareArguments[[1]][order(compareArguments[[1]]$argumentName),]%>% dplyr::select(.data$argumentName,.data$argumentValue)
+      prepArguments <- prepArguments[[1]][order(prepArguments[[1]]$argumentName),] %>% dplyr::select("argumentName","argumentValue")
+      compareArguments <- compareArguments[[1]][order(compareArguments[[1]]$argumentName),]%>% dplyr::select("argumentName","argumentValue")
       if (nrow(prepArguments)==nrow(compareArguments) && all(prepArguments==compareArguments)) {
         return(filterStep)
       }

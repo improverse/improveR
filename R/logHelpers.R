@@ -45,9 +45,9 @@ improveLastLogMessage<- function (type="",number=1) {
     return(NULL)
   }
   if (type!="") {
-    logItems |> dplyr::filter(type==type)
+    logItems |> dplyr::filter(.data$type==type)
   }
   return(
-    logItems |> utils::tail(number) |> dplyr::select(message) |> as.character()
+    logItems |> utils::tail(number) |> dplyr::select("message") |> as.character()
   )
 }

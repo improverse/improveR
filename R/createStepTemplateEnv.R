@@ -1,6 +1,7 @@
 #' Create a new step template environment
 #'
 #' Constructs a new step template object with encapsulated state and public API.
+#' @param treeIdent assigns a target tree to the template (optional)
 #' @param stepDf Data frame with step metadata (optional)
 #' @param workflow Workflow environment this template belongs to (optional)
 #' @return An environment representing the step template
@@ -35,7 +36,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
   .template_private$getStepWithoutCache <- function() {
     entityId <- .template_private$getStepValue("entityId")
-    step <- improveR:::internalLoadResourceFromServer(entityId)
+    step <- internalLoadResourceFromServer(entityId)
     return(step)
   }
 
@@ -65,7 +66,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       }
       folderName <- pathParts[1]
       fileName<- pathParts[2]
-      children <- improveR::loadChildResources(newStep)
+      children <- loadChildResources(newStep)
       folder <- children[children$name==folderName,]
       if (nrow(folder)==1 && folder$nodeType!="Folder") {
         logging::logwarn(folderName)
@@ -75,7 +76,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       if (nrow(folder)==1) {
         createTarget<-folder
       } else {
-        createTarget <- improveR::createFolder(newStep,folderName=folderName)
+        createTarget <- createFolder(newStep,folderName=folderName)
       }
     }
 
@@ -94,21 +95,21 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     timing("created")
     if (!is.na(filePrep$variableName) && !filePrep$variableName=="" && !is.null(newFile)) {
       timing("variableStart")
-      stepProcesses <- improveR::loadProcessesForStep(newStep$resourceId)
+      stepProcesses <- loadProcessesForStep(newStep$resourceId)
       variableProcess <- stepProcesses[stepProcesses$name==filePrep$variableProcess,]
       processId <- as.character(variableProcess$id)
-      variables <- improveR::getProcessFileVariables(newStep,processId)
+      variables <- getProcessFileVariables(newStep,processId)
       variableId <- as.character(variables[variables$name==filePrep$variableName,]$id)
       if (length(variableId)==0) {
         position=1
         if (!is.null(variables)) {
           position<- max(variables$position)+1
         }
-        variable<- improveR:::createProcessFileVariable(ident = newStep$resourceId,processId = processId,name = filePrep$variableName,variableType = "fileRef",position = position)
+        variable<- createProcessFileVariable(ident = newStep$resourceId,processId = processId,name = filePrep$variableName,variableType = "fileRef",position = position)
         variableId<-variable[[1]][1]
       }
 
-      result <- improveR::authenticatedREST("/resources/{resourceId}/processes/{processId}/variables/{variableId}",
+      result <- authenticatedREST("/resources/{resourceId}/processes/{processId}/variables/{variableId}",
                                   urlParams = list(resourceId=newStep$resourceId,
                                                    processId=processId,
                                                    variableId=variableId),
@@ -153,18 +154,18 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     if (is.null(prepStep$referenceModel)) { prepStep$referenceModel <- FALSE }
 
     prepStep <- dplyr::select(prepStep,
-      rationale,
-      description,
-      comment,
-      keyStep,
-      baseModel,
-      fullModel,
-      finalModel,
-      referenceModel
+      "rationale",
+      "description",
+      "comment",
+      "keyStep",
+      "baseModel",
+      "fullModel",
+      "finalModel",
+      "referenceModel"
     )
 
     if ("parentIdent" %in% names(env$stepDf) && !is.null(env$stepDf$parentIdent)) {
-      prepStep$parentStepId <- improveR::loadResource(env$stepDf$parentIdent)$resourceId
+      prepStep$parentStepId <- loadResource(env$stepDf$parentIdent)$resourceId
     }
 
     prepList <- as.list(prepStep)
@@ -186,22 +187,22 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     prepList$processes <- processes
     print(jsonlite::toJSON(prepList, auto_unbox = TRUE, pretty = TRUE))
 
-    createResult <- improveR::authenticatedREST("/resources/{treeIdent}/steps",
+    createResult <- authenticatedREST("/resources/{treeIdent}/steps",
       urlParams = list(treeIdent = treeIdent),
       data = prepList,
       restType = "POST"
     )
     if (createResult$status_code == 201) {
       createContent <- httr::content(createResult)
-      newStep <- improveR::loadResource(createContent$resourceId)
+      newStep <- loadResource(createContent$resourceId)
       localFiles <- env$stepDf$localFiles[[1]]
       if (!is.null(localFiles)) {
         byNotEmpty(localFiles,function(filePrep) {
           .template_private$addFileToStep(newStep,filePrep)
         })
       }
-      invisible(improveR::unloadChildResources(newStep$parentId))
-      invisible(improveR::unloadFullChildResources(newStep$parentId))
+      invisible(unloadChildResources(newStep$parentId))
+      invisible(unloadFullChildResources(newStep$parentId))
       env$moveSubFolderNameMapping(subFolderNameMapping, newStep)
       return(newStep)
     }
@@ -644,13 +645,13 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   }
 
   env$getToolForProcess <- function(processName) {
-    process <- dplyr::filter(env$stepDf$processes[[1]], name == processName)
-    toolInstances <- improveR:::getToolInstances()
+    process <- dplyr::filter(env$stepDf$processes[[1]], .data$name == processName)
+    toolInstances <- getToolInstances()
     fullToolName <- paste(process$toolLabel, process$toolInstance, process$runserverLabel)
     toolNames <- ls(envir = toolInstances)
     toolNames <- toolNames[grepl(pattern = fullToolName, x = toolNames)]
     if (length(toolNames) != 1) {
-      improveR::log_error(fullToolName, "not unique or existing")
+      log_error(fullToolName, "not unique or existing")
       stop("tool error")
     }
     usedTool <- toolInstances[[toolNames]]
@@ -661,11 +662,11 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
     resolveRelativeFiles <- function(pF) {
       if ("sourceInventoryPath" %in% names(pF)) {
-        pF <- improveR:::byNotEmptyAsDf(pF,function(processFile) {
+        pF <- byNotEmptyAsDf(pF,function(processFile) {
           if (!is.na(processFile$sourceInventoryPath)) {
             fileName <- processFile$sourceInventoryPath
             sourceStep <- env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId
-            processFile$ident<- improveR::loadResource(fileName,from=sourceStep)$entityId
+            processFile$ident<- loadResource(fileName,from=sourceStep)$entityId
           }
           return(processFile)
         })
@@ -673,7 +674,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       return(pF)
     }
 
-    process <- dplyr::filter(env$stepDf$processes[[1]], name == processName)
+    process <- dplyr::filter(env$stepDf$processes[[1]], .data$name == processName)
     usedTool <- env$getToolForProcess(processName)
 
     gridArguments <- byNotEmptyAsDf(process$gridArguments[[1]],function(gridArgument) {
@@ -699,7 +700,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     if (is.null(process$toolArgs)) {
       process$toolArgs <- process$commandline
     }
-    process <- dplyr::select(process, name, main, runserverId, runserverToolId, toolArgs)
+    process <- dplyr::select(process, "name", "main", "runserverId", "runserverToolId", "toolArgs")
 
 
     if (!is.null(gridArguments)) {
@@ -710,7 +711,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     subFolderNameMapping <- list()
     remoteFiles <- env$stepDf$remoteFiles[[1]]
     if (!is.null(remoteFiles)) {
-      processFiles <- dplyr::filter(remoteFiles, variableProcess == processName & !is.na(variableName))
+      processFiles <- dplyr::filter(remoteFiles, .data$variableProcess == processName & !is.na(.data$variableName))
       processFiles <- resolveRelativeFiles(processFiles)
       if (nrow(processFiles) > 0) {
 
@@ -729,7 +730,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
                                  stringsAsFactors = FALSE
           )
           variables <- plyr::rbind.fill(variables, variable)
-          processResource <- improveR::loadResource(processFile$ident)
+          processResource <- loadResource(processFile$ident)
           resource <- data.frame(sourceResourceId = processResource$resourceId,
                                  targetName=processResource$name,
                                  variableName = processFile$variableName,
@@ -755,14 +756,14 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         process$variables <- list(variables)
       }
       if (processName == "Main") {
-        processFiles <- dplyr::filter(remoteFiles, is.null(variableName) | is.na(variableName))
+        processFiles <- dplyr::filter(remoteFiles, is.null(.data$variableName) | is.na(.data$variableName))
         processFiles <- resolveRelativeFiles(processFiles)
 
         if (nrow(processFiles) > 0) {
           resources <- process$resources[[1]]
           for (i in 1:nrow(processFiles)) {
             processFile <- processFiles[i, ]
-            processResource <- improveR::loadResource(processFile$ident)
+            processResource <- loadResource(processFile$ident)
             resource <- data.frame(sourceResourceId = processResource$resourceId,
                                    targetName=processResource$name,
                                    stringsAsFactors = FALSE
@@ -785,7 +786,9 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           }
           process$resources <- list(resources)
         }
-        process$resources <- list(dplyr::distinct(process$resources[[1]],targetName,.keep_all = T))
+        process$resources <- list(dplyr::distinct(process$resources[[1]],
+                                                  .data$targetName,
+                                                  .keep_all = T))
       }
       if (length(subFolderNameMapping) > 0) {
         process$subFolderNameMapping <- subFolderNameMapping
@@ -803,8 +806,8 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         pathParts <- strsplit(x = fileName, split = "/", fixed = TRUE)[[1]]
         createTarget <- NULL
         if (length(pathParts) != 2) {
-          improveR::log_error("maximum folder depth allowed is 1, by filename in realise step")
-          improveR::log_error(fileName)
+          log_error("maximum folder depth allowed is 1, by filename in realise step")
+          log_error(fileName)
           stop()
         }
         folderName <- pathParts[1]
@@ -812,8 +815,8 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         children <- loadChildResources(newStep)
         folder <- children[children$name == folderName, ]
         if (nrow(folder) == 1 && folder$nodeType != "Folder") {
-          improveR::log_error(folderName)
-          improveR::log_error("already exists but not as folder")
+          log_error(folderName)
+          log_error("already exists but not as folder")
           stop()
         }
         if (nrow(folder) == 1) {
@@ -821,14 +824,14 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         } else {
           createTarget <- createFolder(newStep, folderName = folderName)
         }
-        improveR::move(file.path(newStep$path, moveResource), createTarget, fileName)
+        move(file.path(newStep$path, moveResource), createTarget, fileName)
       }
     }
   }
 
   env$getStepEnv <- function() {
     if (is.null(env$step)) {
-      env$step <- improveR::getStep(env$getStepResource())
+      env$step <- getStep(env$getStepResource())
     }
     return(env$step)
   }
@@ -863,7 +866,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     }
     newStep <- .template_private$create()
     env$setStepValue("entityId", as.character(newStep$entityId))
-    tree <- improveR::loadResource(newStep$parentId)
+    tree <- loadResource(newStep$parentId)
     env$setStepValue("treeIdent", tree$resourceId)
     env$setStepValue("treeName", tree$name)
     env$setStepValue("treePath", dirname(tree$path))
@@ -876,7 +879,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   env$run <- function() {
     improveEditable()
     newStep <- env$getStepResource()
-    result <- improveR::authenticatedREST("resources/{stepId}/run",
+    result <- authenticatedREST("resources/{stepId}/run",
       urlParams = list(stepId = newStep$resourceId),
       restType = "POST"
     )
@@ -903,14 +906,14 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   env$getStepResource <- function() {
     entityId <- .template_private$getStepValue("entityId")
     if (!is.null(entityId)) {
-      return(improveR::loadResource(entityId))
+      return(loadResource(entityId))
     }
     return(NULL)
   }
 
   env$getStepState <- function() {
     entityId <- .template_private$getStepValue("entityId")
-    step <- improveR:::internalLoadResourceFromServer(entityId)
+    step <- internalLoadResourceFromServer(entityId)
     return(step$runStatus)
   }
 

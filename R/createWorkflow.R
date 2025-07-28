@@ -18,12 +18,12 @@ library(magrittr)
     return(NULL)
   }
   remoteFiles <- remoteFiles %>% dplyr::mutate(entityId = ident) %>%
-    dplyr::filter(asLink) %>%
-    dplyr::select(entityId, targetStep)
+    dplyr::filter(.data$asLink) %>%
+    dplyr::select("entityId", "targetStep")
 
-  links <- improveR::loadResource(remoteFiles$entityId) %>%
+  links <- loadResource(remoteFiles$entityId) %>%
     dplyr::left_join(remoteFiles)
-  fullSteps <- improveR::loadResource(stepsDf$sourceEntityId)
+  fullSteps <- loadResource(stepsDf$sourceEntityId)
   fullSteps <- dplyr::mutate(fullSteps, fullName = stepsDf[stepsDf$sourceEntityId == entityId, ]$fullName)
   stepPaths <- fullSteps$path
   allTargets <- NULL
@@ -60,7 +60,7 @@ library(magrittr)
   byNotEmpty(stepsDf,function(oneStep) {
     stepEnv <- env$steps[[oneStep$fullName]]
     if (length(ls(stepEnv$parent))==1) {
-      parentStep <- improveR::loadParentStep(oneStep$sourceEntityId)
+      parentStep <- loadParentStep(oneStep$sourceEntityId)
       if (!is.null(parentStep) && parentStep$entityId %in% stepsDf$sourceEntityId) {
         stepEnv$parent$load()
       }
@@ -118,13 +118,13 @@ library(magrittr)
   if (nrow(internalLink) == 0) {
     return(NULL)
   } else if (nrow(internalLink) > 1) {
-    return(improveR:::byNotEmpty(internalLink, function(x) .workflow_private$getLinkTarget(env, x)))
+    return(byNotEmpty(internalLink, function(x) .workflow_private$getLinkTarget(env, x)))
   }
   stepsDf <- env$df()
   targetStep <- stepsDf[stepsDf$fullName == internalLink$targetStep, ]
   remoteFiles <- targetStep$remoteFiles[[1]]
   linkFile <- remoteFiles[remoteFiles$ident == internalLink$entityId, ]
-  linkResource <- improveR::loadResource(linkFile$name, targetStep$sourceEntityId)
+  linkResource <- loadResource(linkFile$name, targetStep$sourceEntityId)
   return(linkResource$entityId)
 }
 
@@ -148,9 +148,9 @@ library(magrittr)
   } else if (length(links) > 1) {
     invisible(lapply(links, function(x) .workflow_private$updateLinks(env, x)))
   }
-  linkRes <- improveR::loadResource(links)
+  linkRes <- loadResource(links)
   data <- list(nodeType = "Link", name = linkRes$name, comment = "update outdated")
-  improveR::authenticatedREST(
+  authenticatedREST(
     "/resources/{resourceId}",
     queryParams = list(updateLink = "true"),
     urlParams = list(resourceId = linkRes$resourceId),
@@ -180,12 +180,14 @@ library(magrittr)
 #'
 #' @return An environment representing the workflow, with public methods as described.
 #' @examples
+#' \dontrun{
 #' wf <- createWorkflow()
 #' # Add steps, then:
 #' wf$df()
 #' wf$changedAndOutdatedFiles()
 #' plan <- wf$createReexecutionPlan()
 #' wf$executePlan(plan)
+#' }
 #' @export
 createWorkflow <- function() {
   env <- new.env(parent = emptyenv())
@@ -254,12 +256,12 @@ createWorkflow <- function() {
       entryList <- flattenInventoryEntries(taskInventory)
       inventoryDf <- mergeListToDataframe(entryList)
       inventoryDf$stoppedAt <- as.numeric(strptime(task$stoppedAt, format = "%Y-%m-%dT%H:%M:%S%z"))
-      inventoryDf$stepEntityId <- improveR::loadResource(task$entityId)$entityId
+      inventoryDf$stepEntityId <- loadResource(task$entityId)$entityId
       inventoryDf$ownedByName <- task$ownedByName
       return(inventoryDf)
     })
     completeInventory <- mergeDataframeList(completeInventory)
-    changedAndOutdated <- dplyr::filter(completeInventory, outdatedLink == TRUE | stoppedAt < lastModified)
+    changedAndOutdated <- dplyr::filter(completeInventory, .data$outdatedLink == TRUE | .data$stoppedAt < .data$lastModified)
     return(changedAndOutdated)
   }
 
@@ -275,16 +277,16 @@ createWorkflow <- function() {
     usingSteps <- stepsDf[stepsDf$fullName %in% .workflow_private$getInternalUsage(env, allStepsToExecute$fullName), ]
 
     allSteps <- rbind(allStepsToExecute, usingSteps) %>%
-      dplyr::distinct(fullName, .keep_all = TRUE)
+      dplyr::distinct(.data$fullName, .keep_all = TRUE)
 
     executionPlan <- byNotEmptyAsDf(allSteps, function(st) {
-      outDatedLinksDf <- dplyr::filter(caof, nodeType == "LIV" & stepEntityId == st$sourceEntityId)
+      outDatedLinksDf <- dplyr::filter(caof, .data$nodeType == "LIV" & .data$stepEntityId == st$sourceEntityId)
       outDatedLinks <- NULL
       if (nrow(outDatedLinksDf) > 0) {
         outDatedLinks <- outDatedLinksDf %>%
-          dplyr::pull(entityId) %>%
-          improveR::loadResource() %>%
-          dplyr::pull(entityId)
+          dplyr::pull("entityId") %>%
+          loadResource() %>%
+          dplyr::pull("entityId")
       }
       internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
       linkIds <- NULL
@@ -303,14 +305,14 @@ createWorkflow <- function() {
     })
     executionPlan <- dplyr::select(
       executionPlan,
-      description,
-      rationale,
-      sourceEntityId,
-      sourceName,
-      fullName,
-      toUpdate,
-      lineage,
-      usage
+      "description",
+      "rationale",
+      "sourceEntityId",
+      "sourceName",
+      "fullName",
+      "toUpdate",
+      "lineage",
+      "usage"
     )
     executionPlan$inPlace <- TRUE
     return(executionPlan)
@@ -339,7 +341,7 @@ createWorkflow <- function() {
         for (dependency in dependencies) {
           if (dependency %in% executionList) {
             logging::loginfo("waiting to finish")
-            improveR::finishRunResource(env$steps[[dependency]]$stepDf$sourceEntityId)
+            finishRunResource(env$steps[[dependency]]$stepDf$sourceEntityId)
             executionList <- executionList[executionList != dependency]
           }
         }
@@ -348,7 +350,7 @@ createWorkflow <- function() {
         updateLinks(nextData$toUpdate[[1]])
       }
       if ("inPlace" %in% names(nextData) && nextData$inPlace) {
-        improveR::runStepResource(nextData$sourceEntityId)
+        runStepResource(nextData$sourceEntityId)
       } else {
         stepEnv <- env$steps[[nextData$fullName]]
         stepEnv$realise()
@@ -357,7 +359,7 @@ createWorkflow <- function() {
     }
     if (length(executionList) > 0) {
       for (item in executionList) {
-        improveR::finishRunResource(env$steps[[item]]$stepDf$sourceEntityId)
+        finishRunResource(env$steps[[item]]$stepDf$sourceEntityId)
       }
     }
   }

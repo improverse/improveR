@@ -7,6 +7,8 @@
 createStepTemplateEnv(treeIdent = NULL, stepDf = NULL, workflow = NULL)
 }
 \arguments{
+\item{treeIdent}{assigns a target tree to the template (optional)}
+
 \item{stepDf}{Data frame with step metadata (optional)}
 
 \item{workflow}{Workflow environment this template belongs to (optional)}
