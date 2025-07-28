@@ -195,8 +195,8 @@ createWorkflow <- function() {
   env$internalLinks <- NULL
   env$outputFiles <- new.env()
 
-  #' List all steps in the workflow as a data frame
-  #' @return A data.frame with step metadata
+  # List all steps in the workflow as a data frame
+  # @return A data.frame with step metadata
   env$df <- function() {
     stepNames <- data.frame(fullName = ls(env$steps))
     stepDf <- byNotEmptyAsDf(stepNames, function(stepName) {
@@ -207,9 +207,9 @@ createWorkflow <- function() {
     })
   }
 
-  #' Find changed and outdated files in the workflow
-  #' @param tree Optional tree identifier to restrict the search
-  #' @return A data.frame of changed and outdated files
+  # Find changed and outdated files in the workflow
+  # @param tree Optional tree identifier to restrict the search
+  # @return A data.frame of changed and outdated files
   env$changedAndOutdatedFiles <- function(tree = NULL) {
     if (is.null(tree)) {
       workflowDf <- env$df()
@@ -263,8 +263,8 @@ createWorkflow <- function() {
     return(changedAndOutdated)
   }
 
-  #' Create a re-execution plan for outdated steps
-  #' @return A data.frame describing the execution plan
+  # Create a re-execution plan for outdated steps
+  # @return A data.frame describing the execution plan
   env$createReexecutionPlan <- function() {
     stepsDf <- env$df()
     caof <- env$changedAndOutdatedFiles()
@@ -316,17 +316,17 @@ createWorkflow <- function() {
     return(executionPlan)
   }
 
-  #' Rerun all changed and outdated steps in the workflow
-  #' @return Invisibly returns NULL
+  # Rerun all changed and outdated steps in the workflow
+  # @return Invisibly returns NULL
   env$rerunChangedAndOutdated <- function() {
     plan <- env$createReexecutionPlan()
     env$executePlan(plan)
     invisible(NULL)
   }
 
-  #' Execute a given execution plan
-  #' @param executionPlan A data.frame as returned by \code{createReexecutionPlan}
-  #' @return Invisibly returns NULL
+  # Execute a given execution plan
+  # @param executionPlan A data.frame as returned by \code{createReexecutionPlan}
+  # @return Invisibly returns NULL
   env$executePlan <- function(executionPlan) {
     orderedWorkflow <- .workflow_private$executionOrder(env, executionPlan)
     executionList <- c()

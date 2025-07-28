@@ -66,8 +66,8 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
   env$stepTemplates <- stepTemplates
 
 
-  #' List all steps in the workflow template as a data frame
-  #' @return A data.frame with step metadata
+  # List all steps in the workflow template as a data frame
+  # @return A data.frame with step metadata
   env$df <- function() {
     stepNames <- data.frame(fullName = ls(env$stepTemplates))
     stepDf <- byNotEmptyAsDf(stepNames, function(stepName) {
@@ -101,8 +101,8 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
 
   }
 
-  #' Create a re-execution plan for outdated steps
-  #' @return A data.frame describing the execution plan
+  # Create a re-execution plan for outdated steps
+  # @return A data.frame describing the execution plan
   env$createExecutionPlan <- function() {
     stepsDf <- env$df()
 
@@ -141,9 +141,9 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
   }
 
 
-  #' Execute a given execution plan
-  #' @param executionPlan A data.frame as returned by \code{createReexecutionPlan}
-  #' @return Invisibly returns NULL
+  # Execute a given execution plan
+  # @param executionPlan A data.frame as returned by \code{createReexecutionPlan}
+  # @return Invisibly returns NULL
   env$executePlan <- function(executionPlan) {
     orderedWorkflow <-  .workflow_template_private$executionOrder(env, executionPlan)
     workflow <- NULL

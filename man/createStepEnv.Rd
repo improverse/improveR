@@ -10,27 +10,9 @@ createStepEnv(stepDf = NULL, workflow = NULL)
 \item{stepDf}{Data frame with step metadata}
 
 \item{workflow}{Workflow environment this step belongs to}
-
-\item{recurse}{If the complete inventory should be retrieved or only the top level}
-
-\item{update}{Unloads the cached resources, default TRUE}
 }
 \value{
 An environment representing the step
-
-Data frame of the main process, or NULL if not found
-Get the run status of the step
-
-Status string
-Get the resource object for the step
-
-Resource object
-Get the resource object for the step, bypassing cache
-
-Resource object
-Retrieves all files from the inventory of a handle, if a step was created with this handle
-
-Inventory data
 }
 \description{
 Constructs a new step object with encapsulated state, navigation environments, and public API.

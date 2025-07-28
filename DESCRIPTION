@@ -32,17 +32,17 @@ Imports:
     jose,
     openssl,
     rlang,
-    haven,
-    htmltools,
-    knitr,
-    readxl,
     uuid,
     properties,
-    zip,
-    callr
+    zip
 Suggests: 
     httptest,
     testthat (>= 3.0.0),
     devtools,
-    lubridate
+    lubridate,
+    callr,
+    readxl,
+    haven,
+    htmltools,
+    knitr
 Config/testthat/edition: 3

@@ -26,8 +26,8 @@ fileResourceVersionCacheList <- list(
 )
 
 #' loadFile
-#' @description Loads a file by its resourceId, entity ID, or entity version ID. 
-#' Uses caching. The results are returned as a data frame or a list of data frames. 
+#' @description Loads a file by its resourceId, entity ID, or entity version ID.
+#' Uses caching. The results are returned as a data frame or a list of data frames.
 #' The dates are converted to POSIX dates with the convertImproveTimestampToPosix function.
 #' resourceId can be a list.
 #' @param  ident the resource id or the entity id of the resource
@@ -129,7 +129,7 @@ unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
 
 
 #' updateFile
-#' @description Retrieves the latest version of the file from the repository.
+#' @description Retrieves5 the latest version of the file from the repository.
 #' @inheritParams common_ident
 #' @inheritSection common_ident Details ident
 
@@ -139,11 +139,11 @@ unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
 #' @param linkInInventory Logical; if TRUE, creates a link to the resource in inventory.
 #' @references ics1099
 #' @export
-updateFile <- function(ident, from = pwd(), filePath = ".", 
+updateFile <- function(ident, from = pwd(), filePath = ".",
              addIdToName = FALSE, linkInInventory = FALSE) {
-  unloadFile(ident, from, filePath = filePath, 
+  unloadFile(ident, from, filePath = filePath,
        addIdToName = addIdToName)
-  res <- loadFile(ident, from, filePath, 
+  res <- loadFile(ident, from, filePath,
           addIdToName, linkInInventory)
   return(res)
 }

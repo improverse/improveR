@@ -13,5 +13,5 @@ getLocalRepoResource(localPath)
 The resource information.
 }
 \description{
-Retrieves the resource information for a local repository.
+Retrieves2 the resource information for a local repository.
 }

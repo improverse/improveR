@@ -6,27 +6,8 @@
 \usage{
 createWorkflow()
 }
-\arguments{
-\item{tree}{Optional tree identifier to restrict the search}
-
-\item{executionPlan}{A data.frame as returned by \code{createReexecutionPlan}}
-}
 \value{
 An environment representing the workflow, with public methods as described.
-
-A data.frame with step metadata
-Find changed and outdated files in the workflow
-
-A data.frame of changed and outdated files
-Create a re-execution plan for outdated steps
-
-A data.frame describing the execution plan
-Rerun all changed and outdated steps in the workflow
-
-Invisibly returns NULL
-Execute a given execution plan
-
-Invisibly returns NULL
 }
 \description{
 This function constructs a new workflow environment for managing and executing steps.

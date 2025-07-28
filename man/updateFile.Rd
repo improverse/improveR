@@ -24,7 +24,7 @@ updateFile(
 \item{linkInInventory}{Logical; if TRUE, creates a link to the resource in inventory.}
 }
 \description{
-Retrieves the latest version of the file from the repository.
+Retrieves5 the latest version of the file from the repository.
 }
 \section{Details ident}{
 

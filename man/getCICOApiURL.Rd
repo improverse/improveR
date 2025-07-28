@@ -10,5 +10,5 @@ getCICOApiURL()
 The API URL as a string.
 }
 \description{
-Retrieves the API URL from the configuration.
+Retrieves1 the API URL from the configuration.
 }

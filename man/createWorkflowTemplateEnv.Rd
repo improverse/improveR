@@ -8,19 +8,9 @@ createWorkflowTemplateEnv(workflow, addParental = F)
 }
 \arguments{
 \item{workflow}{The workflow environment to template}
-
-\item{executionPlan}{A data.frame as returned by \code{createReexecutionPlan}}
 }
 \value{
 An environment representing the workflow template
-
-A data.frame with step metadata
-Create a re-execution plan for outdated steps
-
-A data.frame describing the execution plan
-Execute a given execution plan
-
-Invisibly returns NULL
 }
 \description{
 Extracts all steps, relationships, parameters, and files from the workflow

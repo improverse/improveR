@@ -86,7 +86,7 @@ executeCli <- function(cliString) {
 
 #' Get CICO API URL
 #'
-#' Retrieves the API URL from the configuration.
+#' Retrieves1 the API URL from the configuration.
 #'
 #' @return The API URL as a string.
 getCICOApiURL <- function() {
@@ -123,7 +123,7 @@ configureUserProfile <- function(userProfile = "improveR") {
 
 #' Get Local Repository Resource
 #'
-#' Retrieves the resource information for a local repository.
+#' Retrieves2 the resource information for a local repository.
 #'
 #' @param localPath The local repository path.
 #' @return The resource information.

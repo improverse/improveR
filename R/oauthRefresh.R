@@ -1,7 +1,7 @@
 
 
 # Renews the access token using the refresh token stored in the session storage.
-# Retrieves and parses stored OAuth data and sends a POST request to the token endpoint.
+# Retrieves6 and parses stored OAuth data and sends a POST request to the token endpoint.
 # Updates the session storage with the new token data on successful renewal.
 # Throws an error if the stored data is missing or if the renewal request fails.
 #
