@@ -46,5 +46,32 @@ reportingTemplate <- stepEnv$createTemplate()
 reportingTemplate$realise()
 
 
+unzip("test-results.zip")
+testResults <- dir("test-results")
+fullResults <- NULL
+for (i in 1:length(testResults)) {
+  results <- readRDS(file.path("test-results",testResults[i]))
+  fullResults <- c(results, fullResults)
+}
 
+testCase <- fullResults[[9]]
+testCaseResults <- testCase$results[[1]]
+attr(testCaseResults,which = "class")[1]
+
+resultDf <- NULL
+
+for (i in 1:length(fullResults)) {
+  testCase <- fullResults[[i]]
+  for (j in 1:length(testCase$results)) {
+    testCaseResults <- testCase$results[[1]]
+    df <- data.frame(testFile=testCase$file,
+                     testName=testCase$test,
+                     testResult=attr(testCaseResults,which = "class")[1],
+                     stringsAsFactors = F)
+    if (df$testResult!="expectation_success") {
+      df$errorMessage <- testCaseResults$message
+    }
+    resultDf<- plyr::rbind.fill(resultDf,df)
+  }
+}
 
