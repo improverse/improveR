@@ -46,7 +46,7 @@ reportingTemplate <- stepEnv$createTemplate()
 reportingTemplate$realise()
 
 
-unzip("test-results.zip")
+
 testResults <- dir("test-results")
 fullResults <- NULL
 for (i in 1:length(testResults)) {
