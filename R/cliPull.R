@@ -6,6 +6,7 @@
 #' @export
 pullCli <- function(localPath) {
   checkInit()
-  command <- glue::glue("pull -repository {localPath}")
+  accessToken <- conf()$reqToken
+  command <- glue::glue("pull -accessToken {accessToken} -repository {localPath}")
   executeCli(command)
 }
