@@ -54,24 +54,24 @@ for (i in 1:length(testResults)) {
   fullResults <- c(results, fullResults)
 }
 
-testCase <- fullResults[[9]]
-testCaseResults <- testCase$results[[1]]
-attr(testCaseResults,which = "class")[1]
-
 resultDf <- NULL
 
 for (i in 1:length(fullResults)) {
   testCase <- fullResults[[i]]
   for (j in 1:length(testCase$results)) {
-    testCaseResults <- testCase$results[[1]]
+    testCaseResults <- testCase$results[[j]]
     df <- data.frame(testFile=testCase$file,
                      testName=testCase$test,
                      testResult=attr(testCaseResults,which = "class")[1],
                      stringsAsFactors = F)
+    df$errorMessage <- NA
     if (df$testResult!="expectation_success") {
       df$errorMessage <- testCaseResults$message
     }
     resultDf<- plyr::rbind.fill(resultDf,df)
   }
 }
-
+write.csv(resultDf,"test-results.csv")
+if (nrow(resultDf[!is.na(resultDf$errorMessage),])==0) {
+  file.create("ERROR")
+}
