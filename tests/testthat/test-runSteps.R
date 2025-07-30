@@ -626,10 +626,14 @@ test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", 
   dmStep$changeStepRemoteFile("./data.csv", asLink = F)
 
   test4Workflow <- fullTemplate$realise()
-  dmReal <- test4Workflow$steps[[names(test4Workflow$steps)[grep(pattern = "Step 7", names(test4Workflow$steps))]]]
+  test4Workflow <- getWorkflow(testTree4)
+  dmReal <- test4Workflow$steps[[names(test4Workflow$steps)[grep(pattern = "Step 2", names(test4Workflow$steps))]]]
 
   inventory <- dmReal$getStepInventory()$data[[1]]
   inputFile <- inventory[inventory$name == "data.csv", ]
+  if (!file.exists("improver.log")) {
+    file.create("improver.log")
+  }
   improveR::updateFileContent(inputFile, "improver.log")
   test4Workflow$rerunChangedAndOutdated()
 

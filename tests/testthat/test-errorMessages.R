@@ -877,9 +877,7 @@ httptest::with_mock_dir("otherCreateErrors",{
 
 })
 
-test_that("test fail", {
-  expect_false(TRUE)
-})
+
 #get stuff
 #metadata
 #move all loads for processes, ... to improveRcore

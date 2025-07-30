@@ -2,7 +2,7 @@
 devtools::document()
 devtools::load_all()
 improveR::clearConnectionData()
-improVerticleDevelopment:::login()
+improveRstudio:::login()
 delete("/Projects/Tests/runFiles")
 TEST_FOLDER <- workflowFilesSetup()
 library(magrittr)
