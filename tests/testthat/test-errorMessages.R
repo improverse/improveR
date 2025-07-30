@@ -290,7 +290,7 @@ httptest::with_mock_dir("loadConnected",{
     checkNonexisting(updateReferences)
 
   })
-#})
+})
 
 
 httptest::with_mock_dir("queryErrors",{
