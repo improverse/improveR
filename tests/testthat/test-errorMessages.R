@@ -2,7 +2,7 @@
 
 Sys.setenv(TEST_NAME="errorMessages")
 
-#httptest::with_mock_dir("prepare-errorMessages",{
+httptest::with_mock_dir("prepare-errorMessages",{
   test_that("createTestFolder", {
     clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
@@ -12,7 +12,7 @@ Sys.setenv(TEST_NAME="errorMessages")
     TEST_FOLDER <- emptyFolderSetup()
     assign(x = "TEST_FOLDER",value = TEST_FOLDER,envir = globalenv())
   })
-#})
+})
 
 
 FAKE_RES_ID <- "XXXXXXXXXXXXX"
@@ -21,7 +21,7 @@ FAKE_LONG_ENTITY_ID <- "http://wrongURL:8843/?path=wrongrepo:wrongID"
 FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
 
 
-#httptest::with_mock_dir("noLogging",{
+httptest::with_mock_dir("noLogging",{
   test_that("no logging", {
     expect_false("" == TEST_FOLDER)
 
@@ -38,10 +38,10 @@ FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
       expect_null(logItems)
     })
   })
-#})
+})
 
 
-#httptest::with_mock_dir("notConnected",{
+httptest::with_mock_dir("notConnected",{
   test_that("not connected|ics1081", {
 
 
@@ -210,11 +210,11 @@ FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
     })
 
   })
-#})
+})
 
 
 
-#httptest::with_mock_dir("loadConnected",{
+httptest::with_mock_dir("loadConnected",{
 
   test_that("load connected|ics1085,ics1090,ics1093,ics1094,ics1096,ics1097,ics1099,ics1088,ics1206", {
 
@@ -293,7 +293,7 @@ FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
 #})
 
 
-#httptest::with_mock_dir("queryErrors",{
+httptest::with_mock_dir("queryErrors",{
   test_that("query errors|ics1143", {
     Sys.setenv(improver.logfile="improver.log")
     improveConnect()
@@ -302,9 +302,9 @@ FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
     message <- improveLastLogMessage("WARN")
     expect_true(startsWith(message,"Error in query:  unknown attribute pat"))
   })
-#})
+})
 
-#httptest::with_mock_dir("createInNonExistingTargets",{
+httptest::with_mock_dir("createInNonExistingTargets",{
   test_that("create in non existing targets|ics1101,ics1102,ics1103,ics1104,ics1138,ics1140", {
     Sys.setenv(improver.logfile="improver.log")
     improveConnect()
@@ -335,10 +335,10 @@ FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
     message <- improveLastLogMessage("WARN")
     expect_true(startsWith(message,"Target does not exist"))
   })
-#})
+})
 
 
-#httptest::with_mock_dir("createInWrongTarget",{
+httptest::with_mock_dir("createInWrongTarget",{
   test_that("create in wrong target|ics1101,ics1102,ics1103,ics1104,ics1138,ics1140", {
 
 
@@ -463,10 +463,10 @@ FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
     createResourceInNonContainer(testLink)
 
   })
-#})
+})
 
 
-#httptest::with_mock_dir("otherCreateErrors",{
+httptest::with_mock_dir("otherCreateErrors",{
   test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
 
     createWithWrongName <- function(testName) {
@@ -875,7 +875,7 @@ FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
 
   })
 
-#})
+})
 
 test_that("test fail", {
   expect_false(TRUE)
