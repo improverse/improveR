@@ -212,24 +212,43 @@ getStepDf <- function(ident) {
 
   #reference should be shown
   variables <- mergeListToDataframe(processes$variables)
-  variableProcesses <- dplyr::pull(dplyr::distinct(variables,.data$processId))
-  variables <- lapply(variableProcesses,
-                      function(proc) {
-                        return(actualLoadProcessVariables(proc))
-                      }
-  )
+  variableProcesses <- if("processId" %in% names(variables)) {
+    dplyr::pull(dplyr::distinct(variables,.data$processId))
+  } else {
+    c()
+  }
+  variables <- if(length(variableProcesses) > 0) {
+    lapply(variableProcesses,
+           function(proc) {
+             return(actualLoadProcessVariables(proc))
+           }
+    )
+  } else {
+    list()
+  }
   variables <- mergeListToDataframe(variables)
   #workaround end
 
-  variables$variableName <- variables$name
-  variables <- byNotEmptyAsDf(variables,function(v) {
-    v$variableProcess <- processes[processes$id==v$processId,]$name
-    return(v)
-  })
-  if (!("valueResourceId" %in% names(variables))) {
-    variables$valueResourceId <- NA
+  # Handle empty variables case
+  if(nrow(variables) > 0) {
+    variables$variableName <- variables$name
+    variables <- byNotEmptyAsDf(variables,function(v) {
+      v$variableProcess <- processes[processes$id==v$processId,]$name
+      return(v)
+    })
+    if (!("valueResourceId" %in% names(variables))) {
+      variables$valueResourceId <- NA
+    }
+    variables <- dplyr::select(variables,"valueResourceId","variableName","variableProcess")
+  } else {
+    # Create empty variables dataframe with correct structure
+    variables <- data.frame(
+      valueResourceId = character(0),
+      variableName = character(0),
+      variableProcess = character(0),
+      stringsAsFactors = FALSE
+    )
   }
-  variables <- dplyr::select(variables,"valueResourceId","variableName","variableProcess")
 
 
 
@@ -256,7 +275,15 @@ getStepDf <- function(ident) {
   inventory <- plyr::rbind.fill(links,files)
   #TODO nodeTypes
 
-  inventory <- dplyr::left_join(inventory,variables,c("resourceId" = "valueResourceId"))
+  # Safe left join - only join if both dataframes have the required columns
+  if(nrow(inventory) > 0 && nrow(variables) > 0 && 
+     "resourceId" %in% names(inventory) && "valueResourceId" %in% names(variables)) {
+    inventory <- dplyr::left_join(inventory,variables,c("resourceId" = "valueResourceId"))
+  } else if(nrow(inventory) > 0) {
+    # Add empty variable columns to inventory when no variables exist
+    inventory$variableName <- NA_character_
+    inventory$variableProcess <- NA_character_
+  }
 
   inputFiles <- inventory[inventory$nodeType=="FIV" | inventory$nodeType=="File",]
 

@@ -1,7 +1,7 @@
 # Improve directory management functions
 
 #' Get improve directory (internal implementation)
-#' 
+#'
 #' @param env_var Environment variable name to check first
 #' @param subdir Subdirectory name for defaults
 #' @param windows_base Base directory for Windows (e.g., "LOCALAPPDATA", "USERPROFILE")
@@ -10,7 +10,7 @@
 getImproveDir <- function(env_var, subdir, windows_base = "LOCALAPPDATA", unix_hidden = TRUE) {
   # Check if environment variable is set
   existing_dir <- Sys.getenv(env_var, "")
-  
+
   if (existing_dir != "") {
     # Environment variable is set - try to use it
     if (dir.exists(existing_dir)) {
@@ -30,7 +30,7 @@ getImproveDir <- function(env_var, subdir, windows_base = "LOCALAPPDATA", unix_h
       })
     }
   }
-  
+
   # Determine platform-appropriate default directory
   if (.Platform$OS.type == "windows") {
     # Windows: Use specified base directory
@@ -46,7 +46,7 @@ getImproveDir <- function(env_var, subdir, windows_base = "LOCALAPPDATA", unix_h
         base_dir <- file.path(base_dir, "AppData", "Local")
       }
     }
-    
+
     if (base_dir != "") {
       computed_dir <- file.path(base_dir, subdir)
     } else {
@@ -63,7 +63,7 @@ getImproveDir <- function(env_var, subdir, windows_base = "LOCALAPPDATA", unix_h
     }, error = function(e) {
       return("")
     })
-    
+
     if (home_dir != "" && home_dir != "~") {
       dir_name <- if (unix_hidden) paste0(".", subdir) else subdir
       computed_dir <- file.path(home_dir, dir_name)
@@ -73,21 +73,21 @@ getImproveDir <- function(env_var, subdir, windows_base = "LOCALAPPDATA", unix_h
       computed_dir <- file.path(tempdir(), subdir)
     }
   }
-  
+
   # Create directory if it doesn't exist
   if (!dir.exists(computed_dir)) {
     dir.create(computed_dir, recursive = TRUE, showWarnings = FALSE)
     log_info("Created improve directory:", computed_dir)
   }
-  
+
   # Set environment variable so next call uses same location
-  Sys.setenv(setNames(computed_dir, env_var))
-  
+  do.call(Sys.setenv, stats::setNames(list(computed_dir), env_var))
+
   return(computed_dir)
 }
 
 #' Get improve internal directory
-#' 
+#'
 #' @description Gets the internal working directory for improve system files.
 #' Provides sensible cross-platform defaults if internalFolder is not set.
 #' @return Character string with path to internal directory
@@ -97,9 +97,9 @@ getImproveInternalDir <- function() {
 }
 
 #' Get improve workspace directory
-#' 
+#'
 #' @description Gets the workspace directory for user files and projects.
-#' @return Character string with path to workspace directory  
+#' @return Character string with path to workspace directory
 #' @export
 getImproveWorkspaceDir <- function() {
   getImproveDir("IMPROVER_WORKSPACE", "improVerse", "USERPROFILE", unix_hidden = FALSE)
