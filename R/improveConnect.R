@@ -67,36 +67,47 @@ clearConnectionData <- function(includeRepoData=F) {
 #' improveConnect
 #'
 #' @description
-#' improveConnect looks for connection information and sets this connection information as default.
-#' There are three ways to set connection information (in descending priority):
+#' improveConnect establishes a connection to the improve repository using one of two authentication methods:
+#' 
+#' ## Authentication Methods:
+#' 1. **Run Tokens (Production):** When a step is executed from improve platform, a run token is automatically provided
+#' 2. **OAuth (Interactive):** User authentication with browser or headless mode for development/interactive use  
+#'
+#' ## Required Environment Variables:
+#' 
+#' **For Run Token Authentication:**
+#' * IMPROVER_TOKEN: the run token (mandatory)
+#' * IMPROVER_REPO_URL: repository URL (mandatory)
+#' * IMPROVER_STEP: step ID for relative path resolution (optional)
+#' * IMPROVER_WORKSPACE: workspace directory (optional, defaults to current directory)
+#' 
+#' **For OAuth Authentication:**
+#' * IMPROVER_REPO_URL: repository URL (mandatory)
+#' * IMPROVER_STEP: step ID for relative path resolution (mandatory)
+#' * IMPROVER_HEADLESS_OAUTH: set to any non-empty value to enable headless OAuth mode (optional)
+#' * IMPROVER_WORKSPACE: workspace directory (optional, defaults to current directory)
+#'
+#' ## Optional Environment Variables (both methods):
+#' * IMPROVER_SECURITY: set to "insecure" to disable certificate verification
+#'
+#' ## Connection information sources (in descending priority):
 #' 1. via the command line
-#' 1. via environment variables
+#' 1. via environment variables  
 #' 1. via a conf.json file
 #'
 #' ## Command line
 #' Command line arguments have to be in the correct order.
-#' 1. token ID of the step that was used to initiate the connection
-#' 1. the repo URL in the format https://repoaddress:repoPort/repository
-#'
-#' ## Environment variables
-#' The following environment variables have to be set:
-#' * IMPROVER_TOKEN: mandatory if user and password are empty<br>
-#' * IMPROVER_STEP<br>
-#' * IMPROVER_REPO_URL mandatory<br>
-#' * IMPROVER_USER<br>
-#' * IMPROVER_PASSWORD<br>
-#' * IMPROVER_WORKSPACE<br>
-#' * IMPROVER_SECURITY: insecure if there is no valid certificate
+#' 1. run token (reqToken) 
+#' 1. step ID (shortEntityId) for relative path resolution
+#' 1. the repository URL in the format https://repoaddress:repoPort/repository
+#' 1. run workspace path
 #'
 #' ## Conf.json file
-#' The file has to be located in the working directory and contain the following
-#' details:
-#' * reqToken: mandatory if user and password are empty
-#' * stepId
-#' * repoUrl: mandatory
-#' * runWorkspace
-#' * user
-#' * password
+#' The file has to be located in the working directory and contain the following details:
+#' * reqToken: run token (if not provided, OAuth authentication will be used)
+#' * stepId: step ID for relative path resolution (mandatory for OAuth)
+#' * repoUrl: repository URL (mandatory)
+#' * runWorkspace: workspace directory
 #'
 #' @param logLevel possible LogLevels: DEBUG, INFO, WARN, ERROR
 #' @param secure if TRUE the certificates are checked
@@ -174,13 +185,9 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     reqToken <- Sys.getenv("IMPROVER_TOKEN")
     stepId <- Sys.getenv("IMPROVER_STEP")
     repoUrl <- Sys.getenv("IMPROVER_REPO_URL")
-    user <- Sys.getenv("IMPROVER_USER")
-    password <- Sys.getenv("IMPROVER_PASSWORD")
-    if (!password == "") {
-      Sys.unsetenv("IMPROVER_PASSWORD")
-      improveLogin(repo = repoUrl, user = user, password = password, logLevel = logLevel, secure = secure, shortEntityId = stepId)
-      return()
-    } else if (reqToken=="") {
+    
+    # If no run token provided, use OAuth authentication
+    if (reqToken=="") {
       improveOAuth(repoUrl,shortEntityId = stepId)
       return()
     }
@@ -190,17 +197,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     }
     serverAddress <- paste0(repoUrl, "/api/v1/")
     runWorkspace <- paste0(workspace, "/")
-    confData <- data.frame(repoUrl = serverAddress, runWorkspace = runWorkspace, user = "")
-    confData$stepId <- stepId
-    if (reqToken != "") {
-      if (user != "") {
-        confData$user <- user
-      }
-      confData$reqToken <- reqToken
-    } else {
-      confData$user <- user
-      confData$password <- password
-    }
+    confData <- data.frame(repoUrl = serverAddress, runWorkspace = runWorkspace, user = "", reqToken = reqToken, stepId = stepId, stringsAsFactors = F)
     assign("conf", confData, cacheEnv)
     logging::loginfo("Access Data from Environment variables:")
   } else {
@@ -223,12 +220,15 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
           logging::logerror("<repoUrl>")
           logging::logerror("<runWorkspace>")
           logging::logerror("Expected environment variables:")
-          logging::logerror("IMPROVER_TOKEN mandatory if user and password are empty")
-          logging::logerror("IMPROVER_STEP")
-          logging::logerror("IMPROVER_REPO_URL mandatory")
-          logging::logerror("IMPROVER_USER")
-          logging::logerror("IMPROVER_PASSWORD")
-          logging::logerror("IMPROVER_WORKSPACE")
+          logging::logerror("For Run Token Authentication:")
+          logging::logerror("  IMPROVER_TOKEN (mandatory)")
+          logging::logerror("  IMPROVER_REPO_URL (mandatory)")
+          logging::logerror("  IMPROVER_STEP (optional)")
+          logging::logerror("For OAuth Authentication:")
+          logging::logerror("  IMPROVER_REPO_URL (mandatory)")
+          logging::logerror("  IMPROVER_STEP (mandatory)")
+          logging::logerror("  IMPROVER_HEADLESS_OAUTH (optional)")
+          logging::logerror("  IMPROVER_WORKSPACE (optional)")
           stop("Not configured correctly")
         }
         cacheEnv$offline <- T
@@ -236,13 +236,11 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     )
   }
 
-  if (is.na(conf()$reqToken) || is.null(conf()$reqToken) || conf()$reqToken == "") {
-    if (Sys.getenv("IMPROVER_USER") == "") {
-      logging::logwarn("Using Basic Authentication, use this just for development, the password is stored in plain text in conf.json")
-      logging::loginfo(paste0("User: ", conf()$user))
-    }
-  } else {
+  if (!is.na(conf()$reqToken) && !is.null(conf()$reqToken) && conf()$reqToken != "") {
+    logging::loginfo("Using run token authentication")
     logging::loginfo(paste0("Token: ", conf()$reqToken))
+  } else {
+    logging::loginfo("OAuth authentication completed")
   }
   logging::loginfo(paste0("StepId: ", conf()$stepId))
   if (!is.null(conf()$stepId) & !is.na(conf()$stepId)) {

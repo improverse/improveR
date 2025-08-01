@@ -13,8 +13,9 @@ magrittr::`%>%`
 #' @param logLevel possible LogLevels: DEBUG, INFO, WARN, ERROR
 #' @param secure if TRUE the certificates are checked.
 #' Default is TRUE, it can be set to false also by the environment variable IMPROVER_SECURITY=insecure
-#' @param openBrowser this indicates wether the r session can open a browser to user can access. default is true. if set to false a URL and a code is written to the console. This can be used to log in form a different PC.
-#' it can be set to false also by the environment variable IMPROVER_HEADLESS_OAUTH=T
+#' @param openBrowser this indicates whether the R session can open a browser for user access. Default is TRUE. 
+#' If set to FALSE, a complete verification URL is logged to the console for manual access. This enables headless authentication 
+#' for CI/CD environments or remote sessions. Can be controlled by environment variable IMPROVER_HEADLESS_OAUTH (any non-empty value).
 #' @param withCodeVerifier if the oauth provider uses pkca code challenge verification
 #' @references ics1081
 #' @export
@@ -25,6 +26,7 @@ improveOAuth <- function(repo,shortEntityId="/",logLevel="INFO",secure=T,openBro
   if (Sys.getenv("IMPROVER_HEADLESS_OAUTH")!="" ||
       (Sys.getenv("IMPROVER_TEST_REPLAY")=="T" && (!isCapturing()))) {
     openBrowser=F
+    log_info("OAuth headless mode enabled - authentication URL will be displayed in console")
   }
 
   secureFlag <- Sys.getenv("IMPROVER_SECURITY")
@@ -179,9 +181,11 @@ startOAuth <- function(authenticationProvider,withCodeVerifier) {
 
 showOAuth <- function(authenticationProvider,openBrowser) {
   if (openBrowser) {
+    log_info("Opening OAuth verification URL in browser")
     utils::browseURL(authenticationProvider$verification_uri_complete)
   } else {
-    print(paste0("visit this URL: ",authenticationProvider$verification_uri_complete))
+    log_info("OAuth headless mode: Please visit the URL displayed below to complete authentication")
+    log_info(paste0("visit this URL: ",authenticationProvider$verification_uri_complete))
   }
   return(authenticationProvider)
 }

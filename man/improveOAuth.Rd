@@ -23,8 +23,9 @@ improveOAuth(
 \item{secure}{if TRUE the certificates are checked.
 Default is TRUE, it can be set to false also by the environment variable IMPROVER_SECURITY=insecure}
 
-\item{openBrowser}{this indicates wether the r session can open a browser to user can access. default is true. if set to false a URL and a code is written to the console. This can be used to log in form a different PC.
-it can be set to false also by the environment variable IMPROVER_HEADLESS_OAUTH=T}
+\item{openBrowser}{this indicates whether the R session can open a browser for user access. Default is TRUE.
+If set to FALSE, a complete verification URL is logged to the console for manual access. This enables headless authentication
+for CI/CD environments or remote sessions. Can be controlled by environment variable IMPROVER_HEADLESS_OAUTH (any non-empty value).}
 
 \item{withCodeVerifier}{if the oauth provider uses pkca code challenge verification}
 }

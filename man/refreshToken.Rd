@@ -17,5 +17,5 @@ Run tokens do not need to be refreshed.
 ics1208
 }
 \seealso{
-\code{\link[=improveLogin]{improveLogin()}}
+\code{\link[=improveConnect]{improveConnect()}}
 }

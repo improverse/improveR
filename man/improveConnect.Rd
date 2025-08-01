@@ -22,47 +22,66 @@ improveConnect(
 if the environment variable improver.logfile is set. The logging is additionally added to this file}
 }
 \description{
-improveConnect looks for connection information and sets this connection information as default.
-There are three ways to set connection information (in descending priority):
+improveConnect establishes a connection to the improve repository using one of two authentication methods:
+\subsection{Authentication Methods:}{
+\enumerate{
+\item \strong{Run Tokens (Production):} When a step is executed from improve platform, a run token is automatically provided
+\item \strong{OAuth (Interactive):} User authentication with browser or headless mode for development/interactive use
+}
+}
+
+\subsection{Required Environment Variables:}{
+
+\strong{For Run Token Authentication:}
+\itemize{
+\item IMPROVER_TOKEN: the run token (mandatory)
+\item IMPROVER_REPO_URL: repository URL (mandatory)
+\item IMPROVER_STEP: step ID for relative path resolution (optional)
+\item IMPROVER_WORKSPACE: workspace directory (optional, defaults to current directory)
+}
+
+\strong{For OAuth Authentication:}
+\itemize{
+\item IMPROVER_REPO_URL: repository URL (mandatory)
+\item IMPROVER_STEP: step ID for relative path resolution (mandatory)
+\item IMPROVER_HEADLESS_OAUTH: set to any non-empty value to enable headless OAuth mode (optional)
+\item IMPROVER_WORKSPACE: workspace directory (optional, defaults to current directory)
+}
+}
+
+\subsection{Optional Environment Variables (both methods):}{
+\itemize{
+\item IMPROVER_SECURITY: set to "insecure" to disable certificate verification
+}
+}
+
+\subsection{Connection information sources (in descending priority):}{
 \enumerate{
 \item via the command line
 \item via environment variables
 \item via a conf.json file
 }
+}
+
 \subsection{Command line}{
 
 Command line arguments have to be in the correct order.
 \enumerate{
-\item token ID of the step that was used to initiate the connection
-\item the repo URL in the format https://repoaddress:repoPort/repository
-}
-}
-
-\subsection{Environment variables}{
-
-The following environment variables have to be set:
-\itemize{
-\item IMPROVER_TOKEN: mandatory if user and password are empty\if{html}{\out{<br>}}
-\item IMPROVER_STEP\if{html}{\out{<br>}}
-\item IMPROVER_REPO_URL mandatory\if{html}{\out{<br>}}
-\item IMPROVER_USER\if{html}{\out{<br>}}
-\item IMPROVER_PASSWORD\if{html}{\out{<br>}}
-\item IMPROVER_WORKSPACE\if{html}{\out{<br>}}
-\item IMPROVER_SECURITY: insecure if there is no valid certificate
+\item run token (reqToken)
+\item step ID (shortEntityId) for relative path resolution
+\item the repository URL in the format https://repoaddress:repoPort/repository
+\item run workspace path
 }
 }
 
 \subsection{Conf.json file}{
 
-The file has to be located in the working directory and contain the following
-details:
+The file has to be located in the working directory and contain the following details:
 \itemize{
-\item reqToken: mandatory if user and password are empty
-\item stepId
-\item repoUrl: mandatory
-\item runWorkspace
-\item user
-\item password
+\item reqToken: run token (if not provided, OAuth authentication will be used)
+\item stepId: step ID for relative path resolution (mandatory for OAuth)
+\item repoUrl: repository URL (mandatory)
+\item runWorkspace: workspace directory
 }
 }
 }
