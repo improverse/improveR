@@ -155,9 +155,8 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     cacheEnv$reproducible <- T
   }
 
-  if (autoRefreshRunning()) {
-    readRefreshed()
-
+  if (isSharedTokenRefreshRunning()) {
+    readSharedRefreshedTokens()
   }
 
 

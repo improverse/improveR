@@ -5,7 +5,7 @@
 #' @description Gets the fixed path for shared encrypted tokens
 #' @return Character string with path to shared token file
 getSharedTokenFilePath <- function() {
-  internal_dir <- Sys.getenv("internalFolder", tempdir())
+  internal_dir <- getImproveInternalDir()
   return(file.path(internal_dir, "shared_tokens.enc"))
 }
 
