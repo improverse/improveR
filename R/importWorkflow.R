@@ -127,7 +127,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
         affectedProcess$toolName<-proc$toolName
         affectedProcess$runserverName<-proc$runserverName
         affectedProcess$runserverToolName<-proc$runserverToolName
-        changeStepProcessDf(affectedProcess$handle,affectedProcess$name,affectedProcess)
+        #changeStepProcessDf(affectedProcess$handle,affectedProcess$name,affectedProcess)
       })
     })
   }

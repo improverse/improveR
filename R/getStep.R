@@ -325,9 +325,6 @@ createRemoteFileDf <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variable
   if (!is.null(sourceHandle)) {
     fileList["sourceHandle"]<-sourceHandle
     fileList["sourceName"]<-sourceName
-    #TODO move out?
-    addStepValue(stepHandle,"dependencies",sourceHandle)
-    addStepValue(sourceHandle,"usage",stepHandle)
   }
   return(fileList)
 }

@@ -5,9 +5,12 @@ improveCloseToken = new.env(parent=emptyenv())
 
 .onLoad <- function(libname, pkgname) {
   reg.finalizer(improveCloseToken, function(a) {
-    if (!is.null(autoRefreshProcess$autoRefreshProcess)) {
-      cleanRefreshFiles()
-    }
+    # Clean up shared token refresh if running
+    tryCatch({
+      stopSharedTokenRefresh()
+    }, error = function(e) {
+      # Ignore errors during cleanup
+    })
 
     functions <- sort(ls(envir=improveCloseToken))
     if (length(functions)>0) {
