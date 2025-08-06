@@ -26,8 +26,13 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
 
 
   internalLinks<-workflow$internalLinks
-  if (!is.null(internalLinks)) {#
-    internalLinks <- dplyr::select(internalLinks,"entityId","fileHash","revisionId","path","targetStep","sourceStep")
+  if (!is.null(internalLinks) && nrow(internalLinks) > 0) {
+    # Only select columns that exist in the data frame
+    requiredCols <- c("entityId","fileHash","revisionId","path","targetStep","sourceStep")
+    existingCols <- intersect(names(internalLinks), requiredCols)
+    if (length(existingCols) > 0) {
+      internalLinks <- dplyr::select(internalLinks, dplyr::all_of(existingCols))
+    }
   }
 
 
@@ -44,17 +49,66 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
     if (!is.null(workflowLinks) && nrow(workflowLinks)>0) {
       remoteFiles <- stepDf$remoteFiles[[1]]
       if (!("sourceStep"%in%names(remoteFiles))) {
-        jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("ident"="entityId"))
+        # During import, entityId might not exist, need a different join strategy
+        if ("entityId" %in% names(workflowLinks) && "ident" %in% names(remoteFiles)) {
+          # Normal case: join by entityId
+          jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("ident"="entityId"))
+        } else {
+          # Import case: manually match based on targetStep + name combination
+          # Since we already filtered workflowLinks by targetStep (line 49), we're only 
+          # matching within a single step's context. File names within a single step 
+          # should be unique (can't have two files with same path in one step).
+          # This makes the name-based matching safe within this filtered context.
+          jointRemoteFiles <- remoteFiles
+          if ("name" %in% names(workflowLinks) && "name" %in% names(remoteFiles)) {
+            for (i in seq_len(nrow(jointRemoteFiles))) {
+              # Find matching link for this specific remote file
+              matchingLinks <- workflowLinks[workflowLinks$name == jointRemoteFiles$name[i],]
+              if (nrow(matchingLinks) > 0) {
+                # Take the first match (they should all be the same for this targetStep+name combo)
+                for (col in names(matchingLinks)) {
+                  if (!(col %in% names(jointRemoteFiles))) {
+                    jointRemoteFiles[[col]] <- NA
+                  }
+                  jointRemoteFiles[i, col] <- matchingLinks[1, col]
+                }
+              }
+            }
+          }
+        }
 
         jointRemoteFiles <-byNotEmptyAsDf(jointRemoteFiles,function(remoteFile) {
 
-          if (!is.na(remoteFile$sourceStep)) {
-            sourceStepPath <- loadResource(workflow$steps[[remoteFile$sourceStep]]$stepDf$sourceEntityId)$path
-            inventoryPath <- paste0("./",substr(remoteFile$path,nchar(sourceStepPath)+2,nchar(remoteFile$path)))
-            remoteFile$sourceInventoryPath <- inventoryPath
+          if ("sourceStep" %in% names(remoteFile) && !is.na(remoteFile$sourceStep)) {
+            # Try to get source step path, but handle case where it doesn't exist yet (during import)
+            sourceStepEntityId <- workflow$steps[[remoteFile$sourceStep]]$stepDf$sourceEntityId
+            if (!is.null(sourceStepEntityId) && !is.na(sourceStepEntityId)) {
+              sourceStepResource <- loadResource(sourceStepEntityId)
+              if (!is.null(sourceStepResource) && !is.null(sourceStepResource$path)) {
+                sourceStepPath <- sourceStepResource$path
+                if (!is.null(remoteFile$path) && !is.na(remoteFile$path)) {
+                  inventoryPath <- paste0("./",substr(remoteFile$path,nchar(sourceStepPath)+2,nchar(remoteFile$path)))
+                  remoteFile$sourceInventoryPath <- inventoryPath
+                }
+              }
+            }
+            # If sourceInventoryPath wasn't set above and we have it from import, keep it
+            if ((!("sourceInventoryPath" %in% names(remoteFile)) || is.na(remoteFile$sourceInventoryPath)) && 
+                "sourceInventoryPath" %in% names(workflowLinks)) {
+              matchingLink <- workflowLinks[workflowLinks$name == remoteFile$name,]
+              if (nrow(matchingLink) > 0) {
+                remoteFile$sourceInventoryPath <- matchingLink$sourceInventoryPath[1]
+              }
+            }
           }
-          if (is.na(remoteFile$name)) {
-            remoteFile$name<-paste0("./",loadResource(remoteFile$ident)$name)
+          if (!("name" %in% names(remoteFile)) || is.na(remoteFile$name)) {
+            # Try to get name from resource, but handle case where it doesn't exist
+            if (!is.null(remoteFile$ident) && !is.na(remoteFile$ident)) {
+              resource <- loadResource(remoteFile$ident)
+              if (!is.null(resource) && !is.null(resource$name)) {
+                remoteFile$name<-paste0("./",resource$name)
+              }
+            }
           }
           return(remoteFile)
         })
@@ -214,11 +268,16 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
       return(rf)
     })
     if (is.null(remoteFiles) || nrow(remoteFiles)==0) {
+      # Initialize as empty data frame when no remote files
+      env$internalLinks <- data.frame()
       return(NULL)
     }
     if ("sourceStep" %in% names(remoteFiles)) {
       allTargets <- remoteFiles[!is.na(remoteFiles$sourceStep),]
       env$internalLinks <- allTargets
+    } else {
+      # Initialize as empty data frame when no sourceStep column
+      env$internalLinks <- data.frame()
     }
 
   }

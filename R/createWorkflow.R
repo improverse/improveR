@@ -267,33 +267,57 @@ createWorkflow <- function() {
 
   # Create a re-execution plan for outdated steps
   # @return A data.frame describing the execution plan
-  env$createReexecutionPlan <- function() {
+  env$createReexecutionPlan <- function(includeDownstream = TRUE, includeAllSteps = FALSE) {
     stepsDf <- env$df()
-    caof <- env$changedAndOutdatedFiles()
     .workflow_private$collectInternalLinks(env)
     iL <- env$internalLinks
 
-    allStepsToExecute <- stepsDf[stepsDf$sourceEntityId %in% unique(caof$stepEntityId), ]
-    usingSteps <- stepsDf[stepsDf$fullName %in% .workflow_private$getInternalUsage(env, allStepsToExecute$fullName), ]
-
-    allSteps <- rbind(allStepsToExecute, usingSteps) %>%
-      dplyr::distinct(.data$fullName, .keep_all = TRUE)
+    # Determine which steps to execute
+    if (includeAllSteps) {
+      # Include all steps in the workflow - no need to check changed/outdated
+      allStepsToExecute <- stepsDf
+      allSteps <- allStepsToExecute
+    } else {
+      # Only changed and outdated steps
+      caof <- env$changedAndOutdatedFiles()
+      allStepsToExecute <- stepsDf[stepsDf$sourceEntityId %in% unique(caof$stepEntityId), ]
+      
+      # Optionally include downstream steps that use the outputs
+      if (includeDownstream && nrow(allStepsToExecute) > 0) {
+        usingSteps <- stepsDf[stepsDf$fullName %in% .workflow_private$getInternalUsage(env, allStepsToExecute$fullName), ]
+        allSteps <- rbind(allStepsToExecute, usingSteps) %>%
+          dplyr::distinct(.data$fullName, .keep_all = TRUE)
+      } else {
+        allSteps <- allStepsToExecute
+      }
+    }
 
     executionPlan <- byNotEmptyAsDf(allSteps, function(st) {
-      outDatedLinksDf <- dplyr::filter(caof, .data$nodeType == "LIV" & .data$stepEntityId == st$sourceEntityId)
       outDatedLinks <- NULL
-      if (nrow(outDatedLinksDf) > 0) {
-        outDatedLinks <- outDatedLinksDf %>%
-          dplyr::pull("entityId") %>%
-          loadResource() %>%
-          dplyr::pull("entityId")
-      }
-      internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
       linkIds <- NULL
-      if (!is.null(internalLinks)) {
-        linkIds <- .workflow_private$getLinkTarget(env, internalLinks)
+      
+      if (includeAllSteps) {
+        # When rerunning all steps, update all internal links for this step
+        internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
+        if (!is.null(internalLinks) && nrow(internalLinks) > 0) {
+          linkIds <- .workflow_private$getLinkTarget(env, internalLinks)
+        }
+        allUpdates <- linkIds
+      } else {
+        # Only update outdated links when doing partial rerun
+        outDatedLinksDf <- dplyr::filter(caof, .data$nodeType == "LIV" & .data$stepEntityId == st$sourceEntityId)
+        if (nrow(outDatedLinksDf) > 0) {
+          outDatedLinks <- outDatedLinksDf %>%
+            dplyr::pull("entityId") %>%
+            loadResource() %>%
+            dplyr::pull("entityId")
+        }
+        internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
+        if (!is.null(internalLinks)) {
+          linkIds <- .workflow_private$getLinkTarget(env, internalLinks)
+        }
+        allUpdates <- Filter(function(x) !is.null(x), unique(c(outDatedLinks, linkIds)))
       }
-      allUpdates <- Filter(function(x) !is.null(x), unique(c(outDatedLinks, linkIds)))
       st$toUpdate <- list(allUpdates)
       usingSteps <- env$internalLinks[env$internalLinks$sourceStep == st$fullName, ]$targetStep
       usedSteps <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]$sourceStep
@@ -319,11 +343,26 @@ createWorkflow <- function() {
   }
 
   # Rerun all changed and outdated steps in the workflow
+  # @param includeDownstream If TRUE (default), also rerun steps that use the outputs of changed steps
   # @return Invisibly returns NULL
-  env$rerunChangedAndOutdated <- function() {
-    plan <- env$createReexecutionPlan()
+  env$rerunChangedAndOutdated <- function(includeDownstream = TRUE) {
+    plan <- env$createReexecutionPlan(includeDownstream = includeDownstream, includeAllSteps = FALSE)
     env$executePlan(plan)
     invisible(NULL)
+  }
+  
+  # Rerun all steps in the workflow in dependency order
+  # @return Invisibly returns NULL
+  env$rerunAll <- function() {
+    plan <- env$createReexecutionPlan(includeDownstream = FALSE, includeAllSteps = TRUE)
+    env$executePlan(plan)
+    invisible(NULL)
+  }
+  
+  # Create an execution plan for all steps in the workflow
+  # @return A data.frame describing the execution plan with proper dependency ordering
+  env$createFullExecutionPlan <- function() {
+    return(env$createReexecutionPlan(includeDownstream = FALSE, includeAllSteps = TRUE))
   }
 
   # Execute a given execution plan

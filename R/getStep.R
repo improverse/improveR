@@ -147,6 +147,8 @@ getStepDf <- function(ident) {
     return(pro)
   })
 
+  if (!("toolArgs" %in% names(processes))) {processes$toolArgs<-""}
+  if (!("toolStreamablePatterns" %in% names(processes))) {processes$toolStreamablePatterns<-""}
   processDfs <- dplyr::select(processes,
                               "handle","runserverLabel","toolLabel","toolInstance","toolArgs","toolStreamablePatterns",
                               "selected","gridTool","main","name","processType","position","gridArguments")
@@ -243,7 +245,7 @@ getStepDf <- function(ident) {
   #TODO nodeTypes
 
   # Safe left join - only join if both dataframes have the required columns
-  if(nrow(inventory) > 0 && nrow(variables) > 0 && 
+  if(nrow(inventory) > 0 && nrow(variables) > 0 &&
      "resourceId" %in% names(inventory) && "valueResourceId" %in% names(variables)) {
     inventory <- dplyr::left_join(inventory,variables,c("resourceId" = "valueResourceId"))
   } else if(nrow(inventory) > 0) {

@@ -664,9 +664,16 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       if ("sourceInventoryPath" %in% names(pF)) {
         pF <- byNotEmptyAsDf(pF,function(processFile) {
           if (!is.na(processFile$sourceInventoryPath)) {
-            fileName <- processFile$sourceInventoryPath
-            sourceStep <- env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId
-            processFile$ident<- loadResource(fileName,from=sourceStep)$entityId
+            # During import, workflow$stepTemplates might not exist or have entityId
+            # Skip resolution if we can't access the source step's entityId
+            if (!is.null(env$workflow) && 
+                !is.null(env$workflow$stepTemplates) &&
+                !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]) &&
+                !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId)) {
+              fileName <- processFile$sourceInventoryPath
+              sourceStep <- env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId
+              processFile$ident<- loadResource(fileName,from=sourceStep)$entityId
+            }
           }
           return(processFile)
         })
@@ -710,10 +717,22 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
     subFolderNameMapping <- list()
     remoteFiles <- env$stepDf$remoteFiles[[1]]
-    if (!is.null(remoteFiles)) {
-      processFiles <- dplyr::filter(remoteFiles, .data$variableProcess == processName & !is.na(.data$variableName))
-      processFiles <- resolveRelativeFiles(processFiles)
-      if (nrow(processFiles) > 0) {
+    if (!is.null(remoteFiles) && nrow(remoteFiles) > 0) {
+      # Check if variableProcess column exists (might not during import)
+      if ("variableProcess" %in% names(remoteFiles)) {
+        processFiles <- dplyr::filter(remoteFiles, .data$variableProcess == processName & !is.na(.data$variableName))
+      } else {
+        # During import, assume Main process if variableProcess doesn't exist
+        processFiles <- if (processName == "Main" && "variableName" %in% names(remoteFiles)) {
+          dplyr::filter(remoteFiles, !is.na(.data$variableName))
+        } else {
+          data.frame()  # Empty dataframe
+        }
+      }
+      if (!is.null(processFiles) && nrow(processFiles) > 0) {
+        processFiles <- resolveRelativeFiles(processFiles)
+      }
+      if (!is.null(processFiles) && nrow(processFiles) > 0) {
 
 
 
@@ -730,6 +749,10 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
                                  stringsAsFactors = FALSE
           )
           variables <- plyr::rbind.fill(variables, variable)
+          # Skip if ident is missing (can happen during import)
+          if (is.null(processFile$ident) || is.na(processFile$ident)) {
+            next
+          }
           processResource <- loadResource(processFile$ident)
           resource <- data.frame(sourceResourceId = processResource$resourceId,
                                  targetName=processResource$name,
@@ -756,13 +779,25 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         process$variables <- list(variables)
       }
       if (processName == "Main") {
-        processFiles <- dplyr::filter(remoteFiles, is.null(.data$variableName) | is.na(.data$variableName))
-        processFiles <- resolveRelativeFiles(processFiles)
+        # Check if variableName column exists
+        if ("variableName" %in% names(remoteFiles)) {
+          processFiles <- dplyr::filter(remoteFiles, is.null(.data$variableName) | is.na(.data$variableName))
+        } else {
+          # If no variableName column, all files belong to Main
+          processFiles <- remoteFiles
+        }
+        if (!is.null(processFiles) && nrow(processFiles) > 0) {
+          processFiles <- resolveRelativeFiles(processFiles)
+        }
 
-        if (nrow(processFiles) > 0) {
+        if (!is.null(processFiles) && nrow(processFiles) > 0) {
           resources <- process$resources[[1]]
           for (i in 1:nrow(processFiles)) {
             processFile <- processFiles[i, ]
+            # Skip if ident is missing (can happen during import)
+            if (is.null(processFile$ident) || is.na(processFile$ident)) {
+              next
+            }
             processResource <- loadResource(processFile$ident)
             resource <- data.frame(sourceResourceId = processResource$resourceId,
                                    targetName=processResource$name,
@@ -786,9 +821,12 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           }
           process$resources <- list(resources)
         }
-        process$resources <- list(dplyr::distinct(process$resources[[1]],
-                                                  .data$targetName,
-                                                  .keep_all = T))
+        # Only apply distinct if resources were actually created
+        if (!is.null(process$resources) && length(process$resources) > 0 && !is.null(process$resources[[1]])) {
+          process$resources <- list(dplyr::distinct(process$resources[[1]],
+                                                    .data$targetName,
+                                                    .keep_all = T))
+        }
       }
       if (length(subFolderNameMapping) > 0) {
         process$subFolderNameMapping <- subFolderNameMapping

@@ -242,7 +242,10 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   env$stepDf$fullName <- stepName
   env$workflow$steps[[stepName]]<-env
 
-  .workflow_private$collectInternalLinks(env$workflow)
+  # Skip collectInternalLinks during import (will be done after all steps are created)
+  if (is.null(env$workflow$isImporting) || !env$workflow$isImporting) {
+    .workflow_private$collectInternalLinks(env$workflow)
+  }
 
   return(env)
 }
