@@ -97,12 +97,6 @@ improveRevokeOAuth <- function() {
 
 }
 
-
-
-
-# repo <- "http://envhost2.hc.scintecodev.internal:18118/repository"
-
-
 getAuthenticationProvider <- function(repo) {
   authenticationProviderApi <- file.path(
     repo,

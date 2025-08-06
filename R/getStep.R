@@ -1,34 +1,9 @@
 
-#Step is a fully loaded step, workflow is a fully loaded workflow as df
-#all edit functions for a step are in a steptemplate (code sourced into env)
-#a steptemplate is always in a workflowtemplate
-#a workflowtemplate has a list of all used files and their references
-#a workflowtemplate can directly have parameters
-#a workflowtemplate has merge / intersect, subset, ... functionalities
-# execute workflow is built in a way that dispatcher works also
-#check if all tool parameters can be set
-#check runs against processes
 
 
 
 
 
-
-
-
-
-#check grid arguments
-#check links
-#check external links
-#check folders
-
-#two envs: getStep and getStepTemplate. fileList and dependencies handled in workflow
-#stepNames: treeName and stepName
-#getLineage / get Usage in workflow
-#getParentstep in workflow
-#removeStep
-#makeStepRelative in workflow, dependencies in workflow
-#detach from resource and detach from tree in workflow
 
 
 #' getStepTemplate
@@ -108,15 +83,7 @@ prepareStepEnv <- function(treeIdent=NULL,stepDf = NULL,workflow=NULL) {
       resourceId <- loadResource(treeIdent)$resourceId
       stepDf$treeIdent<-resourceId
     }
-    #stepSource <- system.file("_step.R", package = "improveR")
-    #stepEnv <- new.env()
-    #source(stepSource,local=stepEnv)
-    #stepEnv$stepDf<-stepDf
-    #stepEnv$this<-stepEnv
     if (is.null(workflow)) {
-      #workflow <- new.env()
-      #workflowSource <- system.file("_workflow.R", package = "improveR")
-      #source(workflowSource,local=workflow)
       workflow <- createWorkflow()
     }
     stepEnv <- createStepEnv(stepDf, workflow)

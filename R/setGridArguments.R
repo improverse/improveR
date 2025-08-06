@@ -11,13 +11,6 @@ setGridArgument <- function(processId,argumentName,argumentValue,update=T) {
   improveEditable()
   process <- loadProcessesForStepById(processId = processId)
 
-  if (F && !process$gridTool) {
-    #bug in set grid tool
-    logging::logwarn(process$stepId)
-    logging::logwarn("No grid tool, not setting grid arguments")
-    return(FALSE)
-  }
-
   gridArguments <- loadProcessGridArguments(process$id)
   gridArgument <- gridArguments[gridArguments$name==argumentName,]
 

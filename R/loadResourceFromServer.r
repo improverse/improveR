@@ -40,7 +40,6 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
     cont$entries<-NULL
     cont$requestor<-NULL
     df <- as.data.frame(cont,stringsAsFactors = FALSE)
-    # df <- convertAPIListToDataframe(cont) #NOTE new function inserted (previsous fix)
 
   } else {
     df<-getRoot()
@@ -49,7 +48,6 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   df$isVersion<-F
 
   if (is.null(df$targetEntityId) && !is.null(df$targetId)) {
-    #target <- loadResource(df$targetId)
     target <- loadResource(df$targetId)
     df$targetEntityId<-target$entityId
   }
@@ -81,7 +79,6 @@ convertDate <- function(df,field) {
   if (field %in% names(df) ) {
       df[[field]] <- as.numeric(as.character(df[[field]]))
       df[[paste0(field,"Date")]] <- convertImproveTimestampToPosix(df[[field]])
-      #df[[paste0(field,"Date")]] <-lubridate::date(df[[field]])
   }
   return(df)
 }

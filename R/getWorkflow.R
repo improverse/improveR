@@ -9,7 +9,6 @@
 #' @export
 getWorkflow <- function(ident,from=pwd(),includeSelf=F) {
 
-  #TODO here load dmg
   steps <- loadChildResources(ident,from)$data[[1]]
   if (!includeSelf) {
     steps <- steps[steps$resourceId!=pwd()$resourceId,]
