@@ -184,8 +184,10 @@ showOAuth <- function(authenticationProvider,openBrowser) {
     log_info("Opening OAuth verification URL in browser")
     utils::browseURL(authenticationProvider$verification_uri_complete)
   } else {
-    log_info("OAuth headless mode: Please visit the URL displayed below to complete authentication")
-    log_info(paste0("visit this URL: ",authenticationProvider$verification_uri_complete))
+    # Use cat() for headless mode so user sees the URL in console
+    cat("\nimproveOAuth: Headless mode - Please visit the URL below to complete authentication:\n")
+    cat(paste0("\n", authenticationProvider$verification_uri_complete, "\n\n"))
+    log_info(paste0("OAuth headless mode URL: ", authenticationProvider$verification_uri_complete))
   }
   return(authenticationProvider)
 }

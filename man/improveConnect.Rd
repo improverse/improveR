@@ -12,14 +12,19 @@ improveConnect(
 )
 }
 \arguments{
-\item{logLevel}{possible LogLevels: DEBUG, INFO, WARN, ERROR}
+\item{logLevel}{Log verbosity level. Possible values: DEBUG, INFO, WARN, ERROR.
+Default is "INFO". Can be overridden by environment variable IMPROVE_LOG_LEVEL.}
 
-\item{secure}{if TRUE the certificates are checked}
+\item{secure}{If TRUE (default), SSL certificates are validated. If FALSE, certificate
+validation is disabled - this allows connections with expired or self-signed certificates
+but is NOT recommended for production use. Can be overridden by setting environment
+variable IMPROVER_SECURITY="insecure".}
 
-\item{offlinePossible}{if TRUE the setup continues even if no connection is possible}
+\item{offlinePossible}{If TRUE, the setup continues even if no connection is possible.
+Default is FALSE.}
 
-\item{persistentCaching}{default is FALSE; persists and reloads the caches on the filesystem in \code{.improver.cache}
-if the environment variable improver.logfile is set. The logging is additionally added to this file}
+\item{persistentCaching}{If TRUE, caches are persisted to and reloaded from \code{.improver.cache}
+file. Default is FALSE.}
 }
 \description{
 improveConnect establishes a connection to the improve repository using one of two authentication methods:

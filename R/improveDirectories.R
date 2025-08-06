@@ -1,4 +1,6 @@
 # Improve directory management functions
+# CODING GUIDELINE: Always use forward slashes for paths on all platforms
+# Use normalizePath(path, winslash = "/") to ensure consistent path separators
 
 #' Get improve directory (internal implementation)
 #'
@@ -83,7 +85,8 @@ getImproveDir <- function(env_var, subdir, windows_base = "LOCALAPPDATA", unix_h
   # Set environment variable so next call uses same location
   do.call(Sys.setenv, stats::setNames(list(computed_dir), env_var))
 
-  return(computed_dir)
+  # Normalize path to use forward slashes on all platforms
+  return(normalizePath(computed_dir, winslash = "/", mustWork = FALSE))
 }
 
 #' Get improve internal directory

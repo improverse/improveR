@@ -109,18 +109,33 @@ clearConnectionData <- function(includeRepoData=F) {
 #' * repoUrl: repository URL (mandatory)
 #' * runWorkspace: workspace directory
 #'
-#' @param logLevel possible LogLevels: DEBUG, INFO, WARN, ERROR
-#' @param secure if TRUE the certificates are checked
-#' @param offlinePossible if TRUE the setup continues even if no connection is possible
-#' @param persistentCaching default is FALSE; persists and reloads the caches on the filesystem in `.improver.cache`
-#' if the environment variable improver.logfile is set. The logging is additionally added to this file
+#' @param logLevel Log verbosity level. Possible values: DEBUG, INFO, WARN, ERROR. 
+#' Default is "INFO". Can be overridden by environment variable IMPROVE_LOG_LEVEL.
+#' @param secure If TRUE (default), SSL certificates are validated. If FALSE, certificate 
+#' validation is disabled - this allows connections with expired or self-signed certificates 
+#' but is NOT recommended for production use. Can be overridden by setting environment 
+#' variable IMPROVER_SECURITY="insecure".
+#' @param offlinePossible If TRUE, the setup continues even if no connection is possible. 
+#' Default is FALSE.
+#' @param persistentCaching If TRUE, caches are persisted to and reloaded from `.improver.cache` 
+#' file. Default is FALSE.
 #' @export
 #' @seealso [improveConnected()], [improveDisconnect()]
 improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = FALSE, persistentCaching = FALSE) {
 
+  # Handle security environment variable override
   secureFlag <- Sys.getenv("IMPROVER_SECURITY")
   if (!is.null(secureFlag) && secureFlag == "insecure") {
     secure <- F
+  }
+  
+  # Check for log level environment variable override
+  # Only use env var if no explicit parameter was passed
+  if (missing(logLevel)) {
+    envLogLevel <- Sys.getenv("IMPROVE_LOG_LEVEL", "")
+    if (envLogLevel != "") {
+      logLevel <- envLogLevel
+    }
   }
 
   cacheEnv$initialized <- TRUE
@@ -313,4 +328,23 @@ improveClose <- function() {
       saveImproveJson()
     }
   }
+}
+
+#' getLogFile
+#' 
+#' @description Returns the path to the current log file, or NULL if logging to file is not enabled.
+#' @return Character string with the log file path, or NULL if no log file is configured
+#' @export
+#' @examples
+#' # Get current log file path
+#' log_file <- getLogFile()
+#' if (!is.null(log_file)) {
+#'   cat("Logs are being written to:", log_file, "\n")
+#' }
+getLogFile <- function() {
+  logFile <- Sys.getenv("improver.logfile", "")
+  if (logFile == "") {
+    return(NULL)
+  }
+  return(logFile)
 }

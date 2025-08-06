@@ -30,11 +30,18 @@ parseLogFile <- function() {
 }
 
 initImproveLogging <- function(logLevel) {
-  logging::basicConfig(logLevel)
-
   logFile <- Sys.getenv("improver.logfile")
-  if (logFile!="") {
-    logging::addHandler(logging::writeToFile,logger="",file=logFile)
+  
+  if (logFile != "") {
+    # File logging only - no console output
+    logging::basicConfig(level = logLevel)
+    # Remove default console handler
+    logging::removeHandler("basic.stdout")
+    # Add file handler
+    logging::addHandler(logging::writeToFile, logger = "", file = logFile)
+  } else {
+    # Console logging only
+    logging::basicConfig(level = logLevel)
   }
 }
 
