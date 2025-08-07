@@ -4,9 +4,12 @@ Sys.setenv(TEST_NAME="errorMessages")
 
 httptest::with_mock_dir("prepare-errorMessages",{
   test_that("createTestFolder", {
-    clearConnectionData()
-    Sys.setenv(IMPROVER_TEST_REPLAY="T")
-    improveConnect()
+    # Only reconnect if not already connected
+    if (Sys.getenv("IMPROVER_TOKEN") == "") {
+      clearConnectionData()
+      Sys.setenv(IMPROVER_TEST_REPLAY="T")
+      improveConnect()
+    }
     setEditable(T)
     expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
     TEST_FOLDER <- emptyFolderSetup()

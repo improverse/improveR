@@ -574,6 +574,10 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     remoteFiles <- byNotEmptyAsDf(remoteFiles, function(file) {
       if ("name" %in% names(file)) {
         fileName <- file$name
+        # Check for NA values before comparison
+        if (is.na(fileName) || is.na(name)) {
+          return(file)
+        }
         if (fileName != name) {
           return(file)
         } else {

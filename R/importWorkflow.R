@@ -451,9 +451,13 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
           file.copy(inputPath, dirname(outputPath), recursive = TRUE)
           unlink(inputPath, recursive = TRUE)
         } else {
-          # For files, create parent directory and move
+          # For files, create parent directory and use copy+delete to avoid cross-device issues
           dir.create(dirname(outputPath),recursive = T,showWarnings = F)
-          file.rename(inputPath,outputPath)
+          # Try rename first (faster if on same device), fall back to copy+delete
+          if (!file.rename(inputPath,outputPath)) {
+            file.copy(inputPath, outputPath)
+            unlink(inputPath)
+          }
         }
       }
     }
@@ -476,9 +480,13 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
           file.copy(inputPath, dirname(outputPath), recursive = TRUE)
           unlink(inputPath, recursive = TRUE)
         } else {
-          # For files, create parent directory and move
+          # For files, create parent directory and use copy+delete to avoid cross-device issues
           dir.create(dirname(outputPath),recursive = T,showWarnings = F)
-          file.rename(inputPath,outputPath)
+          # Try rename first (faster if on same device), fall back to copy+delete
+          if (!file.rename(inputPath,outputPath)) {
+            file.copy(inputPath, outputPath)
+            unlink(inputPath)
+          }
         }
       }
     }

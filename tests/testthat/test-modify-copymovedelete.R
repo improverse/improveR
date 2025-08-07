@@ -3,9 +3,12 @@ Sys.setenv(TEST_NAME="modify-copymovedelete")
 
 httptest::with_mock_dir("prepare-modify-copymovedelete",{
   test_that("createTestFolder", {
-    clearConnectionData()
-    Sys.setenv(IMPROVER_TEST_REPLAY="T")
-    improveConnect()
+    # Only reconnect if not already connected
+    if (Sys.getenv("IMPROVER_TOKEN") == "") {
+      clearConnectionData()
+      Sys.setenv(IMPROVER_TEST_REPLAY="T")
+      improveConnect()
+    }
     setEditable(T)
     expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
     TEST_FOLDER <- emptyFolderSetup()

@@ -6,9 +6,12 @@ Sys.setenv(TEST_NAME="importExport")
 
 # Helper function to set up test environment
 setupTestEnvironment <- function() {
-  clearConnectionData()
-  Sys.setenv(IMPROVER_TEST_REPLAY="T")
-  improveConnect()
+  # Only reconnect if not already connected
+  if (Sys.getenv("IMPROVER_TOKEN") == "") {
+    clearConnectionData()
+    Sys.setenv(IMPROVER_TEST_REPLAY="T")
+    improveConnect()
+  }
   setEditable(T)
   TEST_FOLDER <- workflowFilesSetup()
   return(TEST_FOLDER)
