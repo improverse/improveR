@@ -23,16 +23,18 @@ invalidatePathCaches <- function(fromPath,deleteLinkedFiles=F) {
     cachePrefix <- strsplit(cacheName,"PathCache",fixed=T)[[1]][1]
     #resourceId
     resourceIdCacheName <- paste0(cachePrefix,"IdCache")
-    if (resourceIdCacheName %in% caches) {
+    if (resourceIdCacheName %in% caches && !is.null(idDf) && nrow(idDf) > 0) {
       resourceIdCache <- cacheEnv[[resourceIdCacheName]]
       rm(list=idDf$resourceId,envir=resourceIdCache)
     }
     if (deleteLinkedFiles) {
-      if (!is.null(cacheEnv$createdLinks)) {
+      if (!is.null(cacheEnv$createdLinks) && nrow(cacheEnv$createdLinks) > 0) {
           cleaned <- NULL
           for (j in 1:nrow(cacheEnv$createdLinks)) {
             linkEntry <- cacheEnv$createdLinks[j,]
-            if (linkEntry$resourceId %in% idDf$resourceId) {
+            # Only check if idDf has data and contains resourceId column
+            if (!is.null(idDf) && nrow(idDf) > 0 && !is.null(idDf$resourceId) &&
+                !is.null(linkEntry$resourceId) && linkEntry$resourceId %in% idDf$resourceId) {
               log_warn("deleting local link to deleted file")
               unlink(linkEntry$localPath)
             }
@@ -46,12 +48,12 @@ invalidatePathCaches <- function(fromPath,deleteLinkedFiles=F) {
       }
     }
     entityIdCacheName <- paste0(cachePrefix,"EntityIdCache")
-    if (entityIdCacheName %in% caches) {
+    if (entityIdCacheName %in% caches && !is.null(idDf) && nrow(idDf) > 0) {
       entityIdCache <- cacheEnv[[entityIdCacheName]]
       rm(list=idDf$entityId,envir=entityIdCache)
     }
     entityVersionIdCacheName <- paste0(cachePrefix,"EntityVersionIdCache")
-    if (entityVersionIdCacheName %in% caches) {
+    if (entityVersionIdCacheName %in% caches && !is.null(idDf) && nrow(idDf) > 0) {
       entityVersionIdCache <- cacheEnv[[entityVersionIdCacheName]]
       rm(list=idDf$entityVersionId,envir=entityVersionIdCache)
     }

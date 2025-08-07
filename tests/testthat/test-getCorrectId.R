@@ -47,7 +47,7 @@ expect_equal(getCorrectId(fullEntityId), "robert_oracle-1:ST-63678")
 test_that("getCorrectId returns correct ID for steps without repo prefix", {
 
 entityIdWoPrefix <- "ST-63680"
-local_mocked_bindings(repoPrefix=function(...) "robert_oracle-1:")
+testthat::local_mocked_bindings(repoPrefix=function(...) "robert_oracle-1:")
 expect_equal(getCorrectId(entityIdWoPrefix), "robert_oracle-1:ST-63680")
 
 })
