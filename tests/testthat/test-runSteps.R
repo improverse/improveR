@@ -256,6 +256,16 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
   retryFlowDf <- retryFlow$df()
   updateFileStep <- dplyr::filter(retryFlowDf, description == "Data Manipulation") %>%
     dplyr::pull(fullName)
+  
+  # Handle case where multiple steps might exist with same description
+  if (length(updateFileStep) > 1) {
+    # Take the most recent one (last in the list)
+    updateFileStep <- updateFileStep[length(updateFileStep)]
+  }
+  
+  expect_equal(length(updateFileStep), 1, 
+               info = "Should find exactly one 'Data Manipulation' step")
+  
   updateFileStepEnv <- retryFlow$steps[[updateFileStep]]
 
   updateFileStepEnv$getStepInventory(recurse = T) %>%
@@ -398,7 +408,8 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   report <- loadChildResources(dmgL3)%>%strip()
   reportStep <- getStep(report[1,])
   reportStep$lineage$load(stepDepth = -1,treeDepth = -1)
-  workflow <- reportStep$workflow$createTemplate()
+  # exportWorkflow now expects a workflow, not a workflow template
+  workflow <- reportStep$workflow
 
 
   exportWorkflow(workflow,workflowName = "lineageDMG")

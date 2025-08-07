@@ -167,6 +167,15 @@ getStepDf <- function(ident) {
   if (!startsWith(step$name,"Step ")) {
     newHandle$stepName <- step$name
   }
+  
+  # Add parent step information if it exists
+  if (!is.null(step$parentStepId)) {
+    parentStep <- loadResource(step$parentStepId)
+    if (!is.null(parentStep)) {
+      newHandle$parentIdent <- parentStep$entityId
+      newHandle$inheritFromParent <- step$inheritFromParent
+    }
+  }
 
 
 

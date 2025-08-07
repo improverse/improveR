@@ -21,6 +21,12 @@ getWorkflow <- function(ident,from=pwd(),includeSelf=F) {
     tmpEnv$workflow <-stepEnv$workflow
     return(stepEnv)
   })
+  
+  # If no steps exist, create an empty workflow
+  if (is.null(tmpEnv$workflow)) {
+    tmpEnv$workflow <- createWorkflow()
+  }
+  
   return(tmpEnv$workflow)
 }
 

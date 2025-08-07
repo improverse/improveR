@@ -119,6 +119,32 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
   
   #list of external links
   workFlowDf<- workflowTemplate$df()
+  
+  # Check if workflow is empty
+  if (is.null(workFlowDf) || nrow(workFlowDf) == 0) {
+    warning("Cannot export empty workflow - workflow contains no steps")
+    return(invisible(NULL))
+  }
+  
+  # Convert parentIdent from resourceId to parent's fullName for portability
+  if ("parentIdent" %in% names(workFlowDf)) {
+    # Create a mapping of resourceIds to fullNames
+    resourceToFullName <- setNames(workFlowDf$fullName, workFlowDf$sourceEntityId)
+    
+    # Replace parentIdent resourceIds with parent's fullName
+    for (i in seq_len(nrow(workFlowDf))) {
+      if (!is.na(workFlowDf$parentIdent[i])) {
+        parentFullName <- resourceToFullName[workFlowDf$parentIdent[i]]
+        if (!is.null(parentFullName)) {
+          workFlowDf$parentFullName[i] <- parentFullName
+        }
+      }
+    }
+    # Remove the resourceId-based parentIdent since we now have parentFullName
+    # We'll restore it during import
+    workFlowDf$parentIdent <- NULL
+  }
+  
   outsideLinks <- filterOutsideLinks(workFlowDf)
   
   # Only select columns if outsideLinks exist
@@ -149,7 +175,13 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
     if (!is.null(remoteFiles)) {
       oLinks <- remoteFiles[!remoteFiles$asLink,]
       if (nrow(oLinks)>0) {
-        oLinks$name <- loadResource(oLinks$ident)$name
+        # Only set name from resource if it's not already specified
+        # This preserves subfolder paths like "input/data.csv"
+        for (i in seq_len(nrow(oLinks))) {
+          if (is.na(oLinks$name[i]) || oLinks$name[i] == "") {
+            oLinks$name[i] <- loadResource(oLinks$ident[i])$name
+          }
+        }
         oLinks$targetStep<-workflowTask$fullName
       }
       return(oLinks)
@@ -167,6 +199,10 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
 
   #pull all steps
   workflowFolder <- file.path(targetFolder,workflowName,fsep = "/")
+  # Remove existing folder if it exists to ensure clean export
+  if (dir.exists(workflowFolder)) {
+    unlink(workflowFolder, recursive = TRUE, force = TRUE)
+  }
   dir.create(workflowFolder)
   exportDir <- normalizePath(workflowFolder,winslash = "/")
   linkDir <- file.path(exportDir,"links",fsep = "/")
@@ -345,7 +381,12 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
   # Change to parent directory to create proper zip structure
   oldwd <- getwd()
   setwd(targetFolder)
-  utils::zip(zipfile = paste0(workflowName,".zip"), files = workflowName)
+  zipFile <- paste0(workflowName,".zip")
+  # Remove existing zip if it exists
+  if (file.exists(zipFile)) {
+    unlink(zipFile)
+  }
+  utils::zip(zipfile = zipFile, files = workflowName)
   setwd(oldwd)
   #print(workflowFolder)
   unlink(workflowFolder,force = T,recursive = T)

@@ -194,11 +194,19 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
         parentStep <- getStep(parent$resourceId,workflow = env$workflow)
         parentStep$children[[env$stepDf$fullName]]<-env
         env$parent[[parentStep$stepDf$fullName]]<-parentStep
+        # Store parent relationship in child's stepDf for export
+        # This captures the actual parent-child relationship that exists
+        env$stepDf$parentIdent <- parentStep$stepDf$sourceEntityId
       } else if (length(parentContent)==1 && nrow(parent)==1) {
         if (env$parent[[parentContent]]$stepDf$sourceEntityId!=parent$entityId) {
           parentStep <- getStep(parent$resourceId,workflow = env$workflow)
           parentStep$children[[env$stepDf$fullName]]<-env
           env$parent[[parentStep$stepDf$fullName]]<-parentStep
+
+          # Store parent relationship in child's stepDf for export
+          # This captures the actual parent-child relationship that exists
+          env$stepDf$parentIdent <- parentStep$stepDf$sourceEntityId
+
         }
       } else if (length(parentContent)==1 && nrow(parent)==0) {
         rm(list=c(parentContent),pos = env$parent)
@@ -226,6 +234,8 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
             }
               env$children[[lStepEnv$stepDf$fullName]]<-lStepEnv
               lStepEnv$parent[[env$stepDf$fullName]]<-env
+
+
 
 
           })
