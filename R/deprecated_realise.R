@@ -192,7 +192,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   if (!is.null(prepStep$stepName)) {
     stepName <- prepStep$stepName
     # Check if name exists
-    testResource <- loadResource(paste0("./", stepName), fromForRelativePathes = newStep$parentId)
+    testResource <- loadResource(paste0("./", stepName), from = newStep$parentId)
     if (!is.null(testResource)) {
       # Generate unique name
       nameNotCleared <- TRUE
@@ -200,7 +200,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
       while (nameNotCleared) {
         stepName <- paste(prepStep$stepName, counter)
         counter <- counter + 1
-        testResource <- loadResource(paste0("./", stepName), newStep$parentId)
+        testResource <- loadResource(paste0("./", stepName), from = newStep$parentId)
         nameNotCleared <- !is.null(testResource)
       }
     }
