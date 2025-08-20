@@ -86,7 +86,7 @@ improveRevokeOAuth <- function() {
   urlParams$token_type_hint <-"access_token"
   urlParams$client_id <- authenticationProvider$clientId
   urlParams$token<-Sys.getenv("IMPROVER_TOKEN")
-  revokeResult <- httr::POST(authenticationProvider$revocationUri,encode = "form",body=urlParams)
+  revokeResult <- unauthenticatedREST(authenticationProvider$revocationUri, restType = "POST", body = urlParams, encode = "form")
   if (revokeResult$status_code!=200) {
     stop("error getting device code")
   }
@@ -102,7 +102,7 @@ getAuthenticationProvider <- function(repo) {
     repo,
     "api/v1/authentication/provider"
   )
-  authenticationProviderResult <- httr::GET(authenticationProviderApi)
+  authenticationProviderResult <- unauthenticatedREST(authenticationProviderApi, restType = "GET")
   if (authenticationProviderResult$status_code!=200) {
     stop(paste("no authentication provider found at ",authenticationProviderApi))
   }
@@ -163,7 +163,7 @@ startOAuth <- function(authenticationProvider,withCodeVerifier) {
     urlParams$code_challenge <- authenticationProvider$codeChallenge
     urlParams$code_challenge_method <- authenticationProvider$codeChallengeMethod
   }
-  deviceCodeResult <- httr::POST(authenticationProvider$deviceAuthUri,encode = "form",body=urlParams)
+  deviceCodeResult <- unauthenticatedREST(authenticationProvider$deviceAuthUri, restType = "POST", body = urlParams, encode = "form")
   if (deviceCodeResult$status_code!=200) {
     stop("error getting device code")
   }
@@ -226,7 +226,7 @@ hasAuthenticated <- function(authenticationProvider) {
   #if (is.null(cacheEnv$codeVerifier)) {
   #  urlParams$code_verifier <- cacheEnv$codeVerifier
   #}
-  pollResult <- httr::POST(authenticationProvider$tokenUri,encode = "form",body=urlParams)
+  pollResult <- unauthenticatedREST(authenticationProvider$tokenUri, restType = "POST", body = urlParams, encode = "form")
   return(pollResult)
 }
 

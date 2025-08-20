@@ -12,7 +12,7 @@ filterOutsideLinks <- function(workflow) {
     }
     return(NULL)
   })
-  
+
   # Handle case where no outside links exist
   if (!is.null(outsideLinks) && nrow(outsideLinks) > 0) {
     outsideLinks <- outsideLinks %>%
@@ -32,7 +32,7 @@ filterOutsideLinks <- function(workflow) {
 #'   the steps and their relationships to export.
 #' @param workflowName Character. Name for the exported workflow (without extension). This will
 #'   be used as the zip filename and internal folder name.
-#' @param targetFolder Character. Directory path where the zip file will be created. 
+#' @param targetFolder Character. Directory path where the zip file will be created.
 #'   Defaults to current directory (".").
 #'
 #' @details
@@ -63,7 +63,7 @@ filterOutsideLinks <- function(workflow) {
 #'
 #' @section Generated Mapping Templates:
 #' The function also creates template mapping files alongside the zip:
-#' 
+#'
 #' \strong{<workflowName>LinkMapping.json} - Template for mapping external files:
 #' \preformatted{
 #' [
@@ -96,14 +96,14 @@ filterOutsideLinks <- function(workflow) {
 #' # Create and export a workflow
 #' wf <- createWorkflow()
 #' # ... add steps to workflow ...
-#' 
+#'
 #' # Export to current directory
 #' exportWorkflow(wf, "myWorkflow")
 #' # Creates: myWorkflow.zip, myWorkflowLinkMapping.json, myWorkflowToolMapping.json
-#' 
+#'
 #' # Export to specific directory
 #' exportWorkflow(wf, "analysis_v2", targetFolder = "/exports/workflows")
-#' 
+#'
 #' # The generated mapping files can be edited before import to:
 #' # - Point links to existing resources in target repository
 #' # - Map tools to different compute servers
@@ -116,21 +116,21 @@ filterOutsideLinks <- function(workflow) {
 exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
   # Create a template from the workflow for consistent export format
   workflowTemplate <- workflow$createTemplate()
-  
+
   #list of external links
   workFlowDf<- workflowTemplate$df()
-  
+
   # Check if workflow is empty
   if (is.null(workFlowDf) || nrow(workFlowDf) == 0) {
     warning("Cannot export empty workflow - workflow contains no steps")
     return(invisible(NULL))
   }
-  
+
   # Convert parentIdent from resourceId to parent's fullName for portability
   if ("parentIdent" %in% names(workFlowDf)) {
     # Create a mapping of resourceIds to fullNames
     resourceToFullName <- setNames(workFlowDf$fullName, workFlowDf$sourceEntityId)
-    
+
     # Replace parentIdent resourceIds with parent's fullName
     for (i in seq_len(nrow(workFlowDf))) {
       if (!is.na(workFlowDf$parentIdent[i])) {
@@ -144,13 +144,13 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
     # We'll restore it during import
     workFlowDf$parentIdent <- NULL
   }
-  
+
   outsideLinks <- filterOutsideLinks(workFlowDf)
-  
+
   # Only select columns if outsideLinks exist
   if (!is.null(outsideLinks) && nrow(outsideLinks) > 0) {
     # Check which columns exist before selecting
-    availableCols <- intersect(names(outsideLinks), 
+    availableCols <- intersect(names(outsideLinks),
                                c("stepHandle","targetStep","name","version","filehash","maxVersion"))
     if (length(availableCols) > 0) {
       outsideLinks <- dplyr::select(outsideLinks, all_of(availableCols))
@@ -162,6 +162,20 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
     if (!is.null(remoteFiles)) {
       oLinks <- remoteFiles[remoteFiles$asLink & !is.na(remoteFiles$sourceStep),]
       if (nrow(oLinks)>0) {
+
+        if (!("sourceInventoryPath" %in% names(oLinks))) {
+          oLinks <- byNotEmptyAsDf(oLinks,function(oLink) {
+            sourceStepName <- oLink$sourceStep
+            sourceStepEnv <- workflowTemplate$stepTemplates[[sourceStepName]]
+
+            oldStep <- loadResource(sourceStepEnv$stepDf$sourceEntityId)
+            if (!is.null(oldStep)) {
+              oLink$sourceInventoryPath <- paste0("./",substr(oLink$path,nchar(oldStep$path)+2,nchar(oLink$path)))
+            }
+            return(oLink)
+          })
+
+          }
         return(oLinks %>% dplyr::distinct(.data$targetStep,.data$sourceStep,.data$sourceInventoryPath,.keep_all = T))
       }
     }
@@ -188,7 +202,7 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
     }
     return(NULL)
   })
-  
+
   # Only select columns if inputs exist and have the required columns
   if (!is.null(inputs) && nrow(inputs) > 0) {
     availableCols <- intersect(names(inputs), c("stepHandle","targetStep","name"))
@@ -321,7 +335,7 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
     }
     return(NULL)
   })
-  
+
   # Only process toolMapping if it exists and has data
   if (!is.null(toolMapping) && nrow(toolMapping) > 0) {
     toolMapping <- toolMapping %>%
@@ -352,7 +366,7 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
   outsideLinks <- filterOutsideLinks(workFlowDf)
   if (!is.null(outsideLinks) && nrow(outsideLinks)>0) {
     # Select only existing columns
-    availableCols <- intersect(names(outsideLinks), 
+    availableCols <- intersect(names(outsideLinks),
                                c("ident","version","filehash","name"))
     if (length(availableCols) > 0) {
       outsideLinks <- outsideLinks %>%
