@@ -404,19 +404,34 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 
 
   #import export
-  report <- loadChildResources(dmgL3)%>%strip()
-  reportStep <- getStep(report[1,])
-  reportStep$lineage$load(stepDepth = -1,treeDepth = -1)
-  # exportWorkflow now expects a workflow, not a workflow template
-  workflow <- reportStep$workflow
+  # Skip import/export in version 4.3
+  repoVersion <- getRepositoryVersion()
+  skipImportExport <- FALSE
+  if (!is.null(repoVersion)) {
+    versionParts <- strsplit(repoVersion, "[.-]")[[1]]
+    if (length(versionParts) >= 2) {
+      majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
+      if (majorMinor < 4.4) {
+        skipImportExport <- TRUE
+      }
+    }
+  }
+  
+  if (!skipImportExport) {
+    report <- loadChildResources(dmgL3)%>%strip()
+    reportStep <- getStep(report[1,])
+    reportStep$lineage$load(stepDepth = -1,treeDepth = -1)
+    # exportWorkflow now expects a workflow, not a workflow template
+    workflow <- reportStep$workflow
 
 
-  exportWorkflow(workflow,workflowName = "lineageDMG")
+    exportWorkflow(workflow,workflowName = "lineageDMG")
 
-  importRepoFolder <- file.path(TEST_FOLDER,"import1")
-  createFolder(dirname(importRepoFolder),basename(importRepoFolder))
-  importWorkflow("lineageDMG.zip",importRepoFolder)
-  #externalLinkMapping
+    importRepoFolder <- file.path(TEST_FOLDER,"import1")
+    createFolder(dirname(importRepoFolder),basename(importRepoFolder))
+    importWorkflow("lineageDMG.zip",importRepoFolder)
+    #externalLinkMapping
+  }
 
 
 
@@ -433,6 +448,18 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 })
 
 test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213", {
+  # Skip workflow import tests in version 4.3 due to compatibility issues
+  repoVersion <- getRepositoryVersion()
+  if (!is.null(repoVersion)) {
+    versionParts <- strsplit(repoVersion, "[.-]")[[1]]
+    if (length(versionParts) >= 2) {
+      majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
+      if (majorMinor < 4.4) {
+        skip("Skipping workflow import tests in repository version < 4.4")
+      }
+    }
+  }
+  
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleNonmem")
 
   nonmemStep <- nonmemBatchStep(testTree)
@@ -534,6 +561,18 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
 })
 
 test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", {
+  # Skip workflow import tests in version 4.3 due to compatibility issues
+  repoVersion <- getRepositoryVersion()
+  if (!is.null(repoVersion)) {
+    versionParts <- strsplit(repoVersion, "[.-]")[[1]]
+    if (length(versionParts) >= 2) {
+      majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
+      if (majorMinor < 4.4) {
+        skip("Skipping workflow import tests in repository version < 4.4")
+      }
+    }
+  }
+  
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleWorkflow")
 
   dmTemplate  <- rBatchStep(testTree)

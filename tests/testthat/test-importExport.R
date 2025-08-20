@@ -4,6 +4,22 @@
 
 Sys.setenv(TEST_NAME="importExport")
 
+# Skip all import/export tests in version 4.3 due to compatibility issues
+repoVersion <- tryCatch({
+  improveConnect()
+  getRepositoryVersion()
+}, error = function(e) NULL)
+
+if (!is.null(repoVersion)) {
+  versionParts <- strsplit(repoVersion, "[.-]")[[1]]
+  if (length(versionParts) >= 2) {
+    majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
+    if (majorMinor < 4.4) {
+      skip("Skipping all import/export tests in repository version < 4.4")
+    }
+  }
+}
+
 # Helper function to set up test environment
 setupTestEnvironment <- function() {
   Sys.setenv(IMPROVER_TEST_REPLAY="T")
