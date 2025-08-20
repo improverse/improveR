@@ -52,6 +52,19 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
   url <- appendQueryParams(url,queryParams)
   url <- paste0(conf()$repoUrl,url)
   logging::logdebug(paste0(restType," connecting to ",url))
+  
+  # Display REST calls if environment variable is set
+  if (Sys.getenv("IMPROVER_DISPLAY_REST_CALLS", "") != "") {
+    cat(paste0("REST Call: ", restType, " ", url, "\n"))
+    if (!identical(data, "")) {
+      # Check if data is binary (raw type or contains file upload)
+      if (is.raw(data) || (is.list(data) && any(sapply(data, function(x) inherits(x, "form_file"))))) {
+        cat("Data: <binaryBlob>\n")
+      } else {
+        cat("Data: ", jsonlite::toJSON(data, auto_unbox = TRUE, pretty = TRUE), "\n")
+      }
+    }
+  }
 
   result <- NULL
   if (!is.na(conf()$reqToken) && !is.null(conf()$reqToken)) {

@@ -61,33 +61,89 @@ getToolInstances <- function() {
         #####parameters
         toolParameterResult<-authenticatedREST("/configuration/runservers/{runserverId}/tools/{toolId}/parameters",
                                                          urlParams = list(runserverId=runserverTool$runserverId,toolId=runserverTool$id))
-        toolParameters <- mergeListToDataframe(httr::content(toolParameterResult))
-        toolParameters <- dplyr::select(
-          dplyr::inner_join(parameters,toolParameters,by=c("id"="parameterLovId"))
-          ,"lovType","name","description","value")
+        toolParameterContent <- httr::content(toolParameterResult)
+        toolParameters <- mergeListToDataframe(toolParameterContent)
+
+        # Check if toolParameters is empty or null
+        if (is.null(toolParameters) || nrow(toolParameters) == 0) {
+          # Use empty parameters list
+          toolParameters <- data.frame(lovType = character(),
+                                     name = character(),
+                                     description = character(),
+                                     value = character())
+        } else {
+          # Check if we have the expected columns for the join
+          if ("parameterLovId" %in% names(toolParameters) && "id" %in% names(parameters)) {
+            # Perform the join and select the needed columns
+            joined <- dplyr::inner_join(parameters, toolParameters, by = c("id" = "parameterLovId"))
+
+            # Check which columns exist in the joined result
+            available_cols <- intersect(c("lovType", "name", "description", "value"), names(joined))
+            if (length(available_cols) > 0) {
+              toolParameters <- dplyr::select(joined, all_of(available_cols))
+            } else {
+              # If expected columns don't exist, create empty dataframe
+              toolParameters <- data.frame(lovType = character(),
+                                         name = character(),
+                                         description = character(),
+                                         value = character())
+            }
+          } else {
+            # If join columns don't exist, create empty dataframe
+            toolParameters <- data.frame(lovType = character(),
+                                       name = character(),
+                                       description = character(),
+                                       value = character())
+          }
+        }
+
         runserverTool$parameters <- list(toolParameters)
         ####gridArguments
         tryCatch( {
-          gridArgumentDefinitions <- loadGridArguments(runserverTool$gridProvider)
-          gridArgumentResult<-authenticatedREST("/configuration/runservers/{runserverId}/tools/{toolId}/gridArguments",
-                                                          urlParams = list(runserverId=runserverTool$runserverId,toolId=runserverTool$id))
-          gridArguments <- mergeListToDataframe(httr::content(gridArgumentResult))
-          if (nrow(gridArguments)>0) {
-            merged <- dplyr::inner_join(gridArgumentDefinitions,gridArguments,by=c("id"="definitionId"))
-            mergedValues <- dplyr::left_join(merged,gridValues,c("lovValueId"="id"))
-            if (!("textValue" %in% names(mergedValues))) {
-              mergedValues$textValue <- NA
-            }
-            if (!("text" %in% names(mergedValues))) {
-              mergedValues$text <- NA
-            }
-            mergedValues <- dplyr::mutate(mergedValues,value=dplyr::if_else(is.na(.data$textValue),.data$text,.data$textValue))
-            gridArguments <- dplyr::select(mergedValues,"name","value")
-            runserverTool$gridArguments <- list(gridArguments)
-          }
+          if(!is.na(runserverTool$gridProvider)) {
+            gridArgumentDefinitions <- loadGridArguments(runserverTool$gridProvider)
+            gridArgumentResult<-authenticatedREST("/configuration/runservers/{runserverId}/tools/{toolId}/gridArguments",
+                                                            urlParams = list(runserverId=runserverTool$runserverId,toolId=runserverTool$id))
+            gridArguments <- mergeListToDataframe(httr::content(gridArgumentResult))
 
-        },error=function(e){}
-        )
+            # Only process if both dataframes have data
+            if (!is.null(gridArguments) && nrow(gridArguments) > 0 &&
+                !is.null(gridArgumentDefinitions) && nrow(gridArgumentDefinitions) > 0) {
+
+              # Check if we have the expected columns for the join
+              if ("definitionId" %in% names(gridArguments) && "id" %in% names(gridArgumentDefinitions)) {
+                merged <- dplyr::inner_join(gridArgumentDefinitions, gridArguments, by = c("id" = "definitionId"))
+
+                # Join with grid values if lovValueId exists
+                if ("lovValueId" %in% names(merged) && !is.null(gridValues)) {
+                  mergedValues <- dplyr::left_join(merged, gridValues, by = c("lovValueId" = "id"))
+                } else {
+                  mergedValues <- merged
+                }
+
+                # Add missing columns with NA
+                if (!("textValue" %in% names(mergedValues))) {
+                  mergedValues$textValue <- NA
+                }
+                if (!("text" %in% names(mergedValues))) {
+                  mergedValues$text <- NA
+                }
+
+                # Create the value column
+                mergedValues <- dplyr::mutate(mergedValues, value = dplyr::if_else(is.na(.data$textValue), .data$text, .data$textValue))
+
+                # Select only columns that exist
+                available_cols <- intersect(c("name", "value"), names(mergedValues))
+                if (length(available_cols) > 0) {
+                  gridArguments <- dplyr::select(mergedValues, all_of(available_cols))
+                  runserverTool$gridArguments <- list(gridArguments)
+                }
+              }
+            }
+          }
+        }, error = function(e) {
+          # Silent catch - some tools may not have grid arguments
+        })
 
         return(runserverTool)
       })

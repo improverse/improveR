@@ -68,19 +68,19 @@ clearConnectionData <- function(includeRepoData=F) {
 #'
 #' @description
 #' improveConnect establishes a connection to the improve repository using one of two authentication methods:
-#' 
+#'
 #' ## Authentication Methods:
 #' 1. **Run Tokens (Production):** When a step is executed from improve platform, a run token is automatically provided
-#' 2. **OAuth (Interactive):** User authentication with browser or headless mode for development/interactive use  
+#' 2. **OAuth (Interactive):** User authentication with browser or headless mode for development/interactive use
 #'
 #' ## Required Environment Variables:
-#' 
+#'
 #' **For Run Token Authentication:**
 #' * IMPROVER_TOKEN: the run token (mandatory)
 #' * IMPROVER_REPO_URL: repository URL (mandatory)
 #' * IMPROVER_STEP: step ID for relative path resolution (optional)
 #' * IMPROVER_WORKSPACE: workspace directory (optional, defaults to current directory)
-#' 
+#'
 #' **For OAuth Authentication:**
 #' * IMPROVER_REPO_URL: repository URL (mandatory)
 #' * IMPROVER_STEP: step ID for relative path resolution (mandatory)
@@ -92,12 +92,12 @@ clearConnectionData <- function(includeRepoData=F) {
 #'
 #' ## Connection information sources (in descending priority):
 #' 1. via the command line
-#' 1. via environment variables  
+#' 1. via environment variables
 #' 1. via a conf.json file
 #'
 #' ## Command line
 #' Command line arguments have to be in the correct order.
-#' 1. run token (reqToken) 
+#' 1. run token (reqToken)
 #' 1. step ID (shortEntityId) for relative path resolution
 #' 1. the repository URL in the format https://repoaddress:repoPort/repository
 #' 1. run workspace path
@@ -109,15 +109,15 @@ clearConnectionData <- function(includeRepoData=F) {
 #' * repoUrl: repository URL (mandatory)
 #' * runWorkspace: workspace directory
 #'
-#' @param logLevel Log verbosity level. Possible values: DEBUG, INFO, WARN, ERROR. 
+#' @param logLevel Log verbosity level. Possible values: DEBUG, INFO, WARN, ERROR.
 #' Default is "INFO". Can be overridden by environment variable IMPROVE_LOG_LEVEL.
-#' @param secure If TRUE (default), SSL certificates are validated. If FALSE, certificate 
-#' validation is disabled - this allows connections with expired or self-signed certificates 
-#' but is NOT recommended for production use. Can be overridden by setting environment 
+#' @param secure If TRUE (default), SSL certificates are validated. If FALSE, certificate
+#' validation is disabled - this allows connections with expired or self-signed certificates
+#' but is NOT recommended for production use. Can be overridden by setting environment
 #' variable IMPROVER_SECURITY="insecure".
-#' @param offlinePossible If TRUE, the setup continues even if no connection is possible. 
+#' @param offlinePossible If TRUE, the setup continues even if no connection is possible.
 #' Default is FALSE.
-#' @param persistentCaching If TRUE, caches are persisted to and reloaded from `.improver.cache` 
+#' @param persistentCaching If TRUE, caches are persisted to and reloaded from `.improver.cache`
 #' file. Default is FALSE.
 #' @export
 #' @seealso [improveConnected()], [improveDisconnect()]
@@ -128,7 +128,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
   if (!is.null(secureFlag) && secureFlag == "insecure") {
     secure <- F
   }
-  
+
   # Check for log level environment variable override
   # Only use env var if no explicit parameter was passed
   if (missing(logLevel)) {
@@ -199,7 +199,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     reqToken <- Sys.getenv("IMPROVER_TOKEN")
     stepId <- Sys.getenv("IMPROVER_STEP")
     repoUrl <- Sys.getenv("IMPROVER_REPO_URL")
-    
+
     # If no run token provided, use OAuth authentication
     if (reqToken=="") {
       improveOAuth(repoUrl,shortEntityId = stepId)
@@ -265,6 +265,83 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
   logging::loginfo(paste0("runWorkspace: ", conf()$runWorkspace))
   setRootPath(getwd())
   registerCloseFunction("1removeImproveJson", improveClose)
+
+  # Check repository version after configuration is complete
+  if (!cacheEnv$offline) {
+    repoBaseUrl <- gsub("/api/v1/$", "/", conf()$repoUrl)
+    repoVersionUrl <- paste0(repoBaseUrl, "repository?status")
+    tryCatch({
+      versionResult <- unauthenticatedREST(repoVersionUrl, restType = "GET")
+      if (versionResult$status_code == 200) {
+        # Parse HTML content
+        versionContent <- httr::content(versionResult, "text", encoding = "UTF-8")
+        # Extract version from HTML - looking for "Version: X.X.X-X (hash)"
+        versionMatch <- regmatches(versionContent, regexpr("Version:\\s*([0-9\\.\\-]+)\\s*\\([a-f0-9]+\\)", versionContent))
+        if (length(versionMatch) > 0) {
+          # Extract just the version number
+          version <- gsub("Version:\\s*([0-9\\.\\-]+).*", "\\1", versionMatch[1])
+          logging::loginfo(paste0("Connected to repository version: ", version))
+          cacheEnv$repositoryVersion <- version
+        } else {
+          logging::logwarn("Could not parse repository version from response")
+        }
+      } else {
+        logging::logwarn("Could not retrieve repository version information")
+      }
+    }, error = function(e) {
+      logging::logwarn(paste0("Failed to check repository version: ", e$message))
+    })
+  }
+}
+
+#' checkConnect
+#'
+#' @description Checks if the current connection is still valid by attempting to load the IMPROVER_STEP resource.
+#' If the connection is invalid, it clears connection data and attempts to reconnect.
+#' @return invisible TRUE if connection is valid, otherwise attempts reconnection
+#' @export
+checkConnect <- function() {
+  # First check if we're connected at all
+  if (!improveConnected(silent = TRUE)) {
+    logging::loginfo("Not connected. Attempting to connect...")
+    improveConnect()
+    return(invisible(TRUE))
+  }
+
+  # Try to load the step resource to verify connection is still valid
+  stepId <- conf()$stepId
+  if (!is.null(stepId) && !is.na(stepId) && stepId != "") {
+    tryCatch({
+      # Use updateResource to force a fresh load from server
+      stepResource <- updateResource(stepId)
+      if (!is.null(stepResource)) {
+        logging::logdebug("Connection verified - step resource loaded successfully")
+        return(invisible(TRUE))
+      } else {
+        logging::logwarn("Step resource returned NULL - reconnecting")
+      }
+    }, error = function(e) {
+      logging::logwarn(paste0("Failed to load step resource: ", e$message))
+    })
+  } else {
+    logging::logdebug("No step ID configured - checking basic connectivity")
+    # If no step ID, just try a basic API call
+    tryCatch({
+      result <- authenticatedREST("/users")
+      if (!is.null(result) && result$status_code >= 200 && result$status_code < 300) {
+        logging::logdebug("Connection verified via users endpoint")
+        return(invisible(TRUE))
+      }
+    }, error = function(e) {
+      logging::logwarn(paste0("Failed to verify connection: ", e$message))
+    })
+  }
+
+  # If we get here, connection is invalid - clear and reconnect
+  logging::loginfo("Connection invalid - clearing connection data and reconnecting")
+  clearConnectionData()
+  improveConnect()
+  return(invisible(TRUE))
 }
 
 saveCache <- function() {
@@ -331,7 +408,7 @@ improveClose <- function() {
 }
 
 #' getLogFile
-#' 
+#'
 #' @description Returns the path to the current log file, or NULL if logging to file is not enabled.
 #' @return Character string with the log file path, or NULL if no log file is configured
 #' @export
@@ -347,4 +424,14 @@ getLogFile <- function() {
     return(NULL)
   }
   return(logFile)
+}
+
+#' getRepositoryVersion
+#'
+#' @description Returns the version of the connected repository, if available.
+#' @return Character string with the repository version, or NULL if not available
+#' @export
+getRepositoryVersion <- function() {
+  improveConnected()
+  return(get0("repositoryVersion", envir = cacheEnv))
 }
