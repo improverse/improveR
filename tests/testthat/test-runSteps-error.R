@@ -2,7 +2,6 @@ Sys.setenv(TEST_NAME="runSteps-error")
 
 httptest::with_mock_dir("prepare-runSteps-error",{
   test_that("createTestFolder", {
-    clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
     improveConnect()
     setEditable(T)

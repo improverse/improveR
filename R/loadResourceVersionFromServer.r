@@ -28,8 +28,20 @@ loadResourceVersionFromServer <- function(entityVersionId,invalidatesReproducibi
 
   entityId <- extractEntityId(entityVersionId)
   res<-loadResource(entityId)
+  if (is.null(res)) {
+    logging::logwarn(paste0("Resource with entityId: ",entityId," could not be loaded"))
+    return(NULL)
+  }
   his<-loadHistory(entityId)
+  if (is.null(his) || is.null(his$data) || length(his$data) == 0) {
+    logging::logwarn(paste0("History for entityId: ",entityId," could not be loaded"))
+    return(NULL)
+  }
   historyData <- his$data[[1]]
+  if (is.null(historyData) || nrow(historyData) == 0) {
+    logging::logwarn(paste0("No history data for entityId: ",entityId))
+    return(NULL)
+  }
 
   historyData$entityVersionId<-cutPrefix(historyData$entityVersionId)
   entityVersionWithoutPrefix <-strsplit(entityVersionId,":")[[1]][2]

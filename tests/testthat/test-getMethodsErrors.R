@@ -5,7 +5,6 @@ Sys.setenv(TEST_NAME="getMethodsErrors")
 
 httptest::with_mock_dir("prepare-getMethodsErrors",{
   test_that("createTestFolder", {
-    clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
     improveConnect()
     setEditable(T)

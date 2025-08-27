@@ -124,55 +124,40 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   env$lineage$load <- function(stepDepth=1,treeDepth=1) {
     if (stepDepth==1 && treeDepth==1) {
       step <- env$getStepResource()
-      lineageResult <- authenticatedREST("/resources/{resourceId}/dependencies",
-                                         urlParams = list(resourceId=step$resourceId))
-      if (is.null(lineageResult)) {
-        return(NULL)
-      }
-      if (lineageResult$status_code==200) {
-        lineageContent <- httr::content(lineageResult)
+      # Use version-aware getLineage function
+      lineageContent <- getLineage(step, env)
 
-        if (length(lineageContent)>0) {
-          stepsDf <- env$workflow$df()
-          links <- lapply(lineageContent,function(lStep) {
-            if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
-              log_info("adding ",lStep$name,lStep$entityId,"to lineage")
-              lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
-              env$lineage[[lStepEnv$stepDf$fullName]]<-lStepEnv
-              lStepEnv$usage[[env$stepDf$fullName]]<-env
-            }
-
-          })
-        }
+      if (length(lineageContent)>0) {
+        stepsDf <- env$workflow$df()
+        links <- lapply(lineageContent,function(lStep) {
+          if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
+            log_info("adding ",lStep$name,lStep$entityId,"to lineage")
+            lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
+            env$lineage[[lStepEnv$stepDf$fullName]]<-lStepEnv
+            lStepEnv$usage[[env$stepDf$fullName]]<-env
+          }
+        })
       }
     } else {
       recursiveNavigate(env,"lineage",stepDepth,treeDepth)
     }
-
   }
   env$usage$load <- function(stepDepth=1,treeDepth=1) {
     if (stepDepth==1 && treeDepth==1) {
       step <- env$getStepResource()
-      usageResult <- authenticatedREST("/resources/{resourceId}/usages",
-                                         urlParams = list(resourceId=step$resourceId))
-      if (is.null(usageResult)) {
-        return(NULL)
-      }
-      if (usageResult$status_code==200) {
-        useageContent <- httr::content(usageResult)
+      # Use version-aware getUsage function
+      usageContent <- getUsage(step, env)
 
-        if (length(useageContent)>0) {
-          stepsDf <- env$workflow$df()
-          links <- lapply(useageContent,function(lStep) {
-            if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
-              log_info("adding ",lStep$name,lStep$entityId,"to usage")
-              lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
-              env$usage[[lStepEnv$stepDf$fullName]]<-lStepEnv
-              lStepEnv$lineage[[env$stepDf$fullName]]<-env
-            }
-
-          })
-        }
+      if (length(usageContent)>0) {
+        stepsDf <- env$workflow$df()
+        links <- lapply(usageContent,function(lStep) {
+          if (!(lStep$entityId %in% stepsDf$sourceEntityId)) {
+            log_info("adding ",lStep$name,lStep$entityId,"to usage")
+            lStepEnv <- getStep(lStep$resourceId,workflow = env$workflow)
+            env$usage[[lStepEnv$stepDf$fullName]]<-lStepEnv
+            lStepEnv$lineage[[env$stepDf$fullName]]<-env
+          }
+        })
       }
     } else {
       recursiveNavigate(env,"usage",stepDepth,treeDepth)
@@ -194,11 +179,19 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
         parentStep <- getStep(parent$resourceId,workflow = env$workflow)
         parentStep$children[[env$stepDf$fullName]]<-env
         env$parent[[parentStep$stepDf$fullName]]<-parentStep
+        # Store parent relationship in child's stepDf for export
+        # This captures the actual parent-child relationship that exists
+        env$stepDf$parentIdent <- parentStep$stepDf$sourceEntityId
       } else if (length(parentContent)==1 && nrow(parent)==1) {
         if (env$parent[[parentContent]]$stepDf$sourceEntityId!=parent$entityId) {
           parentStep <- getStep(parent$resourceId,workflow = env$workflow)
           parentStep$children[[env$stepDf$fullName]]<-env
           env$parent[[parentStep$stepDf$fullName]]<-parentStep
+
+          # Store parent relationship in child's stepDf for export
+          # This captures the actual parent-child relationship that exists
+          env$stepDf$parentIdent <- parentStep$stepDf$sourceEntityId
+
         }
       } else if (length(parentContent)==1 && nrow(parent)==0) {
         rm(list=c(parentContent),pos = env$parent)
@@ -226,6 +219,8 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
             }
               env$children[[lStepEnv$stepDf$fullName]]<-lStepEnv
               lStepEnv$parent[[env$stepDf$fullName]]<-env
+
+
 
 
           })

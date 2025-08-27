@@ -14,24 +14,40 @@
         warning("LinkMapping.json missing required 'key' field")
       }
       
-      # Validate idents if provided
+      # Validate idents if provided - stop import if any are invalid
+      invalidMappings <- character()
       if ("ident" %in% names(linkMapping)) {
         providedIdents <- linkMapping[!is.na(linkMapping$ident) & linkMapping$ident != "", ]
         if (nrow(providedIdents) > 0) {
           for (i in seq_len(nrow(providedIdents))) {
             ident <- providedIdents$ident[i]
+            validationFailed <- FALSE
             tryCatch({
               resource <- loadResource(ident)
               if (is.null(resource)) {
                 warning(paste("LinkMapping: Resource not found for ident:", ident, "key:", providedIdents$key[i]))
+                invalidMappings <- c(invalidMappings, providedIdents$key[i])
+                validationFailed <- TRUE
+              } else if (is.null(resource$resourceId) || is.null(resource$name)) {
+                warning(paste("LinkMapping: Resource missing required fields for ident:", ident, "key:", providedIdents$key[i]))
+                invalidMappings <- c(invalidMappings, providedIdents$key[i])
+                validationFailed <- TRUE
               } else {
                 logging::loginfo(paste("LinkMapping: Validated resource", ident, "->", resource$name))
               }
             }, error = function(e) {
               warning(paste("LinkMapping: Invalid ident", ident, "for key:", providedIdents$key[i], "Error:", e$message))
+              invalidMappings <- c(invalidMappings, providedIdents$key[i])
+              validationFailed <- TRUE
             })
           }
         }
+      }
+      
+      # Stop import if there are invalid mappings
+      if (length(invalidMappings) > 0) {
+        stop(paste("Import aborted: Invalid link mappings found for keys:", paste(invalidMappings, collapse = ", "),
+                   "\nPlease correct the link mapping file and try again."))
       }
       
       logging::loginfo(paste("LinkMapping validation completed. Found", nrow(linkMapping), "mappings,",
@@ -55,22 +71,28 @@
         warning(paste("ToolMapping.json missing required fields:", paste(missing, collapse = ", ")))
       }
       
-      # Validate filled mappings
+      # Validate filled mappings - stop import if any are invalid
       filledMappings <- toolMapping[!is.na(toolMapping$runserverLabel) & toolMapping$runserverLabel != "", ]
+      invalidMappings <- character()
       if (nrow(filledMappings) > 0) {
         for (i in seq_len(nrow(filledMappings))) {
           mapping <- filledMappings[i, ]
           # Check if runserver exists
+          validationFailed <- FALSE
           tryCatch({
             runserver <- loadRunserver(mapping$runserverLabel)
-            if (nrow(runserver) == 0) {
+            if (is.null(runserver) || nrow(runserver) == 0) {
               warning(paste("ToolMapping: Runserver not found:", mapping$runserverLabel, "for key:", mapping$key))
+              invalidMappings <- c(invalidMappings, mapping$key)
+              validationFailed <- TRUE
             } else {
               # Check if tool exists on runserver
               tool <- loadToolForRunserver(runserver$id, mapping$toolLabel, mapping$toolInstance)
-              if (nrow(tool) == 0) {
+              if (is.null(tool) || nrow(tool) == 0) {
                 warning(paste("ToolMapping: Tool", mapping$toolLabel, "/", mapping$toolInstance, 
                             "not found on", mapping$runserverLabel, "for key:", mapping$key))
+                invalidMappings <- c(invalidMappings, mapping$key)
+                validationFailed <- TRUE
               } else {
                 logging::loginfo(paste("ToolMapping: Validated", mapping$key, "->", 
                                      mapping$runserverLabel, mapping$toolLabel, mapping$toolInstance))
@@ -78,8 +100,16 @@
             }
           }, error = function(e) {
             warning(paste("ToolMapping: Failed to validate mapping for key:", mapping$key, "Error:", e$message))
+            invalidMappings <- c(invalidMappings, mapping$key)
+            validationFailed <- TRUE
           })
         }
+      }
+      
+      # Stop import if there are invalid mappings
+      if (length(invalidMappings) > 0) {
+        stop(paste("Import aborted: Invalid tool mappings found for keys:", paste(invalidMappings, collapse = ", "),
+                   "\nPlease correct the tool mapping file and try again."))
       }
       
       # Warn about unmapped tools
@@ -396,6 +426,9 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     remoteFiles <- remoteFiles[remoteFiles$asLink,]
     template$stepDf$remoteFiles[[1]]<- remoteFiles
     template$realise(run=F)
+    
+    # Store the new entityId back in importWF dataframe for parent relationship restoration
+    importWF[importWF$fullName == nextItem, "newEntityId"] <- template$stepDf$entityId
 
     nextStep <- loadResource(template$stepDf$entityId)
     stepInputFolderPath <- paste0("import",uuid::UUIDgenerate()  )
@@ -410,8 +443,22 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       for (iF in 1:length(inputFiles)) {
         inputPath <- file.path(importFolder,template$stepDf$handle,"inputFiles",inputFiles[iF],fsep = "/")
         outputPath <- file.path(stepInputFolderPath,inputFiles[iF],fsep = "/")
-        dir.create(dirname(outputPath),recursive = T,showWarnings = F)
-        file.rename(inputPath,outputPath)
+        
+        # Check if it's a directory
+        if (file.info(inputPath)$isdir) {
+          # For directories, use recursive copy
+          dir.create(outputPath, recursive = TRUE, showWarnings = FALSE)
+          file.copy(inputPath, dirname(outputPath), recursive = TRUE)
+          unlink(inputPath, recursive = TRUE)
+        } else {
+          # For files, create parent directory and use copy+delete to avoid cross-device issues
+          dir.create(dirname(outputPath),recursive = T,showWarnings = F)
+          # Try rename first (faster if on same device), fall back to copy+delete
+          if (!file.rename(inputPath,outputPath)) {
+            file.copy(inputPath, outputPath)
+            unlink(inputPath)
+          }
+        }
       }
     }
     pushCli(stepInputFolderPath)
@@ -425,8 +472,22 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       for (iF in 1:length(outputFiles)) {
         inputPath <- file.path(importFolder,template$stepDf$handle,"outputFiles",outputFiles[iF],fsep = "/")
         outputPath <- file.path(stepInputFolderPath,outputFiles[iF],fsep = "/")
-        dir.create(dirname(outputPath),recursive = T,showWarnings = F)
-        file.rename(inputPath,outputPath)
+        
+        # Check if it's a directory
+        if (file.info(inputPath)$isdir) {
+          # For directories, use recursive copy
+          dir.create(outputPath, recursive = TRUE, showWarnings = FALSE)
+          file.copy(inputPath, dirname(outputPath), recursive = TRUE)
+          unlink(inputPath, recursive = TRUE)
+        } else {
+          # For files, create parent directory and use copy+delete to avoid cross-device issues
+          dir.create(dirname(outputPath),recursive = T,showWarnings = F)
+          # Try rename first (faster if on same device), fall back to copy+delete
+          if (!file.rename(inputPath,outputPath)) {
+            file.copy(inputPath, outputPath)
+            unlink(inputPath)
+          }
+        }
       }
     }
     pushRunCli(stepInputFolderPath,command="import")
@@ -438,7 +499,46 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
   #  for (i in 1:length(executionList)) {
   #    finishRun(executionList[i])
   #  }
+  #}
+  
+  # Restore parent relationships after all steps are created
+  if ("parentFullName" %in% names(importWF) && "newEntityId" %in% names(importWF)) {
+    logging::loginfo("Restoring parent relationships")
+    
+    # Update parent relationships using attachStep
+    for (i in seq_len(nrow(importWF))) {
+      if (!is.na(importWF$parentFullName[i])) {
+        childEntityId <- importWF$newEntityId[i]
+        parentFullName <- importWF$parentFullName[i]
+        
+        # Find the parent's entityId by looking up its fullName
+        parentRows <- which(importWF$fullName == parentFullName)
+        if (length(parentRows) == 0) {
+          warning(paste("Parent step not found:", parentFullName, "for child:", importWF$fullName[i]))
+        } else if (length(parentRows) > 1) {
+          warning(paste("Multiple steps found with fullName:", parentFullName, 
+                       "- cannot determine unique parent for:", importWF$fullName[i]))
+        } else {
+          # Exactly one parent found
+          parentEntityId <- importWF$newEntityId[parentRows[1]]
+          
+          if (!is.null(childEntityId) && !is.null(parentEntityId) && !is.na(parentEntityId)) {
+            tryCatch({
+              attachStep(childEntityId, parentEntityId)
+              logging::loginfo(paste("Restored parent relationship:", importWF$fullName[i], "->", parentFullName))
+              
+              # TODO: Handle inheritFromParent flag if needed
+              # The attachStep function might not handle this flag directly
+              
+            }, error = function(e) {
+              warning(paste("Error restoring parent relationship for", importWF$fullName[i], ":", e$message))
+            })
+          }
+        }
+      }
+    }
   }
+}
 
 
 

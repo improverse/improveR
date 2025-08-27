@@ -164,8 +164,11 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       "referenceModel"
     )
 
-    if ("parentIdent" %in% names(env$stepDf) && !is.null(env$stepDf$parentIdent)) {
-      prepStep$parentStepId <- loadResource(env$stepDf$parentIdent)$resourceId
+    if ("parentIdent" %in% names(env$stepDf) && !is.null(env$stepDf$parentIdent) && !is.na(env$stepDf$parentIdent)) {
+      parent <- loadResource(env$stepDf$parentIdent)
+      if (!is.null(parent)) {
+        prepStep$parentStepId <- parent$resourceId
+      }
     }
 
     prepList <- as.list(prepStep)
@@ -180,18 +183,29 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
     for (i in seq_along(processNames)) {
       processDf <- env$prepareProcess(processNames[i])
-      subFolderNameMapping <- c(subFolderNameMapping, processDf$subFolderNameMapping)
+      if (!is.null(processDf$subFolderNameMapping)) {
+        if (is.list(processDf$subFolderNameMapping[[1]])) {
+          subFolderNameMapping <- c(subFolderNameMapping, processDf$subFolderNameMapping[[1]])
+        } else {
+          subFolderNameMapping <- c(subFolderNameMapping, processDf$subFolderNameMapping)
+        }
+      }
       processDf$subFolderNameMapping <- NULL
       processes <- plyr::rbind.fill(processes, processDf)
     }
     prepList$processes <- processes
-    print(jsonlite::toJSON(prepList, auto_unbox = TRUE, pretty = TRUE))
+    #print(jsonlite::toJSON(prepList, auto_unbox = TRUE, pretty = TRUE))
 
     createResult <- authenticatedREST("/resources/{treeIdent}/steps",
       urlParams = list(treeIdent = treeIdent),
       data = prepList,
       restType = "POST"
     )
+
+    if (is.null(createResult)) {
+      stop("Failed to create step: REST call returned NULL. Check authentication and server connection.")
+    }
+
     if (createResult$status_code == 201) {
       createContent <- httr::content(createResult)
       newStep <- loadResource(createContent$resourceId)
@@ -438,7 +452,12 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       }
     }
     fileList["asLink"] <- asLink
-    fileList["name"] <- name
+    # If name is not provided, derive it from the resource
+    if (is.null(name) && !is.null(resource)) {
+      fileList["name"] <- resource$name
+    } else {
+      fileList["name"] <- name
+    }
     fileList["variableName"] <- variableName
     fileList["variableProcess"] <- variableProcess
     if (!is.null(sourceHandle)) {
@@ -555,6 +574,10 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     remoteFiles <- byNotEmptyAsDf(remoteFiles, function(file) {
       if ("name" %in% names(file)) {
         fileName <- file$name
+        # Check for NA values before comparison
+        if (is.na(fileName) || is.na(name)) {
+          return(file)
+        }
         if (fileName != name) {
           return(file)
         } else {
@@ -666,7 +689,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           if (!is.na(processFile$sourceInventoryPath)) {
             # During import, workflow$stepTemplates might not exist or have entityId
             # Skip resolution if we can't access the source step's entityId
-            if (!is.null(env$workflow) && 
+            if (!is.null(env$workflow) &&
                 !is.null(env$workflow$stepTemplates) &&
                 !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]) &&
                 !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId)) {
@@ -829,7 +852,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         }
       }
       if (length(subFolderNameMapping) > 0) {
-        process$subFolderNameMapping <- subFolderNameMapping
+        process$subFolderNameMapping <- list(subFolderNameMapping)
       }
     }
     return(process)
@@ -884,6 +907,35 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
 
   env$realise <- function(force = TRUE, run = TRUE,workflow=NULL) {
+    # Check repository version and use appropriate function
+    repoVersion <- getRepositoryVersion()
+    
+    if (!is.null(repoVersion)) {
+      # Parse major.minor from version string (e.g., "4.4.0-1" -> 4.4)
+      versionParts <- strsplit(repoVersion, "[.-]")[[1]]
+      if (length(versionParts) >= 2) {
+        majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
+        
+        # Use new implementation only for 4.4+, default to deprecated for compatibility
+        if (majorMinor >= 4.4) {
+          logging::loginfo(paste0("Using new realise implementation for repository version ", repoVersion))
+          # Continue with new implementation below
+        } else {
+          logging::loginfo(paste0("Using realise_deprecated for repository version ", repoVersion))
+          return(realise_deprecated(env, force = force, run = run))
+        }
+      } else {
+        # If we can't parse version, default to deprecated for safety
+        logging::loginfo("Could not parse repository version, using realise_deprecated")
+        return(realise_deprecated(env, force = force, run = run))
+      }
+    } else {
+      # No version info available, default to deprecated for compatibility
+      logging::loginfo("No repository version available, using realise_deprecated")
+      return(realise_deprecated(env, force = force, run = run))
+    }
+    
+    # New implementation for 4.4+ only
     improveEditable()
     breakPoint <- env$getStepValue("breakpoint")
     reuse <- env$getStepValue("reuse")

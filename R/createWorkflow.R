@@ -251,14 +251,18 @@ createWorkflow <- function() {
     }
 
     completeInventory <- lapply(dmg$tasks, function(task) {
-      if (task$runStatus == "FINISHED")
+      if (task$runStatus == "FINISHED") {
         taskInventory <- task$inventory
-      entryList <- flattenInventoryEntries(taskInventory)
-      inventoryDf <- mergeListToDataframe(entryList)
-      inventoryDf$stoppedAt <- as.numeric(strptime(task$stoppedAt, format = "%Y-%m-%dT%H:%M:%S%z"))
-      inventoryDf$stepEntityId <- loadResource(task$entityId)$entityId
-      inventoryDf$ownedByName <- task$ownedByName
-      return(inventoryDf)
+        entryList <- flattenInventoryEntries(taskInventory)
+        inventoryDf <- mergeListToDataframe(entryList)
+        inventoryDf$stoppedAt <- as.numeric(strptime(task$stoppedAt, format = "%Y-%m-%dT%H:%M:%S%z"))
+        inventoryDf$stepEntityId <- loadResource(task$entityId)$entityId
+        inventoryDf$ownedByName <- task$ownedByName
+        return(inventoryDf)
+      } else {
+        # If task is not finished, return empty dataframe
+        return(data.frame())
+      }
     })
     completeInventory <- mergeDataframeList(completeInventory)
     changedAndOutdated <- dplyr::filter(completeInventory, .data$outdatedLink == TRUE | .data$stoppedAt < .data$lastModified)

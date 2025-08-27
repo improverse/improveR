@@ -3,7 +3,6 @@ Sys.setenv(TEST_NAME="modify-copymovedelete")
 
 httptest::with_mock_dir("prepare-modify-copymovedelete",{
   test_that("createTestFolder", {
-    clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
     improveConnect()
     setEditable(T)

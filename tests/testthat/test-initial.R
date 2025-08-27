@@ -6,7 +6,6 @@ Sys.setenv(TEST_NAME="initial")
 
 httptest::with_mock_dir("prepare-initial",{
   test_that("createTestFolder", {
-    clearConnectionData()
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
     improveConnect()
     setEditable(T)

@@ -63,7 +63,12 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
           if ("name" %in% names(workflowLinks) && "name" %in% names(remoteFiles)) {
             for (i in seq_len(nrow(jointRemoteFiles))) {
               # Find matching link for this specific remote file
-              matchingLinks <- workflowLinks[workflowLinks$name == jointRemoteFiles$name[i],]
+              # Clean the name to match (remove ./ prefix if present)
+              cleanName <- jointRemoteFiles$name[i]
+              if (startsWith(cleanName, "./")) {
+                cleanName <- substr(cleanName, 3, nchar(cleanName))
+              }
+              matchingLinks <- workflowLinks[workflowLinks$name == cleanName | workflowLinks$name == jointRemoteFiles$name[i],]
               if (nrow(matchingLinks) > 0) {
                 # Take the first match (they should all be the same for this targetStep+name combo)
                 for (col in names(matchingLinks)) {
@@ -80,24 +85,48 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
         jointRemoteFiles <-byNotEmptyAsDf(jointRemoteFiles,function(remoteFile) {
 
           if ("sourceStep" %in% names(remoteFile) && !is.na(remoteFile$sourceStep)) {
-            # Try to get source step path, but handle case where it doesn't exist yet (during import)
-            sourceStepEntityId <- workflow$steps[[remoteFile$sourceStep]]$stepDf$sourceEntityId
-            if (!is.null(sourceStepEntityId) && !is.na(sourceStepEntityId)) {
-              sourceStepResource <- loadResource(sourceStepEntityId)
-              if (!is.null(sourceStepResource) && !is.null(sourceStepResource$path)) {
-                sourceStepPath <- sourceStepResource$path
-                if (!is.null(remoteFile$path) && !is.na(remoteFile$path)) {
-                  inventoryPath <- paste0("./",substr(remoteFile$path,nchar(sourceStepPath)+2,nchar(remoteFile$path)))
-                  remoteFile$sourceInventoryPath <- inventoryPath
+            # If sourceInventoryPath is already present from the workflow links, use it
+            if ("sourceInventoryPath" %in% names(remoteFile) && !is.na(remoteFile$sourceInventoryPath)) {
+              # Already has sourceInventoryPath, nothing to do
+            } else {
+              # Try to construct sourceInventoryPath from the source file
+              # First, we need to find the actual source file in the source step
+              sourceStepEnv <- workflow$steps[[remoteFile$sourceStep]]
+              if (!is.null(sourceStepEnv)) {
+                # Get all files from the source step
+                sourceStepFiles <- sourceStepEnv$stepDf$localFiles[[1]]
+                sourceStepRemoteFiles <- sourceStepEnv$stepDf$remoteFiles[[1]]
+                
+                # Find the file that matches this link's entity ID
+                matchingFile <- NULL
+                if (!is.null(sourceStepRemoteFiles) && "ident" %in% names(sourceStepRemoteFiles)) {
+                  matchingFile <- sourceStepRemoteFiles[sourceStepRemoteFiles$ident == remoteFile$ident,]
                 }
-              }
-            }
-            # If sourceInventoryPath wasn't set above and we have it from import, keep it
-            if ((!("sourceInventoryPath" %in% names(remoteFile)) || is.na(remoteFile$sourceInventoryPath)) && 
-                "sourceInventoryPath" %in% names(workflowLinks)) {
-              matchingLink <- workflowLinks[workflowLinks$name == remoteFile$name,]
-              if (nrow(matchingLink) > 0) {
-                remoteFile$sourceInventoryPath <- matchingLink$sourceInventoryPath[1]
+                
+                if (!is.null(matchingFile) && nrow(matchingFile) > 0) {
+                  # Use the name from the matching file in the source step
+                  sourceFileName <- matchingFile$name[1]
+                  if (startsWith(sourceFileName, "./")) {
+                    remoteFile$sourceInventoryPath <- sourceFileName
+                  } else {
+                    remoteFile$sourceInventoryPath <- paste0("./", sourceFileName)
+                  }
+                } else if (!is.null(sourceStepFiles) && "name" %in% names(sourceStepFiles)) {
+                  # Try to match by name in local files
+                  cleanName <- remoteFile$name
+                  if (startsWith(cleanName, "./")) {
+                    cleanName <- substr(cleanName, 3, nchar(cleanName))
+                  }
+                  matchingFile <- sourceStepFiles[sourceStepFiles$name == cleanName | sourceStepFiles$name == remoteFile$name,]
+                  if (nrow(matchingFile) > 0) {
+                    sourceFileName <- matchingFile$name[1]
+                    if (startsWith(sourceFileName, "./")) {
+                      remoteFile$sourceInventoryPath <- sourceFileName
+                    } else {
+                      remoteFile$sourceInventoryPath <- paste0("./", sourceFileName)
+                    }
+                  }
+                }
               }
             }
           }
