@@ -15,7 +15,7 @@ export(configureUserProfile)
 export(convertImproveTimestampToPosix)
 export(copy)
 export(createAnalysisTree)
-export(createContentCache)
+export(createContentCache)?c
 export(createExternalLink)
 export(createFile)
 export(createFolder)
