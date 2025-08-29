@@ -21,15 +21,29 @@ refreshToken <- function(alwaysRefresh=F) {
         # Update last access time
         Sys.setenv(IMPROVER_LAST_ACCESS=as.numeric(Sys.time()))
         
-        # Try shared token system first
-        if (isSharedTokenRefreshRunning()) {
-          if (readSharedRefreshedTokens()) {
-            log_info("Used shared token refresh system")
-            return()
+        # Try plugin-based token refresher first
+        refresher <- getActiveTokenRefresher()
+        if (!is.null(refresher)) {
+          if (refresher$isRunning()) {
+            tokenData <- refresher$getToken()
+            if (!is.null(tokenData)) {
+              log_info("Used plugin-based token refresh system")
+              return()
+            }
           }
         }
         
-        # Direct token refresh if no shared system running
+        # Legacy: Try shared token system if available
+        if (exists("isSharedTokenRefreshRunning", mode = "function")) {
+          if (isSharedTokenRefreshRunning()) {
+            if (readSharedRefreshedTokens()) {
+              log_info("Used legacy shared token refresh system")
+              return()
+            }
+          }
+        }
+        
+        # Direct token refresh if no refresh system running
         log_info("refreshing token directly")
         renewAccessToken()
       }
