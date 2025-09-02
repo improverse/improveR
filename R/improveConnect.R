@@ -170,9 +170,18 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     cacheEnv$reproducible <- T
   }
 
-  if (isSharedTokenRefreshRunning()) {
-    readSharedRefreshedTokens()
-  }
+  # Try to apply tokens from any active refresher
+  tryCatch({
+    refresher <- getActiveTokenRefresher()
+    if (!is.null(refresher) && refresher$isRunning()) {
+      tokenData <- refresher$getToken()
+      if (!is.null(tokenData)) {
+        log_debug("Applied tokens from active refresher")
+      }
+    }
+  }, error = function(e) {
+    # Ignore if no refresher available
+  })
 
 
 
