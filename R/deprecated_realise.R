@@ -238,7 +238,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   # Add files from the environment's file lists
   # Remote files
   remoteFiles <- prepStep$remoteFiles[[1]]
-  remoteFiles <- dplyr::distinct(remoteFiles,name,.keep_all = T)
+  remoteFiles <- dplyr::distinct(remoteFiles, "name", .keep_all = TRUE)
   if (!is.null(remoteFiles) && nrow(remoteFiles) > 0) {
     byNotEmpty(remoteFiles, function(filePrep) {
       addFileToStep_deprecated(newStep, filePrep, FALSE, env)
