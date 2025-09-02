@@ -41,6 +41,8 @@ getParameterValues <- function() {
   }
 }
 
+
+#'
 #' getToolInstances
 #' returns an environement with all tool instances. in order to relaod tools from the server use resetToolInstances
 #' @export
@@ -80,7 +82,7 @@ getToolInstances <- function() {
             # Check which columns exist in the joined result
             available_cols <- intersect(c("lovType", "name", "description", "value"), names(joined))
             if (length(available_cols) > 0) {
-              toolParameters <- dplyr::select(joined, all_of(available_cols))
+              toolParameters <- dplyr::select(joined, dplyr::all_of(available_cols))
             } else {
               # If expected columns don't exist, create empty dataframe
               toolParameters <- data.frame(lovType = character(),
@@ -135,7 +137,7 @@ getToolInstances <- function() {
                 # Select only columns that exist
                 available_cols <- intersect(c("name", "value"), names(mergedValues))
                 if (length(available_cols) > 0) {
-                  gridArguments <- dplyr::select(mergedValues, all_of(available_cols))
+                  gridArguments <- dplyr::select(mergedValues, dplyr::all_of(available_cols))
                   runserverTool$gridArguments <- list(gridArguments)
                 }
               }

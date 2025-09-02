@@ -1,3 +1,6 @@
+#' @importFrom stats setNames
+#' @importFrom dplyr all_of
+
 # Internal helper function to filter outside links
 filterOutsideLinks <- function(workflow) {
    outsideLinks <- byNotEmptyAsDf(workflow,function(workflowTask) {
