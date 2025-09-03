@@ -7,9 +7,10 @@ Authors@R:
            family = "Hackl",
            role = c("aut", "cre"),
            email = "michael.hackl@scinteco.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           comment = c(ORCID = "YOUR-ORCID-ID", 
+                      affiliation = "Scinteco"))
 Maintainer: Michael Hackl <michael.hackl@scinteco.com>
-Description: read and write functionality for the improve repository. Workflow control functions are included to manage multiple steps.
+Description: Read and write functionality for the improve repository. Workflow control functions are included to manage multiple steps.
 License: GPL-3
 Encoding: UTF-8
 Depends: 
