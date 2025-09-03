@@ -7,6 +7,6 @@ test_that("Does convertImproveTimestampToPosix convert a timestamp to a POSIXct 
 
   time_res <- c("2025-01-08 09:28:58", "2025-01-08 13:29:32", "1970-01-01 01:00:00")
 
-  expect_equal(convertImproveTimestampToPosix(timestamps) %>% as.character, time_res)
+  expect_equal(convertImproveTimestampToPosix(timestamps) %>% format("%Y-%m-%d %H:%M:%S"), time_res)
 
 })

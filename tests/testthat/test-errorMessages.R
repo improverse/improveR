@@ -8,7 +8,7 @@ httptest::with_mock_dir("prepare-errorMessages",{
     improveConnect()
     setEditable(T)
     expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
-    TEST_FOLDER <- emptyFolderSetup()
+    TEST_FOLDER <- improveR:::emptyFolderSetup()
     assign(x = "TEST_FOLDER",value = TEST_FOLDER,envir = globalenv())
   })
 })
