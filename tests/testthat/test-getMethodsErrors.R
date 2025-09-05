@@ -14,6 +14,17 @@ httptest::with_mock_dir("prepare-getMethodsErrors",{
   })
 })
 
+# Helper function to ensure TEST_FOLDER exists when running tests individually
+ensureTestFolder <- function() {
+  Sys.setenv(TEST_NAME="getMethodsErrors")
+  if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
+    improveR::setEditable(TRUE)
+    TEST_FOLDER <- improveR:::baseFilesSetup()
+    assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
+    return(TEST_FOLDER)
+  }
+  return(TEST_FOLDER)
+}
 
 FAKE_RES_ID <- "XXXXXXXXXXXXX"
 FAKE_ENTITY_ID <- "wrongrepo:wrongID"
@@ -22,6 +33,7 @@ FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
 
 httptest::with_mock_dir("getNonExistant",{
   test_that("get non existant|ics1141", {
+    TEST_FOLDER <- ensureTestFolder()
     failed <- getFile(FAKE_RES_ID)
     expect_null(failed)
     failed <- getCopy(FAKE_ENTITY_ID)
@@ -48,6 +60,7 @@ httptest::with_mock_dir("getNonExistant",{
 
 httptest::with_mock_dir("wrongTypeForGetFunctions",{
   test_that("wrong type for get functions|ics1141", {
+    TEST_FOLDER <- ensureTestFolder()
     Sys.setenv(improver.logfile="improver.log")
     improveConnect()
   # test link resolving
@@ -154,6 +167,7 @@ httptest::with_mock_dir("wrongTypeForGetFunctions",{
 
 httptest::with_mock_dir("multipleResourcesForGetFilesFromFolder",{
 test_that("multiple resources for getFiles from folder, illegal pattern|ics1141", {
+  TEST_FOLDER <- ensureTestFolder()
   Sys.setenv(improver.logfile="improver.log")
   improveConnect()
 

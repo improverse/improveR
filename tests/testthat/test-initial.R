@@ -15,11 +15,9 @@ httptest::with_mock_dir("prepare-initial",{
   })
 })
 
-httptest::with_mock_dir("generalFileSetup",{
-  test_that("general file setup", {
-    TEST_FOLDER <- improveR:::baseFilesSetup()
-    expect_false("" == TEST_FOLDER)
-  })
+test_that("general file setup", {
+  TEST_FOLDER <- improveR:::baseFilesSetup()
+  expect_false("" == TEST_FOLDER)
 })
 
 httptest::with_mock_dir("loadResource",{

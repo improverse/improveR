@@ -219,8 +219,9 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
   # Validate mapping files before starting import
   .validateMappingFiles(workflowFile, workflowName)
   
-  importFolder <- tempfile()
-  dir.create(importFolder)
+  # Use a folder in the working directory instead of tempfile for better compatibility
+  importFolder <- file.path(getwd(), paste0(".import_", workflowName, "_", format(Sys.time(), "%Y%m%d_%H%M%S")))
+  dir.create(importFolder, recursive = TRUE)
   zip::unzip(zipfile = workflowFile,exdir = importFolder)
 
   importFolder <- dir(importFolder,full.names = T)
@@ -538,6 +539,18 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       }
     }
   }
+  
+  # Clean up the import folder we created in working directory
+  tryCatch({
+    # Get the root import folder (before we looked into subdirectories)
+    rootImportFolder <- dirname(importFolder)
+    if (file.exists(rootImportFolder) && startsWith(basename(rootImportFolder), ".import_")) {
+      unlink(rootImportFolder, recursive = TRUE, force = TRUE)
+      logging::loginfo(paste("Cleaned up import folder:", rootImportFolder))
+    }
+  }, error = function(e) {
+    warning(paste("Failed to clean up import folder:", e$message))
+  })
 }
 
 

@@ -13,8 +13,22 @@ httptest::with_mock_dir("prepare-metadata",{
   })
 })
 
+# Helper function to ensure TEST_FOLDER exists when running tests individually
+ensureTestFolder <- function() {
+  Sys.setenv(TEST_NAME="metadata")
+  if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
+    improveR::setEditable(TRUE)
+    TEST_FOLDER <- improveR:::baseFilesSetup()
+    assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
+    return(TEST_FOLDER)
+  }
+  return(TEST_FOLDER)
+}
+
+
 httptest::with_mock_dir("createFolderForMetadata", {
   test_that("create Folder for metadata", {
+    TEST_FOLDER <- ensureTestFolder()
     metadatafolder <- createFolder(TEST_FOLDER, "metadata")
 
     testFiles <- loadChildResources("./rgetGRAPH", from = TEST_FOLDER) %>% strip()
@@ -26,6 +40,7 @@ httptest::with_mock_dir("createFolderForMetadata", {
 
 httptest::with_mock_dir("checkIfMetadataDefinitionsExist", {
   test_that("check if metadata definitions exist|ics1096", {
+    TEST_FOLDER <- ensureTestFolder()
     definitions <- loadMetaDataDefinitions()
     compound <- definitions[definitions$name == "Compound", ]
     expect_equal(nrow(compound), 1)
@@ -43,6 +58,7 @@ httptest::with_mock_dir("checkIfMetadataDefinitionsExist", {
 
 httptest::with_mock_dir("createLoadUpdateAndDeleteMetadataForOneFolder", {
   test_that("create, load, update and delete metadata for one folder|ics1096,ics1137", {
+    TEST_FOLDER <- ensureTestFolder()
     metadatafolder <- loadResource("./metadata", TEST_FOLDER)
 
     result <- addMetaDate(metadatafolder, "Compound", value = "Compound")
@@ -111,6 +127,7 @@ httptest::with_mock_dir("createLoadUpdateAndDeleteMetadataForOneFolder", {
 
 httptest::with_mock_dir("addAndDeleteBulkMetadataForOneFolder", {
   test_that("add and delete bulk metadata for one folder|ics1096,ics1137", {
+    TEST_FOLDER <- ensureTestFolder()
     metadatafolder <- loadResource("./metadata", TEST_FOLDER)
 
     descriptorNameValueList <- list(
@@ -163,6 +180,7 @@ httptest::with_mock_dir("addAndDeleteBulkMetadataForOneFolder", {
 
 httptest::with_mock_dir("metadataOnMultipleResourcesAtOnce", {
   test_that("metadata on multiple resources at once|ics1096,ics1137", {
+    TEST_FOLDER <- ensureTestFolder()
     metadatafolder <- loadResource("./metadata", TEST_FOLDER)
 
     multiFiles <- loadChildResources(metadatafolder) %>% strip()
@@ -223,6 +241,7 @@ httptest::with_mock_dir("metadataOnMultipleResourcesAtOnce", {
 
 httptest::with_mock_dir("addAndDeleteBulkMetadataForMultipleFiles", {
   test_that("add and delete bulk metadata for multiple files|ics1096,ics1137", {
+    TEST_FOLDER <- ensureTestFolder()
     metadatafolder <- loadResource("./metadata", TEST_FOLDER)
 
     multiFiles <- loadChildResources(metadatafolder) %>% strip()

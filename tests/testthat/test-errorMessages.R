@@ -13,6 +13,18 @@ httptest::with_mock_dir("prepare-errorMessages",{
   })
 })
 
+# Helper function to ensure TEST_FOLDER exists when running tests individually
+ensureTestFolder <- function() {
+  Sys.setenv(TEST_NAME="errorMessages")
+  if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
+    improveR::setEditable(TRUE)
+    TEST_FOLDER <- improveR:::emptyFolderSetup()
+    assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
+    return(TEST_FOLDER)
+  }
+  return(TEST_FOLDER)
+}
+
 
 FAKE_RES_ID <- "XXXXXXXXXXXXX"
 FAKE_ENTITY_ID <- "wrongrepo:wrongID"
@@ -22,6 +34,7 @@ FAKE_PATH <- paste0(TEST_FOLDER,"/FAKE")
 
 httptest::with_mock_dir("noLogging",{
   test_that("no logging", {
+    TEST_FOLDER <- ensureTestFolder()
     expect_false("" == TEST_FOLDER)
 
     Sys.setenv(improver.logfile="")
@@ -43,7 +56,7 @@ httptest::with_mock_dir("noLogging",{
 httptest::with_mock_dir("notConnected",{
   test_that("not connected|ics1081", {
 
-
+    TEST_FOLDER <- ensureTestFolder()
     checkConnected <- function(func){
       expectedMessage <- "improveConnect was not called or an error was thrown while connecting"
       expectedError <- "not connected"
@@ -216,7 +229,7 @@ httptest::with_mock_dir("notConnected",{
 httptest::with_mock_dir("loadConnected",{
 
   test_that("load connected|ics1085,ics1090,ics1093,ics1094,ics1096,ics1097,ics1099,ics1088,ics1206", {
-
+    TEST_FOLDER <- ensureTestFolder()
 
 
     checkNonexisting <- function(func){
@@ -294,6 +307,7 @@ httptest::with_mock_dir("loadConnected",{
 
 httptest::with_mock_dir("queryErrors",{
   test_that("query errors|ics1143", {
+    TEST_FOLDER <- ensureTestFolder()
     Sys.setenv(improver.logfile="improver.log")
     improveConnect()
     createFolder(TEST_FOLDER)
@@ -305,6 +319,7 @@ httptest::with_mock_dir("queryErrors",{
 
 httptest::with_mock_dir("createInNonExistingTargets",{
   test_that("create in non existing targets|ics1101,ics1102,ics1103,ics1104,ics1138,ics1140", {
+    TEST_FOLDER <- ensureTestFolder()
     Sys.setenv(improver.logfile="improver.log")
     improveConnect()
     createFolder(TEST_FOLDER)
@@ -318,7 +333,7 @@ httptest::with_mock_dir("createInNonExistingTargets",{
     message <- improveLastLogMessage("WARN")
     expect_true(startsWith(message,"Target does not exist"))
 
-   createFile(FAKE_RES_ID,"newFile")
+    createFile(FAKE_RES_ID,"newFile")
     message <- improveLastLogMessage("WARN")
     expect_true(startsWith(message,"Target does not exist"))
 
@@ -340,7 +355,7 @@ httptest::with_mock_dir("createInNonExistingTargets",{
 httptest::with_mock_dir("createInWrongTarget",{
   test_that("create in wrong target|ics1101,ics1102,ics1103,ics1104,ics1138,ics1140", {
 
-
+    TEST_FOLDER <- ensureTestFolder()
     createResourceInNonContainer <- function(testContainer) {
       expectedMessage <- "{target} is not an allowed target type for {type}"
       target <- testContainer$nodeType
@@ -467,7 +482,7 @@ httptest::with_mock_dir("createInWrongTarget",{
 
 httptest::with_mock_dir("otherCreateErrors",{
   test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
-
+    TEST_FOLDER <- ensureTestFolder()
     createWithWrongName <- function(testName) {
       expectedMessage <- "name needs to be of type character"
 
