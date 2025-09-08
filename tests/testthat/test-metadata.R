@@ -1,42 +1,31 @@
-Sys.setenv(TEST_NAME="metadata")
 
-
-
-httptest::with_mock_dir("prepare-metadata",{
-  test_that("createTestFolder", {
-    Sys.setenv(IMPROVER_TEST_REPLAY="T")
-    improveConnect()
-    setEditable(T)
-    expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
-    TEST_FOLDER <- baseFilesSetup()
-    assign(x = "TEST_FOLDER",value = TEST_FOLDER,envir = globalenv())
-  })
-})
 
 # Helper function to ensure TEST_FOLDER exists when running tests individually
 ensureTestFolder <- function() {
   Sys.setenv(TEST_NAME="metadata")
   if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
     improveR::setEditable(TRUE)
+    print("baseFiles")
     TEST_FOLDER <- improveR:::baseFilesSetup()
     assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
+
+    metadatafolder <- loadResource("./metadata", TEST_FOLDER)
+    if (is.null(metadatafolder)) {
+      print("metadata")
+      metadatafolder <- createFolder(TEST_FOLDER, "metadata")
+
+      testFiles <- loadChildResources("./rgetGRAPH", from = TEST_FOLDER) %>% strip()
+      copied <- copy(sources = testFiles, metadatafolder)
+
+      expect_equal(nrow(copied), 3)
+    }
     return(TEST_FOLDER)
   }
   return(TEST_FOLDER)
 }
 
 
-httptest::with_mock_dir("createFolderForMetadata", {
-  test_that("create Folder for metadata", {
-    TEST_FOLDER <- ensureTestFolder()
-    metadatafolder <- createFolder(TEST_FOLDER, "metadata")
 
-    testFiles <- loadChildResources("./rgetGRAPH", from = TEST_FOLDER) %>% strip()
-    copied <- copy(sources = testFiles, metadatafolder)
-
-    expect_equal(nrow(copied), 3)
-  })
-})
 
 httptest::with_mock_dir("checkIfMetadataDefinitionsExist", {
   test_that("check if metadata definitions exist|ics1096", {

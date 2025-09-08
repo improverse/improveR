@@ -524,17 +524,7 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 
 test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213", {
   TEST_FOLDER <- ensureTestFolder()
-  # Skip workflow import tests in version 4.3 due to compatibility issues
-  # repoVersion <- getRepositoryVersion()
-  # if (!is.null(repoVersion)) {
-  #   versionParts <- strsplit(repoVersion, "[.-]")[[1]]
-  #   if (length(versionParts) >= 2) {
-  #     majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
-  #     if (majorMinor < 4.4) {
-  #       skip("Skipping workflow import tests in repository version < 4.4")
-  #     }
-  #   }
-  # }
+
 
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleNonmem")
 
@@ -632,8 +622,8 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
   #TODO grid arguments, grid arguments merging
   args <- dplyr::filter(checkgridFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select("argumentName", "argumentValue")
   argsCompare <- dplyr::filter(compareFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select("argumentName", "argumentValue")
-  #expect_equal(args, argsCompare)
-  #expect_equal(nrow(args), 4)
+  expect_equal(args, argsCompare)
+  expect_equal(nrow(args), 4)
 })
 
 test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", {

@@ -69,7 +69,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   # Get runserver and tool information from the process configuration
   runserver <- NULL
   tool <- NULL
-
+  mainProcess<-NULL
   # Check if we have process information
   if (!is.null(prepStep$processes) && length(prepStep$processes) > 0) {
     processes <- prepStep$processes[[1]]
@@ -265,9 +265,16 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   logging::logdebug("local files and links set")
 
   # Set grid arguments
-  gridArguments <- prepStep$gridArguments[[1]]
+  print("mainProcess")
+  print(mainProcess)
+  gridArguments <- mainProcess$gridArguments[[1]]
+  print("gridArguments")
+  print(gridArguments)
   if (!is.null(gridArguments) && nrow(gridArguments) > 0) {
     byNotEmpty(gridArguments, function(gridArgument) {
+      print("gridArgument")
+      print(processId)
+      print(gridArgument$argumentName)
       setGridArgument(processId, gridArgument$argumentName, gridArgument$argumentValue, update = TRUE)
     })
   }
