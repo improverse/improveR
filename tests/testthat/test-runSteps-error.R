@@ -11,6 +11,18 @@ httptest::with_mock_dir("prepare-runSteps-error",{
   })
 })
 
+# Helper function to ensure TEST_FOLDER exists when running tests individually
+ensureTestFolder <- function() {
+  Sys.setenv(TEST_NAME="runSteps-error")
+  if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
+    improveR::setEditable(TRUE)
+    TEST_FOLDER <- improveR:::emptyFolderSetup()
+    assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
+    return(TEST_FOLDER)
+  }
+  return(TEST_FOLDER)
+}
+
 FAKE_RES_ID <- "XXXXXXXXXXXXX"
 FAKE_ENTITY_ID <- "wrongrepo:wrongID"
 FAKE_LONG_ENTITY_ID <- "http://wrongURL:8843/?path=wrongrepo:wrongID"
@@ -88,7 +100,7 @@ httptest::with_mock_dir("loadWithWrongReference", {
   test_that("load with wrong reference|ics1081", {
     Sys.setenv(improver.logfile = "improver.log")
     improveConnect()
-
+    TEST_FOLDER <- ensureTestFolder()
     testFolder <- createFolder(TEST_FOLDER)
 
     # runserver

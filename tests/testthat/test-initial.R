@@ -10,21 +10,19 @@ httptest::with_mock_dir("prepare-initial",{
     improveConnect()
     setEditable(T)
     expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
-    TEST_FOLDER <- baseFilesSetup()
+    TEST_FOLDER <- improveR:::baseFilesSetup()
     assign(x = "TEST_FOLDER",value = TEST_FOLDER,envir = globalenv())
   })
 })
 
-httptest::with_mock_dir("generalFileSetup",{
-  test_that("general file setup", {
-    TEST_FOLDER <- baseFilesSetup()
-    expect_false("" == TEST_FOLDER)
-  })
+test_that("general file setup", {
+  TEST_FOLDER <- improveR:::baseFilesSetup()
+  expect_false("" == TEST_FOLDER)
 })
 
 httptest::with_mock_dir("loadResource",{
   test_that("loadResource|ics1090,ics1093", {
-    TEST_FOLDER <- baseFilesSetup()
+    TEST_FOLDER <- improveR:::baseFilesSetup()
     folder <- loadResource(TEST_FOLDER)
     expect_equal(folder$nodeType,"Folder")
     expect_equal(folder$path,TEST_FOLDER)
@@ -33,7 +31,7 @@ httptest::with_mock_dir("loadResource",{
 
 httptest::with_mock_dir("testCaching",{
   test_that("test Caching|ics1091,ics1090,ics1093", {
-    TEST_FOLDER <- baseFilesSetup()
+    TEST_FOLDER <- improveR:::baseFilesSetup()
     improveConnect(persistentCaching = T)
     folder <- loadResource(TEST_FOLDER)
 
@@ -107,7 +105,7 @@ httptest::with_mock_dir("testCaching",{
 
 httptest::with_mock_dir("getCorrectID",{
   test_that("get correct ID|ics1087" , {
-    TEST_FOLDER <- baseFilesSetup()
+    TEST_FOLDER <- improveR:::baseFilesSetup()
     folder <- loadResource(TEST_FOLDER)
 
     expect_equal(folder$resourceId,getCorrectId(folder))
@@ -132,7 +130,7 @@ httptest::with_mock_dir("getCorrectID",{
 
 httptest::with_mock_dir("normalisePath",{
   test_that("normalise path|ics1089", {
-    TEST_FOLDER <- baseFilesSetup()
+    TEST_FOLDER <- improveR:::baseFilesSetup()
     #implement function for adding new relations like ... for parent step
     path<-"./../lmer/../lmer"
     expect_equal("/lmer",normalisePath(path))
@@ -165,7 +163,7 @@ httptest::with_mock_dir("normalisePath",{
 
 httptest::with_mock_dir("loadAuditTrail",{
   test_that("load audit trail|ics1097", {
-    TEST_FOLDER <- baseFilesSetup()
+    TEST_FOLDER <- improveR:::baseFilesSetup()
     folder <- loadResource(TEST_FOLDER)
     auditTrail <- loadAuditTrail(folder)
     expect_equal(auditTrail$type,"auditTrail")
@@ -185,7 +183,7 @@ httptest::with_mock_dir("loadAuditTrail",{
 
 httptest::with_mock_dir("loadMultipleAuditTrails",{
   test_that("load multiple audit trails|ics1097", {
-    TEST_FOLDER <- baseFilesSetup()
+    TEST_FOLDER <- improveR:::baseFilesSetup()
     folder <- loadResource(TEST_FOLDER)
     children <- loadChildResources(folder)
     expect_equal(children$type,"child")
@@ -218,7 +216,7 @@ httptest::with_mock_dir("loadMultipleAuditTrails",{
 
 httptest::with_mock_dir("loadFile",{
   test_that("load file|ics1099", {
-    TEST_FOLDER <- baseFilesSetup()
+    TEST_FOLDER <- improveR:::baseFilesSetup()
     textFileFolder <- paste0(TEST_FOLDER, "/rgetTEXT")
     res <- loadResource("./sampleText.txt",textFileFolder)
 
@@ -252,7 +250,7 @@ httptest::with_mock_dir("loadFile",{
 
 httptest::with_mock_dir("loadHistory",{
   test_that("load history|ics1094", {
-    TEST_FOLDER <- baseFilesSetup()
+    TEST_FOLDER <- improveR:::baseFilesSetup()
     textFileFolder <- paste0(TEST_FOLDER, "/rgetTEXT")
     res <- loadResource("./sampleText.txt",textFileFolder)
     history <- loadHistory(res$entityId)

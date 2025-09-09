@@ -433,6 +433,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
   env$addStepRemoteFile <- function(ident = NULL, name = NULL, asLink = TRUE, variableName = NULL, sourceHandle = NULL, sourceName = NULL, variableProcess = "Main") {
     fileList <- data.frame(stepHandle = stepHandle, stringsAsFactors = FALSE)
+    resource <- NULL  # Initialize resource to avoid undefined variable error
     if (!is.null(ident)) {
       resource <- loadResource(ident)
       if (resource$nodeType == "File") {
@@ -909,32 +910,32 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   env$realise <- function(force = TRUE, run = TRUE,workflow=NULL) {
     # Check repository version and use appropriate function
     repoVersion <- getRepositoryVersion()
-    
+
     if (!is.null(repoVersion)) {
       # Parse major.minor from version string (e.g., "4.4.0-1" -> 4.4)
       versionParts <- strsplit(repoVersion, "[.-]")[[1]]
       if (length(versionParts) >= 2) {
         majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
-        
+
         # Use new implementation only for 4.4+, default to deprecated for compatibility
         if (majorMinor >= 4.4) {
           logging::loginfo(paste0("Using new realise implementation for repository version ", repoVersion))
           # Continue with new implementation below
         } else {
           logging::loginfo(paste0("Using realise_deprecated for repository version ", repoVersion))
-          return(realise_deprecated(env, force = force, run = run))
+          return(realise_deprecated(env, force = force, run = run,workflow=workflow))
         }
       } else {
         # If we can't parse version, default to deprecated for safety
         logging::loginfo("Could not parse repository version, using realise_deprecated")
-        return(realise_deprecated(env, force = force, run = run))
+        return(realise_deprecated(env, force = force, run = run,workflow=workflow))
       }
     } else {
       # No version info available, default to deprecated for compatibility
       logging::loginfo("No repository version available, using realise_deprecated")
-      return(realise_deprecated(env, force = force, run = run))
+      return(realise_deprecated(env, force = force, run = run,workflow=workflow))
     }
-    
+
     # New implementation for 4.4+ only
     improveEditable()
     breakPoint <- env$getStepValue("breakpoint")
