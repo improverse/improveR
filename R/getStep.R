@@ -142,13 +142,18 @@ getStepDf <- function(ident) {
         })
       )
     } else {
-      pro$gridArguments <-NA
+      pro$gridArguments <-list(data.frame(handle=character(), argumentName=character(), argumentValue=character()))
     }
     return(pro)
   })
 
+  # Set default values for all fields that might be missing when not configured
   if (!("toolArgs" %in% names(processes))) {processes$toolArgs<-""}
   if (!("toolStreamablePatterns" %in% names(processes))) {processes$toolStreamablePatterns<-""}
+  if (!("runserverLabel" %in% names(processes))) {processes$runserverLabel<-""}
+  if (!("toolLabel" %in% names(processes))) {processes$toolLabel<-""}
+  if (!("toolInstance" %in% names(processes))) {processes$toolInstance<-""}
+
   processDfs <- dplyr::select(processes,
                               "handle","runserverLabel","toolLabel","toolInstance","toolArgs","toolStreamablePatterns",
                               "selected","gridTool","main","name","processType","position","gridArguments")
@@ -167,7 +172,7 @@ getStepDf <- function(ident) {
   if (!startsWith(step$name,"Step ")) {
     newHandle$stepName <- step$name
   }
-  
+
   # Add parent step information if it exists
   if (!is.null(step$parentStepId)) {
     parentStep <- loadResource(step$parentStepId)

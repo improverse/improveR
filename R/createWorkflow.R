@@ -207,6 +207,7 @@ createWorkflow <- function() {
       df$fullName <- fullName
       return(df)
     })
+    return(stepDf)
   }
 
   # Find changed and outdated files in the workflow
@@ -285,7 +286,7 @@ createWorkflow <- function() {
       # Only changed and outdated steps
       caof <- env$changedAndOutdatedFiles()
       allStepsToExecute <- stepsDf[stepsDf$sourceEntityId %in% unique(caof$stepEntityId), ]
-      
+
       # Optionally include downstream steps that use the outputs
       if (includeDownstream && nrow(allStepsToExecute) > 0) {
         usingSteps <- stepsDf[stepsDf$fullName %in% .workflow_private$getInternalUsage(env, allStepsToExecute$fullName), ]
@@ -299,7 +300,7 @@ createWorkflow <- function() {
     executionPlan <- byNotEmptyAsDf(allSteps, function(st) {
       outDatedLinks <- NULL
       linkIds <- NULL
-      
+
       if (includeAllSteps) {
         # When rerunning all steps, update all internal links for this step
         internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
@@ -354,7 +355,7 @@ createWorkflow <- function() {
     env$executePlan(plan)
     invisible(NULL)
   }
-  
+
   # Rerun all steps in the workflow in dependency order
   # @return Invisibly returns NULL
   env$rerunAll <- function() {
@@ -362,7 +363,7 @@ createWorkflow <- function() {
     env$executePlan(plan)
     invisible(NULL)
   }
-  
+
   # Create an execution plan for all steps in the workflow
   # @return A data.frame describing the execution plan with proper dependency ordering
   env$createFullExecutionPlan <- function() {

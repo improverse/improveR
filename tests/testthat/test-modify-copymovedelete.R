@@ -12,6 +12,18 @@ httptest::with_mock_dir("prepare-modify-copymovedelete",{
   })
 })
 
+# Helper function to ensure TEST_FOLDER exists when running tests individually
+ensureTestFolder <- function() {
+  Sys.setenv(TEST_NAME="modify-copymovedelete")
+  if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
+    improveR::setEditable(TRUE)
+    TEST_FOLDER <- improveR:::emptyFolderSetup()
+    assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
+    return(TEST_FOLDER)
+  }
+  return(TEST_FOLDER)
+}
+
 FAKE_RES_ID <- "XXXXXXXXXXXXX"
 FAKE_ENTITY_ID <- "wrongrepo:wrongID"
 FAKE_LONG_ENTITY_ID <- "http://wrongURL:8843/?path=wrongrepo:wrongID"
@@ -19,6 +31,7 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
 
 httptest::with_mock_dir("modifyNonExisting", {
   test_that("modify non existing|ics1139", {
+    TEST_FOLDER <- ensureTestFolder()
     expectedMessage <- "Source {id} does not exist, could not execute"
 
     Sys.setenv(improver.logfile = "improver.log")
@@ -46,6 +59,7 @@ httptest::with_mock_dir("modifyNonExisting", {
 
 httptest::with_mock_dir("modifyToNonExisting", {
   test_that("modify to non existing|ics1139", {
+    TEST_FOLDER <- ensureTestFolder()
     expectedMessage <- "Target {id} does not exist, could not {func}"
 
     Sys.setenv(improver.logfile = "improver.log")
@@ -69,6 +83,7 @@ httptest::with_mock_dir("modifyToNonExisting", {
 
 httptest::with_mock_dir("invalidTargetNamesAndComments", {
   test_that("invalid target names and comments|ics1139", {
+    TEST_FOLDER <- ensureTestFolder()
     expectedMessage <- "name needs to be of type character"
 
     Sys.setenv(improver.logfile = "improver.log")
@@ -102,6 +117,7 @@ httptest::with_mock_dir("invalidTargetNamesAndComments", {
 
 httptest::with_mock_dir("noOverwrite", {
   test_that("no overwrite|ics1139", {
+    TEST_FOLDER <- ensureTestFolder()
     expectedMessage <- "{TEST_FOLDER}/tbOverwritten already exists, cannot {func}"
 
     Sys.setenv(improver.logfile = "improver.log")
@@ -150,6 +166,7 @@ modifyToTarget <- function(s,t) {
 
 httptest::with_mock_dir("modifyToWrongTarget", {
   test_that("modify to wrong target|ics1139", {
+    TEST_FOLDER <- ensureTestFolder()
     Sys.setenv(improver.logfile = "improver.log")
     improveConnect()
     createFolder(TEST_FOLDER)
@@ -219,6 +236,7 @@ httptest::with_mock_dir("deleteLinksAfterDeletion", {
   test_that("delete links after deletion|ics1139", {
     Sys.setenv(improver.logfile = "improver.log")
     improveConnect()
+    TEST_FOLDER <- ensureTestFolder()
     createFolder(TEST_FOLDER)
 
     # create file

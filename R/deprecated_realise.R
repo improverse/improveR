@@ -8,7 +8,7 @@
 #' @param run Automatically run the step after creation
 #' @return The step template environment (invisibly)
 #' @keywords internal
-realise_deprecated <- function(env, force = TRUE, run = TRUE) {
+realise_deprecated <- function(env, force = TRUE, run = TRUE,workflow=NULL) {
   improveEditable()
 
   # Handle breakpoint and reuse settings
@@ -58,10 +58,6 @@ realise_deprecated <- function(env, force = TRUE, run = TRUE) {
   if (getStepState_deprecated(newStep) == "INITIAL" && run) {
     runStep_deprecated(newStep)
   }
-
-  # Return the step using getStep to match the new implementation
-  # The new version returns: getStep(newStep$entityId, workflow = workflow)
-  workflow <- if (!is.null(env$workflow)) env$workflow else NULL
   return(getStep(newStep$entityId, workflow = workflow))
 }
 
@@ -73,7 +69,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   # Get runserver and tool information from the process configuration
   runserver <- NULL
   tool <- NULL
-
+  mainProcess<-NULL
   # Check if we have process information
   if (!is.null(prepStep$processes) && length(prepStep$processes) > 0) {
     processes <- prepStep$processes[[1]]
@@ -238,10 +234,13 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   # Add files from the environment's file lists
   # Remote files
   remoteFiles <- prepStep$remoteFiles[[1]]
-  remoteFiles <- dplyr::distinct(remoteFiles, "name", .keep_all = TRUE)
+  remoteFiles <- dplyr::distinct(remoteFiles, name, .keep_all = TRUE)
   if (!is.null(remoteFiles) && nrow(remoteFiles) > 0) {
+    for (i in 1:nrow(remoteFiles)) {
+    }
     byNotEmpty(remoteFiles, function(filePrep) {
-      addFileToStep_deprecated(newStep, filePrep, FALSE, env)
+      result <- addFileToStep_deprecated(newStep, filePrep, FALSE, env)
+      result
     })
   }
 
@@ -266,9 +265,16 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   logging::logdebug("local files and links set")
 
   # Set grid arguments
-  gridArguments <- prepStep$gridArguments[[1]]
+  print("mainProcess")
+  print(mainProcess)
+  gridArguments <- mainProcess$gridArguments[[1]]
+  print("gridArguments")
+  print(gridArguments)
   if (!is.null(gridArguments) && nrow(gridArguments) > 0) {
     byNotEmpty(gridArguments, function(gridArgument) {
+      print("gridArgument")
+      print(processId)
+      print(gridArgument$argumentName)
       setGridArgument(processId, gridArgument$argumentName, gridArgument$argumentValue, update = TRUE)
     })
   }
@@ -344,6 +350,7 @@ changeStepRationale_deprecated <- function(step, rationale) {
 #' Add file to step - deprecated version
 #' @keywords internal
 addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
+
   if (is.null(filePrep)) {
     return()
   }
@@ -355,6 +362,7 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
   if (is.na(fileName) || is.null(fileName)) {
     fileName <- ""
   }
+
   if (startsWith(fileName,"./")) {
     fileName<-substr(fileName,3,nchar(fileName))
   }
@@ -387,8 +395,12 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
       createTarget <- folder
     } else {
       # Use the step's resourceId for folder creation
-      logging::logdebug(paste0("Creating folder '", folderName, "' in step ", newStep$name))
       createTarget <- createFolder(newStep$resourceId, folderName = folderName)
+
+      if (is.null(createTarget)) {
+        logging::logerror(paste0("addFileToStep_deprecated: Failed to create folder '", folderName, "'"))
+        return()
+      }
 
       # Reload children after creating folder
       unloadChildResources(newStep)
@@ -402,6 +414,9 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
   }
 
   # Create the file
+  if (is.data.frame(createTarget)) {
+  }
+
   newFile <- NULL
   if (isLocal) {
     if (is.na(filePrep$path) || is.null(filePrep$path)) {
@@ -411,6 +426,8 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
       fileName <- basename(filePrep$path)
     }
     newFile <- createFile(targetIdent = createTarget, fileName = fileName, localPath = filePrep$path)
+    if (!is.null(newFile)) {
+    }
   } else {
     # Remote file - handle as link or copy
     if (!is.null(filePrep$asLink) && filePrep$asLink) {
@@ -495,7 +512,11 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
     } else {
       # Copy the file
       if (!is.null(filePrep$ident)) {
-        newFile <- copy(filePrep$ident, createTarget$resourceId, targetName = fileName)
+      newFile <- copy(filePrep$ident, createTarget$resourceId, targetName = fileName)
+      if (is.null(newFile)) {
+        logging::logerror(paste0("addFileToStep_deprecated: Failed to copy file '", fileName, "'"))
+      } else {
+      }
       }
     }
   }
@@ -520,6 +541,7 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
                                 restType = "PUT")
     }
   }
+
 }
 
 #' Add external link to step - deprecated version

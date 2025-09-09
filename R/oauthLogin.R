@@ -13,8 +13,8 @@ magrittr::`%>%`
 #' @param logLevel possible LogLevels: DEBUG, INFO, WARN, ERROR
 #' @param secure if TRUE the certificates are checked.
 #' Default is TRUE, it can be set to false also by the environment variable IMPROVER_SECURITY=insecure
-#' @param openBrowser this indicates whether the R session can open a browser for user access. Default is TRUE. 
-#' If set to FALSE, a complete verification URL is logged to the console for manual access. This enables headless authentication 
+#' @param openBrowser this indicates whether the R session can open a browser for user access. Default is TRUE.
+#' If set to FALSE, a complete verification URL is logged to the console for manual access. This enables headless authentication
 #' for CI/CD environments or remote sessions. Can be controlled by environment variable IMPROVER_HEADLESS_OAUTH (any non-empty value).
 #' @param withCodeVerifier if the oauth provider uses pkca code challenge verification
 #' @references ics1081

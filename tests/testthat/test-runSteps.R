@@ -1,12 +1,48 @@
 Sys.setenv(TEST_NAME="runSteps")
 
+# Helper function to ensure TEST_FOLDER exists when running tests individually
+ensureTestFolder <- function() {
+  Sys.setenv(TEST_NAME="runSteps")
+  if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
+    improveR::setEditable(TRUE)
+    TEST_FOLDER <- improveR:::workflowFilesSetup()
+    assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
+    return(TEST_FOLDER)
+  }
+  return(TEST_FOLDER)
+}
+
 #httptest::with_mock_dir("prepare-runSteps",{
   test_that("createTestFolder", {
+    cat("\n=== CREATE TEST FOLDER TEST ===\n")
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
-    improveConnect()
+
+    # Try to connect if not already connected
+    if (!improveR::improveConnected()) {
+      cat("Not connected, attempting connection...\n")
+      tryCatch({
+        improveConnect()
+      }, error = function(e) {
+        cat("Connection failed in test:", e$message, "\n")
+        cat("Checking if we have a token anyway...\n")
+      })
+    } else {
+      cat("Already connected\n")
+    }
+
     setEditable(T)
+
+    # Check token status
+    has_token <- Sys.getenv("IMPROVER_TOKEN") != ""
+    cat("Has token:", has_token, "\n")
+    if (!has_token) {
+      cat("WARNING: No token found, test may fail\n")
+    }
     expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
-    TEST_FOLDER <- workflowFilesSetup()
+
+    cat("Setting up workflow files...\n")
+    TEST_FOLDER <- improveR:::workflowFilesSetup()
+    cat("TEST_FOLDER created:", TEST_FOLDER, "\n")
     assign(x = "TEST_FOLDER",value = TEST_FOLDER,envir = globalenv())
   })
 #})
@@ -96,6 +132,9 @@ rBatchStep <- function(testTree) {
 
 #httptest::with_mock_dir("loadChildSteps", {
   test_that("load Child steps|ics1140,ics1205,ics1209,ics1225", {
+    # Ensure TEST_FOLDER exists (for when test is run individually)
+    TEST_FOLDER <- ensureTestFolder()
+
     # Create tree
     testTree <- createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "ChildSteps")
 
@@ -216,6 +255,9 @@ rBatchStep <- function(testTree) {
 
 
 test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
+  # Ensure TEST_FOLDER exists (for when test is run individually)
+  TEST_FOLDER <- ensureTestFolder()
+
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "subfolderInventory")
 
   stepEnv <- rBatchStep(testTree)
@@ -314,6 +356,9 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
 }
 
 test_that("DMG spans multiple trees, linear|ics1140", {
+  # Ensure TEST_FOLDER exists (for when test is run individually)
+  TEST_FOLDER <- ensureTestFolder()
+
   dmgL1 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "DMG L1")
   dmgL2 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "DMG L2")
   dmgL3 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "DMG L3")
@@ -330,8 +375,8 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   s2t2 <- mockStep(dmgL2, s1t2, "S2T2", "processing", dataSet2 = i2)
 
   s1t3 <- mockStep(dmgL3, s1t2, "S1T3", "report", dataSet2 = s2t2)
-
-
+  #just test the import
+  #TODO remove this check
 
   fullLineageFolder <- createFolder(TEST_FOLDER,"fullLineage")
 
@@ -403,35 +448,65 @@ test_that("DMG spans multiple trees, linear|ics1140", {
    expect_equal(nrow(loadChildResources("./DMG L3",TEST_FOLDER)$data[[1]]),2)
 
 
-  #import export
-  # Skip import/export in version 4.3
-  repoVersion <- getRepositoryVersion()
-  skipImportExport <- FALSE
-  if (!is.null(repoVersion)) {
-    versionParts <- strsplit(repoVersion, "[.-]")[[1]]
-    if (length(versionParts) >= 2) {
-      majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
-      if (majorMinor < 4.4) {
-        skipImportExport <- TRUE
-      }
-    }
+
+  report <- loadChildResources(dmgL3)%>%strip()
+  reportStep <- getStep(report[1,])
+  reportStep$lineage$load(stepDepth = -1,treeDepth = -1)
+  # exportWorkflow now expects a workflow, not a workflow template
+  workflow <- reportStep$workflow
+
+  # Export workflow and verify file creation
+  cat("\n=== EXPORT/IMPORT TEST ===\n")
+  cat("Exporting workflow to lineageDMG.zip...\n")
+  exportWorkflow(workflow,workflowName = "lineageDMG")
+
+  # Check export file was created
+  expect_true(file.exists("lineageDMG.zip"),
+              info = "Export file lineageDMG.zip should be created")
+  cat("Export file created: lineageDMG.zip\n")
+  cat("Export file size:", file.info("lineageDMG.zip")$size, "bytes\n")
+
+  # Check mapping files were created
+  expect_true(file.exists("lineageDMGLinkMapping.json"),
+              info = "Link mapping file should be created")
+  expect_true(file.exists("lineageDMGToolMapping.json"),
+              info = "Tool mapping file should be created")
+  cat("Mapping files created\n")
+
+  # Import workflow
+  importRepoFolder <- file.path(TEST_FOLDER,"import1")
+  cat("Creating import folder:", importRepoFolder, "\n")
+  createFolder(dirname(importRepoFolder),basename(importRepoFolder))
+
+  cat("Importing workflow from lineageDMG.zip...\n")
+  importWorkflow("lineageDMG.zip",importRepoFolder)
+  cat("Import completed\n")
+
+  # Verify import created the expected tree structure
+  cat("Checking imported tree structure...\n")
+  importedResources <- loadChildResources(importRepoFolder)
+  expect_false(is.null(importedResources),
+               info = "Imported folder should contain resources")
+
+  if (!is.null(importedResources) && !is.null(importedResources$data[[1]])) {
+    importedTrees <- importedResources$data[[1]]
+    cat("Found", nrow(importedTrees), "trees in import folder\n")
+    cat("Imported tree names:", paste(importedTrees$name, collapse=", "), "\n")
+
+    # Check that DMG trees were imported
+    expect_true(any(grepl("DMG", importedTrees$name)),
+                info = "Should have imported DMG trees")
+  } else {
+    cat("WARNING: No trees found in import folder\n")
   }
-  
-  if (!skipImportExport) {
-    report <- loadChildResources(dmgL3)%>%strip()
-    reportStep <- getStep(report[1,])
-    reportStep$lineage$load(stepDepth = -1,treeDepth = -1)
-    # exportWorkflow now expects a workflow, not a workflow template
-    workflow <- reportStep$workflow
 
+  # Clean up export files
+  cat("Cleaning up export files...\n")
+  if (file.exists("lineageDMG.zip")) unlink("lineageDMG.zip")
+  if (file.exists("lineageDMGLinkMapping.json")) unlink("lineageDMGLinkMapping.json")
+  if (file.exists("lineageDMGToolMapping.json")) unlink("lineageDMGToolMapping.json")
+  #externalLinkMapping
 
-    exportWorkflow(workflow,workflowName = "lineageDMG")
-
-    importRepoFolder <- file.path(TEST_FOLDER,"import1")
-    createFolder(dirname(importRepoFolder),basename(importRepoFolder))
-    importWorkflow("lineageDMG.zip",importRepoFolder)
-    #externalLinkMapping
-  }
 
 
 
@@ -448,18 +523,9 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 })
 
 test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213", {
-  # Skip workflow import tests in version 4.3 due to compatibility issues
-  repoVersion <- getRepositoryVersion()
-  if (!is.null(repoVersion)) {
-    versionParts <- strsplit(repoVersion, "[.-]")[[1]]
-    if (length(versionParts) >= 2) {
-      majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
-      if (majorMinor < 4.4) {
-        skip("Skipping workflow import tests in repository version < 4.4")
-      }
-    }
-  }
-  
+  TEST_FOLDER <- ensureTestFolder()
+
+
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleNonmem")
 
   nonmemStep <- nonmemBatchStep(testTree)
@@ -556,23 +622,24 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
   #TODO grid arguments, grid arguments merging
   args <- dplyr::filter(checkgridFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select("argumentName", "argumentValue")
   argsCompare <- dplyr::filter(compareFlow$df(), description == "I am showing a nonmem step")$processes[[1]]$gridArguments[[1]] %>% dplyr::select("argumentName", "argumentValue")
-  #expect_equal(args, argsCompare)
-  #expect_equal(nrow(args), 4)
+  expect_equal(args, argsCompare)
+  expect_equal(nrow(args), 4)
 })
 
 test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", {
+  TEST_FOLDER <- ensureTestFolder()
   # Skip workflow import tests in version 4.3 due to compatibility issues
-  repoVersion <- getRepositoryVersion()
-  if (!is.null(repoVersion)) {
-    versionParts <- strsplit(repoVersion, "[.-]")[[1]]
-    if (length(versionParts) >= 2) {
-      majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
-      if (majorMinor < 4.4) {
-        skip("Skipping workflow import tests in repository version < 4.4")
-      }
-    }
-  }
-  
+  # repoVersion <- getRepositoryVersion()
+  # if (!is.null(repoVersion)) {
+  #   versionParts <- strsplit(repoVersion, "[.-]")[[1]]
+  #   if (length(versionParts) >= 2) {
+  #     majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
+  #     if (majorMinor < 4.4) {
+  #       skip("Skipping workflow import tests in repository version < 4.4")
+  #     }
+  #   }
+  # }
+
   testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "SimpleWorkflow")
 
   dmTemplate  <- rBatchStep(testTree)
