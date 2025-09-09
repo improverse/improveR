@@ -4,9 +4,210 @@ template:
   light-switch: true
   bslib:
     bootswatch: materia
-    pkgdown-navbar-bg: "#FFFFFF"
     
 navbar:
   structure:
     left:  [intro, reference, articles, news]
     right: [search, github, lightswitch]
+
+reference:
+- title: Step and workflow management
+  contents:
+  - attachStep
+  - changeStepDescription
+  - changeStepRationale
+  - createStepEnv
+  - createStepTemplateEnv
+  - createWorkflow
+  - createWorkflowTemplateEnv
+  - detachStep
+  - finishRunResource
+  - getStep
+  - getStepTemplate
+  - getToolInstances
+  - resetToolInstances
+  - runStepResource
+  - createAnalysisTree
+
+- title: Authentication
+  contents:
+  - clearConnectionData
+  - improveClose
+  - improveConnect
+  - improveConnected
+  - improveDisconnect
+  - improveEditable
+  - improveOAuth
+  - refreshToken
+  - setEditable
+
+- title: Review
+  contents:
+  - createReview
+  - createReviewComment
+  - createReviewEntry
+  - createReviewEntryComment
+  - createReviewer
+  - getReviewComments
+  - getReviewEntries
+  - getReviewEntryComments
+  - getReviewers
+  - loadReviewComments
+  - loadReviewEntries
+  - loadReviewEntryComments
+  - loadReviewers
+  - loadReviews
+  - loadRunserver
+
+- title: Meta Data and Resource Relations
+  contents:
+  - addBulkMetaDate
+  - addMetaDate
+  - createResourceRelation
+  - deleteMetaDate
+  - deleteResourceRelation
+
+- title: CLI tools
+  contents:
+  - cloneCli
+  - createContentCache
+  - pullCli
+  - pushCli
+  - pushRunCli
+  - versionCli
+
+- title: Basic modify operations
+  contents:
+  - copy
+  - delete
+  - deleteReviewEntry
+  - deleteReviewer
+  - move
+  - createFile
+  - createFolder
+  - createLink
+  - createExternalLink
+
+- title: Miscellaneous
+  contents:
+  - byNotEmpty
+  - byNotEmptyAsDf
+  - convertImproveTimestampToPosix
+  - createWorkflowTemplateForImport
+  - exportWorkflow
+  - getData
+  - getGraphics
+  - getHTML
+  - getR
+  - getTextString
+  - importWorkflow
+  - includeGraphics
+  - loadHistory
+  - loadMetaData
+  - loadMetaDataDefinition
+  - loadMetaDataDefinitionPickList
+  - loadMetaDataDefinitions
+  - loadParentStep
+  - loadResource
+  - lockResource
+  - query
+  - queryFolder
+  - resetCache
+  - showGraphics
+  - showHTML
+  - sourceR
+  - unloadHistory
+  - unloadMetaData
+  - unloadMetaDataDefinitions
+  - unloadParentStep
+  - unlockResource
+  - updateFileContent
+  - updateHistory
+  - updateMetaData
+  - updateMetaDataDefinitions
+  - updateParentStep
+  - uploadFolder
+  - whoami
+
+- title: Unassigned/Revise
+  contents:
+  - "%>%"
+  - applyTokenData
+  - checkConnect
+  - effectiveRights
+  - getActiveTokenRefresher
+  - getCopy
+  - getCurrentTokenData
+  - getFile
+  - getFilesFromFolder
+  - getFullFolderAuditTrail
+  - getImproveInternalDir
+  - getImproveWorkspaceDir
+  - getLogFile
+  - getMainProcess
+  - getMetaData
+  - getMetaDataMap
+  - getParent
+  - getProcessFileVariables
+  - getRepositoryVersion
+  - getWorkflow
+  - improveInit
+  - isFileUp2Date
+  - isResourceUp2Date
+  - listTokenRefreshers
+  - loadAuditTrail
+  - loadChildResources
+  - loadChildSteps
+  - loadFile
+  - loadFullChildResources
+  - loadReferences
+  - loadRelationTypes
+  - loadResourceFromServer
+  - loadResourceRelations
+  - loadResourceVersionFromServer
+  - log_debug
+  - log_error
+  - log_info
+  - log_warn
+  - pwd
+  - registerTokenRefresher
+  - shouldRefreshToken
+  - strip
+  - unauthenticatedREST
+  - unloadAuditTrail
+  - unloadChildResources
+  - unloadChildSteps
+  - unloadFile
+  - unloadFullChildResources
+  - unloadReferences
+  - unloadRelationTypes
+  - unloadResource
+  - unloadResourceRelations
+  - unloadReviewComments
+  - unloadReviewEntries
+  - unloadReviewEntryComments
+  - unloadReviewers
+  - unloadReviews
+  - updateAccessToken
+  - updateAuditTrail
+  - updateChildResources
+  - updateChildSteps
+  - updateFile
+  - updateFullChildResources
+  - updateLinks
+  - updateMetaData
+  - updateMetaDate
+  - updateMetaDateById
+  - updateParentStep
+  - updateReferences
+  - updateRelationTypes
+  - updateResource
+  - updateResourceRelation
+  - updateResourceRelations
+  - updateReviewComments
+  - updateReviewEntries
+  - updateReviewEntryComments
+  - updateReviewers
+  - updateReviews
+  - users
+  - getTokenRefresher

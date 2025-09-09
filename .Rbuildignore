@@ -4,3 +4,9 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^\.claude
+^doc$
+^Meta$
+^vignettes/articles/\.quarto$
+^vignettes/articles/*_files$
+^vignettes/articles$

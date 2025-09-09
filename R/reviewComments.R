@@ -1,5 +1,6 @@
 #' helper function to validate the state of the review
 #' @param reviewId id (UUID) of the review
+#' @noRd
 validateReviewState <- function(reviewId) {
   reviews <- updateReviews()
   if (!"reviewStatus" %in% colnames(reviews)) {

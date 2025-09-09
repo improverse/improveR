@@ -21,7 +21,7 @@ actualLoadRunservers <- function(...) {
 
 #' loads all registered runservers
 #' @references ics1226
-#' @export
+#' @noRd
 loadRunservers <- function() {
   runservers <- getFromCache(defaultKey,actualLoadRunservers,runserversCacheList,NULL)
   return(runservers)
@@ -45,7 +45,7 @@ loadRunserver <- function(label) {
 
 #' unloadRunservers
 #' @references ics1226
-#' @export
+#' @noRd
 unloadRunservers <- function() {
   loadRunservers()
   removeFromCache(defaultKey,"",runserversCacheList)
@@ -53,7 +53,7 @@ unloadRunservers <- function() {
 
 #' updateRunservers reloads the runservers from the repository
 #' @references ics1226
-#' @export
+#' @noRd
 updateRunservers <- function() {
   unloadRunservers()
   res <- loadRunservers()
@@ -69,7 +69,7 @@ runserverToolsCacheList <- list(
 #'
 #' @param runserverId resourceId of the runserver
 #' @references ics1227
-#' @export
+#' @noRd
 loadToolsForRunserver <- function(runserverId) {
   runserverToos <- getFromCache(runserverId,actualLoadToolsForRunserver,runserverToolsCacheList,NULL)
   return(runserverToos)
@@ -81,8 +81,8 @@ loadToolsForRunserver <- function(runserverId) {
 #' @param toolName name of the tool, optional, but toolname or toolInstanceName have to be given
 #' @param toolInstanceName name of the tool instance, optional, but toolname or toolInstanceName have to be given
 #' @references ics1227
+#' @noRd
 #'
-#' @export
 loadToolForRunserver <- function(runserverId,toolName=NULL,toolInstanceName=NULL) {
   runserverTools <- loadToolsForRunserver(runserverId)
   if (is.null(runserverTools)) {
@@ -144,7 +144,7 @@ actualLoadToolsForRunserver <- function(runserverId) {
 #' unloadToolsForRunserver
 #' @param runserverId resourceId of the runserver
 #' @references ics1227
-#' @export
+#' @noRd
 unloadToolsForRunserver <- function(runserverId) {
   loadToolsForRunserver(runserverId)
   removeFromCache(runserverId,"",runserverToolsCacheList)
@@ -153,7 +153,7 @@ unloadToolsForRunserver <- function(runserverId) {
 #' updateToolsForRunserver reloads the runserver tools from the repository
 #' @param runserverId resourceId of the runserver
 #' @references ics1227
-#' @export
+#' @noRd
 updateToolsForRunserver <- function(runserverId) {
   unloadToolsForRunserver(runserverId)
   res <- loadToolsForRunserver(runserverId)

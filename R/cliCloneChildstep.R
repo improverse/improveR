@@ -7,6 +7,7 @@
 #' @param comment A comment for the clone operation.
 #' @param toolCategory The tool category. Default is NULL.
 #' @param tool The tool name. Default is NULL.
+#' @noRd
 cloneChildstepCli <- function(localSource, localTarget, comment, toolCategory = NULL, tool = NULL) {
   checkInit()
   step <- getLocalRepoResource(localSource)

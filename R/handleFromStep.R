@@ -4,6 +4,7 @@
 #' cycle with old version. test usage of correct run, with revision
 #' @param process the process loaded from the repo
 #' @param stepHandle the stepHandle the process will be added to
+#' @noRd
 
 fullProcess <- function(process,stepHandle) {
   processId <- process$id

@@ -1,5 +1,6 @@
 #' helper function to validate the resource's existence
 #' @param resourceId id (UUID) of the resource whose existence is to be checked
+#' @noRd
 validateResource <- function(resourceId) {
   resource <- tryCatch({
     loadResource(resourceId)

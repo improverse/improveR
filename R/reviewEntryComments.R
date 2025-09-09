@@ -1,6 +1,7 @@
 #' helper function to validate the review entry's existence
 #' @param reviewId id (UUID) of the review
 #' @param entryId id (UUID) of the review entry whose existence is to be checked
+#' @noRd
 validateEntry <- function(reviewId, entryId) {
   reviewEntries <- updateReviewEntries(reviewId)
   if (is.null(reviewEntries) || nrow(reviewEntries) == 0) {

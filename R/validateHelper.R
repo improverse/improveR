@@ -1,5 +1,6 @@
 #' helper function to check if any parameter is NA or NULL
 #' @param params list of parameters that are to be checked
+#' @noRd
 validateParams <- function(params) {
   if (any(vapply(params, function(param) length(param) != 1, FALSE))) {
     log_error("Parameters must have a length of 1")
@@ -14,6 +15,7 @@ validateParams <- function(params) {
 #' helper function to validate relation type existence
 #' @param relationTypeId id (UUID) of the relation type whose existence is to be checked
 #' @param conn database connection
+#' @noRd
 validateRelationType <- function(relationTypeId, conn = NULL) {
   if (is.null(conn)) {
     result <- authenticatedREST('configuration/relationTypeLov', restType = "GET")

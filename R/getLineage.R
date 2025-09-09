@@ -8,6 +8,7 @@
 #' @param env The step environment
 #' @return List of dependency steps
 #' @keywords internal
+#' @noRd
 getLineage <- function(step, env) {
   # Check repository version
   repoVersion <- getRepositoryVersion()
@@ -39,7 +40,8 @@ getLineage <- function(step, env) {
 #' Gets all links in the step, finds their targets, then traverses up
 #' the resource hierarchy to find which steps contain those targets.
 #' 
-#' @keywords internal  
+#' @keywords internal
+#' @noRd
 getLineage_deprecated <- function(step, env) {
   lineageSteps <- list()
   foundStepIds <- character()

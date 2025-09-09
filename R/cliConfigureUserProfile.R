@@ -3,7 +3,7 @@
 #' Configures the user profile for CLI usage.
 #'
 #' @param userProfile A string representing the user profile name. Default is "improveR".
-#' @export
+#' @noRd
 configureUserProfile <- function(userProfile = "improveR") {
   apiURL <- getCICOApiURL()
   command <- glue::glue("userProfile configure -userProfile {userProfile} -apiURL {apiURL}")

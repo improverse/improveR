@@ -4,7 +4,7 @@
 #' @param parentStepIdent optional id of the parent step
 #' @param toolId optional id of the tool
 #' @references ics1140
-#' @export
+#' @noRd
 createStep <- function(treeIdent,parentStepIdent=NULL,toolId=NULL) {
   improveEditable()
   tree <- loadResource(treeIdent)
@@ -61,8 +61,8 @@ createStep <- function(treeIdent,parentStepIdent=NULL,toolId=NULL) {
 #' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
 #' @param toolDeletePatterns files that wont get checked in
 #' @param toolStreamablePatterns file that can be streamed to monitor the step
+#' @noRd
 #'
-#' @export
 setProcessVariables <- function(stepId, processId,processType="main",name="Main",selected=TRUE,runserverId="",toolId="",runserverToolId="",toolIgnorePatterns="",mainProcess=T,gridTool,toolArguments=NULL,position=1,parentProcessId = NULL,toolBrowserUrl=NULL,toolDeletePatterns=NULL,toolStreamablePatterns="") {
 
   processVariables <- list(
@@ -157,8 +157,8 @@ getProcessFileVariables <- function(ident, processId) {
 #' @param name name of the variable
 #' @param variableType fileRef or filePath
 #' @param position position of the variable
+#' @noRd
 #'
-#' @export
 createProcessFileVariable <- function(ident, processId,name,variableType,position) {
   step <- loadResource(ident)
   variableData <- list(
@@ -241,8 +241,8 @@ attachStep <- function(ident,parent,  from=pwd()) {
 #' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
 #' @param toolDeletePatterns files that wont get checked in
 #' @param toolStreamablePatterns file that can be streamed to monitor the step
+#' @noRd
 #'
-#' @export
 createProcess <- function(stepId,processType="main",name="Main",selected=TRUE,runserverId="",toolId="",runserverToolId="",toolIgnorePatterns="",mainProcess=T,gridTool,toolArguments=NULL,position=1,parentProcessId = NULL,toolBrowserUrl=NULL,toolDeletePatterns=NULL,toolStreamablePatterns="") {
 
   processVariables <- list(

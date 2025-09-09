@@ -18,7 +18,7 @@ actualToolCategories <- function(...) {
 
 #' loads all registered tool categories
 #' @references ics1229
-#' @export
+#' @noRd
 loadToolCategories <- function() {
   categories <- getFromCache(defaultKey,actualToolCategories,toolCategoriesCacheList,NULL)
   return(categories)
@@ -27,7 +27,7 @@ loadToolCategories <- function() {
 
 #' unloadToolCategories
 #' @references ics1229
-#' @export
+#' @noRd
 unloadToolCategories <- function() {
   loadToolCategories()
   removeFromCache(defaultKey,"",toolCategoriesCacheList)
@@ -35,7 +35,7 @@ unloadToolCategories <- function() {
 
 #' updateToolCategories reloads the tool categories from the repository
 #' @references ics1229
-#' @export
+#' @noRd
 updateToolCategories <- function() {
   unloadToolCategories()
   res <- loadToolCategories()
@@ -52,7 +52,7 @@ toolsCacheList <- list(
 #'
 #' @param categoryId categoryId of the tools
 #' @references ics1230
-#' @export
+#' @noRd
 loadToolsForCategory <- function(categoryId) {
   catgoryTools <- getFromCache(categoryId,actualLoadToolsForCategory,toolsCacheList,NULL)
   return(catgoryTools)
@@ -81,7 +81,7 @@ actualLoadToolsForCategory <- function(categoryId) {
 #' unloadToolsForCategory
 #' @param categoryId categoryId of the tools
 #' @references ics1230
-#' @export
+#' @noRd
 unloadToolsForCategory <- function(categoryId) {
   loadToolsForCategory(categoryId)
   removeFromCache(categoryId,"",runserverToolsCacheList)
@@ -90,7 +90,7 @@ unloadToolsForCategory <- function(categoryId) {
 #' updateToolsForCategory reloads the category tools from the repository
 #' @param categoryId categoryId of the category
 #' @references ics1230
-#' @export
+#' @noRd
 updateToolsForCategory <- function(categoryId) {
   unloadToolsForCategory(categoryId)
   res <- loadToolsForCategory(categoryId)
@@ -99,7 +99,7 @@ updateToolsForCategory <- function(categoryId) {
 
 #' loads all registered tools with their categories
 #' @references ics1230
-#' @export
+#' @noRd
 loadAllTools <- function() {
   categories <- loadToolCategories()
   allTools <- NULL

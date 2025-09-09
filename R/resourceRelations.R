@@ -1,5 +1,6 @@
 #' helper function to validate resource existence
 #' @param resourceId id (UUID) of the resource whose existence is to be checked
+#' @noRd
 validateResource <- function(resourceId) {
   resource <- tryCatch({
     loadResource(resourceId)
@@ -17,6 +18,7 @@ validateResource <- function(resourceId) {
 #' helper function to validate relation existence
 #' @param resourceId id (UUID) of the resource
 #' @param relationId id (UUID) of the relation
+#' @noRd
 validateResourceRelation <- function(resourceId, relationId) {
   resourceRelations <- updateResourceRelations(resourceId)
   if (is.null(resourceRelations) || nrow(resourceRelations) == 0) {
@@ -39,6 +41,7 @@ validateResourceRelation <- function(resourceId, relationId) {
 #' helper function to check if another relation with the given targetResourceId already exists for the resource
 #' @param resourceId id (UUID) of the resource
 #' @param targetResourceId id (UUID) of the target resource
+#' @noRd
 validateTargetResourceIdDuplicate <- function(resourceId, targetResourceId) {
   resourceRelations <- updateResourceRelations(resourceId)
   if (!is.null(resourceRelations) && nrow(resourceRelations) > 0 && any(resourceRelations$targetResourceId == targetResourceId, na.rm = TRUE)) {

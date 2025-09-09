@@ -9,6 +9,8 @@ relationTypesCacheList <- list(
 #' API request to retrieve all registered relation types
 #' @param conn database connection
 #' @param ... args
+#' @keywords internal
+#' @noRd
 actualLoadRelationTypes <- function(conn, ...) {
   #result <- DBI::dbGetQuery(conn, "SELECT * FROM RELATION_TYPE_LOV")
 #TODO replace with rest call
@@ -65,6 +67,8 @@ resourceRelationsCacheList <- list(
 #' API reqeust to retrieve all registered resource relations
 #' @param resourceId resource
 #' @references ics1044
+#' @keywords internal
+#' @noRd
 actualLoadResourceRelations <- function(resourceId) {
   result <- authenticatedREST("/resources/{resourceId}/relation", list(resourceId = resourceId), restType = "GET")
   if (is.null(result)) {

@@ -9,6 +9,7 @@
 #' @param windows_base Base directory for Windows (e.g., "LOCALAPPDATA", "USERPROFILE")
 #' @param unix_hidden Whether to use hidden directory on Unix (prefix with .)
 #' @return Character string with path to directory
+#' @noRd
 getImproveDir <- function(env_var, subdir, windows_base = "LOCALAPPDATA", unix_hidden = TRUE) {
   # Check if environment variable is set
   existing_dir <- Sys.getenv(env_var, "")
