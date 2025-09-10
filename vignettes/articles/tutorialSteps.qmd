@@ -1,5 +1,5 @@
 ---
-title: "improveR: Working with steps"
+title: "'step'-function family"
 format:
   html:
     toc: true
@@ -49,25 +49,27 @@ library(improveR)
 library(tidyverse, quietly = T)
 library(tictoc) #time keeping of functions
 options(width=10000) #make results window wide; horizontal scrollbar
+# library(improveRtestsupport)
 
 fn_connect <- function() {
   Sys.setenv(
     IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
     
   )
+  # Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
-  Sys.setenv(IMPROVER_TOKEN=Sys.getenv("IMPROVER_TOKEN_DOCU"))
-  Sys.setenv(NONMEM_RUNSERVER = "runserver")
-  Sys.setenv(NONMEM_TOOL_INSTANCE = "nonmem_7.4")
-  Sys.setenv(NONMEM_TOOL = "nonmem_7.5")
+  # Sys.setenv(NONMEM_RUNSERVER = "runserver")
+  # Sys.setenv(NONMEM_TOOL_INSTANCE = "nonmem_7.4")
+  # Sys.setenv(NONMEM_TOOL = "nonmem_7.5")
 
-  Sys.setenv(R_RUNSERVER = "runserver")
-  Sys.setenv(R_TOOL_INSTANCE = "rbatch")
-  Sys.setenv(R_TOOL = "R_4.2")
-  Sys.setenv(TEST_SERVER = "5310")
+  # Sys.setenv(R_RUNSERVER = "runserver")
+  # Sys.setenv(R_TOOL_INSTANCE = "rbatch")
+  # Sys.setenv(R_TOOL = "R_4.2")
+  # Sys.setenv(TEST_SERVER = "5310")
 
   clearConnectionData()
-  improveConnect()
+  improveR::improveConnect()
+  # improveRtestsupport::improveConnect()
   setEditable(TRUE)
   print(Sys.getenv("IMPROVER_REPO_URL"))
 }
@@ -75,278 +77,20 @@ fn_connect <- function() {
 fn_connect()
 
 improveConnected()
+
+loadResource(ident="F9965BC0D03C42FA8C90ABBFD4CA9706") 
+loadResource(ident="70BF16ADD9484B7EA0A933B72544C2A3") 
+loadResource(ident="/improve-tutorial/demoSteps/Step 1")
+loadChildSteps(ident="/improve-tutorial/Modeling/Step 1")
+
+library(usethis)
+usethis::edit_r_environ()
 ```
 
 # Overview
 
 This document provides an overview of improveR's functions pertaining to step managment and
 modification.
-
-# createStep
-
-## Purpose of the function
-
-The `createStep` function creates new steps within improveR workflow <!-- #REVIEW --> trees. These steps serve as the foundational building blocks for structured data analysis workflows.
-
-This function is essential for expanding existing workflows with new analytical components. It enables users to add steps that can execute specific tools, processes, or analytical procedures within a defined workflow context. 
-
-Key capabilities include:
-
-- Creating steps with specific tool configurations
-- Establishing parent-child relationships between steps  
-- Defining process definitions that integrate with the workflow execution framework
-- Supporting both independent step creation and hierarchical step creation
-
-The function facilitates the construction of complex multi-step analytical pipelines by automatically attaching new steps to parent steps when specified.
-
-## Relation to other functions
-
-Within the step functions family, `createStep` serves as the foundational constructor that works in conjunction with `attachStep` and `detachStep` for building and reorganizing workflow hierarchies <!-- #REVIEW -->. It integrates closely with `getStep` by creating step entities that can subsequently be retrieved and manipulated through the step environment. The function connects with process management functions like `createProcess` and `setProcessVariables` by establishing the step framework that houses these computational definitions. In the broader improveR ecosystem, it interfaces with the resource management system through authenticated REST API calls to persist new steps on the server, connects with tool management systems to assign execution capabilities, and integrates with the workflow execution engine to enable the created steps to participate in automated workflow runs and dependency tracking.
-
-## Under the hood
-
-The implementation follows a validation-creation-registration pattern: first using `loadResource` to validate that the target tree exists and is accessible, then checking permissions through `isAllowedTarget` to ensure step creation is permitted within the specified context. The core operation constructs a step definition object with metadata including nodeType, tool configuration, runserver assignment, and optional parent step relationships. The function makes an authenticated POST request to `/resources/{treeId}/steps` endpoint with the step definition as the request payload to create the step on the server. After successful creation, it performs cache maintenance by calling `unloadChildResources` and `unloadFullChildResources` #REVIEW to ensure that subsequent navigation operations reflect the updated tree structure, finally returning the newly created step through `loadResource` to provide immediate access to the step entity.
-
-## Example for demonstration purposes
-
-```{r}
-#| code-summary: "Create new step in demo tree"
-#| eval: true
-
-demoAnalysisTree <- loadResource(ident="/improve-tutorial/demoSteps")
-demoAnalysisTreeIdent <- demoAnalysisTree$entityId
-demoAnalysisTreeIdent
-
-# Create a new independent step
-## Note that the step name is assigned automatically
-newStep <- createStep(treeIdent = demoAnalysisTreeIdent)
-
-# Verify creation
-newStep[, c("name", "path", "entityId")]
-newStep$entityId
-
-# Create another step which is now attached to the previously created step
-parentStepIdent <- newStep$entityId
-parentStepIdent
-
-newChildStep <- createStep(
-    treeIdent = demoAnalysisTreeIdent,
-    parentStepIdent = parentStepIdent
-)
-
-# Verify creation
-newChildStep[, c("name", "path", "entityId")]
-newStep[,c("name", "path", "entityId")]
-
-# Verify parent-child relationship
-children <- loadChildSteps(parentStepIdent)$data[[1]]
-children[, c("name", "path", "entityId")] 
-```
-
-Note that when calling loadChildStep, the detatils on the child step(s) are stored in the list column `data` and not on the
-the dataframe's top level.
-
-
-# attachStep
-
-## Purpose of the function
-
-The `attachStep` function establishes hierarchical relationships between steps in improveR workflows by attaching a step to another step that serves as its parent. This function is essential for creating structured hierarchies that reflect the logical flow and dependencies between analytical steps. It provides flexibility to reorganize existing workflows, insert new steps into established processes, or correct relationships that were initially configured incorrectly, while maintaining workflow integrity and enabling proper execution planning and dependency 1tracking. <!-- #REVIEW  -->
-
-## Relation to other functions
-
-Within the step functions family, `attachStep` forms a complementary pair with `detachStep` for managing step hierarchy, working together with `createStep` to provide complete workflow structure control. The function integrates closely with navigation functions like `getStep`, `loadParentStep`, and `loadChildSteps` by ensuring cached relationships are updated through `unloadParentStep` calls. In the broader improveR ecosystem, it connects with the resource management system via `loadResource` for validation and uses the authentication infrastructure to make REST API calls that persist hierarchical changes across the entire system.
-
-## Under the hood
-
-The implementation follows a validation-execution pattern: first using `loadResource` to validate both step and parent entities exist, then extracting the tree identifier to determine the workflow context. The core operation makes an authenticated PUT request to `/resources/{treeId}/steps/{stepId}/attachStepToParent` with query parameters specifying the parent step ID. After the successful API call, the function calls `unloadParentStep` to invalidate cached parent-step relationships, ensuring subsequent navigation operations reflect the new hierarchy rather than stale cached data.
-
-## Example for demonstration purposes
-
-```{r}
-#| code-summary: "Attach Step 2 to Step 1"
-#| eval: true
-
-step1Parent <- "/improve-tutorial/demoSteps/Step 1"
-step2Child <- "/improve-tutorial/demoSteps/Step 2"
-
-attachStep(ident=step2Child, parent=step1Parent)
-
-#Verify new structure
-loadResource(ident=step1Parent)
-
-step1ParentChild <- loadChildSteps(ident=step1Parent)
-step1ParentChild$data[[1]]$name #'Step 2' is shown as child
-```
-
-::: {#fig-stepAttach layout-ncol=2 .no-margin .left-caption}
-
-![before](img/tutorialSteps/stepsDetached.png){#fig-detached .text-align-left}
-
-![after calling attachStep](img/tutorialSteps/stepsAttached.png){#fig-attached .left-caption}
-
-Steps before and after calling 'attachStep'
-:::
-
-
-
-# detachStep
-
-## Purpose of the function
-
-The `detachStep` function removes the hierarchical relationship between a step and its parent. This function is essential for workflow reorganization, allowing users to isolate steps that were incorrectly attached, flatten complex hierarchies, or prepare steps for reassignment to different parents. It provides the flexibility to modify workflow structures without deleting steps or losing their content, while maintaining data integrity and ensuring that cached relationships are properly updated throughout the system.
-
-## Relation to other functions
-
-Within the step functions family, `detachStep` works as the complementary counterpart to `attachStep`, providing the opposite operation for managing step hierarchies. It integrates with navigation functions like `loadParentStep` and `loadChildSteps` by updating cached parent-child relationships through `unloadChildSteps` and `unloadParentStep` calls. The function works seamlessly with `createStep` and other step management functions to provide complete control of the analysis' structure. In the broader improveR ecosystem, it connects with the resource management system via `loadResource` for step validation and uses the authentication infrastructure to make REST API calls that persist structural changes across the distributed system.
-
-## Under the hood
-
-The implementation follows a validation-execution-cleanup pattern: first using `loadResource` to validate the step entity exists and retrieve its metadata, then extracting the tree identifier and loading the parent step information. The core operation makes an authenticated PUT request to `/resources/{treeId}/steps/{stepId}/detachStepFromParent` with the step ID and tree ID as URL parameters. After the successful API call, the function performs cache maintenance by calling `unloadChildSteps` on the parent step and `unloadParentStep` on the detached step, ensuring that subsequent navigation operations reflect the updated hierarchy rather than stale cached relationships.
-
-## Example for demonstration purposes
-
-```{r}
-#| code-summary: "Detach step from parent step"
-step2Child <- "/improve-tutorial/demoSteps/Step 2"
-
-detachStep(ident=step2Child)
-
-#Verify new structure
-loadChildSteps(ident=step1Parent)$data[[1]] #data framew ith nrow 0
-```
-
-Note that when calling loadChildStep, the detatils on the child step(s) are stored in the list column `data` and not on the
-the dataframe's top level.
-
-
-::: {#fig-attachDetach layout-ncol=2 .no-margin .left-caption}
-
-![before](img/tutorialSteps/stepsAttached.png){#fig-attached .left-caption}
-
-![after calling detachStep](img/tutorialSteps/stepsDetached.png){#fig-detached .text-align-left}
-
-Steps before and after 
-:::
-
-
-# changeStepDescription
-
-## Purpose of the function
-
-The `changeStepDescription` function modifies the description field of an existing step, allowing users to update documentation and clarify the purpose of analytical steps after they have been created. This function is instrumental for maintaining clear and accurate documentation as analyses evolve, requirements change, or when steps need better descriptions for collaboration and reproducibility. It enables dynamic updating of step metadata without requiring recreation of the entire step or disruption of existing workflow structures and dependencies.
-
-## Relation to other functions
-
-Within the step functions family, `changeStepDescription` works alongside `changeStepRationale` to provide comprehensive metadata editing capabilities for workflow steps. Both functions share similar implementation patterns and complement `getStep` for retrieving step information before modification. The function integrates with improveR's resource management system through `loadResource` and `updateResource`, ensuring that description changes are properly persisted and cached correctly. It connects to the broader improveR package's authentication and REST API infrastructure, making authenticated calls to update step metadata on the server while maintaining data consistency across the distributed system.
-
-## Under the hood
-
-The implementation follows a load-modify-save pattern: first calling `loadResource` to retrieve the current step entity and validate it exists, then directly modifying the description property of the step entity object. The function makes an authenticated PUT request to the `/resources/{resourceId}/` endpoint, sending the modified step entity as the request payload to persist changes on the server. Finally, it calls `updateResource` to refresh the local cache with the updated step information, ensuring that subsequent operations work with the most current data and maintaining consistency between local and server state.
-
-## Example for demonstration purposes
-
-```{r}
-#| code-summary: "Change description of Step 1"
-
-stepIdent <- "/improve-tutorial/demoSteps/Step 1"
-
-loadResource(stepIdent)$description
-
-changeStepDescription(ident=stepIdent, description="changed description")
-
-loadResource(stepIdent)$description
-```
-
-
-# changeStepRationale
-
-## Purpose of the function
-
-The `changeStepRationale` function modifies the rationale field of an existing step, allowing users to update the reasoning and justification for why analytical steps were created and included in the workflow. This function is essential for maintaining clear analytical documentation that explains the scientific or methodological rationale behind each step, supporting reproducible research practices and regulatory compliance. It enables dynamic updating of step justification without requiring recreation of the entire step or disruption of existing workflow structures and dependencies, ensuring that analytical decisions remain well-documented as projects evolve.
-
-## Relation to other functions
-
-Within the step functions family, `changeStepRationale` works as a companion to `changeStepDescription` to provide comprehensive metadata editing capabilities for steps. Both functions share identical implementation patterns and complement `getStep` for retrieving step information before modification. The function integrates seamlessly with improveR's resource management system through `loadResource` and `updateResource`, ensuring that rationale changes are properly persisted and cached correctly. It connects to the broader improveR package's authentication and REST API infrastructure, making authenticated calls to update step metadata on the server while maintaining data consistency and version control across the distributed system.
-
-## Under the hood
-
-The implementation follows the same load-modify-save pattern as `changeStepDescription`: first calling `loadResource` to retrieve the current step entity and validate it exists, then directly modifying the rationale property of the step entity object. The function makes an authenticated PUT request to the `/resources/{resourceId}/` endpoint, sending the modified step as the request payload to persist changes on the server. Finally, it calls `updateResource` to refresh the local cache with the updated step information, ensuring that subsequent operations work with the most current data and maintaining consistency between local and server state.
-
-## Example for demonstration purposes
-
-```{r}
-#| code-summary: "Change rationale of Step 1"
-
-stepIdent <- "/improve-tutorial/demoSteps/Step 1"
-
-loadResource(stepIdent)$rationale
-
-changeStepRationale(ident=stepIdent, rationale="Updated rationale explaining the scientific justification for this analytical step")
-
-loadResource(stepIdent)$rationale
-```
-
-# createStepEnv 
-
- <!-- - #REVIEW mainly of internal use? should it be really exported? -->
-
-## Purpose of the function
-
-The `createStepEnv` function constructs a specialized R environment object that encapsulates a step's complete context and provides programmatic access to all step-related data and operations. This environment serves as a comprehensive interface containing the step's metadata, file relationships, navigation capabilities, and workflow context in a structured, object-like format. The function creates an environment that includes nested sub-environments for children, parent, usage, and lineage relationships, along with functional bindings for operations like `getStepInventory()`, `getStepResource()`, and `getStepState()`. This environment-based approach enables intuitive navigation through workflow hierarchies using R's `$` operator and provides a unified API for step manipulation and introspection that supports both interactive analysis and programmatic workflow management.
-
-## Relation to other functions
-
-Within the step functions family, `createStepEnv` serves as the foundational building block that underlies `getStep()`, which calls `createStepEnv` internally to generate the rich environment objects that users interact with. The function works closely with navigation functions like `loadChildSteps`, `loadParentStep`, and workflow analysis functions by providing the structured environment that contains lazy-loading mechanisms for these relationships. It integrates with resource management functions through embedded `loadResource` calls and connects with the broader improveR ecosystem by creating environments that interface with authentication systems, caching mechanisms, and REST API endpoints. The environments created by `createStepEnv` also support workflow execution functions by providing access to process definitions, file dependencies, and execution state information necessary for step orchestration and dependency tracking.
-
-## Under the hood
-
-The implementation follows a multi-layered environment construction pattern: first calling `loadResource` to retrieve the step's core metadata and validate existence, then systematically building nested environments for relationships (children, parent, usage, lineage) with lazy-loading `load()` functions. The function creates functional bindings by embedding closures that capture the step context, enabling methods like `getStepInventory()` and `getStepWithoutCache()` to operate within the step's scope. It constructs a workflow environment that provides access to execution planning and dependency analysis capabilities when populated. The function also creates a self-referential `this` binding and embeds the step's dataframe representation (`stepDf`) with process and file metadata, resulting in a comprehensive environment that serves as both a data container and an operational interface for step management within the improveR workflow system.
-
-## Example for demonstration purposes
-
-<!-- #REVIEW - example requires input from non-exported function getStepDf -->
-
-```{r}
-#| code-summary: "Create step environment using getStepDf and explore its structure"
-#| eval: false
-
-stepIdent <- "/improve-tutorial/demoSteps/Step 1"
-
-# First, get the stepDf (step metadata) using the internal function
-# Note: Users typically use getStep() instead of calling createStepEnv directly
-stepDf <- improveR:::getStepDf(stepIdent)
-workflow <- createWorkflow()
-
-# Create the step environment with the stepDf
-step_env <- createStepEnv(stepDf, workflow)
-
-# Examine the environment structure
-class(step_env)
-length(ls(step_env))
-ls(step_env)
-
-# Show the stepDf structure that was used to create the environment
-names(stepDf)
-stepDf$sourceName
-stepDf$description
-
-# Test functional bindings
-step_env$getStepState()
-step_resource <- step_env$getStepResource()
-names(step_resource)[1:5]  # Show first few column names
-
-# Explore nested environment structure  
-ls(step_env$children)
-ls(step_env$parent)
-ls(step_env$workflow)
-
-# Compare with getStep() which internally calls createStepEnv
-step_env_via_getStep <- getStep(stepIdent)
-identical(class(step_env), class(step_env_via_getStep))
-
-```
- 
 
 # getStep
 
@@ -381,9 +125,15 @@ This orchestrated approach ensures that the resulting environment object provide
 
 ```{r}
 #| code-summary: "Get Step"
+library(improveR)
+library(improveRtestsupport)
 identATModelingStep1 <- "/improve-tutorial/Modeling/Step 1"
 envATModelingStep1 <- getStep(identATModelingStep1)
 class(envATModelingStep1)
+```
+
+```{r}
+knitr::knit_exit()
 ```
 
 Below the elements of the obtained environment.
@@ -1073,6 +823,273 @@ envATModelingStep1$workflow$removeStep
 knitr::knit_exit()
 ```
 
+
+# createStep
+
+## Purpose of the function
+
+The `createStep` function creates new steps within improveR workflow <!-- #REVIEW --> trees. These steps serve as the foundational building blocks for structured data analysis workflows.
+
+This function is essential for expanding existing workflows with new analytical components. It enables users to add steps that can execute specific tools, processes, or analytical procedures within a defined workflow context. 
+
+Key capabilities include:
+
+- Creating steps with specific tool configurations
+- Establishing parent-child relationships between steps  
+- Defining process definitions that integrate with the workflow execution framework
+- Supporting both independent step creation and hierarchical step creation
+
+The function facilitates the construction of complex multi-step analytical pipelines by automatically attaching new steps to parent steps when specified.
+
+## Relation to other functions
+
+Within the step functions family, `createStep` serves as the foundational constructor that works in conjunction with `attachStep` and `detachStep` for building and reorganizing workflow hierarchies <!-- #REVIEW -->. It integrates closely with `getStep` by creating step entities that can subsequently be retrieved and manipulated through the step environment. The function connects with process management functions like `createProcess` and `setProcessVariables` by establishing the step framework that houses these computational definitions. In the broader improveR ecosystem, it interfaces with the resource management system through authenticated REST API calls to persist new steps on the server, connects with tool management systems to assign execution capabilities, and integrates with the workflow execution engine to enable the created steps to participate in automated workflow runs and dependency tracking.
+
+## Under the hood
+
+The implementation follows a validation-creation-registration pattern: first using `loadResource` to validate that the target tree exists and is accessible, then checking permissions through `isAllowedTarget` to ensure step creation is permitted within the specified context. The core operation constructs a step definition object with metadata including nodeType, tool configuration, runserver assignment, and optional parent step relationships. The function makes an authenticated POST request to `/resources/{treeId}/steps` endpoint with the step definition as the request payload to create the step on the server. After successful creation, it performs cache maintenance by calling `unloadChildResources` and `unloadFullChildResources` #REVIEW to ensure that subsequent navigation operations reflect the updated tree structure, finally returning the newly created step through `loadResource` to provide immediate access to the step entity.
+
+## Example for demonstration purposes
+
+```{r}
+#| code-summary: "Create new step in demo tree"
+#| eval: true
+
+demoAnalysisTree <- loadResource(ident="/improve-tutorial/demoSteps")
+demoAnalysisTreeIdent <- demoAnalysisTree$entityId
+demoAnalysisTreeIdent
+
+# Create a new independent step
+## Note that the step name is assigned automatically
+newStep <- createStep(treeIdent = demoAnalysisTreeIdent)
+
+# Verify creation
+newStep[, c("name", "path", "entityId")]
+newStep$entityId
+
+# Create another step which is now attached to the previously created step
+parentStepIdent <- newStep$entityId
+parentStepIdent
+
+newChildStep <- createStep(
+    treeIdent = demoAnalysisTreeIdent,
+    parentStepIdent = parentStepIdent
+)
+
+# Verify creation
+newChildStep[, c("name", "path", "entityId")]
+newStep[,c("name", "path", "entityId")]
+
+# Verify parent-child relationship
+children <- loadChildSteps(parentStepIdent)$data[[1]]
+children[, c("name", "path", "entityId")] 
+```
+
+Note that when calling loadChildStep, the detatils on the child step(s) are stored in the list column `data` and not on the
+the dataframe's top level.
+
+
+# attachStep
+
+## Purpose of the function
+
+The `attachStep` function establishes hierarchical relationships between steps in improveR workflows by attaching a step to another step that serves as its parent. This function is essential for creating structured hierarchies that reflect the logical flow and dependencies between analytical steps. It provides flexibility to reorganize existing workflows, insert new steps into established processes, or correct relationships that were initially configured incorrectly, while maintaining workflow integrity and enabling proper execution planning and dependency 1tracking. <!-- #REVIEW  -->
+
+## Relation to other functions
+
+Within the step functions family, `attachStep` forms a complementary pair with `detachStep` for managing step hierarchy, working together with `createStep` to provide complete workflow structure control. The function integrates closely with navigation functions like `getStep`, `loadParentStep`, and `loadChildSteps` by ensuring cached relationships are updated through `unloadParentStep` calls. In the broader improveR ecosystem, it connects with the resource management system via `loadResource` for validation and uses the authentication infrastructure to make REST API calls that persist hierarchical changes across the entire system.
+
+## Under the hood
+
+The implementation follows a validation-execution pattern: first using `loadResource` to validate both step and parent entities exist, then extracting the tree identifier to determine the workflow context. The core operation makes an authenticated PUT request to `/resources/{treeId}/steps/{stepId}/attachStepToParent` with query parameters specifying the parent step ID. After the successful API call, the function calls `unloadParentStep` to invalidate cached parent-step relationships, ensuring subsequent navigation operations reflect the new hierarchy rather than stale cached data.
+
+## Example for demonstration purposes
+
+```{r}
+#| code-summary: "Attach Step 2 to Step 1"
+#| eval: true
+
+step1Parent <- "/improve-tutorial/demoSteps/Step 1"
+step2Child <- "/improve-tutorial/demoSteps/Step 2"
+
+attachStep(ident=step2Child, parent=step1Parent)
+
+#Verify new structure
+loadResource(ident=step1Parent)
+
+
+step1ParentChild <- loadChildSteps(ident=step1Parent)
+step1ParentChild$data[[1]]$name #'Step 2' is shown as child
+```
+
+::: {#fig-stepAttach layout-ncol=2 .no-margin .left-caption}
+
+![before](img/tutorialSteps/stepsDetached.png){#fig-detached .text-align-left}
+
+![after calling attachStep](img/tutorialSteps/stepsAttached.png){#fig-attached .left-caption}
+
+Steps before and after calling 'attachStep'
+:::
+
+
+
+# detachStep
+
+## Purpose of the function
+
+The `detachStep` function removes the hierarchical relationship between a step and its parent. This function is essential for workflow reorganization, allowing users to isolate steps that were incorrectly attached, flatten complex hierarchies, or prepare steps for reassignment to different parents. It provides the flexibility to modify workflow structures without deleting steps or losing their content, while maintaining data integrity and ensuring that cached relationships are properly updated throughout the system.
+
+## Relation to other functions
+
+Within the step functions family, `detachStep` works as the complementary counterpart to `attachStep`, providing the opposite operation for managing step hierarchies. It integrates with navigation functions like `loadParentStep` and `loadChildSteps` by updating cached parent-child relationships through `unloadChildSteps` and `unloadParentStep` calls. The function works seamlessly with `createStep` and other step management functions to provide complete control of the analysis' structure. In the broader improveR ecosystem, it connects with the resource management system via `loadResource` for step validation and uses the authentication infrastructure to make REST API calls that persist structural changes across the distributed system.
+
+## Under the hood
+
+The implementation follows a validation-execution-cleanup pattern: first using `loadResource` to validate the step entity exists and retrieve its metadata, then extracting the tree identifier and loading the parent step information. The core operation makes an authenticated PUT request to `/resources/{treeId}/steps/{stepId}/detachStepFromParent` with the step ID and tree ID as URL parameters. After the successful API call, the function performs cache maintenance by calling `unloadChildSteps` on the parent step and `unloadParentStep` on the detached step, ensuring that subsequent navigation operations reflect the updated hierarchy rather than stale cached relationships.
+
+## Example for demonstration purposes
+
+```{r}
+#| code-summary: "Detach step from parent step"
+step2Child <- "/improve-tutorial/demoSteps/Step 2"
+
+detachStep(ident=step2Child)
+
+#Verify new structure
+loadChildSteps(ident=step1Parent)$data[[1]] #data framew ith nrow 0
+```
+
+Note that when calling loadChildStep, the detatils on the child step(s) are stored in the list column `data` and not on the
+the dataframe's top level.
+
+
+::: {#fig-attachDetach layout-ncol=2 .no-margin .left-caption}
+
+![before](img/tutorialSteps/stepsAttached.png){#fig-attached .left-caption}
+
+![after calling detachStep](img/tutorialSteps/stepsDetached.png){#fig-detached .text-align-left}
+
+Steps before and after 
+:::
+
+
+# changeStepDescription
+
+## Purpose of the function
+
+The `changeStepDescription` function modifies the description field of an existing step, allowing users to update documentation and clarify the purpose of analytical steps after they have been created. This function is instrumental for maintaining clear and accurate documentation as analyses evolve, requirements change, or when steps need better descriptions for collaboration and reproducibility. It enables dynamic updating of step metadata without requiring recreation of the entire step or disruption of existing workflow structures and dependencies.
+
+## Relation to other functions
+
+Within the step functions family, `changeStepDescription` works alongside `changeStepRationale` to provide comprehensive metadata editing capabilities for workflow steps. Both functions share similar implementation patterns and complement `getStep` for retrieving step information before modification. The function integrates with improveR's resource management system through `loadResource` and `updateResource`, ensuring that description changes are properly persisted and cached correctly. It connects to the broader improveR package's authentication and REST API infrastructure, making authenticated calls to update step metadata on the server while maintaining data consistency across the distributed system.
+
+## Under the hood
+
+The implementation follows a load-modify-save pattern: first calling `loadResource` to retrieve the current step entity and validate it exists, then directly modifying the description property of the step entity object. The function makes an authenticated PUT request to the `/resources/{resourceId}/` endpoint, sending the modified step entity as the request payload to persist changes on the server. Finally, it calls `updateResource` to refresh the local cache with the updated step information, ensuring that subsequent operations work with the most current data and maintaining consistency between local and server state.
+
+## Example for demonstration purposes
+
+```{r}
+#| code-summary: "Change description of Step 1"
+
+stepIdent <- "/improve-tutorial/demoSteps/Step 1"
+
+loadResource(stepIdent)$description
+
+changeStepDescription(ident=stepIdent, description="changed description")
+
+loadResource(stepIdent)$description
+```
+
+
+# changeStepRationale
+
+## Purpose of the function
+
+The `changeStepRationale` function modifies the rationale field of an existing step, allowing users to update the reasoning and justification for why analytical steps were created and included in the workflow. This function is essential for maintaining clear analytical documentation that explains the scientific or methodological rationale behind each step, supporting reproducible research practices and regulatory compliance. It enables dynamic updating of step justification without requiring recreation of the entire step or disruption of existing workflow structures and dependencies, ensuring that analytical decisions remain well-documented as projects evolve.
+
+## Relation to other functions
+
+Within the step functions family, `changeStepRationale` works as a companion to `changeStepDescription` to provide comprehensive metadata editing capabilities for steps. Both functions share identical implementation patterns and complement `getStep` for retrieving step information before modification. The function integrates seamlessly with improveR's resource management system through `loadResource` and `updateResource`, ensuring that rationale changes are properly persisted and cached correctly. It connects to the broader improveR package's authentication and REST API infrastructure, making authenticated calls to update step metadata on the server while maintaining data consistency and version control across the distributed system.
+
+## Under the hood
+
+The implementation follows the same load-modify-save pattern as `changeStepDescription`: first calling `loadResource` to retrieve the current step entity and validate it exists, then directly modifying the rationale property of the step entity object. The function makes an authenticated PUT request to the `/resources/{resourceId}/` endpoint, sending the modified step as the request payload to persist changes on the server. Finally, it calls `updateResource` to refresh the local cache with the updated step information, ensuring that subsequent operations work with the most current data and maintaining consistency between local and server state.
+
+## Example for demonstration purposes
+
+```{r}
+#| code-summary: "Change rationale of Step 1"
+
+stepIdent <- "/improve-tutorial/demoSteps/Step 1"
+
+loadResource(stepIdent)$rationale
+
+changeStepRationale(ident=stepIdent, rationale="Updated rationale explaining the scientific justification for this analytical step")
+
+loadResource(stepIdent)$rationale
+```
+
+# createStepEnv 
+
+ <!-- - #REVIEW mainly of internal use? should it be really exported? -->
+
+## Purpose of the function
+
+The `createStepEnv` function constructs a specialized R environment object that encapsulates a step's complete context and provides programmatic access to all step-related data and operations. This environment serves as a comprehensive interface containing the step's metadata, file relationships, navigation capabilities, and workflow context in a structured, object-like format. The function creates an environment that includes nested sub-environments for children, parent, usage, and lineage relationships, along with functional bindings for operations like `getStepInventory()`, `getStepResource()`, and `getStepState()`. This environment-based approach enables intuitive navigation through workflow hierarchies using R's `$` operator and provides a unified API for step manipulation and introspection that supports both interactive analysis and programmatic workflow management.
+
+## Relation to other functions
+
+Within the step functions family, `createStepEnv` serves as the foundational building block that underlies `getStep()`, which calls `createStepEnv` internally to generate the rich environment objects that users interact with. The function works closely with navigation functions like `loadChildSteps`, `loadParentStep`, and workflow analysis functions by providing the structured environment that contains lazy-loading mechanisms for these relationships. It integrates with resource management functions through embedded `loadResource` calls and connects with the broader improveR ecosystem by creating environments that interface with authentication systems, caching mechanisms, and REST API endpoints. The environments created by `createStepEnv` also support workflow execution functions by providing access to process definitions, file dependencies, and execution state information necessary for step orchestration and dependency tracking.
+
+## Under the hood
+
+The implementation follows a multi-layered environment construction pattern: first calling `loadResource` to retrieve the step's core metadata and validate existence, then systematically building nested environments for relationships (children, parent, usage, lineage) with lazy-loading `load()` functions. The function creates functional bindings by embedding closures that capture the step context, enabling methods like `getStepInventory()` and `getStepWithoutCache()` to operate within the step's scope. It constructs a workflow environment that provides access to execution planning and dependency analysis capabilities when populated. The function also creates a self-referential `this` binding and embeds the step's dataframe representation (`stepDf`) with process and file metadata, resulting in a comprehensive environment that serves as both a data container and an operational interface for step management within the improveR workflow system.
+
+## Example for demonstration purposes
+
+<!-- #REVIEW - example requires input from non-exported function getStepDf -->
+
+```{r}
+#| code-summary: "Create step environment using getStepDf and explore its structure"
+#| eval: false
+
+stepIdent <- "/improve-tutorial/demoSteps/Step 1"
+
+# First, get the stepDf (step metadata) using the internal function
+# Note: Users typically use getStep() instead of calling createStepEnv directly
+stepDf <- improveR:::getStepDf(stepIdent)
+workflow <- createWorkflow()
+
+# Create the step environment with the stepDf
+step_env <- createStepEnv(stepDf, workflow)
+
+# Examine the environment structure
+class(step_env)
+length(ls(step_env))
+ls(step_env)
+
+# Show the stepDf structure that was used to create the environment
+names(stepDf)
+stepDf$sourceName
+stepDf$description
+
+# Test functional bindings
+step_env$getStepState()
+step_resource <- step_env$getStepResource()
+names(step_resource)[1:5]  # Show first few column names
+
+# Explore nested environment structure  
+ls(step_env$children)
+ls(step_env$parent)
+ls(step_env$workflow)
+
+# Compare with getStep() which internally calls createStepEnv
+step_env_via_getStep <- getStep(stepIdent)
+identical(class(step_env), class(step_env_via_getStep))
+
+```
+ 
 # getWorkflow <!--[#REVISE]-->
 
 ## Purpose of the function
