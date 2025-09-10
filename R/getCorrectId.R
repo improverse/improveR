@@ -22,7 +22,7 @@
 #' getCorrectId("my_server:ST-63657") #short entity id
 #' }
 #' @references ics1087
-#' @export
+#' @noRd
 
 getCorrectId <- function(resolveToId) {
     if (is.data.frame(resolveToId)) {

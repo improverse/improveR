@@ -63,6 +63,7 @@ realise_deprecated <- function(env, force = TRUE, run = TRUE,workflow=NULL) {
 
 #' Create prepared step using old API approach
 #' @keywords internal
+#' @noRd
 createPreparedStep_deprecated <- function(env, prepStep) {
   logging::logdebug("createPreparedStep_deprecated")
 
@@ -298,6 +299,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
 
 #' Get step state for deprecated version
 #' @keywords internal
+#' @noRd
 getStepState_deprecated <- function(step) {
   if (is.character(step)) {
     # It's a resource ID
@@ -308,6 +310,7 @@ getStepState_deprecated <- function(step) {
 
 #' Run step using deprecated approach
 #' @keywords internal
+#' @noRd
 runStep_deprecated <- function(step) {
   if (is.character(step)) {
     stepResourceId <- step
@@ -323,6 +326,7 @@ runStep_deprecated <- function(step) {
 
 #' Change step description using PUT request
 #' @keywords internal
+#' @noRd
 changeStepDescription_deprecated <- function(step, description) {
   stepEntity <- if (is.character(step)) loadResource(step) else step
   stepEntity$description <- description
@@ -336,6 +340,7 @@ changeStepDescription_deprecated <- function(step, description) {
 
 #' Change step rationale using PUT request
 #' @keywords internal
+#' @noRd
 changeStepRationale_deprecated <- function(step, rationale) {
   stepEntity <- if (is.character(step)) loadResource(step) else step
   stepEntity$rationale <- rationale
@@ -349,6 +354,7 @@ changeStepRationale_deprecated <- function(step, rationale) {
 
 #' Add file to step - deprecated version
 #' @keywords internal
+#' @noRd
 addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
 
   if (is.null(filePrep)) {
@@ -546,6 +552,7 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
 
 #' Add external link to step - deprecated version
 #' @keywords internal
+#' @noRd
 addExtLinkToStep_deprecated <- function(newStep, linkPrep) {
   if (is.null(linkPrep) || is.na(linkPrep$url)) {
     return()

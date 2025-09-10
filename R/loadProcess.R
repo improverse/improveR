@@ -8,7 +8,7 @@ processesForStepsCacheList <- list(
 #'
 #' @param stepIdent resourceId of the step or the step
 #' @references ics1218
-#' @export
+#' @noRd
 loadProcessesForStep <- function(stepIdent) {
   step <- loadResource(stepIdent)
   if (is.null(step)) {
@@ -26,7 +26,7 @@ loadProcessesForStep <- function(stepIdent) {
 #'
 #' @param processId processId of the process
 #' @references ics1218
-#' @export
+#' @noRd
 loadProcessesForStepById <- function(processId) {
   processes <- getFromCache(processId,function(...){},processesForStepsCacheList,NULL)
   if (is.null(processes)) {
@@ -53,7 +53,7 @@ actualLoadProcessesForStep <- function(stepIdent) {
 #' unloadProcessesForStep
 #' @param stepIdent resourceId of the step or the step
 #' @references ics1218
-#' @export
+#' @noRd
 unloadProcessesForStep <- function(stepIdent) {
   step <- loadResource(stepIdent)
   if (is.null(step)) {
@@ -66,7 +66,7 @@ unloadProcessesForStep <- function(stepIdent) {
 #' updateProcessesForStep reloads the processes for a step
 #' @param stepIdent resourceId of the step or the step
 #' @references ics1218
-#' @export
+#' @noRd
 updateProcessesForStep <- function(stepIdent) {
   unloadProcessesForStep(stepIdent)
   res <- loadProcessesForStep(stepIdent)
@@ -76,7 +76,7 @@ updateProcessesForStep <- function(stepIdent) {
 #' processGridProvider loads the grid provider for a given process
 #' @param process the data frame for the process
 #' @references ics1218
-#' @export
+#' @noRd
 processGridProvider <- function(process) {
   tool <- processTool(process)
   return(tool$gridProvider)
@@ -85,7 +85,7 @@ processGridProvider <- function(process) {
 #' processTool loads the tool for a given process
 #' @param process the data frame for the process
 #' @references ics1218
-#' @export
+#' @noRd
 processTool <- function(process) {
   runservers <- loadRunservers()
   runserver <- runservers[runservers$id==process$runserverId,]
@@ -101,7 +101,7 @@ processGridArgumentsCacheList <- list(
 #' loadProcessGridArguments loads the tool for a given process
 #' @param processId id of the process
 #' @references ics1218
-#' @export
+#' @noRd
 loadProcessGridArguments <- function(processId) {
   dfs <- getFromCache(processId,actualLoadProcessGridArguments,processGridArgumentsCacheList,NULL)
   return(dfs)
@@ -131,7 +131,7 @@ actualLoadProcessGridArguments <- function(processId) {
 #' unloadProcessGridArguments
 #' @param processId id of the process
 #' @references ics1218
-#' @export
+#' @noRd
 unloadProcessGridArguments <- function(processId) {
   loadProcessGridArguments(processId)
   removeFromCache(processId,"",processGridArgumentsCacheList)
@@ -140,7 +140,7 @@ unloadProcessGridArguments <- function(processId) {
 #' updateLoadProcessGridArguments reloads the process grid arguments for a process
 #' @param processId id of the process
 #' @references ics1218
-#' @export
+#' @noRd
 updateProcessGridArguments <- function(processId) {
   unloadProcessGridArguments(processId)
   res <- loadProcessGridArguments(processId)
@@ -155,7 +155,7 @@ processVariablesCacheList <- list(
 #' loadProcessVariables loads the variables for a given process
 #' @param processId id of the process
 #' @references ics1218
-#' @export
+#' @noRd
 loadProcessVariables <- function(processId) {
   dfs <- getFromCache(processId,actualLoadProcessVariables,processVariablesCacheList,NULL)
   return(dfs)
@@ -180,7 +180,7 @@ actualLoadProcessVariables <- function(processId) {
 #' unloadProcessVariables
 #' @param processId id of the process
 #' @references ics1218
-#' @export
+#' @noRd
 unloadProcessVariables <- function(processId) {
   loadProcessVariables(processId)
   removeFromCache(processId,"",processVariablesCacheList)
@@ -189,7 +189,7 @@ unloadProcessVariables <- function(processId) {
 #' updateProcessVariables reloads the process variables for a process
 #' @param processId id of the process
 #' @references ics1218
-#' @export
+#' @noRd
 updateProcessVariables <- function(processId) {
   unloadProcessVariables(processId)
   res <- loadProcessVariables(processId)
@@ -203,7 +203,7 @@ processRunsCacheList <- list(
 #' loadProcessRun loads the runs for a given process
 #' @param processId id of the process
 #' @references ics1218
-#' @export
+#' @noRd
 loadProcessRuns <- function(processId) {
   dfs <- getFromCache(processId,actualLoadProcessRuns,processRunsCacheList,NULL)
   return(dfs)
@@ -229,7 +229,7 @@ actualLoadProcessRuns <- function(processId) {
 #' unloadProcessRuns
 #' @param processId id of the process
 #' @references ics1218
-#' @export
+#' @noRd
 unloadProcessRuns <- function(processId) {
   loadProcessRuns(processId)
   removeFromCache(processId,"",processRunsCacheList)
@@ -238,7 +238,7 @@ unloadProcessRuns <- function(processId) {
 #' updateProcessRuns reloads the process runs for a process
 #' @param processId id of the process
 #' @references ics1218
-#' @export
+#' @noRd
 updateProcessRuns <- function(processId) {
   unloadProcessRuns(processId)
   res <- loadProcessRuns(processId)

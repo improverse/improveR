@@ -6,7 +6,7 @@
 #' @param argumentValue value of the grid argument
 #' @param update updates if one value is already set, if not adds, defaults to TRUE
 #' @references ics1222
-#' @export
+#' @noRd
 setGridArgument <- function(processId,argumentName,argumentValue,update=T) {
   improveEditable()
   process <- loadProcessesForStepById(processId = processId)
@@ -69,7 +69,7 @@ buildDataList <- function(gridArgument,argumentValue) {
 #' @param argumentName name of the grid argument
 #' @param argumentValue value of the grid argument
 #' @references ics1222
-#' @export
+#' @noRd
 updateGridArgument <- function(processId,argumentName,argumentValue) {
   improveEditable()
   process <- loadProcessesForStepById(processId = processId)
@@ -107,7 +107,7 @@ updateGridArgument <- function(processId,argumentName,argumentValue) {
 #' @param processId id of the process
 #' @param argumentName name of the grid argument
 #' @references ics1222
-#' @export
+#' @noRd
 deleteGridArgumentsByName <- function(processId,argumentName) {
   improveEditable()
   gridArguments <- loadProcessGridArguments(processId)
@@ -122,7 +122,7 @@ deleteGridArgumentsByName <- function(processId,argumentName) {
 #' @param processId id of the process
 #' @param ids ids of the grid arguments
 #' @references ics1222
-#' @export
+#' @noRd
 deleteGridArgumentsById <- function(processId,ids) {
   improveEditable()
   process <- loadProcessesForStepById(processId = processId)

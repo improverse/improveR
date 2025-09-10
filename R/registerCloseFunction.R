@@ -1,6 +1,6 @@
 #' improveCloseToken
 #' @description Locks an object.
-#' @export
+#' @noRd
 improveCloseToken = new.env(parent=emptyenv())
 
 .onLoad <- function(libname, pkgname) {
@@ -35,7 +35,7 @@ improveCloseToken = new.env(parent=emptyenv())
 #' the close functions are executed in alphabetical order, so numbering as prefix can guarantee an order.
 #' @param name Name of the function. This name is used for the alphabetical ordering and unregistering.
 #' @param func the function that is executed when ending the R session.
-#' @export
+#' @noRd
 registerCloseFunction <- function(name,func) {
   if (name %in% ls(envir=improveCloseToken)) {
     logging::logwarn(paste0("Function ",name," was already registered, will be overwritten"))
@@ -46,8 +46,8 @@ registerCloseFunction <- function(name,func) {
 #' unregisterCloseFunction
 #' @description unregisterCloseFunction removes a close function by the name it was registered with.
 #' @param name The name under which the function has been registered.
-#' @export
 #' @seealso [registerCloseFunction()], [listCloseFunctions()]
+#' @noRd
 unregisterCloseFunction <- function(name) {
   if (name %in% ls(envir=improveCloseToken)) {
     rm(list = ls(pattern = name,envir=improveCloseToken),envir=improveCloseToken)
@@ -60,7 +60,7 @@ unregisterCloseFunction <- function(name) {
 #' listCloseFunctions
 #' @description Lists the names of all functions registered by registerCloseFunction.
 #' @seealso [registerCloseFunction()]
-#' @export
+#' @noRd
 listCloseFunctions <- function() {
   ls(envir=improveCloseToken)
 }

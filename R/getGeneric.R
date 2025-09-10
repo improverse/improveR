@@ -108,6 +108,7 @@ getFilesFromFolder <- function(ident, from=pwd(),filePattern="", recurse=F) {
 #' @param folderName where to store the file
 #' @param func the processing function for this type
 #' @param ... pass over arguments for the read function
+#' @noRd
 #'
 getAbstract <- function(ident,from=pwd(),addAsLink=TRUE,addIdToName = TRUE,caption="",description="",folderName,func,...) {
   resource <- loadResource(ident,from)
@@ -149,6 +150,7 @@ getAbstract <- function(ident,from=pwd(),addAsLink=TRUE,addIdToName = TRUE,capti
 #'
 #' @param caption by default entityID and lastmodified are the caption, here alternative text can be provided
 #' @param description by default filename is the caption, here alternative text can be provided
+#' @noRd
 #'
 getDesc <- function(resourceDesc,caption="",description="") {
   resource <- loadResource(resourceDesc$resourceId)
@@ -164,6 +166,7 @@ getDesc <- function(resourceDesc,caption="",description="") {
 #'
 #' @param caption by default entityID and lastmodified are the caption, here alternative text can be provided
 #' @param description by default filename is the caption, here alternative text can be provided
+#' @noRd
 #'
 buildDescriptor <- function(resource,localPath, caption="",description="") {
   if (caption=="") {
@@ -188,7 +191,7 @@ buildDescriptor <- function(resource,localPath, caption="",description="") {
 #' general function to build the caption for a resource
 #'
 #' @param resource resource to be described
-#'
+#' @noRd
 #'
 buildCaption <- function(resource) {
   caption <- paste0("Source (Entity version ID):",
@@ -202,8 +205,8 @@ buildCaption <- function(resource) {
 
 #' resets the step by deleting all the downloaded data, if you are using relative pathes it makes sense to do this at the beginning of the step
 #' it also deletes all the links that were currently created
+#' @noRd
 #'
-#' @export
 
 resetStep <- function() {
   if(file.exists(".improve.json")) {

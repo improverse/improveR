@@ -171,6 +171,7 @@ isResourceUp2Date <- function(ident,from=pwd()) {
 #'
 #' @name common_ident
 #' @param ident id
+#' @noRd
 #'
 #' @section Details ident:
 #' There are multiple ways to describe the ident of a resource:

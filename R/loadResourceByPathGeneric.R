@@ -3,7 +3,7 @@
 #' @param path path to the resource.
 #' @param from working directory from which relative path is resolved.
 #' Default is the root directory.
-#' @export
+#' @noRd
 loadResourceByPathGeneric <- function(path,from=pwd()) {
   logging::logdebug("loading path: ")
   logging::logdebug(path)

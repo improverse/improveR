@@ -8,8 +8,8 @@ gridArgumentsCacheList <- list(
 #'
 #' @param gridProvider label of the grid provider
 #' @references ics1216
+#' @noRd
 #'
-#' @export
 loadGridArguments <- function(gridProvider) {
   runserverToos <- getFromCache(gridProvider,actualLoadGridArguments,gridArgumentsCacheList,NULL)
   return(runserverToos)
@@ -33,7 +33,7 @@ actualLoadGridArguments <- function(gridProvider) {
 #' unloadGridArguments
 #' @param gridProvider label of the grid provider
 #' @references ics1216
-#' @export
+#' @noRd
 unloadGridArguments <- function(gridProvider) {
   loadToolsForRunserver(gridProvider)
   removeFromCache(gridProvider,"",gridArgumentsCacheList)
@@ -42,7 +42,7 @@ unloadGridArguments <- function(gridProvider) {
 #' updateGridArguments reloads the grid arguments from the repository
 #' @param gridProvider label of the grid provider
 #' @references ics1216
-#' @export
+#' @noRd
 updateGridArguments <- function(gridProvider) {
   unloadGridArguments(gridProvider)
   res <- loadGridArguments(gridProvider)
@@ -53,7 +53,7 @@ updateGridArguments <- function(gridProvider) {
 #' @param gridProvider label of the grid provider
 #' @param argumentName name of the argument
 #' @references ics1216
-#' @export
+#' @noRd
 loadGridArgumentDefinition <- function(gridProvider,argumentName) {
   gridArguments <- loadGridArguments(gridProvider = gridProvider)
   if (is.null(gridArguments)) {

@@ -7,8 +7,6 @@
 loadResource(ident, from = pwd())
 }
 \arguments{
-\item{ident}{id}
-
 \item{from}{Path working directory.}
 }
 \value{

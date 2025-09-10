@@ -29,14 +29,15 @@ timing <- function(name) {
 #' the unparsed result is returned from this call
 #' @seealso [improveConnect()]
 #' @references ics1082
-#' @export
+#' @keywords internal
+#' @noRd
 authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",restType="GET",contentType="application/json",encode="json",ignoreFail=T) {
   timing(url)
   if (is.null(encode)) {
     encode <- c("multipart","form", "json", "raw")
   }
 
-  if (startsWith(url,"/")) {
+  if (startsWith(url,"")) {
     url <- substr(url,2,nchar(url))
   }
   if (!(restType) %in% names(REST_FUNCTIONS)) {
@@ -111,7 +112,7 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
 replacePlaceHoldersinURL <- function(url,urlParams) {
   if (length(urlParams)>0) {
     for (i in 1:length(urlParams)) {
-      urlParamName <- paste0("{",names(urlParams[i]),"}")
+      urlParamName <- paste0("{ ",names(urlParams[i])," }")
       urlParamValue <- as.character(urlParams[i][1])
       url<-gsub(urlParamName,urlParamValue,url,fixed=T)
     }

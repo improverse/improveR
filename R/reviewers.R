@@ -1,5 +1,6 @@
 #' helper function to validate the review's existence
 #' @param reviewId id (UUID) of the review whose existence is to be checked
+#' @noRd
 validateReview <- function(reviewId) {
   reviews <- updateReviews()
   if (is.null(reviews) || nrow(reviews) == 0) {
@@ -25,6 +26,7 @@ validateReview <- function(reviewId) {
 #' helper function to validate the reviewer's existence
 #' @param reviewId id (UUID) of the review
 #' @param reviewerId id (UUID) of the reviewer whose existence is to be checked
+#' @noRd
 validateReviewer <- function(reviewId, reviewerId) {
   reviewers <- updateReviewers(reviewId)
   if (is.null(reviewers) || nrow(reviewers) == 0) {
@@ -50,6 +52,7 @@ validateReviewer <- function(reviewId, reviewerId) {
 #' helper function to validate the user's existence
 #' @param userId id (UUID) of the user whose existence is to be checked
 #' @param username name of the user whose existence is to be checked
+#' @noRd
 validateUser <- function(userId, username) {
   users <- users()
   if (is.null(users) || nrow(users) == 0) {
@@ -76,6 +79,7 @@ validateUser <- function(userId, username) {
 #' @param reviewId id (UUID) of the review
 #' @param userId id (UUID) of the user
 #' @param username name of the user
+#' @noRd
 validateDuplicateReviewer <- function(reviewId, userId, username) {
   reviewers <- updateReviewers(reviewId)
   if (!is.null(reviewers) && !all(c("userid", "username") %in% colnames(reviewers))) {

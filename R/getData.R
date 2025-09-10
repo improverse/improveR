@@ -47,6 +47,7 @@ getTextString <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description
 #' @param description by default filename is the caption, here alternative text can be provided
 #' @param parser a custom parsing function can be handed over. It needs to take a local path as first argument
 #' @param ... pass over arguments for the read function
+#' @noRd
 #'
 getDataByResource <- function(resourceDesc,caption="",description="",parser=NULL,...) {
   resource <- loadResource(resourceDesc$resourceId)
@@ -79,6 +80,7 @@ getDataByResource <- function(resourceDesc,caption="",description="",parser=NULL
 #' @param caption by default entityID and lastmodified are the caption, here alternative text can be provided
 #' @param description by default filename is the caption, here alternative text can be provided
 #' @param ... pass over arguments for the read function
+#' @noRd
 #'
 getTextByResource <- function(resourceDesc,caption="",description="",...) {
   resource <- loadResource(resourceDesc$resourceId)

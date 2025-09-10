@@ -8,6 +8,7 @@
 #' @param env The step environment
 #' @return List of steps that use this step's outputs
 #' @keywords internal
+#' @noRd
 getUsage <- function(step, env) {
   step <- loadResource(step)
   # Check repository version
@@ -41,6 +42,7 @@ getUsage <- function(step, env) {
 #' the resource hierarchy to find which steps contain those references.
 #'
 #' @keywords internal
+#' @noRd
 getUsage_deprecated <- function(step, env) {
   usageSteps <- list()
   foundStepIds <- character()

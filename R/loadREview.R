@@ -9,6 +9,8 @@ reviewsCacheList <- list(
 #' API reqeust to retrieve all registered reviews
 #' @param ... additional arguments
 #' @references ics348
+#' @keywords internal
+#' @noRd
 actualLoadReviews <- function(...) {
   result <- authenticatedREST("/reviews", restType = "GET")
   if (is.null(result)) {
