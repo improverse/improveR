@@ -37,7 +37,7 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     encode <- c("multipart","form", "json", "raw")
   }
 
-  if (startsWith(url,"")) {
+  if (startsWith(url,"/")) {
     url <- substr(url,2,nchar(url))
   }
   if (!(restType) %in% names(REST_FUNCTIONS)) {
@@ -53,7 +53,7 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
   url <- appendQueryParams(url,queryParams)
   url <- paste0(conf()$repoUrl,url)
   logging::logdebug(paste0(restType," connecting to ",url))
-  
+
   # Display REST calls if environment variable is set
   if (Sys.getenv("IMPROVER_DISPLAY_REST_CALLS", "") != "") {
     cat(paste0("REST Call: ", restType, " ", url, "\n"))
@@ -112,7 +112,7 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
 replacePlaceHoldersinURL <- function(url,urlParams) {
   if (length(urlParams)>0) {
     for (i in 1:length(urlParams)) {
-      urlParamName <- paste0("{ ",names(urlParams[i])," }")
+      urlParamName <- paste0("{",names(urlParams[i]),"}")
       urlParamValue <- as.character(urlParams[i][1])
       url<-gsub(urlParamName,urlParamValue,url,fixed=T)
     }
