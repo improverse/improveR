@@ -3,8 +3,9 @@
 # Helper function to ensure TEST_FOLDER exists when running tests individually
 ensureTestFolder <- function() {
   Sys.setenv(TEST_NAME="metadata")
+  # Always ensure editable flag is set - it may be reset between tests
+  improveR::setEditable(TRUE)
   if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
-    improveR::setEditable(TRUE)
     print("baseFiles")
     cat("=== DIAGNOSTIC: Running baseFilesSetup ===\n")
     TEST_FOLDER <- improveR:::baseFilesSetup()
