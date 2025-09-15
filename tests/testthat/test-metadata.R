@@ -8,7 +8,18 @@ ensureTestFolder <- function() {
   if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
     print("baseFiles")
     cat("=== DIAGNOSTIC: Running baseFilesSetup ===\n")
-    TEST_FOLDER <- improveR:::baseFilesSetup()
+    cat("Current working directory:", getwd(), "\n")
+    cat("TEST_NAME env var:", Sys.getenv("TEST_NAME"), "\n")
+    cat("TEST_FOLDER env var:", Sys.getenv("TEST_FOLDER"), "\n")
+    
+    # Call baseFilesSetup with error handling
+    TEST_FOLDER <- tryCatch({
+      improveR:::baseFilesSetup()
+    }, error = function(e) {
+      cat("ERROR in baseFilesSetup:", e$message, "\n")
+      NULL
+    })
+    
     cat("baseFilesSetup returned - class:", class(TEST_FOLDER), "\n")
     if (!is.null(TEST_FOLDER)) {
       cat("TEST_FOLDER value:", TEST_FOLDER, "\n")
@@ -49,8 +60,11 @@ ensureTestFolder <- function() {
 
 # httptest::with_mock_dir("checkIfMetadataDefinitionsExist", {
   test_that("check if metadata definitions exist|ics1096", {
+    cat("\n=== DIAGNOSTIC: Starting first test - check if metadata definitions exist ===\n")
     TEST_FOLDER <- ensureTestFolder()
+    cat("First test - TEST_FOLDER obtained:", TEST_FOLDER, "\n")
     definitions <- loadMetaDataDefinitions()
+    cat("Metadata definitions loaded - rows:", ifelse(!is.null(definitions), nrow(definitions), "NULL"), "\n")
     compound <- definitions[definitions$name == "Compound", ]
     expect_equal(nrow(compound), 1)
     expect_equal(compound$metadataType, "TEXT")
