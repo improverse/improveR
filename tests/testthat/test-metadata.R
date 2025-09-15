@@ -6,16 +6,35 @@ ensureTestFolder <- function() {
   if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
     improveR::setEditable(TRUE)
     print("baseFiles")
+    cat("=== DIAGNOSTIC: Running baseFilesSetup ===\n")
     TEST_FOLDER <- improveR:::baseFilesSetup()
+    cat("baseFilesSetup returned - class:", class(TEST_FOLDER), "\n")
+    if (!is.null(TEST_FOLDER)) {
+      cat("TEST_FOLDER value:", TEST_FOLDER, "\n")
+    } else {
+      cat("TEST_FOLDER is NULL after baseFilesSetup!\n")
+    }
     assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
 
+    cat("\n=== DIAGNOSTIC: Loading metadata folder ===\n")
     metadatafolder <- loadResource("./metadata", TEST_FOLDER)
+    cat("metadatafolder result:", class(metadatafolder), "\n")
     if (is.null(metadatafolder)) {
       print("metadata")
+      cat("Creating new metadata folder...\n")
       metadatafolder <- createFolder(TEST_FOLDER, "metadata")
+      cat("Created folder - class:", class(metadatafolder), "\n")
 
+      cat("\n=== DIAGNOSTIC: Loading test files from rgetGRAPH ===\n")
       testFiles <- loadChildResources("./rgetGRAPH", from = TEST_FOLDER) %>% strip()
+      cat("Test files loaded - rows:", ifelse(!is.null(testFiles), nrow(testFiles), "NULL"), "\n")
+      if (!is.null(testFiles) && nrow(testFiles) > 0) {
+        cat("Test file names:", paste(testFiles$name, collapse = ", "), "\n")
+      }
+      
+      cat("\nCopying test files to metadata folder...\n")
       copied <- copy(sources = testFiles, metadatafolder)
+      cat("Copy result - rows:", ifelse(!is.null(copied), nrow(copied), "NULL"), "\n")
 
       expect_equal(nrow(copied), 3)
     }
@@ -47,8 +66,20 @@ ensureTestFolder <- function() {
 
 # httptest::with_mock_dir("createLoadUpdateAndDeleteMetadataForOneFolder", {
   test_that("create, load, update and delete metadata for one folder|ics1096,ics1137", {
+    cat("\n=== DIAGNOSTIC: Starting test - create, load, update metadata ===\n")
     TEST_FOLDER <- ensureTestFolder()
+    cat("TEST_FOLDER value:", TEST_FOLDER, "\n")
+    cat("TEST_FOLDER class:", class(TEST_FOLDER), "\n")
+    
+    cat("\nLoading metadata folder...\n")
     metadatafolder <- loadResource("./metadata", TEST_FOLDER)
+    cat("metadatafolder class:", class(metadatafolder), "\n")
+    if (!is.null(metadatafolder)) {
+      cat("metadatafolder path:", metadatafolder$path, "\n")
+      cat("metadatafolder resourceId:", metadatafolder$resourceId, "\n")
+    } else {
+      cat("metadatafolder is NULL!\n")
+    }
 
     result <- addMetaDate(metadatafolder, "Compound", value = "Compound")
     result <- addMetaDate(metadatafolder, "Indication", value = "Cancer")
@@ -178,13 +209,43 @@ ensureTestFolder <- function() {
 
 # httptest::with_mock_dir("metadataOnMultipleResourcesAtOnce", {
   test_that("metadata on multiple resources at once|ics1096,ics1137", {
+    cat("\n=== DIAGNOSTIC: Starting metadata on multiple resources test ===\n")
     TEST_FOLDER <- ensureTestFolder()
+    cat("TEST_FOLDER obtained - value:", ifelse(!is.null(TEST_FOLDER), TEST_FOLDER, "NULL"), "\n")
+    
     metadatafolder <- loadResource("./metadata", TEST_FOLDER)
-
-    multiFiles <- loadChildResources(metadatafolder) %>% strip()
+    cat("metadatafolder loaded - class:", class(metadatafolder), "\n")
+    if (!is.null(metadatafolder)) {
+      cat("metadatafolder path:", metadatafolder$path, "\n")
+      cat("metadatafolder resourceId:", metadatafolder$resourceId, "\n")
+      
+      cat("\n=== DIAGNOSTIC: Loading child resources ===\n")
+      childResources <- loadChildResources(metadatafolder)
+      cat("Child resources loaded - class:", class(childResources), "\n")
+      if (!is.null(childResources)) {
+        cat("Child resources has 'data' element:", "data" %in% names(childResources), "\n")
+        if ("data" %in% names(childResources)) {
+          cat("childResources$data class:", class(childResources$data), "\n")
+          cat("childResources$data length:", length(childResources$data), "\n")
+          if (length(childResources$data) > 0) {
+            cat("childResources$data[[1]] class:", class(childResources$data[[1]]), "\n")
+            cat("childResources$data[[1]] rows:", ifelse(is.data.frame(childResources$data[[1]]), nrow(childResources$data[[1]]), "not a data.frame"), "\n")
+          }
+        }
+      }
+      
+      multiFiles <- childResources %>% strip()
+    } else {
+      cat("metadatafolder is NULL - cannot load child resources\n")
+      multiFiles <- NULL
+    }
+    
     cat("\n=== DIAGNOSTIC: multiFiles loaded ===\n")
-    cat("Number of files:", nrow(multiFiles), "\n")
-    cat("File names:", paste(multiFiles$name, collapse = ", "), "\n")
+    cat("multiFiles class:", class(multiFiles), "\n")
+    cat("Number of files:", ifelse(!is.null(multiFiles), nrow(multiFiles), "NULL"), "\n")
+    if (!is.null(multiFiles) && nrow(multiFiles) > 0) {
+      cat("File names:", paste(multiFiles$name, collapse = ", "), "\n")
+    }
 
     cat("\n=== DIAGNOSTIC: Adding metadata ===\n")
     result <- addMetaDate(multiFiles, "Compound", value = "Compound")
