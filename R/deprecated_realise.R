@@ -271,7 +271,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   gridArguments <- mainProcess$gridArguments[[1]]
   print("gridArguments")
   print(gridArguments)
-  if (!is.null(gridArguments) && nrow(gridArguments) > 0) {
+  if (is.data.frame(gridArguments) && nrow(gridArguments) > 0) {
     byNotEmpty(gridArguments, function(gridArgument) {
       print("gridArgument")
       print(processId)

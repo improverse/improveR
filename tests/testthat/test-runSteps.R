@@ -356,35 +356,70 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
 }
 
 test_that("DMG spans multiple trees, linear|ics1140", {
+  cat("\n=== DMG TEST STARTING ===\n")
   # Ensure TEST_FOLDER exists (for when test is run individually)
   TEST_FOLDER <- ensureTestFolder()
+  cat("TEST_FOLDER:", TEST_FOLDER, "\n")
 
+  cat("Creating analysis trees...\n")
   dmgL1 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "DMG L1")
+  cat("Created DMG L1\n")
   dmgL2 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "DMG L2")
+  cat("Created DMG L2\n")
   dmgL3 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "DMG L3")
+  cat("Created DMG L3\n")
 
+  cat("Creating initial mock steps...\n")
   i1 <- mockStep(dmgL1, paste0(TEST_FOLDER, "/data.csv"), "Initial 1", "data comes to system")
+  cat("Created i1\n")
   i2 <- mockStep(dmgL1, paste0(TEST_FOLDER, "/data.csv"), "Initial 2", "data comes to system")
+  cat("Created i2\n")
 
+  cat("Creating s1t1...\n")
   s1t1 <- mockStep(dmgL1, i1, "S1T1", "processing", dataSet2 = i2)
+  cat("Created s1t1\n")
 
+  cat("Creating s2t1...\n")
   s2t1 <- mockStep(dmgL1, s1t1, "S2T1", "processing", dataSet2 = i2)
+  cat("Created s2t1\n")
 
+  cat("Creating s1t2...\n")
   s1t2 <- mockStep(dmgL2, s1t1, "S1T2", "processing", dataSet2 = s2t1)
+  cat("Created s1t2\n")
 
+  cat("Creating s2t2...\n")
   s2t2 <- mockStep(dmgL2, s1t2, "S2T2", "processing", dataSet2 = i2)
+  cat("Created s2t2\n")
 
+  cat("Creating s1t3...\n")
   s1t3 <- mockStep(dmgL3, s1t2, "S1T3", "report", dataSet2 = s2t2)
+  cat("Created s1t3\n")
   #just test the import
   #TODO remove this check
 
+  cat("Creating fullLineage folder...\n")
   fullLineageFolder <- createFolder(TEST_FOLDER,"fullLineage")
+  cat("Created fullLineage folder\n")
 
+  cat("Loading last step from dmgL3...\n")
   lastStep <- loadChildResources(dmgL3) %>%strip() %>% getStep()
+  cat("Loaded last step\n")
+  
+  cat("Loading lineage with stepDepth=-1, treeDepth=-1...\n")
   lastStep$lineage$load(stepDepth = -1,treeDepth = -1)
+  cat("Loaded lineage\n")
+  
+  cat("Creating workflow template...\n")
   fullLineageTemplate <- lastStep$workflow$createTemplate()
+  cat("Created template\n")
+  
+  cat("Setting workflow tree root folder...\n")
   fullLineageTemplate$setWorkflowTreeRootFolder(fullLineageFolder$path)
+  cat("Set root folder\n")
+  
+  cat("Realising template...\n")
   lineageResult <- fullLineageTemplate$realise()
+  cat("Template realised\n")
 
 
 
