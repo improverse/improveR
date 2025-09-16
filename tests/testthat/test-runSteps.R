@@ -597,7 +597,7 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
   expect_equal(realStep$getStepState(), "FINISHED")
   entityId <- step$entityId
 
-  process <- improveR::loadProcessesForStep(entityId)
+  process <- loadProcessesForStep(entityId)
 
   # Create step copy
   copyTemplate <- realStep$workflow$createTemplate()
@@ -792,7 +792,7 @@ test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", 
 
   relativeWorkflowAfter <- improveR::byNotEmptyAsDf(executedSteps, function(line) {
     process <- improveR::getMainProcess(line$entityId)
-    runs <- improveR::updateProcessRuns(process$id)
+    runs <- updateProcessRuns(process$id)
     line$runNoAfter <- nrow(runs)
     return(line)
   })
@@ -810,7 +810,7 @@ test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", 
 
   relativeWorkflowAfter <- improveR::byNotEmptyAsDf(executedSteps, function(line) {
     process <- improveR::getMainProcess(line$entityId)
-    runs <- improveR::updateProcessRuns(process$id)
+    runs <- updateProcessRuns(process$id)
     line$runNoAfter <- nrow(runs)
     return(line)
   })
