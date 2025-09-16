@@ -608,40 +608,40 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
 
 
 
-  result <- improveR::deleteGridArgumentsByName(process$id, "queue")
-  result <- improveR::deleteGridArgumentsByName(process$id, "cores")
-  result <- improveR::deleteGridArgumentsByName(process$id, "start")
-  result <- improveR::deleteGridArgumentsByName(process$id, "empty")
-  result <- improveR::deleteGridArgumentsByName(process$id, "stderr")
-  result <- improveR::deleteGridArgumentsByName(process$id, "stdout")
+  result <- deleteGridArgumentsByName(process$id, "queue")
+  result <- deleteGridArgumentsByName(process$id, "cores")
+  result <- deleteGridArgumentsByName(process$id, "start")
+  result <- deleteGridArgumentsByName(process$id, "empty")
+  result <- deleteGridArgumentsByName(process$id, "stderr")
+  result <- deleteGridArgumentsByName(process$id, "stdout")
 
   expect_equal(result, NULL)
 
-  result <- improveR::setGridArgument(process$id, "queue", "priority", update = T)
+  result <- setGridArgument(process$id, "queue", "priority", update = T)
   expect_equal(nrow(result), 1)
-  result <- improveR::setGridArgument(process$id, "queue", "short", update = T)
+  result <- setGridArgument(process$id, "queue", "short", update = T)
   expect_equal(nrow(result), 1)
   values <- result$category[[1]]$values[[1]]
   expect_equal("short", values[values$id == result$lovValueId, ]$text)
 
-  result <- improveR::setGridArgument(process$id, "cores", "4", update = T)
+  result <- setGridArgument(process$id, "cores", "4", update = T)
   expect_equal(nrow(result), 2)
-  result <- improveR::setGridArgument(process$id, "cores", "5", update = T)
+  result <- setGridArgument(process$id, "cores", "5", update = T)
   expect_equal(nrow(result), 2)
   result <- result[result$name == "cores", ]
   expect_equal(result$textValue, "5")
 
-  result <- improveR::setGridArgument(process$id, "start", Sys.time(), update = T)
+  result <- setGridArgument(process$id, "start", Sys.time(), update = T)
   expect_equal(nrow(result), 3)
   newTime <- Sys.time()
-  result <- improveR::setGridArgument(process$id, "start", newTime, update = T)
+  result <- setGridArgument(process$id, "start", newTime, update = T)
   expect_equal(nrow(result), 3)
   result <- result[result$name == "start", ]
   expect_equal(
     substr(x = as.character(improveR:::convertImproveTimestampToPosix(result$dateValue)), 0, 14),
     substr(x = as.character(newTime), 0, 14))
 
-  result <- improveR::setGridArgument(process$id, "empty", "", update = T)
+  result <- setGridArgument(process$id, "empty", "", update = T)
   expect_equal(nrow(result), 4)
 
   # Empty grid values
