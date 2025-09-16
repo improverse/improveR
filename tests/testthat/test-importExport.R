@@ -4,28 +4,28 @@
 
 Sys.setenv(TEST_NAME="importExport")
 
-# Skip all import/export tests in version 4.3 due to compatibility issues
-repoVersion <- tryCatch({
-  improveConnect()
-  getRepositoryVersion()
-}, error = function(e) NULL)
+# Import/export tests - now running on all repository versions
+# Previously skipped for versions < 4.4, but now enabled for testing
 
-if (!is.null(repoVersion)) {
-  versionParts <- strsplit(repoVersion, "[.-]")[[1]]
-  if (length(versionParts) >= 2) {
-    majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
-    if (majorMinor < 4.4) {
-      skip("Skipping all import/export tests in repository version < 4.4")
+# Helper function to ensure TEST_FOLDER exists when running tests individually
+ensureTestFolder <- function() {
+  if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
+    Sys.setenv(IMPROVER_TEST_REPLAY="T")
+    
+    # Try to connect if not already connected
+    if (!improveR::improveConnected()) {
+      tryCatch({
+        improveConnect()
+      }, error = function(e) {
+        # Connection might fail but we may have a token anyway
+      })
     }
+    
+    setEditable(TRUE)
+    TEST_FOLDER <- improveR:::workflowFilesSetup()
+    assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
+    return(TEST_FOLDER)
   }
-}
-
-# Helper function to set up test environment
-setupTestEnvironment <- function() {
-  Sys.setenv(IMPROVER_TEST_REPLAY="T")
-  improveConnect()
-  setEditable(T)
-  TEST_FOLDER <- workflowFilesSetup()
   return(TEST_FOLDER)
 }
 
@@ -57,6 +57,15 @@ verifyWorkflowStructure <- function(originalWorkflow, importedTree) {
   # Check step count
   originalSteps <- originalWorkflow$df()
   importedSteps <- importedWorkflow$df()
+  
+  # Diagnostic output in verifyWorkflowStructure
+  cat("\nIn verifyWorkflowStructure:\n")
+  cat("originalSteps nrow:", nrow(originalSteps), "\n")
+  cat("importedSteps nrow:", nrow(importedSteps), "\n")
+  if (nrow(importedSteps) > 0) {
+    cat("importedSteps columns:", paste(names(importedSteps), collapse=", "), "\n")
+    cat("importedSteps$fullName:", importedSteps$fullName, "\n")
+  }
 
   # Step count should match
   expect_equal(nrow(originalSteps), nrow(importedSteps))
@@ -77,12 +86,27 @@ verifyWorkflowStructure <- function(originalWorkflow, importedTree) {
 }
 
 test_that("Setup test environment", {
-  TEST_FOLDER <- setupTestEnvironment()
+  Sys.setenv(IMPROVER_TEST_REPLAY="T")
+  
+  # Try to connect if not already connected
+  if (!improveR::improveConnected()) {
+    tryCatch({
+      improveConnect()
+    }, error = function(e) {
+      # Connection might fail but we may have a token anyway
+    })
+  }
+  
+  setEditable(TRUE)
+  TEST_FOLDER <- improveR:::workflowFilesSetup()
   expect_false(Sys.getenv("IMPROVER_TOKEN") == "")
   assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
 })
 
 test_that("Basic export and import round trip", {
+  # Ensure TEST_FOLDER exists for individual test runs
+  TEST_FOLDER <- ensureTestFolder()
+  
   # Create source tree with simple workflow
   sourceTree <- createAnalysisTree(targetIdent = TEST_FOLDER,
                                   treeName = "ExportSource")
@@ -123,6 +147,11 @@ test_that("Basic export and import round trip", {
   importWorkflow(exportFile, importFolder)
 
   importTree <- loadResource("./ExportSource", importFolder)
+  
+  # Diagnostic output for Basic export test
+  cat("\n=== Diagnostic output for Basic export test ===\n")
+  cat("importTree class:", class(importTree), "\n")
+  
   # Verify structure preserved
   importedWorkflow <- verifyWorkflowStructure(workflow, importTree)
 
@@ -133,6 +162,9 @@ test_that("Basic export and import round trip", {
 })
 
 test_that("Export and import with linear dependencies", {
+  # Ensure TEST_FOLDER exists for individual test runs
+  TEST_FOLDER <- ensureTestFolder()
+  
   # Create workflow with linear dependencies: Step1 → Step2 → Step3
   sourceTree <- createAnalysisTree(targetIdent = TEST_FOLDER,
                                   treeName = "LinearDependencies")
@@ -187,6 +219,27 @@ test_that("Export and import with linear dependencies", {
 
   # Check that Step3 depends on Step2
   step3Import <- importedSteps[importedSteps$description == "Report", ]
+  
+  # Diagnostic output
+  cat("\n=== Diagnostic output for Linear Dependencies test ===\n")
+  cat("importedSteps:\n")
+  print(importedSteps)
+  cat("\nstep3Import:\n")
+  print(step3Import)
+  cat("\nstep3Import$fullName:", step3Import$fullName, "\n")
+  cat("class(step3Import$fullName):", class(step3Import$fullName), "\n")
+  cat("length(step3Import$fullName):", length(step3Import$fullName), "\n")
+  cat("\nimportedWorkflow$steps class:", class(importedWorkflow$steps), "\n")
+  cat("ls(importedWorkflow$steps):\n")
+  print(ls(importedWorkflow$steps))
+  
+  # Check if fullName exists and is valid
+  if (is.null(step3Import$fullName) || is.na(step3Import$fullName) || length(step3Import$fullName) == 0) {
+    cat("ERROR: step3Import$fullName is NULL, NA, or empty!\n")
+    cat("Available columns in step3Import:\n")
+    print(names(step3Import))
+  }
+  
   step3ImportEnv <- importedWorkflow$steps[[step3Import$fullName]]
   expect_true(is.environment(step3ImportEnv$lineage),
               info = "Step3 should have dependencies")
@@ -198,6 +251,9 @@ test_that("Export and import with linear dependencies", {
 })
 
 test_that("Export and import with branching dependencies", {
+  # Ensure TEST_FOLDER exists for individual test runs
+  TEST_FOLDER <- ensureTestFolder()
+  
   # Create workflow: Step1 → Step2
   #                      ↘ Step3
   sourceTree <- createAnalysisTree(targetIdent = TEST_FOLDER,
@@ -245,6 +301,13 @@ test_that("Export and import with branching dependencies", {
 
   branchA <- importedSteps[importedSteps$description == "Branch A", ]
   branchB <- importedSteps[importedSteps$description == "Branch B", ]
+  
+  # Diagnostic output for branching test
+  cat("\n=== Diagnostic output for Branching Dependencies test ===\n")
+  cat("branchA$fullName:", branchA$fullName, "\n")
+  cat("branchB$fullName:", branchB$fullName, "\n")
+  cat("ls(importedWorkflow$steps):", ls(importedWorkflow$steps), "\n")
+  
   branchAEnv <- importedWorkflow$steps[[branchA$fullName]]
   branchBEnv <- importedWorkflow$steps[[branchB$fullName]]
 
@@ -262,6 +325,9 @@ test_that("Export and import with branching dependencies", {
 })
 
 test_that("Tool mapping validation and application", {
+  # Ensure TEST_FOLDER exists for individual test runs
+  TEST_FOLDER <- ensureTestFolder()
+  
   # Create workflow with specific tool configuration
   sourceTree <- createAnalysisTree(targetIdent = TEST_FOLDER,
                                   treeName = "ToolMappingTest")
@@ -316,6 +382,9 @@ test_that("Tool mapping validation and application", {
 })
 
 test_that("Link mapping with existing resources", {
+  # Ensure TEST_FOLDER exists for individual test runs
+  TEST_FOLDER <- ensureTestFolder()
+  
   # Extract test data to get local files
   testZip <- system.file("ExampleWorkflow.zip", package = "improveR")
   tempTestDir <- tempfile("testdata")
@@ -385,6 +454,9 @@ test_that("Link mapping with existing resources", {
 })
 
 test_that("Export and import with subfolders", {
+  # Ensure TEST_FOLDER exists for individual test runs
+  TEST_FOLDER <- ensureTestFolder()
+  
   sourceTree <- createAnalysisTree(targetIdent = TEST_FOLDER,
                                   treeName = "SubfolderTest")
 
@@ -427,6 +499,9 @@ test_that("Export and import with subfolders", {
 })
 
 test_that("Empty workflow export and import", {
+  # Ensure TEST_FOLDER exists for individual test runs
+  TEST_FOLDER <- ensureTestFolder()
+  
   # Create empty workflow
   sourceTree <- createAnalysisTree(targetIdent = TEST_FOLDER,
                                   treeName = "EmptyWorkflow")
@@ -529,6 +604,9 @@ test_that("Complex diamond dependency pattern", {
 
 test_that("Invalid import scenarios", {
   # Test missing workflow.json
+  # Ensure TEST_FOLDER exists for individual test runs
+  TEST_FOLDER <- ensureTestFolder()
+  
   badZip <- tempfile(fileext = ".zip")
   badWorkflowDir <- file.path(tempdir(), "BadWorkflow")
   dir.create(badWorkflowDir)
