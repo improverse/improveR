@@ -910,7 +910,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   env$realise <- function(force = TRUE, run = TRUE,workflow=NULL) {
     # Check repository version and use appropriate function
     repoVersion <- getRepositoryVersion()
-
+    repoVersion <- "4.3.1"
     if (!is.null(repoVersion)) {
       # Parse major.minor from version string (e.g., "4.4.0-1" -> 4.4)
       versionParts <- strsplit(repoVersion, "[.-]")[[1]]
