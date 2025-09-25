@@ -28,7 +28,7 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
   internalLinks<-workflow$internalLinks
   if (!is.null(internalLinks) && nrow(internalLinks) > 0) {
     # Only select columns that exist in the data frame
-    requiredCols <- c("entityId","fileHash","revisionId","path","targetStep","sourceStep")
+    requiredCols <- c("entityId","fileHash","revisionId","path","targetStep","sourceStep","sourceInventoryPath","name")
     existingCols <- intersect(names(internalLinks), requiredCols)
     if (length(existingCols) > 0) {
       internalLinks <- dplyr::select(internalLinks, dplyr::all_of(existingCols))
@@ -47,7 +47,13 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
     }
     workflowLinks <- internalLinks[internalLinks$targetStep==stepName,]
     if (!is.null(workflowLinks) && nrow(workflowLinks)>0) {
-      remoteFiles <- stepDf$remoteFiles[[1]]
+      remoteFiles<- stepDf$remoteFiles[[1]]
+      jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("name"="name"))
+      stepDf$remoteFiles<-list(jointRemoteFiles)
+      #case import:
+      if (F) {
+
+
       if (!("sourceStep"%in%names(remoteFiles))) {
         # During import, entityId might not exist, need a different join strategy
         if ("entityId" %in% names(workflowLinks) && "ident" %in% names(remoteFiles)) {
@@ -55,8 +61,8 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
           jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("ident"="entityId"))
         } else {
           # Import case: manually match based on targetStep + name combination
-          # Since we already filtered workflowLinks by targetStep (line 49), we're only 
-          # matching within a single step's context. File names within a single step 
+          # Since we already filtered workflowLinks by targetStep (line 49), we're only
+          # matching within a single step's context. File names within a single step
           # should be unique (can't have two files with same path in one step).
           # This makes the name-based matching safe within this filtered context.
           jointRemoteFiles <- remoteFiles
@@ -96,13 +102,13 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
                 # Get all files from the source step
                 sourceStepFiles <- sourceStepEnv$stepDf$localFiles[[1]]
                 sourceStepRemoteFiles <- sourceStepEnv$stepDf$remoteFiles[[1]]
-                
+
                 # Find the file that matches this link's entity ID
                 matchingFile <- NULL
                 if (!is.null(sourceStepRemoteFiles) && "ident" %in% names(sourceStepRemoteFiles)) {
                   matchingFile <- sourceStepRemoteFiles[sourceStepRemoteFiles$ident == remoteFile$ident,]
                 }
-                
+
                 if (!is.null(matchingFile) && nrow(matchingFile) > 0) {
                   # Use the name from the matching file in the source step
                   sourceFileName <- matchingFile$name[1]
@@ -143,7 +149,7 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
         })
         stepDf$remoteFiles<-list(jointRemoteFiles)
       }
-
+}
     }
     stepTemplates[[stepName]] <- createStepTemplateEnv(
       stepDf = stepDf,

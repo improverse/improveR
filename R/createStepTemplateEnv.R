@@ -695,6 +695,9 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
                 !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]) &&
                 !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId)) {
               fileName <- processFile$sourceInventoryPath
+              if (!startsWith(fileName,"./")) {
+                fileName <- paste0("./",fileName)
+              }
               sourceStep <- env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId
               processFile$ident<- loadResource(fileName,from=sourceStep)$entityId
             }
@@ -846,7 +849,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           process$resources <- list(resources)
         }
         # Only apply distinct if resources were actually created
-        if (!is.null(process$resources) && length(process$resources) > 0 && !is.null(process$resources[[1]])) {
+        if (!is.null(process$resources) && length(process$resources) > 0 && !is.null(process$resources[[1]]) && nrow(process$resources[[1]]) > 0) {
           process$resources <- list(dplyr::distinct(process$resources[[1]],
                                                     .data$targetName,
                                                     .keep_all = T))
@@ -910,7 +913,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   env$realise <- function(force = TRUE, run = TRUE,workflow=NULL) {
     # Check repository version and use appropriate function
     repoVersion <- getRepositoryVersion()
-    repoVersion <- "4.3.1"
+    #repoVersion <- "4.3.1"
     if (!is.null(repoVersion)) {
       # Parse major.minor from version string (e.g., "4.4.0-1" -> 4.4)
       versionParts <- strsplit(repoVersion, "[.-]")[[1]]
