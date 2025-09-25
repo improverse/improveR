@@ -13,7 +13,7 @@ ensureTestFolder <- function() {
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
 
     # Try to connect if not already connected
-    if (!improveR::improveConnected()) {
+    if (!improveConnected()) {
       tryCatch({
         improveConnect()
       }, error = function(e) {
@@ -22,7 +22,7 @@ ensureTestFolder <- function() {
     }
 
     setEditable(TRUE)
-    TEST_FOLDER <- improveR:::workflowFilesSetup()
+    TEST_FOLDER <- workflowFilesSetup()
     assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
     return(TEST_FOLDER)
   }
@@ -89,7 +89,7 @@ test_that("Setup test environment", {
   Sys.setenv(IMPROVER_TEST_REPLAY="T")
 
   # Try to connect if not already connected
-  if (!improveR::improveConnected()) {
+  if (!improveConnected()) {
     tryCatch({
       improveConnect()
     }, error = function(e) {
@@ -98,7 +98,7 @@ test_that("Setup test environment", {
   }
 
   setEditable(TRUE)
-  TEST_FOLDER <- improveR:::workflowFilesSetup()
+  TEST_FOLDER <- workflowFilesSetup()
   expect_false(Sys.getenv("IMPROVER_TOKEN") == "")
   assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
 })
