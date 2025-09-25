@@ -9,20 +9,11 @@ Sys.setenv(TEST_NAME="importExport")
 
 # Helper function to ensure TEST_FOLDER exists when running tests individually
 ensureTestFolder <- function() {
+
+  Sys.setenv(TEST_NAME="importExport")
   if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
-    Sys.setenv(IMPROVER_TEST_REPLAY="T")
-
-    # Try to connect if not already connected
-    if (!improveConnected()) {
-      tryCatch({
-        improveConnect()
-      }, error = function(e) {
-        # Connection might fail but we may have a token anyway
-      })
-    }
-
-    setEditable(TRUE)
-    TEST_FOLDER <- workflowFilesSetup()
+    improveR::setEditable(TRUE)
+    TEST_FOLDER <- improveR:::workflowFilesSetup()
     assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
     return(TEST_FOLDER)
   }
