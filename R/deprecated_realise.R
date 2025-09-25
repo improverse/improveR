@@ -447,8 +447,8 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
             fileName <- ""
           }
           cleanName <- fileName
-          if (startsWith(cleanName, "./")) {
-            cleanName <- substr(cleanName, 3, nchar(cleanName))
+          if (!startsWith(cleanName, "./")) {
+            cleanName <- paste0("./",cleanName)
           }
 
           # Match by target step and name
@@ -458,50 +458,30 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
           ]
 
           if (nrow(matchingLinks) > 0) {
-            matchingLinks<-matchingLinks[1,]
-            # Get source step and path information
-            sourceStepName <- matchingLinks$sourceStep[1]
-            sourceStepEnv <- env$workflow$stepTemplates[[sourceStepName]]
+              matchingLinks<-matchingLinks[1,]
+              # Get source step and path information
+              sourceStepName <- matchingLinks$sourceStep[1]
+              sourceStepEnv <- env$workflow$stepTemplates[[sourceStepName]]
 
-            linkPath<-NULL
-            #TODO check import
-            if ("sourceInventoryPath" %in% names(matchingLinks) ) {
-              linkPath <- matchingLinks$sourceInventoryPath[1]
-            }
-            if (is.null(linkPath)){
-              oldStep <- loadResource(sourceStepEnv$stepDf$templateEntityId)
-              if (!is.null(oldStep)) {
-                linkPath <- paste0("./",substr(matchingLinks$path,nchar(oldStep$path)+2,nchar(matchingLinks$path)))
-              }
-
-            }
-
-            logging::logdebug(paste0("Found matching link - path: ", linkPath,
-                                   ", sourceStep: ", sourceStepName,
-                                   ", fileName: ", fileName))
-
-            if (!is.null(sourceStepEnv) && !is.null(sourceStepEnv$stepDf$entityId)) {
-              newSourceStep <- loadResource(sourceStepEnv$stepDf$entityId)
-
-              if (!is.null(newSourceStep)) {
-                logging::logdebug(paste0("Loading file '", linkPath, "' from new step ", newSourceStep$name))
-
-                # Use the source inventory path directly - loadResource handles ./ prefix
-                # Don't remove the subfolder part!
-                fileInNewStep <- loadResource(linkPath, from = newSourceStep)
-                if (!is.null(fileInNewStep)) {
-                  fileIdentToLink <- fileInNewStep$resourceId
-                  logging::logdebug(paste0("Resolved internal link for ", fileName,
-                                         " from old ID ", filePrep$ident,
-                                         " to new ID ", fileIdentToLink))
-                } else {
-                  logging::logwarn(paste0("Could not find file ", linkPath, " in new step ", newSourceStep$name))
+              linkPath<-NULL
+              #TODO check import
+              if ("sourceInventoryPath" %in% names(matchingLinks) ) {
+                linkPath <- matchingLinks$sourceInventoryPath[1]
+                if (!startsWith(linkPath,"./")) {
+                  linkPath <- paste0("./",linkPath)
                 }
               }
+              if (!is.null(linkPath)){
+                oldStep <- loadResource(sourceStepEnv$stepDf$sourceEntityId)
+                if (!is.null(oldStep)) {
+                  linkRes <- loadResource(linkPath,from = oldStep)
+                  fileIdentToLink <- linkRes$resourceId
+                }
+
+              }
+
             }
-          } else {
-            logging::logdebug(paste0("No matching internal link found for file ", fileName, " in step ", currentStepName))
-          }
+
         }
         if (startsWith(fileName,prefix = "./")) {
           fileName <- substr(fileName,3,nchar(fileName))
