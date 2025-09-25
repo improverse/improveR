@@ -12,8 +12,8 @@ ensureTestFolder <- function() {
 
   Sys.setenv(TEST_NAME="importExport")
   if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
-    improveR::setEditable(TRUE)
-    TEST_FOLDER <- improveR:::workflowFilesSetup()
+    setEditable(TRUE)
+    TEST_FOLDER <- workflowFilesSetup()
     assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
     return(TEST_FOLDER)
   }
