@@ -19,10 +19,11 @@ library(magrittr)
   }
   remoteFiles <- remoteFiles %>% dplyr::mutate(entityId = ident) %>%
     dplyr::filter(.data$asLink) %>%
-    dplyr::select("entityId", "targetStep")
+    dplyr::mutate(targetName=name) %>%
+    dplyr::select("entityId", "targetStep","targetName")
 
   links <- loadResource(remoteFiles$entityId) %>%
-    dplyr::left_join(remoteFiles)
+    dplyr::left_join(remoteFiles,by=c("entityId"="entityId"))
   fullSteps <- loadResource(stepsDf$sourceEntityId)
   fullSteps <- dplyr::mutate(fullSteps, fullName = stepsDf[stepsDf$sourceEntityId == entityId, ]$fullName)
   stepPaths <- fullSteps$path
@@ -33,6 +34,7 @@ library(magrittr)
       foundTargets <- links[startsWith(links$path, stepPath), ]
       if (nrow(foundTargets) > 0) {
         stepName <- fullSteps[fullSteps$path == stepPath, ]$fullName
+        foundTargets$sourceInventoryPath <- substr(foundTargets$path,nchar(stepPath)+2,nchar(foundTargets$path))
         foundTargets$sourceStep <- stepName
         allTargets <- plyr::rbind.fill(allTargets, foundTargets)
       }
@@ -51,7 +53,13 @@ library(magrittr)
         }
       })
     }
-    env$internalLinks <- allTargets
+    env$internalLinks <- NULL
+    if (!is.null(allTargets)) {
+      allTargets<-dplyr::distinct(allTargets,targetStep,targetName,.keep_all = T)
+      allTargets<-dplyr::mutate(allTargets,name=targetName)
+      env$internalLinks <- dplyr::select (allTargets,fileSize,fileHash,targetStep,name,sourceInventoryPath,sourceStep)
+    }
+
   }
 
 

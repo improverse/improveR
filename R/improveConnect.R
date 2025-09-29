@@ -405,7 +405,6 @@ improveClose <- function() {
       if (!is.null(cacheEnv$createdLinks)) {
         for (i in 1:nrow(cacheEnv$createdLinks)) {
           linkEntry <- cacheEnv$createdLinks[i, ]
-          print(linkEntry)
           if (file.exists(linkEntry$localPath)) {
             file.remove(linkEntry$localPath)
           }
