@@ -549,7 +549,11 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     remoteFiles <- stepData$remoteFiles[[1]]
     remoteFiles <- byNotEmptyAsDf(remoteFiles, function(file) {
       if ("name" %in% names(file)) {
+        if (is.na(file$name)) {
+          file$name <- improveR::loadResource(file$ident)$name
+        }
         fileName <- file$name
+
         if (fileName != name) {
           return(file)
         } else {
@@ -938,7 +942,9 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       logging::loginfo("No repository version available, using realise_deprecated")
       return(realise_deprecated(env, force = force, run = run,workflow=workflow))
     }
-
+    if (!is.null(env$getStepValue("inheritFromParent")) && env$getStepValue("inheritFromParent")=="TRUE") {
+      return(realise_deprecated(env, force = force, run = run,workflow=workflow))
+    }
     # New implementation for 4.4+ only
     improveEditable()
     breakPoint <- env$getStepValue("breakpoint")
