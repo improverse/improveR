@@ -102,7 +102,7 @@ In the example below, let's request the full worklfow leading to step `/improve-
 <!-- ::: {.column-margin}
 ![Improve client - Complete workflow leading to Step 1 of AT Reporting"](img/dmgFolderCompleteWF.png)
 ::: -->
-
+ 
 ```{r}
 #| code-summary: "Get complete workflow leading to Step 1 of AT Reporting"
 #| cache: true
