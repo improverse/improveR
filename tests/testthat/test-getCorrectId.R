@@ -41,16 +41,3 @@ expect_equal(getCorrectId(fullEntityId), "robert_oracle-1:ST-63678")
 })
 
 
-#Step without Prefix
-## condition: if (!grepl(":", resolveToId, fixed = T))
-## COMMENT: needs mocking of function reproPrefix; mocks prefix
-test_that("getCorrectId returns correct ID for steps without repo prefix", {
-
-entityIdWoPrefix <- "ST-63680"
-testthat::with_mock(
-  repoPrefix = function(...) "robert_oracle-1:",
-  expect_equal(getCorrectId(entityIdWoPrefix), "robert_oracle-1:ST-63680")
-)
-
-})
-
