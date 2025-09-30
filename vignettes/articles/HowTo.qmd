@@ -1,0 +1,117 @@
+---
+title: "How to..."
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-title: Contents
+    toc-location: left
+    #toc-collapsed: false
+    code-fold: show
+    number-sections: true
+    number-depth: 2
+    # smooth-scroll: true
+    # message: false
+    # warning: false
+    # highlight-style: nord
+    # output-file: 
+    embed-resources: true
+    # theme: 
+    #   light: [materia, style.scss]
+    #   dark: slate
+    fontsize: 16px
+    # grid:
+    # sidebar-width: 300px
+    fig-cap-location: top
+    fig-align: left
+    code-annotations: true
+knitr:
+    opts_chunk: 
+      collapse: true
+      dev: "ragg_png"
+# params:
+#   include_questions: true
+editor_options: 
+  markdown: 
+    wrap: 72
+# project:
+#   execute-dir: project
+lightbox: true
+---
+
+
+```{r}
+#| label: setup
+library(improveR)
+```
+
+
+# ... all steps of an analysis Tree
+
+```{r}
+#| eval: false
+
+childResourcesATModeling <- improveR::loadChildResources(ident='/improve-tutorial/Modeling/') %>%
+  select(data) %>%
+  unnest(data) %>%
+  select(""name"", ""entityId"", ""path"")
+
+```
+
+
+# ... get the workflow leading to a step
+
+```{r}
+#| eval: false
+envATReportingStep1 <- getStep(""/improve-tutorial/Reporting/Step 1"")
+
+# get the workflow and show details on Step 'Modeling/Step 10'
+envATReportingStep1$lineage$load(treeDepth=-1)
+
+#show all steps which form part of the workflow
+envATReportingStep1$workflow$df()
+
+```
+
+
+# ... get the elements aka resources of a step's inventory
+
+```{r}
+#| eval: false
+
+# appraoch 1 
+stepInventory <- loadChildResources(ident="/improve-tutorial/Modeling/Step 1")$data[[1]]
+ncol(stepInventory)
+
+# approach 2
+envStep <- getStep(ident="/improve-tutorial/Modeling/Step 1")
+stepInventory2 <- envStep$getStepInventory()$data[[1]]
+ncol(stepInventory2)
+
+# the approach with getStep returns two additional columns
+setdiff(names(stepInventory2), names(stepInventory)) # 'isVersion', 'inventoryPath'
+
+# approach 3
+envStep <- getStep(ident="/improve-tutorial/Modeling/Step 1")
+envStep$stepDf #no does not show content of inventory; in the inventory is more than remote files;
+
+
+
+```
+# ... remove a step from a workflow
+
+```{r}
+#| eval: false
+#| code-summary: "Remove step from workflow leading a specific step"
+step$workflow$removeStep()
+```
+
+
+
+# ... rerun changed and outdated steps with in a workflow
+
+```{r}
+#| eval: false
+step$workflow$rerunChangedandOutdated
+```
+

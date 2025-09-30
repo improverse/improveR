@@ -113,3 +113,95 @@ a:focus {
 .main a:hover {
   color: var(--scinteco-cyan-hover) !important;
 }
+
+/* Style for HTML details elements */
+/* Style the <summary> itself */
+details summary {
+  cursor: pointer !important;
+  font-weight: normal !important;
+  margin: 0.5em 0 !important;
+  color: #333 !important;
+}
+
+details summary:hover {
+  color: var(--scinteco-cyan) !important;
+}
+
+/* Light blue background when expanded - only for actual details elements, not code-fold chunks */
+details[open]:not(.code-fold) {
+  #background-color: #f0f8ff !important;   /* light blue background */
+  padding: 0 0.8em 0.8em 0.8em !important; /* padding around content, no top padding */
+  margin: 0 !important;                    /* no vertical margin to prevent jumping */
+  border-radius: 0px !important;          /* rounded corners */
+  border-width: thin !important;
+  border-left: darkgray;
+  border-left-style: solid;
+}
+
+/* Remove background color from code-fold details elements and add left border */
+details.code-fold[open] {
+  background-color: transparent !important;
+  padding: 0 !important;
+  margin: 0.5em 0 !important;
+}
+
+/* Keep summary background normal */
+details[open] > summary {
+  background-color: transparent !important;
+  margin-bottom: 0.5em !important;
+}
+
+/* Table of contents heading size adjustments */
+/* Target main section headings (level 2) - direct children of main nav */
+#toc .nav.navbar-nav > li > a {
+  font-size: 80% !important;
+}
+
+/* listviewer jsonedit theme color override and width */
+.jse-menu {
+  --jse-theme-color: #6c757d !important; /* Bootstrap grey */
+}
+
+/* listviewer jsonedit container width override */
+.jsonedit.html-widget {
+  width: 100% !important;
+}
+
+/* Heading level 2 - remove bold */
+.level2 h3 {
+  font-weight: normal !important;
+}
+
+
+/*
+ * Custom CSS for Quarto margin content within a pkgdown site.
+ *
+ * This applies margin styles only on screens wider than 1200px
+ * to avoid overlapping with the pkgdown table of contents.
+*/
+@media (min-width: 1200px) {
+
+  /* Styles for the Quarto margin container */
+  .column-margin {
+    float: right;
+    width: 672px; /* Set to desired width */
+
+    /* Add space between main text and margin content */
+    margin-left: 25px;
+
+    /* Pull the container into the right-hand margin */
+    /* This value is typically the negative of (width + margin-left) */
+    margin-right: -697px;
+    
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+
+  /* A "clearfix" to contain the float and prevent layout issues */
+  .column-margin::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  
+}

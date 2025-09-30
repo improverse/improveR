@@ -21,7 +21,7 @@ format:
     #   dark: slate
     fontsize: 16px
     # grid:
-    #   sidebar-width: 300px
+    # sidebar-width: 300px
     fig-cap-location: top
     fig-align: left
     code-annotations: true
@@ -72,18 +72,31 @@ improveConnected()
 
 # Overview
 
-<!-- analysis trees are not mentioned; should be included -->
-
 This document provides an overview of improveR's functions focused on working with steps. 
 
-Steps are the fundamental building blocks of every analytical workflow within the improve framework. Each step contains at least one (R) script with the relevant code; linked or embedded resources (e.g. input files) and eventual output file(s) (e.g. reports, graphs) within the step's inventory; plus the tools and their definition to actually orchestrate the script's execution and file creation. Groupped by their role in the overall analysis, they constitute an analysis tree (e.g. analysis three 'Exploratory Data Analysis').
+Steps are the fundamental building blocks of every analytical workflow within the improve framework. Each step contains 
+
+- at least one R script containing the relevant code
+- linked or embedded resources (e.g., input files) and any output files (e.g., reports, graphs) stored in the step's inventory
+- tools and their definitions to orchestrate the script's execution and file creation
+
+Groupped by their role in the overall analysis, they constitute an analysis tree (e.g. analysis tree 'Exploratory Data Analysis').
 
 Critically, by linking one step's output as an input to another step, steps can be 'horizontally' chained together to an integrated workflow. This workflow can span across the entire or only parts of the analytical pipeline from the initial import of raw data (e.g. originating from a dataorder specification), via the exploratory data analysis, statistical modeling, to the reporting and eventual review. This integration of steps is instrumental when it comes to streamlining
 the entire workflow and ensuring reproducibility of the final results.
 
-Equally important is improve's ability to organize steps in a vertical hierarchy by introducing parent-child relations
-between them. A child step can be a modified copy of a parent step, e.g. created to inquire
-into the consequences of a specific modification within the step's code. Similarly, a step can be attached to a parent step due to substantive considerations of the analyst, reflecting a thematic or conceptual hierarchy between them.
+Equally important is improve's ability to organize steps in a vertical hierarchy by introducing parent-child relations between them. A child step can be a modified copy of a parent step, e.g. created to inquire into the consequences of a specific modification within the step's code. Similarly, a step can be attached to a parent step due to substantive considerations of the analyst, reflecting a thematic or conceptual hierarchy between them.
+
+The above outlined two perspectives are central when it comes to the understanding of the concepts of `lineage` and `usage` on one hand, and `child` and `parent`on the other hand. These terms
+are ubiquitous when working with the improve in general and step-related functions in particular. 
+
+The hierarchical parent-child relationship is conceptually different to the horizontal relationship between two steps within a workflow. Step A can produce results which are 'used' by Step B. But this does not make Step A a parent of Step B. Similarly, Step B is not a child of Step A even if if Step A is within the lineage of Step B. Keeping this conceptual distinction in mind is critical.
+
+
+- **Workflow, or input/output-centered perspective**: Looks horizontally at how a chain of steps (in analysis trees) transforms an input into some output. This view is visualized in improve's Data Manipulation Graph (as shown above).
+
+- **File-centric perspective**: Focuses on how files inside different steps are related in terms of their creation, which is more akin to a vertical angle. This perspective is visualized in improve client's editor view when displaying an analysis tree (as above in @fig-overview-analysis-tree).
+
 
 With this as the background, the current document goes beyond the primarily technical focus of the function references/help files, and seeks to demonstrate the actual application of the step-function family. To do so, throughout the document references to various examples are included.
 
@@ -95,16 +108,13 @@ With this as the background, the current document goes beyond the primarily tech
 
 :::
 
-
 # getStep
 
 ## Purpose of the function
 
-`getStep` takes a central role when it comes to working with steps. The function allows accessings steps and their complete operational context. Calling the function on a step returns a detailed environment object which not only encompasses information on the the step's various properties, but also on its relation with other steps and within the wider workflow as well as additional functions to work with this information.
+`getStep` is pivotal when it comes to working with steps. Calling the function on a step returns a detailed environment object which not only encompasses information on the the step's own properties, but also on its relation with other steps within the wider workflow as well as additional function definitions to work with this information.
 
-## Relation to other functions [review]
-
-<!-- #Review -->
+## Relation to other functions [review/shorten]
 
 Within the step functions family, `getStep` functions as the central orchestrator. It bridges lower-level step construction functions with higher-level workflow operations. The function builds directly upon `createStepEnv` as its foundational building block. It complements step modification functions like `attachStep`, `detachStep`, `changeStepDescription`, and `changeStepRationale` by providing the rich environment context needed for these operations. 
 
@@ -127,7 +137,8 @@ This orchestrated approach ensures that the resulting environment object provide
 
 ## Example for demonstration purposes
 
-To demonstrate `getStep()`application below an example. As an input the function takes a step's ident, which can be it's path,
+### Start
+To demonstrate the application of `getStep()` see the example below. As an input the function takes a step's ident, which can be its path,
 resource (version) id, full entity (version) id, or short entitiy (version) id. 
 
 ```{r}
@@ -137,10 +148,12 @@ envATModelingStep1 <- getStep(identATModelingStep1)
 class(envATModelingStep1)
 ```
 
-The returned result is an environment with various bindings.
+The returned result is an environment with multiple bindings of
+different classes.
 
 ```{r}
 #| code-summary: "Example getStep(): Overview of obtained elements' class"
+#| eval: true
 
 tibble(
   name = ls(envATModelingStep1),
@@ -148,7 +161,7 @@ tibble(
 ) %>% arrange(class)
 ```
 
-The viewer below allows for a closer look at each of the environment's bindings. 
+The viewer below allows for a closer look at each of the elements. 
 
 `getStepInventory`, `getStepState`, `getStepWithoutCache`, `getStepResource`, `retrieveMainProcess` and
 `createTemplate` contain all function defintions, meaning these functions can be called on the obtained
@@ -166,9 +179,20 @@ listviewer::jsonedit(as.list(envATModelingStep1))
 For a thorough understanding of the output of `getStep()`, the sections below will look into each
 element of the obtained step environment.
 
-::: {.callout-note collapse="true" appearance="minimal"}
+But before diving into the details some conceptual clarification on the differences between `child` and `parent` on the one hand, and `usage` and `lineage` on the other hand.
 
-### getStep() - children 
+
+The parent-child relationship is characterized by its vertical hierarchy. This hierarchy can originate from the child's origin (a copy of the parent child) or due to 
+a substantive connection between two steps, which 
+
+
+
+### children
+
+<details>
+
+<summary>Show details</summary>
+<div>
 
 The environment of our loaded step `improve-tutorial/Modeling/Step 1` contains the
 element `children` which is again of class `environment`. Checking its content reveals 
@@ -222,19 +246,15 @@ Below the elements of `Modeling/Step 7/54672`'s environment.
 class(envATModelingStep1$children$`Modeling/Step 7/54672`)
 listviewer::jsonedit(list(envATModelingStep1$children$`Modeling/Step 7/54672`))
 ```
-
-:::
-
-
-```{r}
-knitr::knit_exit()
-```
-
-
-::: {.callout-note collapse="true" appearance="minimal"}
+</div>
+</details>
 
 ### parent
+<details>
 
+<summary>Show details</summary>
+
+<div>
 Let's now focus on the element `parent` in the environment of Step 1, as initially
 retrieved via `getStep()`.
 
@@ -282,16 +302,13 @@ As shown above, after calling the `load()` function on the parent environment of
 new element is added: `Modeling/Step 1/54635`, which - as we know from above - is the parent of
 Step 8.
 
-:::
-
-
-```{r}
-knitr::knit_exit()
-```
-
-::: {.callout-note collapse="true" appearance="minimal"}
+</div></details>
 
 ### usage
+<details>
+
+<summary>Show details</summary>
+<div> 
 
 The element `usage` in Step 1's environment refers to those steps which are directly ('consumers') or indirectly ('indirect consumers') depending on 
 this step within a specific workflow. 'Depending' means in this context that the results produced by the step are *used* by the subsequent steps. The covered steps are 'to the right' or 'downstream' in the analysis.
@@ -337,12 +354,14 @@ listviewer::jsonedit(as.list(envATModelingStep1$usage))
 
 *Note:* The Data Manipulation Graph (DMG) in the improve client currently does not show consumer steps outside a step's own analysis tree.
 
-:::
+</div></details>
 
-
-::: {.callout-note collapse="true" appearance="minimal"}
 
 ### lineage
+<details>
+
+<summary>Show details</summary>
+<div>
 
 The element `lineage` inside Step 1's environment is the counterpart to `usage`. It includes steps which are
 upstream or 'to the left' of Step 1. In other words, it refers to those steps of which the step in question, 
@@ -356,41 +375,35 @@ the scope (or width) of the function call `load()`.
 envATModelingStep1 <- getStep("/improve-tutorial/Modeling/Step 1")
 ls(envATModelingStep1$lineage) #shows only fn load, OK
 
+```
+ 
+```{r}
+#| eval: false
 envATModelingStep1$lineage$load(stepDepth=-1, treeDepth=-1)
+x <- envATModelingStep1$workflow$df()
+
+envATModelingStep1$lineage$load(treeDepth=-1)
 ls(envATModelingStep1$lineage) 
 listviewer::jsonedit(as.list(envATModelingStep1$lineage))
+
+ls(envATModelingStep1$lineage$`EDA/Step 5/54047`$workflow$df)
+
 ```
 
-::: {#fig-lineage layout-ncol=1}
-![Improve client: Lineage of AT Modeling Step 1](img/lineageStep1.png)
+::: {#fig-lineage layout-ncol=1, fig-cap="Improve client - Lineage of AT Modeling Step 1"}
+![](img/lineageStep1.png)
 :::
 
 Note that the DMG viewer of the improve client displays the entire lineage, including also preceding
 analysis trees.
 
-### conceptual note
-
-At this point, it can be helpful to emphasize again the conceptual differences between `child` and `parent` on the one hand, and `usage` and `lineage`
-on the other hand.
-
-A child step is, in simple terms, a copy of its parent step. The parent-child relationship is defined by the steps' content. 
-
-The parent-child relationship is characterized by its vertical hierarchy. This hierarchy can originate from the child's origin (a copy of the parent child) or due to 
-a substantive connection between two steps, which 
-
-This is conceptually different to the horizontal relationship between two steps within a workflow. Step A can produce results which are 'used' by Step B. But this does not make Step A a parent of Step B. Similarly, Step B is not a child of Step A even if if Step A is within the lineage of Step B. Keeping this conceptual distinction in mind is critical.
-
-The context here is that there are two separate perspectives at play: 
-
-- **Workflow, or input/output-centered perspective**: Looks horizontally at how a chain of steps (in analysis trees) transforms an input into some output. This view is visualized in improve's Data Manipulation Graph (as shown above).
-
-- **File-centric perspective**: Focuses on how files inside different steps are related in terms of their creation, which is more akin to a vertical angle. This perspective is visualized in improve client's editor view when displaying an analysis tree (as above in @fig-overview-analysis-tree).
-
-:::
-
-::: {.callout-note collapse="true" appearance="minimal"}
+</div>
+</details>
 
 ### stepDf
+<details>
+<summary>Show details</summary>
+<div>
 
 `stepDf` is another element included in the environment which was returned by `getStep()`.
 It is a data frame and contains metadata on step 1. Two columns in `stepDf` should
@@ -425,12 +438,13 @@ class(envATModelingStep1$stepDf$remoteFiles)
 
 envATModelingStep1$stepDf$remoteFiles[[1]][c("name", "variableName", "ident", "asLink", "variableProcess")]
 ```
-
-:::
-
-::: {.callout-note collapse="true" appearance="minimal"}
+</div>
+</details>
 
 ### getStepInventory
+<details>
+<summary>Show details</summary>
+<div>
 
 The binding `getStepInventory` stored inside Step 1's environment is of class `function`
 and contains the function definition. 
@@ -474,12 +488,13 @@ To demonstrate `getStepInventory()`'s connection to the improve client, below is
 ![Improve client: inventory of Step 1](img/inventoryStep1.png)
 :::
 
-:::
-
-
-::: {.callout-note collapse="true" appearance="minimal"}
+</div>
+</details>
 
 ### getStep() - getStepResource()
+<details>
+<summary>Show details</summary>
+<div>
 
 Similar to `getStepInventory()`, `getStepResource()` is a binding in `envATModelingStep1` of class `function`.
 Calling it returns a data frame containing the resource details on Step 1. Under the hood, it calls 'improveR::loadResource()'.
@@ -491,12 +506,13 @@ listviewer::jsonedit(as.list(envATModelingStep1))
 stepResource <- envATModelingStep1$getStepResource()
 glimpse(stepResource)
 ```
-
-:::
-
-::: {.callout-note collapse="true" appearance="minimal"}
+</div>
+</details>
 
 ### retrieveMainProcess
+<details>
+<summary>Show details</summary>
+<div>
 
 `retrieveMainProcess` is of class `function`. When called it extracts the process of type 'main' from 
 the step's processes.
@@ -516,12 +532,14 @@ select(processes) %>%
 unnest_wider(processes) %>%
 select(processType, name)
 ```
+</div>
+</details>
 
-:::
-
-::: {.callout-note collapse="true" appearance="minimal"}
 
 ### getStepState
+<details>
+<summary>Show details</summary>
+<div>
 
 The binding `getStepState` inside the obtained step environment holds a function which
 returns the state of the step: "Initial", "Running", "Terminated", "Finished", "Error", 
@@ -531,13 +549,14 @@ returns the state of the step: "Initial", "Running", "Terminated", "Finished", "
 #| code-summary: "Call getStepState"
 envATModelingStep1$getStepState() 
 ```
+</div>
+</details>
 
-:::
-
-
-::: {.callout-note collapse="true" appearance="minimal"}
 
 ### getStepWithoutCache
+<details>
+<summary>Show details</summary>
+<div>
 
 The function `getStepWithoutCache()` loads the step resource directly from the server (using `improveR:::internalLoadResourceFromServer()`), bypassing any local cache.
 It returns up-to-date information about a step from the server, ignoring any cached or potentially stale local data.
@@ -548,22 +567,14 @@ It returns up-to-date information about a step from the server, ignoring any cac
 envATModelingStep1$getStepWithoutCache()
 
 ```
+</div>
+</details>
 
-
-::: {.content-visible when-meta="params.include_questions"}
-
-::: {.callout-warning collapse=TRUE title="Question"}
-
-**QUESTION**: for consistency shouldn't "getStepWithoutCache" not be called "getStepResourceWithoutCache()".
-
-:::
-:::
-
-:::
-
-::: {.callout-note collapse="true" appearance="minimal"}
 
 ### this
+<details>
+<summary>Show details</summary>
+<div>
 
 The `this` binding in `envATModelingStep1` is a self-reference of the step's environment. It enables function calls
 to make a reference to the environment itself.
@@ -575,12 +586,9 @@ x <- envATModelingStep1$this$getStepInventory()
 y <- envATModelingStep1$getStepInventory()
 identical(x, y)
 ```
+</div>
+</details>
 
-:::
-
-```{r}
-knitr::knit_exit()
-```
 
 ## workflow
 
@@ -590,6 +598,7 @@ It subsequently contains several elements which are described below.
 ```{r}
 #| code-summary: "Details of workflow"
 #| eval: true
+
 
 # Overview of elements
 tibble(
@@ -830,7 +839,6 @@ envATModelingStep1$workflow$removeStep
 ## Example for demonstration purposes
 
 
-
 # createStep
 
 ## Purpose of the function
@@ -931,11 +939,12 @@ step1ParentChild$data[[1]]$name #'Step 2' is shown as child
 
 ::: {#fig-stepAttach layout-ncol=2 .no-margin .left-caption}
 
-![before](img/tutorialSteps/stepsDetached.png){#fig-detached .text-align-left}
+![before and](img/tutorialSteps/stepsDetached.png){#fig-detached .text-align-left}
 
 ![after calling attachStep](img/tutorialSteps/stepsAttached.png){#fig-attached .left-caption}
 
 Steps before and after calling 'attachStep'
+
 :::
 
 
