@@ -53,6 +53,18 @@ createStepName <- function(step) {
 #' @export
 getStep <- function(ident,workflow=NULL) {
 
+  # Validate input - check if ident is a data frame with multiple rows
+  if (is.data.frame(ident)) {
+    if (nrow(ident) > 1) {
+      stop("getStep() expects a single step, but received a data frame with ", nrow(ident), " rows. ",
+           "Please select a single row using indexing: getStep(ident[1,]) or getStep(ident[2,])",
+           call. = FALSE)
+    } else if (nrow(ident) == 0) {
+      stop("getStep() received an empty data frame", call. = FALSE)
+    }
+    # Single row data frame - this is OK, continue
+  }
+
   if (!is.null(workflow)) {
     stepEntity <- loadResource(ident)
     if (!is.null(stepEntity) && stepEntity$nodeType=="Step") {
@@ -281,7 +293,17 @@ getStepDf <- function(ident) {
 
   })
   fileHandles <- byNotEmptyAsDf(inputFiles,function(f) {
-    createRemoteFileDf(stepHandle=stepHandle,ident = f,name = f$inventoryPath,asLink = F,variableName = f$variableName,variableProcess = f$variableProcess)
+    # Ensure name is populated - use inventoryPath if available, otherwise construct from resource
+    fileName <- f$inventoryPath
+    if (is.null(fileName) || is.na(fileName) || fileName == "") {
+      resource <- loadResource(f$resourceId)
+      if (!is.null(resource) && !is.null(resource$path) && !is.null(step$path)) {
+        fileName <- paste0(".",substr(resource$path,nchar(step$path)+1,nchar(resource$path)))
+      } else if (!is.null(resource) && !is.null(resource$name)) {
+        fileName <- paste0("./", resource$name)
+      }
+    }
+    createRemoteFileDf(stepHandle=stepHandle,ident = f,name = fileName,asLink = F,variableName = f$variableName,variableProcess = f$variableProcess)
   })
 
   remoteFiles <- plyr::rbind.fill(linkHandles,fileHandles)

@@ -22,6 +22,8 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
   env$this <- env
   env$workflow <- workflow
 
+  # Initialize parameter registry
+  env$parameters <- new.env(parent = emptyenv())
 
 
 
@@ -286,7 +288,155 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
   }
 
 
+  # Parameterization API
+
+  # Register a parameter for the workflow template
+  # @param paramName Name of the parameter
+  # @param stepPattern Pattern to match steps ("*" for all, "Step 1/*" for prefix, "Initial 1" for exact description)
+  # @param property Property to parameterize ("remoteFile", "treeIdent", "gridArgument.name", "description", etc.)
+  # @param target Target within the property (e.g., "./data.csv" for remoteFile, "cores" for gridArgument)
+  # @param required Whether this parameter must be set before realization
+  # @param defaultValue Default value if not set
+  env$parameterizeStep <- function(paramName, stepPattern, property, target = NULL, required = TRUE, defaultValue = NULL) {
+    paramDef <- list(
+      name = paramName,
+      stepPattern = stepPattern,
+      property = property,
+      target = target,
+      required = required,
+      defaultValue = defaultValue,
+      value = NULL,  # Start with NULL - will be set explicitly via setParameter() or use defaultValue during apply
+      applied = FALSE
+    )
+
+    env$parameters[[paramName]] <- paramDef
+    invisible(env)
+  }
+
+  # Set a parameter value
+  # @param paramName Name of the parameter to set
+  # @param value Value to set
+  env$setParameter <- function(paramName, value) {
+    if (!exists(paramName, envir = env$parameters)) {
+      stop("Parameter '", paramName, "' has not been defined. Use parameterizeStep() first.", call. = FALSE)
+    }
+
+    paramDef <- env$parameters[[paramName]]
+    paramDef$value <- value
+    paramDef$applied <- FALSE
+    env$parameters[[paramName]] <- paramDef
+
+    invisible(env)
+  }
+
+  # Validate all required parameters are set
+  # @return TRUE if valid, throws error otherwise
+  env$validateParameters <- function() {
+    params <- ls(env$parameters)
+    missing <- c()
+
+    for (paramName in params) {
+      paramDef <- env$parameters[[paramName]]
+      if (paramDef$required && (is.null(paramDef$value) || is.na(paramDef$value))) {
+        missing <- c(missing, paramName)
+      }
+    }
+
+    if (length(missing) > 0) {
+      stop("Required parameters not set: ", paste(missing, collapse = ", "), call. = FALSE)
+    }
+
+    invisible(TRUE)
+  }
+
+  # List all parameters
+  # @return Data frame of parameters
+  env$listParameters <- function() {
+    params <- ls(env$parameters)
+    if (length(params) == 0) {
+      return(data.frame(
+        name = character(0),
+        stepPattern = character(0),
+        property = character(0),
+        target = character(0),
+        required = logical(0),
+        value = character(0),
+        applied = logical(0),
+        stringsAsFactors = FALSE
+      ))
+    }
+
+    paramList <- lapply(params, function(paramName) {
+      paramDef <- env$parameters[[paramName]]
+      data.frame(
+        name = paramDef$name,
+        stepPattern = paramDef$stepPattern,
+        property = paramDef$property,
+        target = ifelse(is.null(paramDef$target), "", as.character(paramDef$target)),
+        required = paramDef$required,
+        value = ifelse(is.null(paramDef$value), "", as.character(paramDef$value)),
+        applied = paramDef$applied,
+        stringsAsFactors = FALSE
+      )
+    })
+
+    do.call(rbind, paramList)
+  }
+
+  # Save workflow template to JSON file
+  # @param filepath Path to save the JSON file
+  # @param pretty Whether to format JSON with indentation
+  env$toJSON <- function(filepath, pretty = TRUE) {
+    # Get workflow data
+    workflowDf <- env$df()
+
+    if (is.null(workflowDf) || nrow(workflowDf) == 0) {
+      stop("Cannot export empty workflow template - contains no steps", call. = FALSE)
+    }
+
+    # Don't remove entityIds - they're needed for step identification
+    # Only remove templateEntityId which is only for realized steps
+    if ("templateEntityId" %in% names(workflowDf)) {
+      workflowDf$templateEntityId <- NA
+    }
+
+    # Convert parameters to list for JSON
+    params <- ls(env$parameters)
+    parametersList <- list()
+    if (length(params) > 0) {
+      parametersList <- lapply(params, function(paramName) {
+        paramDef <- env$parameters[[paramName]]
+        list(
+          name = paramDef$name,
+          stepPattern = paramDef$stepPattern,
+          property = paramDef$property,
+          target = paramDef$target,
+          required = paramDef$required,
+          defaultValue = paramDef$defaultValue,
+          value = if (is.null(paramDef$value)) NA else paramDef$value  # Convert NULL to NA for JSON
+        )
+      })
+    }
+
+    # Create export structure
+    # Note: Internal links are embedded in remoteFiles and will be reconstructed during load
+    exportData <- list(
+      version = "1.0",
+      parameters = parametersList,
+      workflow = workflowDf
+    )
+
+    # Write to file
+    jsonlite::write_json(exportData, filepath, pretty = pretty, auto_unbox = TRUE)
+
+    log_info("Workflow template saved to: ", filepath)
+    invisible(filepath)
+  }
+
   env$realise <- function() {
+    # Apply parameters before execution
+    .workflow_template_private$applyParameters(env)
+
     return(env$executePlan(env$createExecutionPlan()))
   }
 
@@ -375,6 +525,94 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
       return(NULL)
     })
   }
+
+  # Apply all parameters to workflow template
+  .workflow_template_private$applyParameters <- function(env) {
+    params <- ls(env$parameters)
+
+    for (paramName in params) {
+      paramDef <- env$parameters[[paramName]]
+
+      # Skip if already applied
+      if (paramDef$applied) {
+        next
+      }
+
+      # Determine the value to use: explicit value or defaultValue
+      valueToApply <- paramDef$value
+      if (is.null(valueToApply)) {
+        valueToApply <- paramDef$defaultValue
+      }
+
+      # Skip if no value to apply
+      if (is.null(valueToApply)) {
+        next
+      }
+
+      # Find matching steps
+      workflowDf <- env$df()
+      matchingSteps <- .workflow_template_private$findMatchingSteps(env, paramDef$stepPattern, workflowDf)
+
+      if (length(matchingSteps) == 0) {
+        logging::logwarn("Parameter '", paramName, "' matched no steps with pattern '", paramDef$stepPattern, "'")
+        next
+      }
+
+      # Apply parameter to each matching step
+      for (stepName in matchingSteps) {
+        stepTemplate <- env$stepTemplates[[stepName]]
+
+        tryCatch({
+          if (paramDef$property == "remoteFile") {
+            # Change remote file
+            stepTemplate$changeStepRemoteFile(
+              name = paramDef$target,
+              newIdent = valueToApply
+            )
+          } else if (paramDef$property == "treeIdent") {
+            # Change tree
+            stepTemplate$setStepTree(valueToApply)
+          } else if (startsWith(paramDef$property, "gridArgument.")) {
+            # Set grid argument
+            argName <- substring(paramDef$property, 14)  # Remove "gridArgument." prefix
+            stepTemplate$setGridArgument(argName, valueToApply)
+          } else if (paramDef$property == "description") {
+            stepTemplate$setStepDescription(valueToApply)
+          } else if (paramDef$property == "rationale") {
+            stepTemplate$setStepRationale(valueToApply)
+          } else if (paramDef$property == "stepName") {
+            stepTemplate$setStepName(valueToApply)
+          } else {
+            logging::logwarn("Unknown property type '", paramDef$property, "' for parameter '", paramName, "'")
+          }
+        }, error = function(e) {
+          logging::logerror("Failed to apply parameter '", paramName, "' to step '", stepName, "': ", e$message)
+        })
+      }
+
+      # Mark as applied
+      paramDef$applied <- TRUE
+      env$parameters[[paramName]] <- paramDef
+    }
+  }
+
+  # Find steps matching a pattern
+  .workflow_template_private$findMatchingSteps <- function(env, pattern, workflowDf) {
+    if (pattern == "*") {
+      # All steps
+      return(workflowDf$fullName)
+    } else if (grepl("\\*$", pattern)) {
+      # Prefix match: "Step 1/*" or "DMG L1/*"
+      prefix <- sub("\\*$", "", pattern)
+      matching <- workflowDf[startsWith(workflowDf$fullName, prefix), ]
+      return(matching$fullName)
+    } else {
+      # Exact description match
+      matching <- workflowDf[workflowDf$description == pattern, ]
+      return(matching$fullName)
+    }
+  }
+
   ############## INTERNAL METHODS END
 
 
@@ -383,6 +621,135 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
 }
 
 
+#' Load workflow template from JSON file
+#'
+#' Loads a workflow template that was saved with toJSON(), including
+#' all step definitions, internal links, and parameter definitions.
+#'
+#' @param filepath Path to the JSON file to load
+#' @return A workflow template environment with all parameters and steps
+#'
+#' @examples
+#' \dontrun{
+#' # Save a template
+#' workflowTemplate$toJSON("my_template.json")
+#'
+#' # Load it back
+#' loadedTemplate <- workflowTemplateFromJSON("my_template.json")
+#'
+#' # Set parameters and realize
+#' loadedTemplate$setParameter("inputDataset", "newFileId")
+#' realizedWorkflow <- loadedTemplate$realise()
+#' }
+#'
+#' @export
+workflowTemplateFromJSON <- function(filepath) {
+  if (!file.exists(filepath)) {
+    stop("File not found: ", filepath, call. = FALSE)
+  }
+
+  # Read JSON file
+  templateData <- jsonlite::read_json(filepath, simplifyVector = TRUE)
+
+  # Validate version
+  if (is.null(templateData$version)) {
+    warning("No version information in template file, assuming version 1.0")
+    templateData$version <- "1.0"
+  }
+
+  # Check required fields
+  if (is.null(templateData$workflow) || nrow(templateData$workflow) == 0) {
+    stop("Invalid template file: no workflow data found", call. = FALSE)
+  }
+
+  # Create empty workflow to hold steps
+  workflow <- createWorkflow()
+  workflow$isImporting <- TRUE
+
+  # Create step environments from workflow data
+  workflowDf <- templateData$workflow
+
+  # Clean up the workflow data - convert empty strings to NA for optional fields
+  if ("parentIdent" %in% names(workflowDf)) {
+    workflowDf$parentIdent[workflowDf$parentIdent == "" | is.null(workflowDf$parentIdent)] <- NA
+  }
+  if ("sourceEntityId" %in% names(workflowDf)) {
+    workflowDf$sourceEntityId[workflowDf$sourceEntityId == "" | is.null(workflowDf$sourceEntityId)] <- NA
+  }
+  if ("entityId" %in% names(workflowDf)) {
+    workflowDf$entityId[workflowDf$entityId == "" | is.null(workflowDf$entityId)] <- NA
+  }
+
+  # Clean up remoteFiles data - ensure ident fields are valid
+  if ("remoteFiles" %in% names(workflowDf)) {
+    for (i in seq_len(nrow(workflowDf))) {
+      if (!is.null(workflowDf$remoteFiles[[i]]) && is.data.frame(workflowDf$remoteFiles[[i]])) {
+        rf <- workflowDf$remoteFiles[[i]]
+        if ("ident" %in% names(rf)) {
+          # Convert empty strings to NA
+          rf$ident[rf$ident == "" | is.null(rf$ident)] <- NA
+        }
+        workflowDf$remoteFiles[[i]] <- rf
+      }
+    }
+  }
+
+  for (i in seq_len(nrow(workflowDf))) {
+    stepEnv <- createStepEnv(stepDf = workflowDf[i, ], workflow = workflow)
+  }
+
+  workflow$isImporting <- FALSE
+
+  # Note: Internal links are embedded in remoteFiles with sourceStep information
+  # They will be reconstructed when the workflow template is used
+
+  # Create workflow template
+  workflowTemplate <- createWorkflowTemplateEnv(workflow)
+
+  # Restore parameters if they exist
+  if (!is.null(templateData$parameters) && length(templateData$parameters) > 0) {
+    params <- templateData$parameters
+
+    # Handle both list and data.frame formats
+    if (is.data.frame(params)) {
+      for (i in seq_len(nrow(params))) {
+        param <- params[i, ]
+        workflowTemplate$parameterizeStep(
+          paramName = param$name,
+          stepPattern = param$stepPattern,
+          property = param$property,
+          target = if (is.null(param$target) || is.na(param$target)) NULL else param$target,
+          required = param$required,
+          defaultValue = if (is.null(param$defaultValue) || is.na(param$defaultValue)) NULL else param$defaultValue
+        )
+
+        # Set the value only if it was explicitly saved (not NA/NULL/"")
+        if (!is.null(param$value) && !is.na(param$value) && param$value != "") {
+          workflowTemplate$setParameter(param$name, param$value)
+        }
+      }
+    } else if (is.list(params)) {
+      for (param in params) {
+        workflowTemplate$parameterizeStep(
+          paramName = param$name,
+          stepPattern = param$stepPattern,
+          property = param$property,
+          target = param$target,
+          required = param$required,
+          defaultValue = param$defaultValue
+        )
+
+        # Set the value only if it was explicitly saved (not NA/NULL/"")
+        if (!is.null(param$value) && !is.na(param$value) && param$value != "") {
+          workflowTemplate$setParameter(param$name, param$value)
+        }
+      }
+    }
+  }
+
+  log_info("Workflow template loaded from: ", filepath)
+  return(workflowTemplate)
+}
 
 
   # TODO resolv parent kram
