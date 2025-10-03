@@ -17,7 +17,7 @@ testEnv <- function() {
 #' @param addParental if T the created stepTemplates have the steps from the workflow as parents (default: FALSE)
 #' @return An environment representing the workflow template
 #' @export
-createWorkflowTemplateEnv <- function(workflow,addParental=F) {
+createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
   env <- new.env(parent = emptyenv())
   env$this <- env
   env$workflow <- workflow
@@ -25,23 +25,25 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
   # Initialize parameter registry
   env$parameters <- new.env(parent = emptyenv())
 
-
-
-  internalLinks<-workflow$internalLinks
-  if (!is.null(internalLinks) && nrow(internalLinks) > 0) {
-    # Only select columns that exist in the data frame
-    requiredCols <- c("entityId","fileHash","revisionId","path","targetStep","sourceStep","sourceInventoryPath","name")
-    existingCols <- intersect(names(internalLinks), requiredCols)
-    if (length(existingCols) > 0) {
-      internalLinks <- dplyr::select(internalLinks, dplyr::all_of(existingCols))
+  internalLinks <- NULL
+  if (!is.null(workflow)) {
+    internalLinks <- workflow$internalLinks
+    if (!is.null(internalLinks) && nrow(internalLinks) > 0) {
+      # Only select columns that exist in the data frame
+      requiredCols <- c("entityId","fileHash","revisionId","path","targetStep","sourceStep","sourceInventoryPath","name")
+      existingCols <- intersect(names(internalLinks), requiredCols)
+      if (length(existingCols) > 0) {
+        internalLinks <- dplyr::select(internalLinks, dplyr::all_of(existingCols))
+      }
     }
   }
 
 
   # Extract steps and their templates
   stepTemplates <- list()
-  for (stepName in names(workflow$steps)) {
-    stepEnv <- workflow$steps[[stepName]]
+  if (!is.null(workflow)) {
+    for (stepName in names(workflow$steps)) {
+      stepEnv <- workflow$steps[[stepName]]
     # Convert each step to a template environment
     stepDf <- stepEnv$stepDf
     if (addParental) {
@@ -50,8 +52,11 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
     workflowLinks <- internalLinks[internalLinks$targetStep==stepName,]
     if (!is.null(workflowLinks) && nrow(workflowLinks)>0) {
       remoteFiles<- stepDf$remoteFiles[[1]]
-      jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("name"="name"))
-      stepDf$remoteFiles<-list(jointRemoteFiles)
+      # Only join if remoteFiles exists (step might only have local files)
+      if (!is.null(remoteFiles) && nrow(remoteFiles) > 0) {
+        jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("name"="name"))
+        stepDf$remoteFiles<-list(jointRemoteFiles)
+      }
       #case import:
       if (F) {
 
@@ -165,6 +170,7 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
     rm(list=c("load"),pos=stepTemplates[[stepName]]$parent)
     stepTemplates[[stepName]]$children <- rlang::env_clone(stepEnv$children)
     rm(list=c("load"),pos=stepTemplates[[stepName]]$children)
+    }
   }
   env$stepTemplates <- stepTemplates
 
@@ -179,6 +185,19 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
       df$fullName <- fullName
       return(df)
     })
+  }
+
+  # Add a step template to the workflow template
+  env$addStepTemplate <- function(stepTemplate, name = NULL) {
+    if (is.null(name)) {
+      name <- stepTemplate$stepDf$description
+      if (is.null(name) || is.na(name)) {
+        name <- paste0("Step_", length(env$stepTemplates) + 1)
+      }
+    }
+    stepTemplate$workflow <- env
+    env$stepTemplates[[name]] <- stepTemplate
+    invisible(env)
   }
 
   env$setWorkflowTreeRootFolder <- function(rootFolder) {
@@ -412,7 +431,7 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
           property = paramDef$property,
           target = paramDef$target,
           required = paramDef$required,
-          defaultValue = paramDef$defaultValue,
+          defaultValue = if (is.null(paramDef$defaultValue)) NA else paramDef$defaultValue,  # Convert NULL to NA for JSON
           value = if (is.null(paramDef$value)) NA else paramDef$value  # Convert NULL to NA for JSON
         )
       })
@@ -568,6 +587,12 @@ createWorkflowTemplateEnv <- function(workflow,addParental=F) {
             stepTemplate$changeStepRemoteFile(
               name = paramDef$target,
               newIdent = valueToApply
+            )
+          } else if (paramDef$property == "localFile") {
+            # Change local file
+            stepTemplate$changeStepLocalFile(
+              name = paramDef$target,
+              newPath = valueToApply
             )
           } else if (paramDef$property == "treeIdent") {
             # Change tree
