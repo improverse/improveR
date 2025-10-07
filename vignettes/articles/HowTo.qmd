@@ -70,8 +70,10 @@ envATReportingStep1$lineage$load(treeDepth=-1)
 
 #show all steps which form part of the workflow
 envATReportingStep1$workflow$df()
-
 ```
+
+Note that before calling `lineage$load()`, the `df()` in the `workflow` binding will only return the step itself, i.e.
+`Reporting/Step 1`.
 
 
 # ... get the elements aka resources of a step's inventory
@@ -106,12 +108,46 @@ envStep$stepDf #no does not show content of inventory; in the inventory is more 
 step$workflow$removeStep()
 ```
 
+# ... get the outdated elements of an inventory
+
+```{r}
+envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
+changedAndOutdatedFiles <- envATReportingStep1$workflow$changedAndOutdatedFiles()
+
+#outdated elements in an inventory
+inventory <- envATReportingStep1$getStepInventory()
+inventoryOutdatedLinks <- inventory %>%
+  select(data) %>%
+  unnest(data) %>%
+  filter(outdatedLink==TRUE) 
+nrow(inventoryOutdatedLinks)
+
+#outdated link in resource
+x <- loadResource("/improve-tutorial/Reporting/Step 1")
+x$outdatedLink  #outdatedLink can be FALSE even if in the inventory of the Step are outdated elements
+
+```
+
+* elaborate on the difference between outdated elements of an inventory and changedAndOutdated in the workflow context
+* outdatedAndChanged is different; also includes changed; changes input is a different one; outdatedLink=>here only outdated links; changed: files are not the same; changed red frame; outdated yellow frame
+
 
 
 # ... rerun changed and outdated steps with in a workflow
 
 ```{r}
 #| eval: false
+
+
+
 step$workflow$rerunChangedandOutdated
 ```
+
+
+# Common Errors
+
+## Tooling
+
+When defining a step's tooling, no interactive e.g. RStudio instance is permissble. Executing a step via {improveR} requires a tooling
+which can be run in batch mode. 
 

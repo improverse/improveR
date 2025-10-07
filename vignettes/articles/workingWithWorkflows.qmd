@@ -2,6 +2,8 @@
 title: "Working with workflows"
 format:
   html:
+    theme: none
+    minimal: true
     toc: true
     toc-depth: 4
     toc-title: Contents
@@ -50,10 +52,6 @@ library(tidyverse, quietly = T)
 library(tictoc) #time keeping of functions
 options(width=10000) #make results window wide; horizontal scrollbar
 
-logEnv <- new.env()
-logEnv$redirectToList <- TRUE
-improveR:::redirectLogs(TRUE) 
-
 fn_connect <- function() {
   Sys.setenv(
     IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
@@ -62,7 +60,8 @@ fn_connect <- function() {
   Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
   clearConnectionData()
-  improveRtestsupport::improveConnect() #new
+  #improveRtestsupport::improveConnect() #new
+   improveConnect()
 
   setEditable(TRUE)
   print(Sys.getenv("IMPROVER_REPO_URL"))
@@ -75,7 +74,7 @@ improveConnected()
 
 # Overview
 
-On a very general level, in the context of {improveR}, a workflow is a distinct sequence of steps, grouped by analysis-trees, which transforms a specific input into a specific output. The precise definition of a workflow is the foundation of the analysis' reproducability and general replicability. 
+On a very general level, in the context of {improveR}, a workflow is a distinct sequence of steps, grouped by analysis-trees, which transforms a distinct input into a distinct output. The precise definition of a workflow is the foundation of the analysis' reproducability and general replicability. 
 
 {ImproveR} provides furthermore the ability to take an already created worklfow and to transfer it to another repository, while keeping inter-step relations, file input and output speficiations as well as tools and their definitions in order. By this, researchers can easily apply an available analytical workflow in a different context and investigate, e.g. how outcomes differ due to a different inputs while keeping the chain of steps unaltered. Rather than re-creating each individual step from scratch,
 portability ensures an efficient application of the workflow in a new context.
@@ -86,18 +85,21 @@ This article provides an overview of {improveR}'s most relevant functions for wo
 ![](img/dmgFolderComplete1.png)
 :::
 
-The graph above depicts improve's Data Manipulation Graph for
-the entire folder. Step 62516 in the Analysis Tree 'Reporting' is its final step
+The graph above depicts improve's Data Manipulation Graph (DMG) for
+the entire folder. Step `Reporting/Step 1` (ST-62516) in the Analysis Tree 'Reporting' is its final step
 in the overall workflow.
 
 
 # getStep
 
-If we are interested in obtaining the workflow leading to a specific step, the function `getStep()` is key. The function takes the ident of the step of interest as an argument and returns an environment containing all the elements describing the step. From this environment, the workflow leading to the step can be extracted via the `lineage` binding. The parameters `treeDepth` and `stepDepth` limit the upstream reach of the call, i.e. they define a cut-off point for the retrieved lineage of the step in question. Once loaded, the workflow can be accessed via the `workflow` binding. 
+If we are interested in obtaining the workflow leading to a specific step, the function `getStep()` is key. The function takes the ident of the step of interest as an argument and returns an environment containing all the elements describing the step. From this environment, the workflow leading to the step can be extracted via the `lineage` binding. The parameters `treeDepth` and `stepDepth` limit the upstream reach of the call, i.e. they define a cut-off point for the retrieved lineage of the step in question. Once loaded, the workflow can be accessed via the `workflow` binding.
+
+[An ident can be an entitiyId, entityVersionId, a resourceId or a resource's dataframe containing an entityId", or a path.]{.aside}
+
 
 *treeDepth*
 
-In the example below, let's request the full worklfow leading to step `/improve-tutorial/Reporting/Step 1`. With an `treeDepth` input value of -1, the entire workflow is extracted. Note that the returne data frame also includes step 1 of the reporting analysis tree.
+In the example below, let's request the full worklfow leading to step `/improve-tutorial/Reporting/Step 1`. With an `treeDepth` input value of -1, the entire workflow is extracted. Note that the returned data frame also includes step 1 of the reporting analysis tree.
 
 <!-- ::: {.column-margin}
 ![Improve client - Complete workflow leading to Step 1 of AT Reporting"](img/dmgFolderCompleteWF.png)
@@ -119,16 +121,16 @@ envATReportingStep1$workflow$df() %>% select(fullName)
 
 ```
 
-Figure @fig-workflow-all shows the data manpulation graph of the improve client for the workflow leading to `Reporting/Step1.` It's a visual representation of the relation of the steps which were extracted via the `getStep()` and subsequent function calls. 
+@fig-workflow-all shows the data manpulation graph of the improve client for the workflow leading to `Reporting/Step1.` It's a visual representation of the relations between the steps which were extracted via `getStep()` and subsequent function calls. 
 
 ::: {#fig-workflow-all layout-ncol=1, fig-cap="Improve client DMG - Complete workflow leading to Step 1 of AT Reporting"}
 ![](img/dmgFolderCompleteWF.png)
 :::
 
-When contrasting this result with the 'full' folder as depicted in @fig-folder, it can be noticed that step `EDA/Step 18` is missing. This is because it does not form part of the workflow leading to our 'destination' step `Reporting/Step 1`.
+When contrasting this result with the 'full' folder as depicted in @fig-folder, it can be noticed that step `EDA/Step 18` is missing. This is because the step does not form part of the workflow leading to our 'destination' step `Reporting/Step 1`.
 
 To demonstrate this aspect, let's obtain the `usage` of `EDA/Step 18`. With a step's usage all those
-steps are captured which depend further downstream in the analytical workflow on at least one file generated by the step of origin, e.g. `EDA/Step 18`. Again, `getStep()` is the relevant method.
+steps are captured which depend further downstream in the analytical workflow on at least one file generated by the step of origin, i.e. `EDA/Step 18`. Again, `getStep()` is the required method.
 
 ```{r}
 #| code-summary: "Get usage of step outside of workflow"
@@ -143,13 +145,14 @@ envATEDAStep18$usage$load(treeDepth=-1)
 ls(envATEDAStep18$usage)
 ```
 
-The result above reveals that step `EDA/Step 18` has no usage. The `load()` function remains the sole element even after calling it. This is in line with the earlier finding, that `EDA/Step 18` is no element of the
-the workflow or lineage leading to `Reporting/Step 1`.
+The result above reveals that step `EDA/Step 18` has no usage, i.e. there are no other steps which would depend on any file produced by it. The `load()` function remains the sole element even after calling it. This result is in line with the earlier finding, that `EDA/Step 18` is no element of the the workflow or lineage leading to `Reporting/Step 1`. Would `EDA/Step 18` be
+within the lineage of `Reporting/Step 1`, the latter would also have to be within the usage of 
+the former.
 
 *stepDepth*
 
 Similar to the argument `treeDepth`, `stepDepth` also allows to set the reach of the workflow of interest.
-However, rather than delimiting its reach by analysis trees, it sets the workflow's boundaries by steps. The example below extracts the workflow leading to `Reporting/Step 1` with stepDepth of 1.
+However, rather than delimiting its reach by analysis trees, it sets the workflow's boundaries by steps. The example below extracts the workflow leading to `Reporting/Step 1` with `stepDepth` of 1.
 
 ```{r}
 #| code-summary: "Get only workflow starting at adjacent AT leading to Step 1 of AT Modeling"
@@ -170,48 +173,43 @@ select(treeName, fullName)
 ![](img/dmgATReportingStep1WorkflowStepDepth1.png)
 :::
 
-## identifying files linked across steps
+**identifying files linked across steps**
 
- Note that the result includes also steps from the 'first' Analysis Tree, 'Data Order'. This is due to a direct link between Step 3 in 'Data Order' and Step 1 in 'Reporting'. If we want to check which files link the two steps, we can easily find this out via workflow's `internalLinks`.
+ Note that the result presented in the chunk above includes also steps from the 'first' Analysis Tree, 'Data Order'. This is due to a direct link between Step 3 in 'Data Order' and Step 1 in 'Reporting'. If we want to check which files link the two steps, we can easily find this out via workflow's `internalLinks`.
 
- ```{r}
+```{r}
  #| code-summary: "Check for files connecting Step 3 of AT Data Order with Step 1 of AT Reporting"
 
 filesATDOS3ATReprotingS1 <- envATReportingStep1$workflow$internalLinks %>% 
   dplyr::filter(str_detect(sourceStep, regex("DataOrder"))) %>%
   dplyr::filter(str_detect(targetStep, regex("Reporting"))) %>%
-  select(name, entityId, sourceStep, targetStep)
+  select(name, sourceInventoryPath, sourceStep, targetStep)
 
 filesATDOS3ATReprotingS1
 
- ```
+```
 
-In `Reporting/Step 1` these files  show up in the `remoteFiles` binding with `asLink` set to TRUE.
+In `Reporting/Step 1` these files  show up in the `remoteFiles` binding with `asLink` set to `TRUE`.
 
- ```{r}
-#| code-summary: "Get remove files of `Reporting/Step 1` and check for files"
+```{r}
+#| code-summary: "Get remote files of `Reporting/Step 1` and check for files"
 envATReportingStep1$stepDf$remoteFiles[[1]] %>%
   as_tibble() %>%
   select(name, ident, asLink) %>%
-  filter(ident %in% filesATDOS3ATReprotingS1$entityId)  
- ```
+  filter(name %in% filesATDOS3ATReprotingS1$name)  
+```
 
 Conversly, the files are also part of the inventory of Step 3 in the AT Data Order. 
 ```{r}
 #| code-summary: "Check inventory of `DataOrder/Step 3`"
 
 envATDOStep3 <- getStep(ident="/improve-tutorial/DataOrder/Step 3/")
-envATDOStep3$stepDf
+
 inventoryATDOStep3 <- envATDOStep3$getStepInventory()$data[[1]] %>%
   select(name, entityId) %>%
-  filter(entityId %in% filesATDOS3ATReprotingS1$entityId)
+  filter(name %in% filesATDOS3ATReprotingS1$sourceInventoryPath)
 
 inventoryATDOStep3
-```
-
-
-```{r}
-knitr::knit_exit()
 ```
 
 # Removing a step from a workflow
@@ -222,38 +220,35 @@ In the example below, step `Modeling/Step 10` will be removed.
 
 ```{r}
 #| code-summary: "Remove Step /improve-tutorial/Modeling/Step 10"
-#| cache: true
+#| cache: false
 
 # get workflow of `Reporting/Step 1`
 envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
 
+tic()
 # get the workflow and show details on Step 'Modeling/Step 10'
 envATReportingStep1$lineage$load(treeDepth=-1)
+toc()
+
 envATReportingStep1$workflow$df() %>%
   filter(str_detect(fullName, regex("Step 10"))) %>%
   select(fullName, sourceEntityId, rationale, description)
-
+ 
 # remove step
-envATReportingStep1$workflow$removeStep('/improve-tutorial/Modeling/Step 10')
-envATReportingStep1$workflow$removeStep('envhost1.hc.scintecodev.internal-5310:ST-59463')
+envATReportingStep1$workflow$removeStep('Modeling/Step 10/59463')
 
+envATReportingStep1$workflow$df() %>%
+  filter(str_detect(fullName, regex("Step 10"))) %>%
+  select(fullName, sourceEntityId, rationale, description) 
 ```
 
 Importantly, note that the step is not deleted. It is still present in its analysis tree.
-The step was only removed from the workflow leading to `Reporting/Step 1`.
+The step was only removed from the workflow leading to `Reporting/Step 1` as revealed in the
+output below.
 
-```{r}
-#| code-summary: "Get workflow after removal of step"
-envATReportingStep1$lineage$load(treeDepth=-1)
-envATReportingStep1$workflow$df() %>%
-  filter(str_detect(fullName, regex("Step 10"))) %>%
-  select(fullName, sourceEntityId, rationale, description)
-```
-
-
+The output below shows that the step `Modeling/Step 10` is still part of the analysis tree 'Modeling'.
 ```{r}
 #| code-summary: "Get steps in Analysis Tree 'Modeling"
-
 stepsATModeling <- improveR::loadChildResources(ident='/improve-tutorial/Modeling/') %>%
   select(data) %>%
   unnest(data) %>%
@@ -263,15 +258,18 @@ stepsATModeling
 
 # rerunChangedAndOutdated
 
-`rerunChagnedAndOutdated()` performs incremental workflow execution by only rerunning steps with changed or outdated files and their consumers. It's hence a convenient
-function to keep the workflow in sync, without having to rerun it entirely.
- 
+`rerunChagnedAndOutdated()` performs incremental workflow execution by only rerunning steps with changed or feature outdated files as well as their consumers. It is hence a convenient function to keep the workflow in sync, without having to rerun it entirely.
 
 ```{r}
 #| code-summary: "Change step to render workflow outdated"
+#| eval: true
 
-envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
+envATReportingStep1 <- getStep("/improve-tutorial/  /Step 1")
+
 changedAndOutdatedFiles <- envATReportingStep1$workflow$changedAndOutdatedFiles()
+nrow(changedAndOutdatedFiles)
+changedAndOutdatedFiles$fileName
+
 #tableResultsCompared.png; Step: envhost1.hc.scintecodev.internal-5310:ST-62516 (Reporting/Step1)
 
 #only one file identified as changed or outdated
@@ -282,11 +280,93 @@ changedAndOutdatedFiles %>%
 #does the result change if entire workflow is loaded before?
 envATReportingStep1$lineage$load(treeDepth=-1)
 
-changedAndOutdatedFiles <- envATReportingStep1$workflow$changedAndOutdatedFiles() #
+changedAndOutdatedFiles <- envATReportingStep1$workflow$changedAndOutdatedFiles() 
 nrow(changedAndOutdatedFiles)
 
-envATReportingStep1$workflow$rerunChangedAndOutdated() #BUG
+envATReportingStep1$workflow
+envATReportingStep1$workflow$rerunChangedAndOutdated() 
 ```
+
+
+```{r}
+#| code-summary: "Workflow up to Step 18 - Change step to render workflow outdated"
+#| eval: true
+
+
+envATEDAStep18 <- getStep("/improve-tutorial/EDA/Step 18")
+envATEDAStep18$lineage$load(treeDepth=-1)
+
+#steps forming part of the workflow
+envATEDAStep18$workflow$df() %>%
+  select(treeName, fullName)
+#no outdated or changed files
+changedAndOutdatedFiles <- envATEDAStep18$workflow$changedAndOutdatedFiles()
+nrow(changedAndOutdatedFiles)
+
+
+#modify a file importData.R in DataOrder/Step2
+## get entityId of R file of Step 2 in AT Data Order
+rFileToModify <- loadChildResources(ident="/improve-tutorial/DataOrder/Step 2")$data[[1]] %>%
+  filter(str_detect(name, regex("\\.R$", ignore_case=TRUE)))
+rFileToModify$entityId
+
+#laod R file via entityId
+rFile <- loadFile(rFileToModify$entityId)
+#get its local path
+filePathLocal <- rFile$data[[1]]
+#load the content of the file via its local path
+fileContent <- readLines(filePathLocal)
+length(fileContent)
+# add a comment a the end of the file to render the file changed
+fileContentUpdated <- c(fileContent, "#Comment to render file outdated")
+#write the modified content to the local file
+writeLines(fileContentUpdated, filePathLocal)
+#update the file on the server
+updateFileContent(ident=rFileToModify$entityId, localPath=filePathLocal)
+
+envATEDAStep18 <- getStep("/improve-tutorial/EDA/Step 18")
+envATEDAStep18$lineage$load(treeDepth=-1)
+
+#no outdated or changed files? #REVIEW
+changedAndOutdatedFiles <- envATEDAStep18$workflow$changedAndOutdatedFiles()
+nrow(changedAndOutdatedFiles)
+changedAndOutdatedFiles$fileName
+
+envATEDAStep18$workflow$changedAndOutdatedFiles()
+envATEDAStep18$workflow$rerunChangedAndOutdated() 
+envATEDAStep18$workflow$changedAndOutdatedFiles()
+```
+
+
+
+
+```{r}
+#| code-summary: "Change step to render workflow outdated"
+#| eval: false
+
+envATDAOStep6 <- getStep("/improve-tutorial/DataOrder/Step 6")
+envATDAOStep6$lineage$load(treeDepth=1)
+envATDAOStep6workflow <- envATDAOStep6$workflow$df()
+
+changedAndOutdatedFiles <- envATDAOStep6$workflow$changedAndOutdatedFiles()
+nrow(changedAndOutdatedFiles)
+#node type == "LIV" LINK; outdatedLink=TRUE
+#tableResultsCompared.png; Step: envhost1.hc.scintecodev.internal-5310:ST-62516 (Reporting/Step1)
+
+#only one file identified as changed or outdated
+#where do we see this in the client.
+changedAndOutdatedFiles %>%
+  select("nodeType","fileName", "entityId", "outdatedLink", "stepEntityId")
+
+envATDAOStep6$workflow$rerunChangedAndOutdated() #does not work
+
+```
+
+
+```{r}
+knitr::knit_exit()
+```
+
 
 # Workflow template
 
@@ -296,32 +376,78 @@ also allows for using already existing workflows as a template which can then be
 ```{r}
 #| code-summary: "Create a template based on an existing workflow"
 
-# fails
 envATReportingStep1 <- getStep("improve-tutorial/Reporting/Step 1")
 envATReportingStep1$lineage$load(treeDepth=-1)
 
 workflowDf <- envATReportingStep1$workflow$df()
 any(is.na(workflowDf)) 
 
-fullLineageWFTemplate <- envATReportingStep1$workflow$createTemplate() #error
+fullLineageWFTemplate <- envATReportingStep1$workflow$createTemplate()
 fullLineageWFTemplate
+
+class(fullLineageWFTemplate)
+```
+
+## Modifying steps of a workflow template 
+
+Once the template has been creaetd, it is possible to modify various attributes of the template workfow.
+
+For steps, the modifications are specified by using the template's `stepTemplates` binding and addressing the
+relevant step. The IDE's autocompletion expedites this process.
+
+```{r}
+#| code-summary: "Get details on step inside the created workflow template"
+fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf
+```
+
+::: {#fig-folder layout-ncol=1 fig-cap="Improve client - DMG across all steps, grouped by analysis trees"}
+![](img/templdateStepTemplate.gif)
+:::
+
+Below an example, where a step's description inside of the workflow template is changed.
+
+```{r}
+#| code-summary: "Modifying steps of a workflow template"
+#| eval: true
+
+fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$description
+
+fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$setStepDescription(description="Description in new workflow template")
+
+fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$description
+
+```
+
+Similarly, attributes pertaining to the entire workflow can be specified. Below, the root folder of the
+template workflow is definded.
+
+```{r}
+x <- loadResource("/improve-tutorial")
+x$path
+```
+
+
+```{r}
+fullLineageWFTemplate$workflow$df()
+fullLineageWFTemplate$setWorkflowTreeRootFolder(x$path) 
+fullLineageWFTemplate$setWorkflowTreeName("tryout")
+
+#fullLineageWFTemplate$setWorkflowTreeRootFolder(fullLineageWFTemplate) #no folder created
+#fullLineageWFTemplate$stepTemplates$stepDf
+
+fullLineageWFTemplate$realise() 
 ```
 
 
 
 ```{r}
-#try with different 
-envATReportingStep1 <- getStep("improve-tutorial/EDA/Step 5")
-envATReportingStep1$lineage$load(treeDepth=-1)
-
-workflowDf <- envATReportingStep1$workflow$df()
-any(is.na(workflowDf)) 
-
-fullLineageWFTemplate <- envATReportingStep1$workflow$createTemplate() #error
-fullLineageWFTemplate
+knitr::knit_exit()
+```
 
 
-fullLineageWFTemplate$stepTemplates$...$set
+
+```{r}
+
 fullLineageWFTemplate$setWorkflowTreeRootFolder()
 fullLineageWFTemplate$realise
 
