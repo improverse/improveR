@@ -15,9 +15,18 @@ renewAccessToken <- function () {
     }
     storedData = decodeRefreshToken(refrToken)
     authProvider = cacheEnv$authenticationProvider
-    if (!is.null(authProvider)) {
-      authProvider<- getAuthenticationProvider(Sys.getenv("IMPROVER_REPO_URL"))
+    if (is.null(authProvider)) {
+      repoUrl <- Sys.getenv("IMPROVER_REPO_URL")
+      if (nzchar(repoUrl)) {
+        authProvider<- getAuthenticationProvider(repoUrl)
+      }
     }
+
+    # Validate authProvider before using it
+    if (is.null(authProvider) || is.null(authProvider$tokenUri)) {
+      stop("Authentication provider not properly configured. Please ensure IMPROVER_REPO_URL is set and the repository is accessible.")
+    }
+
     #currentTokenString = Sys.getenv("IMPROVER_TOKEN")
     #currentToken = jose::jwt_split(currentTokenString)
 

@@ -918,6 +918,72 @@ test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", 
 })
 
 
+test_that("remoteFile names are loaded correctly|ics1213", {
+  TEST_FOLDER <- ensureTestFolder()
+
+  # Create a test tree
+  testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "RemoteFileNameTest")
+
+  # Step 1: Create initial step with files
+  stepEnv1 <- rBatchStep(testTree)
+  stepEnv1$setStepDescription("Initial Step")
+  stepEnv1$setStepRationale("Create files for testing")
+  stepEnv1$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"), variableName = "command-file")
+  stepEnv1$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"), name = "input_data.csv")
+  stepEnv1$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"), name = "subfolder/report.Rmd", asLink = FALSE)
+
+  step1 <- stepEnv1$realise()
+  stepEnv1$finishRun()
+
+  # Get inventory from step 1
+  inventory1 <- step1$getStepInventory(recurse = TRUE)$data[[1]]
+  dataFile <- inventory1[inventory1$name == "input_data.csv", ]
+  reportFile <- inventory1[inventory1$name == "report.Rmd", ]
+
+  expect_equal(nrow(dataFile), 1, info = "Should find input_data.csv in inventory")
+  expect_equal(nrow(reportFile), 1, info = "Should find report.Rmd in inventory")
+
+  # Step 2: Create second step that links to files from step 1
+  stepEnv2 <- rBatchStep(testTree)
+  stepEnv2$setStepDescription("Second Step")
+  stepEnv2$setStepRationale("Link files from first step")
+  stepEnv2$addStepRemoteFile(paste0(TEST_FOLDER, "/EDA.R"), variableName = "command-file")
+  stepEnv2$addStepRemoteFile(dataFile, name = "linked_data.csv", asLink = TRUE)
+  stepEnv2$addStepRemoteFile(reportFile, asLink = FALSE)
+
+  step2 <- stepEnv2$realise()
+  stepEnv2$finishRun()
+
+  # Now reload the second step using getStep and check the remoteFiles
+  step2Resource <- step2$getStepResource()
+  reloadedStep <- improveR::getStep(step2Resource$entityId)
+
+  # Check the stepDf remoteFiles
+  remoteFiles <- reloadedStep$stepDf$remoteFiles[[1]]
+
+  expect_true(!is.null(remoteFiles), info = "remoteFiles should not be NULL")
+  expect_true(nrow(remoteFiles) > 0, info = "Should have remote files")
+
+  # Check that all remoteFiles have names
+  expect_true(all(!is.na(remoteFiles$name)), info = "All remoteFiles should have non-NA names")
+  expect_true(all(!is.null(remoteFiles$name)), info = "All remoteFiles should have non-NULL names")
+  expect_true(all(remoteFiles$name != ""), info = "All remoteFiles should have non-empty names")
+
+  # Check specific file names
+  linkedDataFile <- remoteFiles[grepl("linked_data.csv", remoteFiles$name), ]
+  reportFileReloaded <- remoteFiles[grepl("report.Rmd", remoteFiles$name), ]
+
+  expect_equal(nrow(linkedDataFile), 1, info = "Should find linked_data.csv in remoteFiles")
+  expect_equal(nrow(reportFileReloaded), 1, info = "Should find report.Rmd in remoteFiles")
+
+  # Check that the link file is marked as link
+  expect_true(linkedDataFile$asLink, info = "linked_data.csv should be marked as link")
+
+  cat("\n=== Remote Files from reloaded step ===\n")
+  print(remoteFiles[, c("name", "asLink", "variableName")])
+})
+
+
 
 
 
