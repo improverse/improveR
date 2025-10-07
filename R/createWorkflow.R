@@ -22,6 +22,11 @@ library(magrittr)
     dplyr::mutate(targetName=name) %>%
     dplyr::select("entityId", "targetStep","targetName")
 
+  # Check if any links remain after filtering for asLink (step might only have local files or copied files)
+  if (is.null(remoteFiles) || nrow(remoteFiles) == 0) {
+    return(NULL)
+  }
+
   links <- loadResource(remoteFiles$entityId) %>%
     dplyr::left_join(remoteFiles,by=c("entityId"="entityId"))
   fullSteps <- loadResource(stepsDf$sourceEntityId)

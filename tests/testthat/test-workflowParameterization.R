@@ -482,3 +482,117 @@ test_that("workflow template JSON serialization and deserialization|ics1213,imr1
 
   cat("\n✅ JSON serialization/deserialization test completed successfully!\n")
 })
+
+
+test_that("parameterize workflow with local files|ics1213,imr166", {
+  TEST_FOLDER <- ensureTestFolder()
+
+  cat("\n=== Creating test tree ===\n")
+  testTree <- improveR::createAnalysisTree(
+    targetIdent = TEST_FOLDER,
+    treeName = "LocalFile Param Test"
+  )
+
+  cat("\n=== Creating step template with local files ===\n")
+
+  # Create test files
+  testFile1 <- tempfile(fileext = ".txt")
+  testFile2 <- tempfile(fileext = ".txt")
+  writeLines("test content 1", testFile1)
+  writeLines("test content 2", testFile2)
+
+  # Create step template
+  stepTemplate <- improveR::createStepTemplateEnv(treeIdent = testTree$resourceId)
+  stepTemplate$setStepRunserverLabel(Sys.getenv("R_RUNSERVER"))
+  stepTemplate$setStepToolLabel(Sys.getenv("R_TOOL"))
+  stepTemplate$setStepToolInstance(Sys.getenv("R_TOOL_INSTANCE"))
+  stepTemplate$setStepDescription("Local File Step")
+  stepTemplate$setStepRationale("Test local file parameterization")
+
+  # Add local files - one as command-file variable
+  stepTemplate$addStepLocalFile(testFile1, name = "./input.txt", variableName = "command-file")
+  stepTemplate$addStepLocalFile(testFile2, name = "./config.txt")
+
+  cat("\n=== Creating workflow template ===\n")
+
+  # Create empty workflow template and add step
+  workflowTemplate <- improveR::createWorkflowTemplateEnv()
+  workflowTemplate$addStepTemplate(stepTemplate)
+
+  # Verify step was added
+  workflowDf <- workflowTemplate$df()
+  expect_equal(nrow(workflowDf), 1)
+
+  cat("\n=== Parameterizing local files ===\n")
+
+  # Parameterize the local files
+  workflowTemplate$parameterizeStep(
+    paramName = "inputFile",
+    stepPattern = "*",
+    property = "localFile",
+    target = "./input.txt",
+    required = TRUE
+  )
+
+  # Verify parameters registered
+  params <- workflowTemplate$listParameters()
+  cat("Parameters:\n")
+  print(params)
+  expect_equal(nrow(params), 1)
+
+  cat("\n=== Setting parameter values ===\n")
+
+  # Create new test file for parameter
+  newTestFile <- tempfile(fileext = ".txt")
+  writeLines("new test content", newTestFile)
+
+  workflowTemplate$setParameter("inputFile", newTestFile)
+
+  # Verify parameter value set
+  params <- workflowTemplate$listParameters()
+  expect_equal(params[params$name == "inputFile", ]$value, newTestFile)
+
+  cat("\n=== Saving to JSON ===\n")
+
+  templatePath <- file.path(tempdir(), "localfile_template.json")
+  workflowTemplate$toJSON(templatePath)
+  expect_true(file.exists(templatePath))
+
+  # Check JSON content
+  savedData <- jsonlite::read_json(templatePath, simplifyVector = TRUE)
+  expect_equal(nrow(savedData$parameters), 1)
+  expect_equal(savedData$parameters$property[1], "localFile")
+
+  cat("\n=== Loading from JSON ===\n")
+
+  loadedTemplate <- improveR::workflowTemplateFromJSON(templatePath)
+  expect_false(is.null(loadedTemplate))
+
+  # Verify parameters loaded
+  loadedParams <- loadedTemplate$listParameters()
+  expect_equal(nrow(loadedParams), 1)
+  expect_equal(loadedParams$name[1], "inputFile")
+
+  cat("\n=== Setting parameter on loaded template ===\n")
+
+  # Set the parameter value
+  loadedTemplate$setParameter("inputFile", newTestFile)
+
+  cat("\n=== Realizing workflow ===\n")
+
+  # Set workflow tree and realize
+  loadedTemplate$setWorkflowTreeIdent(testTree$resourceId)
+  loadedTemplate$validateParameters()
+  workflow <- loadedTemplate$realise()
+
+  # Verify the workflow was created
+  expect_false(is.null(workflow))
+  expect_true(is.environment(workflow))
+
+  cat("\n✅ Local file parameterization test completed successfully!\n")
+
+  # Cleanup
+  unlink(testFile1)
+  unlink(testFile2)
+  unlink(newTestFile)
+})
