@@ -57,6 +57,10 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     if (is.na(fileName)) {
       fileName <-""
     }
+    # Strip ./ prefix if present (indicates current directory, not a subfolder)
+    if (startsWith(fileName, "./")) {
+      fileName <- substr(fileName, 3, nchar(fileName))
+    }
     if (grepl(pattern = "/", x=fileName,fixed = T)) {
       pathParts <- strsplit(x=fileName,split="/",fixed=T)[[1]]
       if (length(pathParts)!=2) {
@@ -649,6 +653,23 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     fileList["variableProcess"] <- variableProcess
     fileList["path"] <- path
     env$addStepValue( "localFiles", fileList)
+    invisible(env)
+  }
+
+  env$changeStepLocalFile <- function(name, newPath) {
+    stepData <- env$stepDf
+    localFiles <- stepData$localFiles[[1]]
+    localFiles <- byNotEmptyAsDf(localFiles, function(file) {
+      if ("name" %in% names(file) && !is.na(file$name)) {
+        fileName <- file$name
+        if (fileName == name) {
+          file$path <- newPath
+        }
+      }
+      return(file)
+    })
+    stepData$localFiles <- list(localFiles)
+    env$stepDf <- stepData
     invisible(env)
   }
 

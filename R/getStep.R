@@ -271,10 +271,11 @@ getStepDf <- function(ident) {
   #TODO nodeTypes
 
   # Safe left join - only join if both dataframes have the required columns
-  if(nrow(inventory) > 0 && nrow(variables) > 0 &&
+  if(!is.null(inventory) && !is.null(variables) &&
+     nrow(inventory) > 0 && nrow(variables) > 0 &&
      "resourceId" %in% names(inventory) && "valueResourceId" %in% names(variables)) {
     inventory <- dplyr::left_join(inventory,variables,c("resourceId" = "valueResourceId"))
-  } else if(nrow(inventory) > 0) {
+  } else if(!is.null(inventory) && nrow(inventory) > 0) {
     # Add empty variable columns to inventory when no variables exist
     inventory$variableName <- NA_character_
     inventory$variableProcess <- NA_character_
