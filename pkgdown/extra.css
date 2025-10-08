@@ -459,12 +459,13 @@ table th {
     font-size: 0.9em;
     line-height: 1.4;
     padding: var(--spacing-md);
-    background: var(--light-gray);
+    background: transparent;
     border-radius: 6px;
+    font-style: italic;
   }
 
   [data-bs-theme="dark"] .column-margin {
-    background: #1f2937;
+    background: transparent;
   }
 
   .column-margin::after {

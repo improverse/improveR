@@ -3,7 +3,7 @@ template:
   bootstrap: 5
   light-switch: true
   bslib:
-    bootswatch: materia
+    bootswatch: flatly
   params:
     toc:
       depth: 4
