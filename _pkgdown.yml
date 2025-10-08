@@ -23,6 +23,27 @@ navbar:
     faqs:
       text: "FAQs"
       href: articles/faqs.html # This creates a direct link
+    articles:
+      text: Articles
+      menu:
+        - text: Installing improveR
+          href: articles/install-improveR.html
+        - text: -----------
+        - text: Working with Steps
+          href: articles/workingWithSteps.html
+        - text: Working with Workflows
+          href: articles/workingWithWorkflows.html
+        - text: Working with improveR in RStudio 
+          href: articles/rstudioWorkflows.html
+        - text: -----------
+        - text: CLI Tools
+          href: articles/cli-tools.html
+        - text: Node Types
+          href: articles/basic-node-types.html
+        - text: -----------
+        - text: How to...
+          href: articles/HowTo.html
+
 
 reference:
 - title: Step and workflow management
@@ -42,6 +63,7 @@ reference:
   - resetToolInstances
   - runStepResource
   - createAnalysisTree
+  - workflowTemplateFromJSON
 
 - title: Authentication
   contents:

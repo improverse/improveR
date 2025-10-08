@@ -184,14 +184,14 @@ details[open] > summary {
   /* Styles for the Quarto margin container */
   .column-margin {
     float: right;
-    width: 672px; /* Set to desired width */
+    width: 336px; /* Set to desired width */
 
     /* Add space between main text and margin content */
     margin-left: 25px;
 
     /* Pull the container into the right-hand margin */
     /* This value is typically the negative of (width + margin-left) */
-    margin-right: -697px;
+    margin-right: -361px;
     
     font-size: 0.9em;
     line-height: 1.4;
