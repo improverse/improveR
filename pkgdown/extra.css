@@ -1,29 +1,111 @@
-/* Scinteco brand colors */
+/* ==========================================================================
+   Color System & Variables
+   ========================================================================== */
+
 :root {
+  /* Scinteco brand colors */
   --scinteco-cyan: #00beed;
   --scinteco-cyan-hover: #0098c7;
+
+  /* Modern color palette */
+  --primary-blue: #2563eb;
+  --primary-blue-hover: #1d4ed8;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e5e7eb;
+  --dark-gray: #6b7280;
+  --text-color: #1f2937;
+  --white: #ffffff;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
 }
 
-/* Navbar active/selected links */
-.navbar-nav .nav-link.active,
-.navbar-nav .nav-link:hover,
-.navbar-nav .nav-link:focus {
-  color: var(--scinteco-cyan) !important;
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-color);
 }
 
-/* Navbar brand hover */
-.navbar-brand:hover {
-  color: var(--scinteco-cyan) !important;
+/* Dark mode body text */
+[data-bs-theme="dark"] body {
+  color: #f9fafb !important;
 }
 
-/* Logo sizing - reduced by 25% */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  color: var(--text-color);
+}
+
+/* Dark mode headings */
+[data-bs-theme="dark"] h1,
+[data-bs-theme="dark"] h2,
+[data-bs-theme="dark"] h3,
+[data-bs-theme="dark"] h4,
+[data-bs-theme="dark"] h5,
+[data-bs-theme="dark"] h6 {
+  color: #f9fafb !important;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 2rem;
+  line-height: 1.3;
+  margin-top: 0.25em;
+}
+
+h3 {
+  font-size: 1.5rem;
+  line-height: 1.4;
+}
+
+/* Heading level 2 - remove bold (preserve existing behavior) */
+.level2 h3 {
+  font-weight: normal !important;
+}
+
+/* ==========================================================================
+   Navigation
+   ========================================================================== */
+
+/* Minimal modern navbar */
+.navbar {
+  background: var(--white) !important;
+  border-bottom: 1px solid var(--medium-gray);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding-top: var(--spacing-xs) !important;
+  padding-bottom: var(--spacing-xs) !important;
+}
+
+/* Dark mode navbar */
+[data-bs-theme="dark"] .navbar {
+  background: #1f2937 !important;
+  border-bottom-color: #374151;
+}
+
+/* Navbar brand */
 .navbar-brand img {
   height: 37px !important;
   width: auto !important;
   max-height: 37px !important;
 }
 
-/* For larger screens, make logo even bigger - reduced by 25% */
 @media (min-width: 768px) {
   .navbar-brand img {
     height: 45px !important;
@@ -31,29 +113,73 @@
   }
 }
 
-/* Reduce navbar padding to decrease overall height */
-.navbar {
-  padding-top: 0.25rem !important;
-  padding-bottom: 0.25rem !important;
+.navbar-brand:hover {
+  color: var(--scinteco-cyan) !important;
 }
 
-/* Page header logo - back to original size */
-.page-header .logo {
-  width: auto !important;
-  height: auto !important;
-  transform: scale(1) !important;
-  transform-origin: left center !important;
-  margin-right: 10px !important;
+/* Navbar links */
+.navbar-nav .nav-link {
+  color: var(--text-color) !important;
+  font-weight: 500;
+  transition: color 0.2s ease;
 }
 
-/* All hyperlinks */
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus {
+  color: var(--scinteco-cyan) !important;
+}
+
+/* Dark mode navbar text */
+[data-bs-theme="dark"] .navbar-nav .nav-link {
+  color: #ffffff !important;
+}
+
+/* Dropdown menus */
+.navbar-nav .dropdown-menu {
+  border: 1px solid var(--medium-gray);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: var(--spacing-sm);
+}
+
+.navbar-nav .dropdown-menu .dropdown-item {
+  color: var(--text-color) !important;
+  border-radius: 4px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  transition: all 0.2s ease;
+}
+
+.navbar-nav .dropdown-menu .dropdown-item:hover,
+.navbar-nav .dropdown-menu .dropdown-item:focus,
+.navbar-nav .dropdown-menu .dropdown-item.active {
+  color: var(--scinteco-cyan) !important;
+  background-color: var(--light-gray) !important;
+}
+
+/* Dark mode dropdown */
+[data-bs-theme="dark"] .navbar-nav .dropdown-menu .dropdown-item {
+  color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .navbar-nav .dropdown-menu .dropdown-item:hover {
+  background-color: #374151 !important;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
 a {
   color: var(--scinteco-cyan) !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 a:hover,
 a:focus {
   color: var(--scinteco-cyan-hover) !important;
+  text-decoration: underline;
 }
 
 /* Table of contents links */
@@ -75,35 +201,7 @@ a:focus {
   color: var(--scinteco-cyan) !important;
 }
 
-/* Preserve default text color for non-link elements */
-.navbar-nav .nav-link {
-  color: #000000 !important;
-}
-
-/* Dark mode navbar text colors */
-[data-bs-theme="dark"] .navbar-nav .nav-link {
-  color: #ffffff !important;
-}
-
-/* Dropdown menu items - default black color */
-.navbar-nav .dropdown-menu .dropdown-item {
-  color: #000000 !important;
-}
-
-/* Dark mode dropdown menu items */
-[data-bs-theme="dark"] .navbar-nav .dropdown-menu .dropdown-item {
-  color: #ffffff !important;
-}
-
-/* Dropdown menu items - cyan on hover/focus */
-.navbar-nav .dropdown-menu .dropdown-item:hover,
-.navbar-nav .dropdown-menu .dropdown-item:focus,
-.navbar-nav .dropdown-menu .dropdown-item.active {
-  color: var(--scinteco-cyan) !important;
-  background-color: transparent !important;
-}
-
-/* Override Bootstrap link colors in content */
+/* Content area links */
 .content a,
 .main a {
   color: var(--scinteco-cyan) !important;
@@ -114,94 +212,319 @@ a:focus {
   color: var(--scinteco-cyan-hover) !important;
 }
 
-/* Style for HTML details elements */
-/* Style the <summary> itself */
+/* ==========================================================================
+   Page Layout & Sections
+   ========================================================================== */
+
+/* Modern card-based sections */
+.section {
+  background: var(--white);
+  border-radius: 8px;
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.section:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode sections */
+[data-bs-theme="dark"] .section {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Section level1 - no border */
+.section.level1 {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Section level2 specific styling */
+.section.level2 {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] .section.level2 {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Section level3 - no border */
+.section.level3 {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Index page - remove vertical padding from level3 sections */
+.template-home .section.level3 {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Reference index - remove margins from title sections (those with h2) */
+.template-reference-index .section.level2:has(h2) {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  /* Remove bottom rounded corners */
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  /* Shadow on top and sides only - use negative spread to prevent downward blur */
+  box-shadow: 0 -5px 15px -5px rgba(0, 0, 0, 0.1), 5px -2px 15px -8px rgba(0, 0, 0, 0.1), -5px -2px 15px -8px rgba(0, 0, 0, 0.1) !important;
+  padding-bottom: var(--spacing-md) !important;
+}
+
+[data-bs-theme="dark"] .template-reference-index .section.level2:has(h2) {
+  box-shadow: 0 -5px 15px -5px rgba(0, 0, 0, 0.3), 5px -2px 15px -8px rgba(0, 0, 0, 0.3), -5px -2px 15px -8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Function reference sections (that follow heading sections) */
+.template-reference-index .section.level2:has(h2) + .section.level2 {
+  margin-top: 0 !important;
+  /* Remove top rounded corners */
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  /* Shadow on bottom and sides only - use negative spread to prevent upward blur */
+  box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.1), 5px 2px 15px -8px rgba(0, 0, 0, 0.1), -5px 2px 15px -8px rgba(0, 0, 0, 0.1) !important;
+  padding-top: var(--spacing-md) !important;
+}
+
+[data-bs-theme="dark"] .template-reference-index .section.level2:has(h2) + .section.level2 {
+  box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.3), 5px 2px 15px -8px rgba(0, 0, 0, 0.3), -5px 2px 15px -8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Page header */
+.page-header {
+  border-bottom: 0px;
+  padding-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.page-header .logo {
+  width: auto !important;
+  height: auto !important;
+  transform: scale(1) !important;
+  transform-origin: left center !important;
+  margin-right: 10px !important;
+}
+
+/* ==========================================================================
+   Code Blocks & Details Elements
+   ========================================================================== */
+
+/* Code blocks */
+pre {
+  background: var(--light-gray);
+  border: 1px solid var(--medium-gray);
+  border-radius: 6px;
+  padding: var(--spacing-md);
+  overflow-x: auto;
+}
+
+[data-bs-theme="dark"] pre {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+/* Details/Summary elements */
 details summary {
   cursor: pointer !important;
   font-weight: normal !important;
-  margin: 0.5em 0 !important;
-  color: #333 !important;
+  margin: var(--spacing-sm) 0 !important;
+  color: var(--text-color) !important;
+  padding: var(--spacing-sm) 0;
+  transition: color 0.2s ease;
+}
+
+[data-bs-theme="dark"] details summary {
+  color: #f9fafb !important;
 }
 
 details summary:hover {
   color: var(--scinteco-cyan) !important;
 }
 
-/* Light blue background when expanded - only for actual details elements, not code-fold chunks */
+/* Expanded details - only for actual details elements, not code-fold chunks */
 details[open]:not(.code-fold) {
-  #background-color: #f0f8ff !important;   /* light blue background */
-  padding: 0 0.8em 0.8em 0.8em !important; /* padding around content, no top padding */
-  margin: 0 !important;                    /* no vertical margin to prevent jumping */
-  border-radius: 0px !important;          /* rounded corners */
+  padding: 0 var(--spacing-md) var(--spacing-md) var(--spacing-md) !important;
+  margin: 0 !important;
+  border-radius: 0px !important;
   border-width: thin !important;
-  border-left: darkgray;
-  border-left-style: solid;
+  border-left: 3px solid var(--medium-gray);
 }
 
-/* Remove background color from code-fold details elements and add left border */
+/* Code-fold details */
 details.code-fold[open] {
   background-color: transparent !important;
   padding: 0 !important;
-  margin: 0.5em 0 !important;
+  margin: var(--spacing-sm) 0 !important;
 }
 
-/* Keep summary background normal */
 details[open] > summary {
   background-color: transparent !important;
-  margin-bottom: 0.5em !important;
+  margin-bottom: var(--spacing-sm) !important;
 }
 
-/* Table of contents heading size adjustments */
-/* Target main section headings (level 2) - direct children of main nav */
+/* ==========================================================================
+   Table of Contents
+   ========================================================================== */
+
+/* TOC heading size adjustments */
 #toc .nav.navbar-nav > li > a {
   font-size: 80% !important;
+  font-weight: 500;
 }
 
-/* listviewer jsonedit theme color override and width */
+#toc {
+  background: var(--light-gray);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+}
+
+[data-bs-theme="dark"] #toc {
+  background: #1f2937;
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: var(--spacing-lg) 0;
+}
+
+table th,
+table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--medium-gray);
+}
+
+table th {
+  background: var(--light-gray);
+  font-weight: 600;
+}
+
+[data-bs-theme="dark"] table th {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+[data-bs-theme="dark"] table td {
+  border-color: #4b5563;
+}
+
+/* ==========================================================================
+   Buttons & Interactive Elements
+   ========================================================================== */
+
+.btn-primary {
+  background-color: var(--scinteco-cyan);
+  border-color: var(--scinteco-cyan);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--scinteco-cyan-hover);
+  border-color: var(--scinteco-cyan-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   Third-party Components
+   ========================================================================== */
+
+/* listviewer jsonedit theme */
 .jse-menu {
-  --jse-theme-color: #6c757d !important; /* Bootstrap grey */
+  --jse-theme-color: #6c757d !important;
 }
 
-/* listviewer jsonedit container width override */
 .jsonedit.html-widget {
   width: 100% !important;
 }
 
-/* Heading level 2 - remove bold */
-.level2 h3 {
-  font-weight: normal !important;
-}
+/* ==========================================================================
+   Quarto Margin Content (Responsive)
+   ========================================================================== */
 
-
-/*
- * Custom CSS for Quarto margin content within a pkgdown site.
- *
- * This applies margin styles only on screens wider than 1200px
- * to avoid overlapping with the pkgdown table of contents.
-*/
 @media (min-width: 1200px) {
-
-  /* Styles for the Quarto margin container */
   .column-margin {
     float: right;
-    width: 336px; /* Set to desired width */
-
-    /* Add space between main text and margin content */
+    width: 336px;
     margin-left: 25px;
-
-    /* Pull the container into the right-hand margin */
-    /* This value is typically the negative of (width + margin-left) */
     margin-right: -361px;
-    
     font-size: 0.9em;
     line-height: 1.4;
+    padding: var(--spacing-md);
+    background: var(--light-gray);
+    border-radius: 6px;
   }
 
-  /* A "clearfix" to contain the float and prevent layout issues */
+  [data-bs-theme="dark"] .column-margin {
+    background: #1f2937;
+  }
+
   .column-margin::after {
     content: "";
     display: table;
     clear: both;
   }
-  
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+.text-muted {
+  color: var(--dark-gray) !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+  color: #9ca3af !important;
+}
+
+.border-subtle {
+  border-color: var(--medium-gray) !important;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid var(--scinteco-cyan);
+  outline-offset: 2px;
+}
+
+/* Dark mode general text - catch-all for paragraphs and other text elements */
+[data-bs-theme="dark"] p,
+[data-bs-theme="dark"] li,
+[data-bs-theme="dark"] td,
+[data-bs-theme="dark"] th,
+[data-bs-theme="dark"] .content,
+[data-bs-theme="dark"] .main {
+  color: #f9fafb !important;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  .section {
+    padding: var(--spacing-md);
+  }
 }
