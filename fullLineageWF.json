@@ -1,0 +1,1195 @@
+{
+  "version": "1.0",
+  "parameters": [],
+  "workflow": [
+    {
+      "handle": "aadee72c-5fff-4d4d-82a9-7f79d94c2ff6",
+      "processes": [
+        {
+          "handle": "aadee72c-5fff-4d4d-82a9-7f79d94c2ff6",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "98C32486D1F6462793768B22909ED58E",
+      "treeName": "DataOrder",
+      "treePath": "/improve-tutorial",
+      "description": "Import Remifentanil dataset from nlme package",
+      "rationale": "Get raw data",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54625",
+      "sourceName": "Step 2",
+      "remoteFiles": [
+        {
+          "stepHandle": "aadee72c-5fff-4d4d-82a9-7f79d94c2ff6",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111392",
+          "filehash": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+          "asLink": false,
+          "name": "./_STDERR.txt"
+        },
+        {
+          "stepHandle": "aadee72c-5fff-4d4d-82a9-7f79d94c2ff6",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111390",
+          "filehash": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+          "asLink": false,
+          "name": "./_STDOUT.txt"
+        },
+        {
+          "stepHandle": "aadee72c-5fff-4d4d-82a9-7f79d94c2ff6",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-54626",
+          "filehash": "5F4AD15E6B4BB72F6E25E336895552993F9F49F97999778416D513CCFB6FF617",
+          "asLink": false,
+          "name": "./importData.R",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "DataOrder/Step 2/54625"
+    },
+    {
+      "handle": "cc270edb-37e2-44cb-b3a5-b59ee5729f19",
+      "processes": [
+        {
+          "handle": "cc270edb-37e2-44cb-b3a5-b59ee5729f19",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "98C32486D1F6462793768B22909ED58E",
+      "treeName": "DataOrder",
+      "treePath": "/improve-tutorial",
+      "description": "Checks data set for missing data",
+      "rationale": "Ensures missing data are accounted for before proceeding with analysis.",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54627",
+      "sourceName": "Step 3",
+      "remoteFiles": [
+        {
+          "stepHandle": "cc270edb-37e2-44cb-b3a5-b59ee5729f19",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111396",
+          "version": "509989B76566424485EE37C6E16231FD",
+          "filehash": "796B725F4E1E0497BE0B0F62E0327650136F1BC520AB9DD67205484E023459C8",
+          "maxVersion": "54381D2B0A9A4D3AB0B680AEDF889F2B",
+          "asLink": true,
+          "name": "./remDataStd.csv",
+          "fileHash": "796B725F4E1E0497BE0B0F62E0327650136F1BC520AB9DD67205484E023459C8",
+          "targetStep": "DataOrder/Step 3/54627",
+          "sourceInventoryPath": "remDataStd.csv",
+          "sourceStep": "DataOrder/Step 4/54744"
+        },
+        {
+          "stepHandle": "cc270edb-37e2-44cb-b3a5-b59ee5729f19",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-54628",
+          "filehash": "14D34CD340F8362132F13936DD911DBDE97DF69F4A1C90E75B1D0B1C124F0060",
+          "asLink": false,
+          "name": "./checkData.R",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "DataOrder/Step 3/54627"
+    },
+    {
+      "handle": "ccf0cc4b-409a-4bb6-8770-063ea096ddda",
+      "processes": [
+        {
+          "handle": "ccf0cc4b-409a-4bb6-8770-063ea096ddda",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "98C32486D1F6462793768B22909ED58E",
+      "treeName": "DataOrder",
+      "treePath": "/improve-tutorial",
+      "description": "Change all column names to lower case",
+      "rationale": "Standardize column names",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54744",
+      "sourceName": "Step 4",
+      "remoteFiles": [
+        {
+          "stepHandle": "ccf0cc4b-409a-4bb6-8770-063ea096ddda",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111389",
+          "version": "97C1BDF957484B99A582DB1CB91908DA",
+          "filehash": "C4DA276336136C8F830B4AEA6DA056AD541483B6328C8D9E1A374C1ADF22AA15",
+          "maxVersion": "E4A806317DEE483F9C95354C0C4776BA",
+          "asLink": true,
+          "name": "./remData.csv",
+          "fileHash": "C4DA276336136C8F830B4AEA6DA056AD541483B6328C8D9E1A374C1ADF22AA15",
+          "targetStep": "DataOrder/Step 4/54744",
+          "sourceInventoryPath": "remData.csv",
+          "sourceStep": "DataOrder/Step 2/54625"
+        },
+        {
+          "stepHandle": "ccf0cc4b-409a-4bb6-8770-063ea096ddda",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-54797",
+          "filehash": "7A63DF423E7146FED62A9D1F7BBDFE1214D3D66D4EC8905331A4771AB25D93C9",
+          "asLink": false,
+          "name": "./standardizeNames.r",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "DataOrder/Step 4/54744"
+    },
+    {
+      "handle": "08f035ff-236d-421d-bc5b-2fdf13934392",
+      "processes": [
+        {
+          "handle": "08f035ff-236d-421d-bc5b-2fdf13934392",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "98C32486D1F6462793768B22909ED58E",
+      "treeName": "DataOrder",
+      "treePath": "/improve-tutorial",
+      "description": "Checks data set for missing data",
+      "rationale": "Ensures missing data are accounted for before proceeding with analysis.",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-75706",
+      "sourceName": "Step 6",
+      "remoteFiles": [
+        {
+          "stepHandle": "08f035ff-236d-421d-bc5b-2fdf13934392",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111396",
+          "version": "509989B76566424485EE37C6E16231FD",
+          "filehash": "796B725F4E1E0497BE0B0F62E0327650136F1BC520AB9DD67205484E023459C8",
+          "maxVersion": "54381D2B0A9A4D3AB0B680AEDF889F2B",
+          "asLink": true,
+          "name": "./remDataStd.csv",
+          "fileHash": "796B725F4E1E0497BE0B0F62E0327650136F1BC520AB9DD67205484E023459C8",
+          "targetStep": "DataOrder/Step 6/75706",
+          "sourceInventoryPath": "remDataStd.csv",
+          "sourceStep": "DataOrder/Step 4/54744"
+        },
+        {
+          "stepHandle": "08f035ff-236d-421d-bc5b-2fdf13934392",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-75713",
+          "filehash": "14D34CD340F8362132F13936DD911DBDE97DF69F4A1C90E75B1D0B1C124F0060",
+          "asLink": false,
+          "name": "./checkData.R",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "DataOrder/Step 6/75706"
+    },
+    {
+      "handle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+      "processes": [
+        {
+          "handle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "D0A5C735170C4DE3AE39FF67A7331A7C",
+      "treeName": "EDA",
+      "treePath": "/improve-tutorial",
+      "description": "Conduct explenatory data analysis.",
+      "rationale": "Get EDA",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-57280",
+      "sourceName": "Step 15",
+      "remoteFiles": [
+        {
+          "stepHandle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
+          "version": "F6C334D4171640C0B8E073D41ED2DC87",
+          "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "maxVersion": "8CEEE9C33B55475196094656252D417D",
+          "asLink": true,
+          "name": "./remDataSubject.csv",
+          "fileHash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "targetStep": "EDA/Step 15/57280",
+          "sourceInventoryPath": "remDataSubject.csv",
+          "sourceStep": "EDA/Step 5/54047"
+        },
+        {
+          "stepHandle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57667",
+          "version": "F6C334D4171640C0B8E073D41ED2DC87",
+          "filehash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
+          "maxVersion": "8CEEE9C33B55475196094656252D417D",
+          "asLink": true,
+          "name": "./remDataDuration.csv",
+          "fileHash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
+          "targetStep": "EDA/Step 15/57280",
+          "sourceInventoryPath": "remDataDuration.csv",
+          "sourceStep": "EDA/Step 5/54047"
+        },
+        {
+          "stepHandle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63391",
+          "filehash": "5BC97DB2904191C71827881BC5391FC0872888B39DEF5705FC0B5D24099CC8D2",
+          "asLink": false,
+          "name": "./tableStatsAll.png"
+        },
+        {
+          "stepHandle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111423",
+          "filehash": "FB6D9D4932F56EA060B15CA6ED19E885D1F8CA152AD27E6E727098C17A0F3B66",
+          "asLink": false,
+          "name": "./_ENV_REPORT.txt"
+        },
+        {
+          "stepHandle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57281",
+          "filehash": "734C76501421C1B43C3CD163DF5A393256025492807877AD1D693E665B879CD1",
+          "asLink": false,
+          "name": "./getEDA.r",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        },
+        {
+          "stepHandle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63396",
+          "filehash": "4B36FD99D60C4C4D3B8E3AA410FCDED8560B49FFB67D0F69CC3935EAD1B79118",
+          "asLink": false,
+          "name": "./tableStatsAge.png"
+        },
+        {
+          "stepHandle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111422",
+          "filehash": "AF975FD5C0029C65FB84FD84664B6EB7A15979D94511003FF1F4BC29E07448B0",
+          "asLink": false,
+          "name": "./step-finished.txt"
+        },
+        {
+          "stepHandle": "7aa21f3d-2fed-4447-88c3-5a53924e5200",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63397",
+          "filehash": "9A9E502B6CD8989A48ACEC0EB00F9F50F1CDD96A7ACE9C37D016A8B26AA77C22",
+          "asLink": false,
+          "name": "./tableStatsSex.png"
+        }
+      ],
+      "fullName": "EDA/Step 15/57280"
+    },
+    {
+      "handle": "aff4a22c-f51f-48ed-885f-c64ac0454ee7",
+      "processes": [
+        {
+          "handle": "aff4a22c-f51f-48ed-885f-c64ac0454ee7",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "D0A5C735170C4DE3AE39FF67A7331A7C",
+      "treeName": "EDA",
+      "treePath": "/improve-tutorial",
+      "description": "Tables of Step 6 are reproduced using JAMA theme.",
+      "rationale": "Get EDA",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-59046",
+      "sourceName": "Step 17",
+      "remoteFiles": [
+        {
+          "stepHandle": "aff4a22c-f51f-48ed-885f-c64ac0454ee7",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
+          "version": "F6C334D4171640C0B8E073D41ED2DC87",
+          "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "maxVersion": "8CEEE9C33B55475196094656252D417D",
+          "asLink": true,
+          "name": "./remDataSubject.csv",
+          "fileHash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "targetStep": "EDA/Step 17/59046",
+          "sourceInventoryPath": "remDataSubject.csv",
+          "sourceStep": "EDA/Step 5/54047"
+        },
+        {
+          "stepHandle": "aff4a22c-f51f-48ed-885f-c64ac0454ee7",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57667",
+          "version": "F6C334D4171640C0B8E073D41ED2DC87",
+          "filehash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
+          "maxVersion": "8CEEE9C33B55475196094656252D417D",
+          "asLink": true,
+          "name": "./remDataDuration.csv",
+          "fileHash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
+          "targetStep": "EDA/Step 17/59046",
+          "sourceInventoryPath": "remDataDuration.csv",
+          "sourceStep": "EDA/Step 5/54047"
+        },
+        {
+          "stepHandle": "aff4a22c-f51f-48ed-885f-c64ac0454ee7",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59100",
+          "filehash": "77F02D18E8720FB0F9446D325A27C672AEF8B1EBA7621659E07AEF7580AE1564",
+          "asLink": false,
+          "name": "./graphDistributionSexAge.png"
+        },
+        {
+          "stepHandle": "aff4a22c-f51f-48ed-885f-c64ac0454ee7",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59047",
+          "filehash": "B9648908EB331C0B7864B916ECDCAE0407E659677257804880D055F773D01164",
+          "asLink": false,
+          "name": "./getEDA.r",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "EDA/Step 17/59046",
+      "parentIdent": "envhost1.hc.scintecodev.internal-5310:ST-57280"
+    },
+    {
+      "handle": "01b1739f-48c4-4563-8db0-72086c9a6870",
+      "processes": [
+        {
+          "handle": "01b1739f-48c4-4563-8db0-72086c9a6870",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "D0A5C735170C4DE3AE39FF67A7331A7C",
+      "treeName": "EDA",
+      "treePath": "/improve-tutorial",
+      "description": "Create subject level data. Transforms data set from panel structure to cross-section structure for individual subject data.",
+      "rationale": "EDA",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54047",
+      "sourceName": "Step 5",
+      "remoteFiles": [
+        {
+          "stepHandle": "01b1739f-48c4-4563-8db0-72086c9a6870",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111414",
+          "version": "BABFE654F9A04FECBB8E0D9714504F89",
+          "filehash": "F21D65B0F128F524D0D9F76E4092AF8AEE5DE345158A63BFE885307FCF096A9D",
+          "maxVersion": "1E493EEDF03D4BEFBC44C0E66AD48EBB",
+          "asLink": true,
+          "name": "./remDataQuality.csv",
+          "fileHash": "F21D65B0F128F524D0D9F76E4092AF8AEE5DE345158A63BFE885307FCF096A9D",
+          "targetStep": "EDA/Step 5/54047",
+          "sourceInventoryPath": "remDataQuality.csv",
+          "sourceStep": "DataOrder/Step 6/75706"
+        },
+        {
+          "stepHandle": "01b1739f-48c4-4563-8db0-72086c9a6870",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57665",
+          "filehash": "550D2462BD499BCBB0F1576E25D4F2C8D0615658D1724907B31C81739BF2BCD4",
+          "asLink": false,
+          "name": "./getSubjectData.r",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "EDA/Step 5/54047"
+    },
+    {
+      "handle": "95ce4505-eaef-4cbf-a8f9-88922c3fe3fc",
+      "processes": [
+        {
+          "handle": "95ce4505-eaef-4cbf-a8f9-88922c3fe3fc",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "D0A5C735170C4DE3AE39FF67A7331A7C",
+      "treeName": "EDA",
+      "treePath": "/improve-tutorial",
+      "description": "Analyse dynamics of concentration over time",
+      "rationale": "additional EDA",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54049",
+      "sourceName": "Step 6",
+      "remoteFiles": [
+        {
+          "stepHandle": "95ce4505-eaef-4cbf-a8f9-88922c3fe3fc",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111414",
+          "version": "0494B3DA9DE146408650A69108094935",
+          "filehash": "F21D65B0F128F524D0D9F76E4092AF8AEE5DE345158A63BFE885307FCF096A9D",
+          "maxVersion": "1E493EEDF03D4BEFBC44C0E66AD48EBB",
+          "asLink": true,
+          "name": "./remDataQuality.csv",
+          "fileHash": "F21D65B0F128F524D0D9F76E4092AF8AEE5DE345158A63BFE885307FCF096A9D",
+          "targetStep": "EDA/Step 6/54049",
+          "sourceInventoryPath": "remDataQuality.csv",
+          "sourceStep": "DataOrder/Step 6/75706"
+        },
+        {
+          "stepHandle": "95ce4505-eaef-4cbf-a8f9-88922c3fe3fc",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57667",
+          "version": "F6C334D4171640C0B8E073D41ED2DC87",
+          "filehash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
+          "maxVersion": "8CEEE9C33B55475196094656252D417D",
+          "asLink": true,
+          "name": "./remDataDuration.csv",
+          "fileHash": "ECC3A55EA1981FFA9AF8E7D984CFBCBA66CFB6D8EA7DB62013A8C8CD9C2DE33F",
+          "targetStep": "EDA/Step 6/54049",
+          "sourceInventoryPath": "remDataDuration.csv",
+          "sourceStep": "EDA/Step 5/54047"
+        },
+        {
+          "stepHandle": "95ce4505-eaef-4cbf-a8f9-88922c3fe3fc",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-54050",
+          "filehash": "0DDEE266456568C9CEC49D089992E13DB0FEF59FC2DE6F6AF6B95824853E506D",
+          "asLink": false,
+          "name": "./getConcentrationOverTime.r",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        },
+        {
+          "stepHandle": "95ce4505-eaef-4cbf-a8f9-88922c3fe3fc",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-54298",
+          "filehash": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+          "asLink": false,
+          "name": "./_STDOUT.txt"
+        }
+      ],
+      "fullName": "EDA/Step 6/54049"
+    },
+    {
+      "handle": "fe50228f-6a07-4fee-8cc1-c14deea09ab0",
+      "processes": [
+        {
+          "handle": "fe50228f-6a07-4fee-8cc1-c14deea09ab0",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "A0D580FB7DE64E5690BCEBAEC951141C",
+      "treeName": "Modeling",
+      "treePath": "/improve-tutorial",
+      "description": "Model 1: Duration ~ Wt",
+      "rationale": "Check linear relationship between duration and weight",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54635",
+      "sourceName": "Step 1",
+      "remoteFiles": [
+        {
+          "stepHandle": "fe50228f-6a07-4fee-8cc1-c14deea09ab0",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
+          "version": "B5118973F7BE4CBB8D59639D09916F65",
+          "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "maxVersion": "8CEEE9C33B55475196094656252D417D",
+          "asLink": true,
+          "name": "./remDataSubject.csv",
+          "fileHash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "targetStep": "Modeling/Step 1/54635",
+          "sourceInventoryPath": "remDataSubject.csv",
+          "sourceStep": "EDA/Step 5/54047"
+        },
+        {
+          "stepHandle": "fe50228f-6a07-4fee-8cc1-c14deea09ab0",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59536",
+          "filehash": "FBEF0A844474D6968922FFA2070C0697284D693E15408D519560315F724EB885",
+          "asLink": false,
+          "name": "./tabModWtEstimates.csv"
+        },
+        {
+          "stepHandle": "fe50228f-6a07-4fee-8cc1-c14deea09ab0",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63423",
+          "filehash": "3F8B439F1F5161D7266DE91318360C0E57BCF5777E6612C785434A09DA1D90E8",
+          "asLink": false,
+          "name": "./tabmodWtEstimates.png"
+        }
+      ],
+      "fullName": "Modeling/Step 1/54635"
+    },
+    {
+      "handle": "6f8da8f4-6972-458b-ab39-a3982e611cbb",
+      "processes": [
+        {
+          "handle": "6f8da8f4-6972-458b-ab39-a3982e611cbb",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "A0D580FB7DE64E5690BCEBAEC951141C",
+      "treeName": "Modeling",
+      "treePath": "/improve-tutorial",
+      "description": "Create combined regression table for Jama",
+      "rationale": "Model results",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-59463",
+      "sourceName": "Step 10",
+      "remoteFiles": [
+        {
+          "stepHandle": "6f8da8f4-6972-458b-ab39-a3982e611cbb",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59426",
+          "version": "F56318E1A1F04D6481485CFE10A5C622",
+          "filehash": "CA72ABCA8A02187E5E0915EA456A1DB586B2853E15BDD5F5D18C8E3F9B15E158",
+          "maxVersion": "F56318E1A1F04D6481485CFE10A5C622",
+          "asLink": true,
+          "name": "./modWt.RDS",
+          "fileHash": "CA72ABCA8A02187E5E0915EA456A1DB586B2853E15BDD5F5D18C8E3F9B15E158",
+          "targetStep": "Modeling/Step 10/59463",
+          "sourceInventoryPath": "modWt.RDS",
+          "sourceStep": "Modeling/Step 1/54635"
+        },
+        {
+          "stepHandle": "6f8da8f4-6972-458b-ab39-a3982e611cbb",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59531",
+          "version": "0F9E0EEA498246BFB86D083D56B8A7F6",
+          "filehash": "0C8B5406C7DEBEDF4AE864141B53165E1EF872D0B3C0FD0285B128D16D2EB58D",
+          "maxVersion": "0F9E0EEA498246BFB86D083D56B8A7F6",
+          "asLink": true,
+          "name": "./modWtAge.RDS",
+          "fileHash": "0C8B5406C7DEBEDF4AE864141B53165E1EF872D0B3C0FD0285B128D16D2EB58D",
+          "targetStep": "Modeling/Step 10/59463",
+          "sourceInventoryPath": "modWtAge.RDS",
+          "sourceStep": "Modeling/Step 7/54672"
+        },
+        {
+          "stepHandle": "6f8da8f4-6972-458b-ab39-a3982e611cbb",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59428",
+          "version": "063753E3E4A8453E8DEFF645BD8DC4A1",
+          "filehash": "0D1346948D737302BE029FCE321FF4DD11EE25BD10AEE50BFB50003E24F4BCA2",
+          "maxVersion": "063753E3E4A8453E8DEFF645BD8DC4A1",
+          "asLink": true,
+          "name": "./modWtSex.RDS",
+          "fileHash": "0D1346948D737302BE029FCE321FF4DD11EE25BD10AEE50BFB50003E24F4BCA2",
+          "targetStep": "Modeling/Step 10/59463",
+          "sourceInventoryPath": "modWtSex.RDS",
+          "sourceStep": "Modeling/Step 6/54651"
+        },
+        {
+          "stepHandle": "6f8da8f4-6972-458b-ab39-a3982e611cbb",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59534",
+          "version": "F4849A1C915E4528A3ACB7992BD71539",
+          "filehash": "1E556189ADB34DD3CBDA54D7EAA357B215CA72D058B6E6523E9478709410EAE3",
+          "maxVersion": "5EF391C217484385AD6FEFF58B966257",
+          "asLink": true,
+          "name": "./modWtAgeSex.RDS",
+          "fileHash": "1E556189ADB34DD3CBDA54D7EAA357B215CA72D058B6E6523E9478709410EAE3",
+          "targetStep": "Modeling/Step 10/59463",
+          "sourceInventoryPath": "modWtAgeSex.RDS",
+          "sourceStep": "Modeling/Step 8/54675"
+        },
+        {
+          "stepHandle": "6f8da8f4-6972-458b-ab39-a3982e611cbb",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63422",
+          "filehash": "01A5B56A4A9B58E51279EEFADCD5EBE98208FFC36866DD6CF5B24F328E4CDDEE",
+          "asLink": false,
+          "name": "./tableResultsCompared.png"
+        }
+      ],
+      "fullName": "Modeling/Step 10/59463"
+    },
+    {
+      "handle": "51533d31-0883-407d-abfc-d61cf8b0a052",
+      "processes": [
+        {
+          "handle": "51533d31-0883-407d-abfc-d61cf8b0a052",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "A0D580FB7DE64E5690BCEBAEC951141C",
+      "treeName": "Modeling",
+      "treePath": "/improve-tutorial",
+      "description": "Model 2: Duration ~ Wt + Sex",
+      "rationale": "Extend model 1 by including Sex as an additional explanatory variable;\r\nCheck linear relationship between duration and weight as well as sex.",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54651",
+      "sourceName": "Step 6",
+      "remoteFiles": [
+        {
+          "stepHandle": "51533d31-0883-407d-abfc-d61cf8b0a052",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
+          "version": "B5118973F7BE4CBB8D59639D09916F65",
+          "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "maxVersion": "8CEEE9C33B55475196094656252D417D",
+          "asLink": true,
+          "name": "./remDataSubject.csv",
+          "fileHash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "targetStep": "Modeling/Step 6/54651",
+          "sourceInventoryPath": "remDataSubject.csv",
+          "sourceStep": "EDA/Step 5/54047"
+        },
+        {
+          "stepHandle": "51533d31-0883-407d-abfc-d61cf8b0a052",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59535",
+          "filehash": "B660A23F9E741968C5DA0A984F501E8FD870982EF6CA926D6DF73F0ED010DAAF",
+          "asLink": false,
+          "name": "./tabModWtSexEstimates.csv"
+        },
+        {
+          "stepHandle": "51533d31-0883-407d-abfc-d61cf8b0a052",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63428",
+          "filehash": "49FE4F2FADBF8B65AF01D39707B68CACD1221512A76A23142A363733DBB83184",
+          "asLink": false,
+          "name": "./tabmodWtSexEstimates.png"
+        }
+      ],
+      "fullName": "Modeling/Step 6/54651",
+      "parentIdent": "envhost1.hc.scintecodev.internal-5310:ST-54635"
+    },
+    {
+      "handle": "ca9c8358-1775-444a-b3f4-453523478b66",
+      "processes": [
+        {
+          "handle": "ca9c8358-1775-444a-b3f4-453523478b66",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "A0D580FB7DE64E5690BCEBAEC951141C",
+      "treeName": "Modeling",
+      "treePath": "/improve-tutorial",
+      "description": "Model: Duration ~ Wt + Age",
+      "rationale": "Extend model 1 by including Age as an additional explanatory variable;\r\nCheck linear relationship between duration and weight as well as age.",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54672",
+      "sourceName": "Step 7",
+      "remoteFiles": [
+        {
+          "stepHandle": "ca9c8358-1775-444a-b3f4-453523478b66",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
+          "version": "B5118973F7BE4CBB8D59639D09916F65",
+          "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "maxVersion": "8CEEE9C33B55475196094656252D417D",
+          "asLink": true,
+          "name": "./remDataSubject.csv",
+          "fileHash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "targetStep": "Modeling/Step 7/54672",
+          "sourceInventoryPath": "remDataSubject.csv",
+          "sourceStep": "EDA/Step 5/54047"
+        },
+        {
+          "stepHandle": "ca9c8358-1775-444a-b3f4-453523478b66",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63429",
+          "filehash": "F75CDD12CAD35DBE491F40699FCB7A0117189B019BD2256989C007D73ACD5724",
+          "asLink": false,
+          "name": "./tabmodWtAgeEstimates.png"
+        },
+        {
+          "stepHandle": "ca9c8358-1775-444a-b3f4-453523478b66",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59538",
+          "filehash": "C677091567C9B46E8907C848D6DFE9D42186DE5C77F45FB092F6FFC3D63D6823",
+          "asLink": false,
+          "name": "./tabModWtAgeEstimates.csv"
+        }
+      ],
+      "fullName": "Modeling/Step 7/54672",
+      "parentIdent": "envhost1.hc.scintecodev.internal-5310:ST-54635"
+    },
+    {
+      "handle": "06658bf7-8d0f-4c9d-a6a8-55518b089369",
+      "processes": [
+        {
+          "handle": "06658bf7-8d0f-4c9d-a6a8-55518b089369",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "A0D580FB7DE64E5690BCEBAEC951141C",
+      "treeName": "Modeling",
+      "treePath": "/improve-tutorial",
+      "description": "Model: Duration ~ Wt+Age+Sex",
+      "rationale": "Extend model 1 by including Age and Sex as an additional explanatory variable;\r\nCheck linear relationship between duration and weight as well as age and sex.",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54675",
+      "sourceName": "Step 8",
+      "remoteFiles": [
+        {
+          "stepHandle": "06658bf7-8d0f-4c9d-a6a8-55518b089369",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-57666",
+          "version": "B5118973F7BE4CBB8D59639D09916F65",
+          "filehash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "maxVersion": "8CEEE9C33B55475196094656252D417D",
+          "asLink": true,
+          "name": "./remDataSubject.csv",
+          "fileHash": "79C300C69B1B59A209B72362F7A7703A96D7E62B483B6E4B880F37DC980AE31D",
+          "targetStep": "Modeling/Step 8/54675",
+          "sourceInventoryPath": "remDataSubject.csv",
+          "sourceStep": "EDA/Step 5/54047"
+        },
+        {
+          "stepHandle": "06658bf7-8d0f-4c9d-a6a8-55518b089369",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59533",
+          "filehash": "0D69BA50112E7D91C99B9CB4D3CD3C2A140F115305FE8DFEFB03DB1A7C4BACDA",
+          "asLink": false,
+          "name": "./graphPerformanceModWtAgeSex.png"
+        },
+        {
+          "stepHandle": "06658bf7-8d0f-4c9d-a6a8-55518b089369",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59539",
+          "filehash": "AD1908E250BE81174DE8232D1318759A4FB149B1E82ABF4B94A661BEEC505442",
+          "asLink": false,
+          "name": "./tabModWtAgeSexEstimates.csv"
+        }
+      ],
+      "fullName": "Modeling/Step 8/54675",
+      "parentIdent": "envhost1.hc.scintecodev.internal-5310:ST-54635"
+    },
+    {
+      "handle": "d9d3e712-f150-478f-b848-a8bb2ebdee18",
+      "processes": [
+        {
+          "handle": "d9d3e712-f150-478f-b848-a8bb2ebdee18",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "A0D580FB7DE64E5690BCEBAEC951141C",
+      "treeName": "Modeling",
+      "treePath": "/improve-tutorial",
+      "description": "Compare performances of different model specifications",
+      "rationale": "Model results",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-54678",
+      "sourceName": "Step 9",
+      "remoteFiles": [
+        {
+          "stepHandle": "d9d3e712-f150-478f-b848-a8bb2ebdee18",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59531",
+          "version": "0F9E0EEA498246BFB86D083D56B8A7F6",
+          "filehash": "0C8B5406C7DEBEDF4AE864141B53165E1EF872D0B3C0FD0285B128D16D2EB58D",
+          "maxVersion": "0F9E0EEA498246BFB86D083D56B8A7F6",
+          "asLink": true,
+          "name": "./modWtAge.RDS",
+          "fileHash": "0C8B5406C7DEBEDF4AE864141B53165E1EF872D0B3C0FD0285B128D16D2EB58D",
+          "targetStep": "Modeling/Step 9/54678",
+          "sourceInventoryPath": "modWtAge.RDS",
+          "sourceStep": "Modeling/Step 7/54672"
+        },
+        {
+          "stepHandle": "d9d3e712-f150-478f-b848-a8bb2ebdee18",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59534",
+          "version": "F4849A1C915E4528A3ACB7992BD71539",
+          "filehash": "1E556189ADB34DD3CBDA54D7EAA357B215CA72D058B6E6523E9478709410EAE3",
+          "maxVersion": "5EF391C217484385AD6FEFF58B966257",
+          "asLink": true,
+          "name": "./modWtAgeSex.RDS",
+          "fileHash": "1E556189ADB34DD3CBDA54D7EAA357B215CA72D058B6E6523E9478709410EAE3",
+          "targetStep": "Modeling/Step 9/54678",
+          "sourceInventoryPath": "modWtAgeSex.RDS",
+          "sourceStep": "Modeling/Step 8/54675"
+        },
+        {
+          "stepHandle": "d9d3e712-f150-478f-b848-a8bb2ebdee18",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59428",
+          "version": "063753E3E4A8453E8DEFF645BD8DC4A1",
+          "filehash": "0D1346948D737302BE029FCE321FF4DD11EE25BD10AEE50BFB50003E24F4BCA2",
+          "maxVersion": "063753E3E4A8453E8DEFF645BD8DC4A1",
+          "asLink": true,
+          "name": "./modWtSex.RDS",
+          "fileHash": "0D1346948D737302BE029FCE321FF4DD11EE25BD10AEE50BFB50003E24F4BCA2",
+          "targetStep": "Modeling/Step 9/54678",
+          "sourceInventoryPath": "modWtSex.RDS",
+          "sourceStep": "Modeling/Step 6/54651"
+        },
+        {
+          "stepHandle": "d9d3e712-f150-478f-b848-a8bb2ebdee18",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59426",
+          "version": "F56318E1A1F04D6481485CFE10A5C622",
+          "filehash": "CA72ABCA8A02187E5E0915EA456A1DB586B2853E15BDD5F5D18C8E3F9B15E158",
+          "maxVersion": "F56318E1A1F04D6481485CFE10A5C622",
+          "asLink": true,
+          "name": "./modWt.RDS",
+          "fileHash": "CA72ABCA8A02187E5E0915EA456A1DB586B2853E15BDD5F5D18C8E3F9B15E158",
+          "targetStep": "Modeling/Step 9/54678",
+          "sourceInventoryPath": "modWt.RDS",
+          "sourceStep": "Modeling/Step 1/54635"
+        },
+        {
+          "stepHandle": "d9d3e712-f150-478f-b848-a8bb2ebdee18",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-54679",
+          "filehash": "8DC7D7203AE81A8A520760EB8F057BCDDA6FB03F1ECA0A198B5025EAFE870669",
+          "asLink": false,
+          "name": "./getModelComparison.r",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "Modeling/Step 9/54678"
+    },
+    {
+      "handle": "b4e696e0-5103-4503-bf05-04f09b257079",
+      "processes": [
+        {
+          "handle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "rstudio",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:1.2.0blatest",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeIdent": "9978BAEF59D8403C86FEB9E8379DF557",
+      "treeName": "Reporting",
+      "treePath": "/improve-tutorial",
+      "description": "Collect results and create report",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-62516",
+      "sourceName": "Step 1",
+      "remoteFiles": [
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111400",
+          "version": "735EA6D92E374AB7AA5EEDB444F13A90",
+          "filehash": "034175FC70E453B951D629EBFAF95D0DC431A8C0A85209D13743559753FA846C",
+          "maxVersion": "65579CAE15594171A43E77B796B74E7D",
+          "asLink": true,
+          "name": "./missingDataLocationFrequency.png",
+          "fileHash": "034175FC70E453B951D629EBFAF95D0DC431A8C0A85209D13743559753FA846C",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "missingDataLocationFrequency.png",
+          "sourceStep": "DataOrder/Step 3/54627"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59425",
+          "version": "7BBE3A304642499BA34EFF21DF45EA98",
+          "filehash": "2B0C0FD63180073E19FE04DFADB86E732DC56BE9FDB1A0D4C246B4F36E0FFE8A",
+          "maxVersion": "274FC61038C24F6498629B36D925D78A",
+          "asLink": true,
+          "name": "./graphModelComparison.png",
+          "fileHash": "2B0C0FD63180073E19FE04DFADB86E732DC56BE9FDB1A0D4C246B4F36E0FFE8A",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "graphModelComparison.png",
+          "sourceStep": "Modeling/Step 9/54678"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111403",
+          "version": "735EA6D92E374AB7AA5EEDB444F13A90",
+          "filehash": "C7C6198FF1264130FC17259EE8FE602B8B6821CC4AD8FC69E92793B79BE23EE6",
+          "maxVersion": "65579CAE15594171A43E77B796B74E7D",
+          "asLink": true,
+          "name": "./missingData.png",
+          "fileHash": "C7C6198FF1264130FC17259EE8FE602B8B6821CC4AD8FC69E92793B79BE23EE6",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "missingData.png",
+          "sourceStep": "DataOrder/Step 3/54627"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63428",
+          "version": "4E02A61B7C404DAFAE65E4D83712113C",
+          "filehash": "49FE4F2FADBF8B65AF01D39707B68CACD1221512A76A23142A363733DBB83184",
+          "maxVersion": "064DD8764ED8459D9B0D2C0433AC2D89",
+          "asLink": true,
+          "name": "./tabmodWtSexEstimates.png",
+          "fileHash": "49FE4F2FADBF8B65AF01D39707B68CACD1221512A76A23142A363733DBB83184",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "tabmodWtSexEstimates.png",
+          "sourceStep": "Modeling/Step 6/54651"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63432",
+          "version": "F4FBC408A6224D3F97E474D20E6024AC",
+          "filehash": "5DEE495B8D1CBAE9FF936C8892F4FC8C95F6AE82AE1614D1E568091F62B6FC28",
+          "maxVersion": "5EF391C217484385AD6FEFF58B966257",
+          "asLink": true,
+          "name": "./tabmodWtAgeSexEstimates.png",
+          "fileHash": "5DEE495B8D1CBAE9FF936C8892F4FC8C95F6AE82AE1614D1E568091F62B6FC28",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "tabmodWtAgeSexEstimates.png",
+          "sourceStep": "Modeling/Step 8/54675"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59532",
+          "version": "B2E812B00DFA400F8760B55394F390F5",
+          "filehash": "1B151F21BBACE331EE03E24A96A7F3882EFEE515C6DE2100A6AA2FF2AD3EEB25",
+          "maxVersion": "0F9E0EEA498246BFB86D083D56B8A7F6",
+          "asLink": true,
+          "name": "./graphPerformanceModWtAge.png",
+          "fileHash": "1B151F21BBACE331EE03E24A96A7F3882EFEE515C6DE2100A6AA2FF2AD3EEB25",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "graphPerformanceModWtAge.png",
+          "sourceStep": "Modeling/Step 7/54672"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63391",
+          "version": "719F5E1D63434847BD821C9A5E47D2C6",
+          "filehash": "5BC97DB2904191C71827881BC5391FC0872888B39DEF5705FC0B5D24099CC8D2",
+          "maxVersion": "719F5E1D63434847BD821C9A5E47D2C6",
+          "asLink": true,
+          "name": "./tableStatsAll.png",
+          "fileHash": "5BC97DB2904191C71827881BC5391FC0872888B39DEF5705FC0B5D24099CC8D2",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "tableStatsAll.png",
+          "sourceStep": "EDA/Step 15/57280"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59100",
+          "version": "7F2DBEE04A57407EAFB6FE6AF596F4E1",
+          "filehash": "77F02D18E8720FB0F9446D325A27C672AEF8B1EBA7621659E07AEF7580AE1564",
+          "maxVersion": "7F2DBEE04A57407EAFB6FE6AF596F4E1",
+          "asLink": true,
+          "name": "./graphDistributionSexAge.png",
+          "fileHash": "77F02D18E8720FB0F9446D325A27C672AEF8B1EBA7621659E07AEF7580AE1564",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "graphDistributionSexAge.png",
+          "sourceStep": "EDA/Step 17/59046"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59096",
+          "version": "D7DC1C361DE74B2B86D659A4E02E474D",
+          "filehash": "512600E0F11AE627F97B06C4FCD05985C0141A9B56647E1D00BA18946F121960",
+          "maxVersion": "A6BE57D767F24285985BBCF9EC4F2D89",
+          "asLink": true,
+          "name": "./graphConcentrationDurationSubject.png",
+          "fileHash": "512600E0F11AE627F97B06C4FCD05985C0141A9B56647E1D00BA18946F121960",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "graphConcentrationDurationSubject.png",
+          "sourceStep": "EDA/Step 6/54049"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63429",
+          "version": "B2E812B00DFA400F8760B55394F390F5",
+          "filehash": "F75CDD12CAD35DBE491F40699FCB7A0117189B019BD2256989C007D73ACD5724",
+          "maxVersion": "76DA78F37AEE44B6A24999B522F2606A",
+          "asLink": true,
+          "name": "./tabmodWtAgeEstimates.png",
+          "fileHash": "F75CDD12CAD35DBE491F40699FCB7A0117189B019BD2256989C007D73ACD5724",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "tabmodWtAgeEstimates.png",
+          "sourceStep": "Modeling/Step 7/54672"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59429",
+          "version": "4E02A61B7C404DAFAE65E4D83712113C",
+          "filehash": "F510B0850C330BBF7BE56535A4309A539FC1D3A7EE555B7043B259190C39BAA1",
+          "maxVersion": "063753E3E4A8453E8DEFF645BD8DC4A1",
+          "asLink": true,
+          "name": "./graphPerformanceModWtSex.png",
+          "fileHash": "F510B0850C330BBF7BE56535A4309A539FC1D3A7EE555B7043B259190C39BAA1",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "graphPerformanceModWtSex.png",
+          "sourceStep": "Modeling/Step 6/54651"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63396",
+          "version": "719F5E1D63434847BD821C9A5E47D2C6",
+          "filehash": "4B36FD99D60C4C4D3B8E3AA410FCDED8560B49FFB67D0F69CC3935EAD1B79118",
+          "maxVersion": "719F5E1D63434847BD821C9A5E47D2C6",
+          "asLink": true,
+          "name": "./tableStatsAge.png",
+          "fileHash": "4B36FD99D60C4C4D3B8E3AA410FCDED8560B49FFB67D0F69CC3935EAD1B79118",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "tableStatsAge.png",
+          "sourceStep": "EDA/Step 15/57280"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59095",
+          "version": "D7DC1C361DE74B2B86D659A4E02E474D",
+          "filehash": "D593D4EB00AA8C5CD0C37BD7E16F1B95B0C66EC29E3019EF91A4065F93793E51",
+          "maxVersion": "A6BE57D767F24285985BBCF9EC4F2D89",
+          "asLink": true,
+          "name": "./graphConcentrationDuration.png",
+          "fileHash": "D593D4EB00AA8C5CD0C37BD7E16F1B95B0C66EC29E3019EF91A4065F93793E51",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "graphConcentrationDuration.png",
+          "sourceStep": "EDA/Step 6/54049"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59530",
+          "version": "F56318E1A1F04D6481485CFE10A5C622",
+          "filehash": "DECB0E726DC32E7CF608788A0912D51EF515F27049029D541A9B94EC2971B757",
+          "maxVersion": "F56318E1A1F04D6481485CFE10A5C622",
+          "asLink": true,
+          "name": "./graphPerformanceModWt.png",
+          "fileHash": "DECB0E726DC32E7CF608788A0912D51EF515F27049029D541A9B94EC2971B757",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "graphPerformanceModWt.png",
+          "sourceStep": "Modeling/Step 1/54635"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63423",
+          "version": "44A53A6511F642B5812053B62C3975CE",
+          "filehash": "3F8B439F1F5161D7266DE91318360C0E57BCF5777E6612C785434A09DA1D90E8",
+          "maxVersion": "44A53A6511F642B5812053B62C3975CE",
+          "asLink": true,
+          "name": "./tabmodWtEstimates.png",
+          "fileHash": "3F8B439F1F5161D7266DE91318360C0E57BCF5777E6612C785434A09DA1D90E8",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "tabmodWtEstimates.png",
+          "sourceStep": "Modeling/Step 1/54635"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63422",
+          "version": "86BDDEF1EAC045F18484E9796BF206B4",
+          "filehash": "01A5B56A4A9B58E51279EEFADCD5EBE98208FFC36866DD6CF5B24F328E4CDDEE",
+          "maxVersion": "86BDDEF1EAC045F18484E9796BF206B4",
+          "asLink": true,
+          "name": "./tableResultsCompared.png",
+          "fileHash": "01A5B56A4A9B58E51279EEFADCD5EBE98208FFC36866DD6CF5B24F328E4CDDEE",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "/tableResultsCompared.png",
+          "sourceStep": "Modeling/Step 1/54635"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-59533",
+          "version": "F4FBC408A6224D3F97E474D20E6024AC",
+          "filehash": "0D69BA50112E7D91C99B9CB4D3CD3C2A140F115305FE8DFEFB03DB1A7C4BACDA",
+          "maxVersion": "A7A9E1CC0E55414D893F72A8B2204256",
+          "asLink": true,
+          "name": "./graphPerformanceModWtAgeSex.png",
+          "fileHash": "0D69BA50112E7D91C99B9CB4D3CD3C2A140F115305FE8DFEFB03DB1A7C4BACDA",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "graphPerformanceModWtAgeSex.png",
+          "sourceStep": "Modeling/Step 8/54675"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-63397",
+          "version": "719F5E1D63434847BD821C9A5E47D2C6",
+          "filehash": "9A9E502B6CD8989A48ACEC0EB00F9F50F1CDD96A7ACE9C37D016A8B26AA77C22",
+          "maxVersion": "719F5E1D63434847BD821C9A5E47D2C6",
+          "asLink": true,
+          "name": "./tableStatsSex.png",
+          "fileHash": "9A9E502B6CD8989A48ACEC0EB00F9F50F1CDD96A7ACE9C37D016A8B26AA77C22",
+          "targetStep": "Reporting/Step 1/62516",
+          "sourceInventoryPath": "tableStatsSex.png",
+          "sourceStep": "EDA/Step 15/57280"
+        },
+        {
+          "stepHandle": "b4e696e0-5103-4503-bf05-04f09b257079",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-62517",
+          "filehash": "C087D89993CF67B7C2EDB23B04E05DB1B5FD9898D46CD824AEE4E6F802E8725C",
+          "asLink": false,
+          "name": "./report.qmd",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "Reporting/Step 1/62516"
+    }
+  ]
+}
