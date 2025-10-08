@@ -1,0 +1,166 @@
+{
+  "version": "1.0",
+  "parameters": [],
+  "workflow": [
+    {
+      "handle": "67310bd4-6f13-4956-813c-c445b5d893ef",
+      "processes": [
+        {
+          "handle": "67310bd4-6f13-4956-813c-c445b5d893ef",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeName": "newWorkflow",
+      "treePath": "/improve-tutorial",
+      "description": "Import Remifentanil dataset from nlme package",
+      "rationale": "Get raw data",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-111840",
+      "sourceName": "Step 2",
+      "remoteFiles": [
+        {
+          "stepHandle": "67310bd4-6f13-4956-813c-c445b5d893ef",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111392",
+          "filehash": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+          "asLink": false,
+          "name": "./_STDERR.txt"
+        },
+        {
+          "stepHandle": "67310bd4-6f13-4956-813c-c445b5d893ef",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111390",
+          "filehash": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+          "asLink": false,
+          "name": "./_STDOUT.txt"
+        },
+        {
+          "stepHandle": "67310bd4-6f13-4956-813c-c445b5d893ef",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-54626",
+          "filehash": "5F4AD15E6B4BB72F6E25E336895552993F9F49F97999778416D513CCFB6FF617",
+          "asLink": false,
+          "name": "./importData.R",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "DataOrder/Step 2/54625",
+      "treeIdent": "25C1A91A762D4AEC9283C80530D3B6F5",
+      "entityId": "envhost1.hc.scintecodev.internal-5310:ST-111840"
+    },
+    {
+      "handle": "2f869600-2a64-409e-a1ca-6a02ed033a78",
+      "processes": [
+        {
+          "handle": "2f869600-2a64-409e-a1ca-6a02ed033a78",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeName": "newWorkflow",
+      "treePath": "/improve-tutorial",
+      "description": "Change all column names to lower case",
+      "rationale": "Standardize column names",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-111844",
+      "sourceName": "Step 4",
+      "remoteFiles": [
+        {
+          "stepHandle": "2f869600-2a64-409e-a1ca-6a02ed033a78",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111389",
+          "version": "97C1BDF957484B99A582DB1CB91908DA",
+          "filehash": "C4DA276336136C8F830B4AEA6DA056AD541483B6328C8D9E1A374C1ADF22AA15",
+          "maxVersion": "E4A806317DEE483F9C95354C0C4776BA",
+          "asLink": true,
+          "name": "./remData.csv",
+          "fileHash": "C4DA276336136C8F830B4AEA6DA056AD541483B6328C8D9E1A374C1ADF22AA15",
+          "targetStep": "DataOrder/Step 4/54744",
+          "sourceInventoryPath": "remData.csv",
+          "sourceStep": "DataOrder/Step 2/54625"
+        },
+        {
+          "stepHandle": "2f869600-2a64-409e-a1ca-6a02ed033a78",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-54797",
+          "filehash": "7A63DF423E7146FED62A9D1F7BBDFE1214D3D66D4EC8905331A4771AB25D93C9",
+          "asLink": false,
+          "name": "./standardizeNames.r",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "DataOrder/Step 4/54744",
+      "treeIdent": "25C1A91A762D4AEC9283C80530D3B6F5",
+      "entityId": "envhost1.hc.scintecodev.internal-5310:ST-111844"
+    },
+    {
+      "handle": "a60da416-eef6-4c63-ad83-ba4c3db9e1d5",
+      "processes": [
+        {
+          "handle": "a60da416-eef6-4c63-ad83-ba4c3db9e1d5",
+          "runserverLabel": "runserver",
+          "toolLabel": "R_4.2",
+          "toolInstance": "renv batch",
+          "toolArgs": "-e\r\nIMPROVER_TOKEN=<jwt>\r\n-e\r\nIMPROVER_STEP=<step-entityId>\r\n-e\r\nIMPROVER_REPO_URL=<repoUrl>\r\nscinteco/imrstudio:rockerrstudio4.4.2ir1.3.0b59\r\n<command-file>",
+          "toolStreamablePatterns": "*.txt\r\n*.out\r\n*.Rout",
+          "selected": true,
+          "gridTool": true,
+          "main": true,
+          "name": "Main",
+          "processType": "main",
+          "position": 1,
+          "gridArguments": []
+        }
+      ],
+      "treeName": "newWorkflow",
+      "treePath": "/improve-tutorial",
+      "description": "Checks data set for missing data",
+      "rationale": "Ensures missing data are accounted for before proceeding with analysis.",
+      "sourceEntityId": "envhost1.hc.scintecodev.internal-5310:ST-111847",
+      "sourceName": "Step 6",
+      "remoteFiles": [
+        {
+          "stepHandle": "a60da416-eef6-4c63-ad83-ba4c3db9e1d5",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-111396",
+          "version": "509989B76566424485EE37C6E16231FD",
+          "filehash": "796B725F4E1E0497BE0B0F62E0327650136F1BC520AB9DD67205484E023459C8",
+          "maxVersion": "54381D2B0A9A4D3AB0B680AEDF889F2B",
+          "asLink": true,
+          "name": "./remDataStd.csv",
+          "fileHash": "796B725F4E1E0497BE0B0F62E0327650136F1BC520AB9DD67205484E023459C8",
+          "targetStep": "DataOrder/Step 6/75706",
+          "sourceInventoryPath": "remDataStd.csv",
+          "sourceStep": "DataOrder/Step 4/54744"
+        },
+        {
+          "stepHandle": "a60da416-eef6-4c63-ad83-ba4c3db9e1d5",
+          "ident": "envhost1.hc.scintecodev.internal-5310:FI-75713",
+          "filehash": "14D34CD340F8362132F13936DD911DBDE97DF69F4A1C90E75B1D0B1C124F0060",
+          "asLink": false,
+          "name": "./checkData.R",
+          "variableName": "command-file",
+          "variableProcess": "Main"
+        }
+      ],
+      "fullName": "DataOrder/Step 6/75706",
+      "treeIdent": "25C1A91A762D4AEC9283C80530D3B6F5",
+      "entityId": "envhost1.hc.scintecodev.internal-5310:ST-111847"
+    }
+  ]
+}

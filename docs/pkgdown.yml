@@ -1,0 +1,18 @@
+pandoc: 3.6.3
+pkgdown: 2.1.3.9000
+pkgdown_sha: fe04924b3df129bea60ac871614b01d87bcae147
+articles:
+  basic-node-types: basic-node-types.html
+  cli-tools: cli-tools.html
+  articles/HowTo: HowTo.html
+  improveR: improveR.html
+  install-improveR: install-improveR.html
+  articles/relationToOtherPackages: relationToOtherPackages.html
+  articles/rstudioWorkflows: rstudioWorkflows.html
+  workflows-basic: workflows-basic.html
+  articles/workingWithSteps: workingWithSteps.html
+  articles/workingWithWorkflows: workingWithWorkflows.html
+last_built: 2025-10-08T10:09Z
+urls:
+  reference: https://www.scinteco.com/reference
+  article: https://www.scinteco.com/articles
