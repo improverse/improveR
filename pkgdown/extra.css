@@ -385,7 +385,7 @@ details[open] > summary {
 }
 
 #toc {
-  background: var(--light-gray);
+  background: #ffffff;
   border-radius: 8px;
   padding: var(--spacing-md);
 }
