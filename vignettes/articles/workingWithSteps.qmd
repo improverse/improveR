@@ -72,53 +72,52 @@ improveConnected()
 
 # Overview
 
-This document provides an overview of improveR's functions focused on working with steps. 
+This document provides an overview of {improveR}'s functions focused on working with steps. 
 
 Steps are the fundamental building blocks of every analytical workflow within the improve framework. Each step contains 
 
 - at least one R script containing the relevant code
-- linked or embedded resources (e.g., input files) and any output files (e.g., reports, graphs) stored in the step's inventory
+- linked or embedded resources (e.g. links, input files) and any output files (e.g. reports, graphs) stored in the step's inventory
 - tools and their definitions to orchestrate the script's execution and file creation
 
-Groupped by their role in the overall analysis, they constitute an analysis tree (e.g. analysis tree 'Exploratory Data Analysis').
+Grouped by their role in the overall analysis, they constitute an analysis tree (e.g. analysis tree 'Exploratory Data Analysis').
 
-Critically, by linking one step's output as an input to another step, steps can be 'horizontally' chained together to an integrated workflow. This workflow can span across the entire or only parts of the analytical pipeline from the initial import of raw data (e.g. originating from a dataorder specification), via the exploratory data analysis, statistical modeling, to the reporting and eventual review. This integration of steps is instrumental when it comes to streamlining
+Critically, by linking one step's output as an input to another step, steps can be *'horizontally' chained together to an integrated workflow*. This workflow can span across the entire or only parts of the analytical pipeline from the initial import of raw data (e.g. originating from a data order specification), via the exploratory data analysis, statistical modeling, to the reporting and eventual review. This integration of steps is instrumental when it comes to streamlining
 the entire workflow and ensuring reproducibility of the final results.
 
-Equally important is improve's ability to organize steps in a vertical hierarchy by introducing parent-child relations between them. A child step can be a modified copy of a parent step, e.g. created to inquire into the consequences of a specific modification within the step's code. Similarly, a step can be attached to a parent step due to substantive considerations of the analyst, reflecting a thematic or conceptual hierarchy between them.
+Equally important is improve's ability to organize steps in a *vertical hierarchy by introducing parent-child relations* between them. A *child step* can be a modified copy of a parent step, e.g. created to inquire into the consequences of a specific modification within the step (e.g. use of a different model specification). Similarly, a step can be attached to a parent step due to substantive considerations by the researcher, reflecting a thematic or conceptual hierarchy between them.
 
-The above outlined two perspectives are central when it comes to the understanding of the concepts of `lineage` and `usage` on one hand, and `child` and `parent`on the other hand. These terms
-are ubiquitous when working with the improve in general and step-related functions in particular. 
+The above outlined two perspectives are central when it comes to the understanding of the concepts of *lineage* and *usage* on one hand, and *child* and *parent*on the other hand. These terms
+are ubiquitous when working with the improve framework in general and step-related functions in particular. 
 
-The hierarchical parent-child relationship is conceptually different to the horizontal relationship between two steps within a workflow. Step A can produce results which are 'used' by Step B. But this does not make Step A a parent of Step B. Similarly, Step B is not a child of Step A even if if Step A is within the lineage of Step B. Keeping this conceptual distinction in mind is critical.
+The hierarchical parent-child relationship is conceptually different to the horizontal relationship between two steps within a workflow. Step A can produce results which are 'used' by Step B. But this does not make Step A a parent of Step B. Similarly, Step B is not a child of Step A even if if Step A is within the lineage of Step B. Keeping this conceptual distinction in mind is critical and instrumental.
 
 
-- **Workflow, or input/output-centered perspective**: Looks horizontally at how a chain of steps (in analysis trees) transforms an input into some output. This view is visualized in improve's Data Manipulation Graph (as shown above).
+- **Workflow, or input/output-centered perspective**: Looks horizontally at how a chain of steps (in analysis trees) transforms a distinct input into distinct output. This view is visualized in improve's Data Manipulation Graph.
 
 - **File-centric perspective**: Focuses on how files inside different steps are related in terms of their creation, which is more akin to a vertical angle. This perspective is visualized in improve client's editor view when displaying an analysis tree (as above in @fig-overview-analysis-tree).
 
 
 With this as the background, the current document goes beyond the primarily technical focus of the function references/help files, and seeks to demonstrate the actual application of the step-function family. To do so, throughout the document references to various examples are included.
 
-::: {#fig-overview-analysis-tree layout-ncol=1}
+::: {#fig-overview-analysis-tree layout="[[1,1], [1]]"}
 
-![Improve client: Overview of Anaylsis Trees with Steps](img/folderOverview.png)
+![Improve client: Overview of Analysis Trees with Steps](img/folderOverview.png)
+
+![Improve client: Parent-Child Relations of Steps within a tree](img/ATModeling.png)
 
 ![Improve client: Overview of a workflow's step relations within the Data Manipulation Graph](img/dmgEntireFolder.png)
 
 :::
 
+
 # getStep
 
 ## Purpose of the function
 
-`getStep` is pivotal when it comes to working with steps. Calling the function on a step returns a detailed environment object which not only encompasses information on the the step's own properties, but also on its relation with other steps within the wider workflow as well as additional function definitions to work with this information.
+The `getStep` function is central when it comes to working with steps specifically and the wider {improveR} ecosystem. Calling the function on a step returns a detailed environment object which not only encompasses information on the the step's own properties, but also on its relation with other steps within the wider workflow as well as additional function definitions to work with this information.
 
 ## Relation to other functions [review/shorten]
-
-Within the step functions family, `getStep` functions as the central orchestrator. It bridges lower-level step construction functions with higher-level workflow operations. The function builds directly upon `createStepEnv` as its foundational building block. It complements step modification functions like `attachStep`, `detachStep`, `changeStepDescription`, and `changeStepRationale` by providing the rich environment context needed for these operations. 
-
-The function creates a bidirectional relationship with navigation functions such as `loadChildSteps`, `loadParentStep`, and `loadChildResources`. This relationship uses sophisticated lazy-loading mechanisms that populate relationship data only when accessed. This approach optimizes performance while maintaining full navigational capabilities.
 
 In the broader improveR ecosystem, `getStep` serves as a critical integration point. It connects individual step management with workflow-level orchestration through `getWorkflow`. The function supports execution coordination with functions like `finishRunResource` and `runStepResource`. It interfaces with the distributed resource management system through authenticated REST API calls and intelligent caching strategies. The environments generated by `getStep` provide the foundational data structures and operational interfaces that enable complex workflow operations, dependency tracking, and coordinated multi-step analytical pipeline execution.
 
@@ -142,7 +141,7 @@ To demonstrate the application of `getStep()` see the example below. As an input
 resource (version) id, full entity (version) id, or short entitiy (version) id. 
 
 ```{r}
-#| code-summary: "Example getStep(): Apply function"
+#| code-summary: "Example `getStep()`: Apply function"
 identATModelingStep1 <- "/improve-tutorial/Modeling/Step 1" 
 envATModelingStep1 <- getStep(identATModelingStep1)
 class(envATModelingStep1)
@@ -152,7 +151,7 @@ The returned result is an environment with multiple bindings of
 different classes.
 
 ```{r}
-#| code-summary: "Example getStep(): Overview of obtained elements' class"
+#| code-summary: "Example `getStep()`: Overview of obtained elements' class"
 #| eval: true
 
 tibble(
@@ -161,10 +160,10 @@ tibble(
 ) %>% arrange(class)
 ```
 
-The viewer below allows for a closer look at each of the elements. 
+To inspect each of the returned environment's bindings, click on the elements in the viewer below.
 
-`getStepInventory`, `getStepState`, `getStepWithoutCache`, `getStepResource`, `retrieveMainProcess` and
-`createTemplate` contain all function defintions, meaning these functions can be called on the obtained
+`getStepInventory()`, `getStepState()`, `getStepWithoutCache()`, `getStepResource()`, `retrieveMainProcess()` and
+`createTemplate()` contain all function defintions, meaning these functions can be called on the obtained
 environment to get additional details or trigger other actions. 
 
 ```{r}
@@ -174,23 +173,18 @@ environment to get additional details or trigger other actions.
 listviewer::jsonedit(as.list(envATModelingStep1))
 ```
 
-## Details 
+## Details
 
 For a thorough understanding of the output of `getStep()`, the sections below will look into each
 element of the obtained step environment.
 
-But before diving into the details some conceptual clarification on the differences between `child` and `parent` on the one hand, and `usage` and `lineage` on the other hand.
-
-
-The parent-child relationship is characterized by its vertical hierarchy. This hierarchy can originate from the child's origin (a copy of the parent child) or due to 
-a substantive connection between two steps, which 
-
-
-
-### children
-
 <details>
 
+<summary>Show details</summary>
+<div>
+
+### children
+<details>
 <summary>Show details</summary>
 <div>
 
@@ -208,6 +202,12 @@ envATModelingStep1$children$load()
 listviewer::jsonedit(as.list(envATModelingStep1$children))
 ```
 
+```{r}
+x <- loadResource(ident="improve-tutorial/Modeling/Step 1")
+loadChildSteps(ident="improve-tutorial/Modeling/Step 1")
+```
+
+
 This result is consistent with the result returned by improveR's `getChildSteps()` or
 the pertaining graph in the improve client.
 
@@ -217,7 +217,6 @@ childATModelingStep1 <- improveR::loadChildSteps("/improve-tutorial/Modeling/Ste
 nrow(childATModelingStep1)
 childATModelingStep1 %>% select(path, description)
 ```
-
 
 ::: {#fig-child-steps-modeling-step1 layout-ncol=1}
 ![Improve client: Child steps of AT Modeling Step 1](img/childATModelingStep1.png)
@@ -248,12 +247,9 @@ listviewer::jsonedit(list(envATModelingStep1$children$`Modeling/Step 7/54672`))
 ```
 </div>
 </details>
-
-### parent
+  ### parent
 <details>
-
 <summary>Show details</summary>
-
 <div>
 Let's now focus on the element `parent` in the environment of Step 1, as initially
 retrieved via `getStep()`.
@@ -589,255 +585,13 @@ identical(x, y)
 </div>
 </details>
 
+</div>
+</details>
 
-## workflow
-
-`envStep$workflow` is only populated after having called `lineage()`. 
-It subsequently contains several elements which are described below.
 
 ```{r}
-#| code-summary: "Details of workflow"
-#| eval: true
-
-
-# Overview of elements
-tibble(
-  name = ls(envATModelingStep1$workflow),
-  class = purrr::map_chr(name, \(x) class(get(x, envir = envATModelingStep1$workflow)))
-) %>% arrange(class)
-
-#show content of environment
-listviewer::jsonedit(as.list(envATModelingStep1$workflow))
+knitr::knit_exit()
 ```
-
-### rerunAll
-
-The `rerunAll()` function re-executes all steps in the workflow from scratch in the correct dependency order.
-It completely re-executes the entire workflow, running every step regardless of whether files have changed or are outdated.
-
-Internally, it creates a full execution plan by calling `createReexecutionPlan()`, executes the plan by calling `executePlan()`,
-and invisibly returns the newly executed workflow.
-
-The `rerunAll()` function is essentially a convenience wrapper that combines creating a full execution plan 
-with immediately executing it, providing a simple way to completely refresh a workflow's execution state.  
-
-```{r}
-#| code-summary: "Call rerunAll()"
-#| eval: false
-envATModelingStep1$workflow$rerunAll()
-```
-
-Comparison with other workflow functions:
-
-- `rerunChangedAndOutdated()`: Only reruns steps with changed/outdated files and their consumers
-- `createFullExecutionPlan()`: Creates the same plan but doesn't execute it
-- `executePlan(plan)`: Executes a specific custom plan
-
-### internalLinks (env)
-
-The environment binding `internalLinks` contains a data frame which serves as 
-the workflow's 'dependency graph'. It tracks file relationships between steps with columns like `sourceStep`, `targetStep` , entityId, path, and metadata for change detection. It is populated by analyzing each step's remoteFiles to identify internal dependencies versus external files.
-
-This structure enables intelligent workflow execution by determining proper step ordering, identifying which steps need re-execution when files change, and automatically including downstream dependencies. Functions like `createReexecutionPlan()` use this data to build execution plans that only run necessary steps while maintaining data consistency.
-
-The dependency graph transforms complex file relationships into a queryable structure that answers questions like "what depends on Step A?" and "if this file changes, what needs re-running?" This enables efficient incremental execution and automated change propagation throughout the workflow.
-
-```{r}
-#| code-summary: "Show internalLinks"
-envATModelingStep1$workflow$internalLinks
-```
-
-### files (env)
-
-Empty.
-
-### outputFiles (env)
-
-Empty.
-
-### steps (env)
-
-The element `steps` in the workflow environment contains all steps which 
-form part of the workflow. Here, `steps` contains five elements.
-
-It contains the meta data on the step 'of departure', here step 1 of the analysis 
-tree 'Modeling', and four other steps. 
-
-```{r}
-#| code-summary: "Call function 'steps'"
-#| eval: true
-listviewer::jsonedit(as.list(envATModelingStep1$workflow$steps))
-```
-
-::: {.content-visible when-meta="params.include_questions"}
-
-::: {.callout-warning collapse=TRUE title="Question"}
-
-
-::: {#fig-dmgATModeling layout-ncol=1}
-![Improve client: DMG of Analysis Tree Modeling](img/dmgATModeling2.png)
-:::
-
-**Question**: 
-What is `step` supposed to show here? 
-The step 6, 7, and 8 are child steps, but they do not form part of the 
-workflow of step 1. Step 9, 10, and 11 are linked to step 1.
-
-:::
-:::
-
-
-### this (env)
-
-The `this` binding is again a self-reference of the environment. It facilitates function calls to make a reference to the environment itself.
-
-```{r}
-#| code-summary: "Call 'this' element"
-#| eval: false
-listviewer::jsonedit(as.list(envATModelingStep1$workflow$this))
-```
-
-### changedAndOutdatedFiles
-
-The function `changedAndOutdatedFiles()` identifies those files within a workflow which were changed or are outdated, and hence require a re-execution of the relevant step(s).
-
-As changed are those files considered whose content has been modified after the relevant step with in the workflow had been last been executed.
-
-In this context 'changed' means that a file has been modified after the relevant step had been executed for the last time. 'Outdated' refers to those files which have a broken dependency link, as indicated by the `outdatedLink==TRUE` in their metadata.
-
-`changedAndOutdatedFiles()` has an optional tree parameter which restricts the check for changed and outdated files to a
-specific analysis tree within the workflow.
-
-```{r}
-#| code-summary: "Call changeAndOutdatedFiles()"
-#| eval: false
-envATModelingStep1$workflow$changedAndOutdatedFiles()
-```
-
-### rerunChangedAndOutdated
-
-The 'rerunChangedAndOutdated()' function performs incremental workflow execution by only 
-re-running steps that have changed or outdated dependencies, plus optionally their 
-downstream consumers.
-
-Internally, it 
-
-1. Creates a selective execution plan by calling `createReexecutionPlan()`
-2. Identifies steps which need to be re-executed
-3. Executes the plan
-4. Returns the result invisibly
-
-Comparison to other functions:
-
-- rerunAll(): Rebuilds everything from scratch
-- rerunChangedAndOutdated(): Only rebuilds what's necessary
-- createReexecutionPlan(): Creates the plan but doesn't execute it
-
-```{r}
-#| code-summary: "Call rerunChangedAndOutdated"
-#| eval: false
-envATModelingStep1$workflow$rerunChangedAndOutdated()
-```
-
-### createReexecutionPlan
-
-The function creates a detailed execution plan for workflow steps that need to be
-re-executed, with proper dependency ordering and link management.
-
-```{r}
-#| code-summary: "Call createReexecutionPlan"
-#| eval: false
-envATModelingStep1$workflow$createReexecutionPlan()
-```
-
-### createTemplate
-
-`createTemplate()` allows to create a reusable template from an existing workflow. This
-template can then be instantiated in a different environment.
-
-Internally, calling `createTemplate()` calls 'createWorkflowTemplateEnv()' which
-extracts the workflow structure including remote files, preserves relatiosnhips,
-and builds template methods. Most critically, it applies 'createSteptEmplateEnv()' to
-each of the workflow's step. 
-
-The resulting template environment provides:
-
-Workflow-level methods:
-
-- `df()`: List all steps as data frame
-- `setWorkflowTreeIdent(treeIdent)`: Set target tree
-- `createExecutionPlan()`: Generate execution order
-- `executePlan(plan)`: Execute steps in order
-- `realise()`: Execute entire workflow
-
-Step-level methods (per step template):
-
-- File management: `addStepLocalFile()`, `addStepRemoteFile()`
-- Relationships: `lineage`, `usage`, `parent`, `children` environments
-- Configuration: `setStepValue()`, `addStepGridArgument()`
-- Execution: `realise()` – Create actual step instance
-
-```{r}
-#| code-summary: "Function 'createTemplate"
-#| eval: false
-
-envATModelingStep1$workflow$createTemplate()
-```
-
-### df 
-
-The 'df()' function provides a tabular view of all steps in the workflow, combining their metadata into a single data frame for analysis and inspection.
-
-The returned data frame contains:
-
-- fullName: Step identifier/name
-- description: Step description
-- rationale: Why this step exists
-- sourceEntityId: Server resource ID
-- sourceName: Original step name
-- treeIdent: Workflow tree identifier
-- handle: Unique step handle
-- processes: Process configurations
-- remoteFiles: Input file references
-- localFiles: Local file references
-- extLinks: External links
-
-```{r}
-#| code-summary: "Call function df()"
-envATModelingStep1$workflow$df()
-```
-
-### executePlan
-
-The executePlan function orchestrates the actual execution of workflow steps according to a predefined execution plan, handling dependencies, link updates, and parallel
-execution coordination.
-
-This function is the execution engine that turns execution plans (from creat ReexecutionPlan, etc.) into actual running workflow steps with proper orchestration.
-
-```{r}
-#| code-summary: "Call function executePlan()"
-#| eval: false
-envATModelingStep1$workflow$executePlan()
-```
-
-### removeStep
-
-The `remvoeStep()` function removes a specified step from a workflow. This process also 
-includes the removal of all the step's bidirectioal relationships to maintain the integrity of the workflow.
-
-```{r}
-#| code-summary: "Function to remove step from a workflow"
-#| eval: false
-envATModelingStep1$workflow$removeStep
-```
-
-
-## Relation to other functions
-
-## Under the hood
-
-## Example for demonstration purposes
-
 
 # createStep
 
@@ -1106,64 +860,6 @@ identical(class(step_env), class(step_env_via_getStep))
 
 ```
  
-# getWorkflow <!--[#REVISE]-->
-
-## Purpose of the function
-
-`getWorkflow` creates a workflow environment by transforming hierarchical collection of steps into a cohesive workflow object with built-in execution capabilities, dependency tracking, and orchestration methods. It enables users to work with entire workflows as single entities rather than managing individual steps separately, supporting complex analytical pipelines that require coordinated execution, dependency management, and workflow-level operations like template creation, execution planning, and incremental re-execution based on changes.
-
-## How it relates to other functions and the wider improveR package
-
-`getWorkflow` serves as a higher-level aggregation function that internally calls `getStep` for each step in the target tree, building upon the individual step environments to create workflow-level functionality. It integrates closely with workflow execution functions like `createWorkflow`, providing the foundation for workflow templates and execution planning. The function connects with resource navigation functions through `loadChildResources` to discover all steps within a tree and works alongside workflow orchestration functions by creating environments that support methods like `rerunAll()`, `createTemplate()`, and `executePlan()`. In the broader improveR ecosystem, it bridges individual step management with workflow-level operations, enabling users to transition seamlessly between step-focused and workflow-focused analytical approaches while maintaining full access to both individual step capabilities and coordinated workflow execution.
-
-## Under the hood
-
-The implementation follows a discovery-and-aggregation pattern: first calling `loadChildResources` to retrieve all child resources from the specified tree identifier, then filtering the results to include only resources with `nodeType=="Step"` to exclude folders and other non-step entities. The function optionally excludes the current step (when `includeSelf=FALSE`) by comparing resource IDs with the current working directory step. It creates a temporary environment (`tmpEnv`) to accumulate workflow state and iterates through each discovered step using `byNotEmpty`, calling `getStep` for each step while progressively building the shared workflow environment. Each step environment created by `getStep` receives and contributes to the evolving workflow context through the `workflow` parameter, enabling cross-step dependency tracking and workflow-level method binding. If no steps are found, the function creates an empty workflow using `createWorkflow()`, ensuring a valid workflow environment is always returned for subsequent operations.
-
-## Example for demonstration purposes
-
-```{r}
-#| code-summary: "Create workflow from analysis tree"
-#| eval: false
-
-# Get workflow from an analysis tree
-stepIdent <- "/improve-tutorial/Modeling/Step 10"
-envWorkflow <- getWorkflow(ident=stepIdent)
-
-# treeIdent <- "/improve-tutorial/DataOrder"
-# envWorkflow <- getWorkflow(ident=treeIdent) 
-
-treeIdent <- "/improve-tutorial/Modeling"
-envWorkflow <- getWorkflow(ident=treeIdent) #joins working  
-
-# Examine the workflow structure
-class(envWorkflow)
-ls(envWorkflow)
-listviewer::jsonedit(list(envWorkflow))
-
-# Access workflow-level operations
-envWorkflow$df()  # View all steps as dataframe
-envWorkflow$steps  # Access individual step environments
-
-# Workflow execution capabilities
-# workflow$rerunAll()  # Re-execute entire workflow
-# workflow$rerunChangedAndOutdated()  # Incremental execution
-
-# Create workflow template for reuse
-template <- workflow$createTemplate()
-
-# Example with includeSelf parameter
-currentStepIdent <- "/improve-tutorial/Modeling/Step 1"
-workflowWithSelf <- getWorkflow(currentStepIdent, includeSelf = TRUE)
-workflowWithoutSelf <- getWorkflow(currentStepIdent, includeSelf = FALSE)
-
-# Compare step counts
-length(ls(workflowWithSelf$steps))
-length(ls(workflowWithoutSelf$steps))
-```
-
-
-
 
 # finishRunResource 
 
