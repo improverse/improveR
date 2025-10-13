@@ -33,11 +33,13 @@ body {
   font-size: 16px;
   line-height: 1.6;
   color: var(--text-color);
+  background-color: #ededed;
 }
 
 /* Dark mode body text */
 [data-bs-theme="dark"] body {
   color: #f9fafb !important;
+  background-color: #0d1117 !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -240,6 +242,12 @@ a:focus {
 .section.level1 {
   border: none !important;
   box-shadow: none !important;
+  background-color: #ededed !important;
+}
+
+/* Dark mode section level1 - preserve dark background */
+[data-bs-theme="dark"] .section.level1 {
+  background-color: #1f2937 !important;
 }
 
 /* Section level2 specific styling */
