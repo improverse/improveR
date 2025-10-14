@@ -42,16 +42,6 @@ improveR integrates with the broader improve platform ecosystem:
 - **Collaboration**: Team review and approval workflows
 - **Compliance**: 21 CFR Part 11 validation and audit capabilities
 
-
-## Installation
-
-You can install the development version of improveR:
-
-``` r
-# install.packages("pak")
-pak::pak("https://r.scinteco.com/improveR")
-```
-
 ## About Scinteco
 
 [Scinteco](https://www.scinteco.com/) is a Vienna-based technology company specializing in IT solutions for the pharmaceutical industry. The improve platform represents their commitment to providing secure, compliant, and efficient data science workflows for pharmaceutical R&D.

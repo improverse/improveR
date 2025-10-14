@@ -32,10 +32,8 @@ Install improveR from the Scinteco repository:
 
 ```{r install}
 # Add the improve repository
-options(repos = c(
-  improve = "https://scinteco-improver.s3.amazonaws.com/main/",
-  CRAN = "https://cloud.r-project.org"
-))
+options(repos = c(getOption("repos"),
+  improve = "https://r.scinteco.com/4.4.0/"))
 
 # Install the package
 install.packages("improveR")
@@ -69,9 +67,7 @@ whoami()
 ```
 
 ## Core Concepts
-
 ### Resources
-
 The improve platform organizes everything as **resources** - versioned entities with unique identifiers:
 
 - **Folders**: Organize resources hierarchically

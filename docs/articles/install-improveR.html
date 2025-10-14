@@ -97,17 +97,9 @@ the improve repository.</p>
 <p>First, we need to add the improve repository as a secondary
 repository source:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Get current repositories</span></span>
-<span><span class="va">current_repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Current repositories:\n"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">current_repos</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add improve repository</span></span>
-<span><span class="va">improve_repo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>improve <span class="op">=</span> <span class="st">"https://scinteco-improver.s3.amazonaws.com/main/"</span><span class="op">)</span></span>
-<span><span class="va">new_repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">current_repos</span>, <span class="va">improve_repo</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Set the new repository configuration</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="va">new_repos</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Add improve repository</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span>,</span>
+<span>  improve <span class="op">=</span> <span class="st">"https://r.scinteco.com/4.4.0/"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Verify the configuration</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\nUpdated repositories:\n"</span><span class="op">)</span></span>
@@ -120,9 +112,9 @@ repository source:</p>
 repository:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install improveR package</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"improveR"</span>, repos <span class="op">=</span> <span class="st">"https://scinteco-improver.s3.amazonaws.com/main/"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"improveR"</span><span class="op">)</span></span>
 <span><span class="co">#this package contains the CLI tools</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"improveRcontributions"</span>, repos <span class="op">=</span> <span class="st">"https://scinteco-improver.s3.amazonaws.com/main/"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"improveRcontributions"</span><span class="op">)</span></span>
 <span><span class="co"># Load the package to verify installation</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">improveR</span><span class="op">)</span></span>
 <span></span>

@@ -77,6 +77,12 @@ h3 {
   line-height: 1.4;
 }
 
+/* Reduce spacing when h3 follows h2 */
+h2 + h3,
+.section.level2 h3:first-of-type {
+  margin-top: 0.5em;
+}
+
 /* Heading level 2 - remove bold (preserve existing behavior) */
 .level2 h3 {
   font-weight: normal !important;
@@ -259,10 +265,11 @@ a:focus {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Section level3 - no border */
+/* Section level3 - no border, no padding */
 .section.level3 {
   border: none !important;
   box-shadow: none !important;
+  padding: 0 !important;
 }
 
 /* Index page - remove vertical padding from level3 sections */
@@ -370,6 +377,11 @@ details details[open]:not(.code-fold) {
 /* Summary tags inside expanded details - light gray background */
 details[open]:not(.code-fold) > summary {
   background-color: var(--medium-gray) !important;
+}
+
+/* Hide markdown heading markers used for VS Code navigation */
+.md-marker {
+  display: none;
 }
 
 /* Code-fold details */
