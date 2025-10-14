@@ -133,109 +133,6 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h2>
-<p>You can install the development version of improveR:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"scinteco/improveR"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
-</h2>
-<div class="section level3">
-<h3 id="connect-to-improve-platform">Connect to improve Platform<a class="anchor" aria-label="anchor" href="#connect-to-improve-platform"></a>
-</h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">improveR</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Connect to your improve server</span></span>
-<span><span class="fu"><a href="reference/improveConnect.html">improveConnect</a></span><span class="op">(</span>server_url <span class="op">=</span> <span class="st">"https://your-improve-server.com"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Verify connection</span></span>
-<span><span class="fu"><a href="reference/improveConnected.html">improveConnected</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="loading-pharmaceutical-data">Loading Pharmaceutical Data<a class="anchor" aria-label="anchor" href="#loading-pharmaceutical-data"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load clinical trial data</span></span>
-<span><span class="va">clinical_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/loadResource.html">loadResource</a></span><span class="op">(</span><span class="st">"/studies/phase2/pk-data.csv"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Load NONMEM model files</span></span>
-<span><span class="va">pk_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/loadResource.html">loadResource</a></span><span class="op">(</span><span class="st">"/models/population-pk/run001"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Load multiple related resources</span></span>
-<span><span class="va">study_resources</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/loadResource.html">loadResource</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"/studies/phase2/demographics.csv"</span>,</span>
-<span>  <span class="st">"/studies/phase2/dosing.csv"</span>,</span>
-<span>  <span class="st">"/studies/phase2/concentrations.csv"</span></span>
-<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="workflow-execution">Workflow Execution<a class="anchor" aria-label="anchor" href="#workflow-execution"></a>
-</h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load a modeling workflow step</span></span>
-<span><span class="va">pk_analysis</span> <span class="op">&lt;-</span> <span class="fu">loadStep</span><span class="op">(</span><span class="st">"/workflows/pk-modeling/base-model"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Execute population PK analysis</span></span>
-<span><span class="fu">runStep</span><span class="op">(</span><span class="va">pk_analysis</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create new modeling workflow</span></span>
-<span><span class="fu"><a href="reference/createWorkflow.html">createWorkflow</a></span><span class="op">(</span></span>
-<span>  name <span class="op">=</span> <span class="st">"Phase II PK Analysis"</span>, </span>
-<span>  description <span class="op">=</span> <span class="st">"Population pharmacokinetic modeling workflow"</span>,</span>
-<span>  path <span class="op">=</span> <span class="st">"/studies/phase2/pk-workflow"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="version-control-for-regulatory-compliance">Version Control for Regulatory Compliance<a class="anchor" aria-label="anchor" href="#version-control-for-regulatory-compliance"></a>
-</h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Clone existing validated workflow</span></span>
-<span><span class="fu">cliClone</span><span class="op">(</span>workflow_path <span class="op">=</span> <span class="st">"/validated/pk-models/base-model"</span>, </span>
-<span>         local_path <span class="op">=</span> <span class="st">"./pk-analysis"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Track changes with audit trail</span></span>
-<span><span class="fu">cliPush</span><span class="op">(</span>message <span class="op">=</span> <span class="st">"Updated covariate model - final for submission"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Pull latest validated methods</span></span>
-<span><span class="fu">cliPull</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="advanced-usage">Advanced Usage<a class="anchor" aria-label="anchor" href="#advanced-usage"></a>
-</h2>
-<div class="section level3">
-<h3 id="regulatory-metadata">Regulatory Metadata<a class="anchor" aria-label="anchor" href="#regulatory-metadata"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Set regulatory metadata</span></span>
-<span><span class="fu">setMetaData</span><span class="op">(</span>resource_id <span class="op">=</span> <span class="st">"pk-model-001"</span>,</span>
-<span>            metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>              study_id <span class="op">=</span> <span class="st">"PROTO-001"</span>,</span>
-<span>              analysis_version <span class="op">=</span> <span class="st">"v2.1"</span>,</span>
-<span>              analyst <span class="op">=</span> <span class="st">"John Doe"</span>,</span>
-<span>              review_status <span class="op">=</span> <span class="st">"approved"</span>,</span>
-<span>              regulatory_compliance <span class="op">=</span> <span class="st">"21 CFR Part 11"</span></span>
-<span>            <span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="audit-trail-and-lineage">Audit Trail and Lineage<a class="anchor" aria-label="anchor" href="#audit-trail-and-lineage"></a>
-</h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load complete audit trail</span></span>
-<span><span class="va">audit_trail</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/loadAuditTrail.html">loadAuditTrail</a></span><span class="op">(</span><span class="st">"/models/final/pk-model"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Track data lineage</span></span>
-<span><span class="va">lineage</span> <span class="op">&lt;-</span> <span class="fu">getLineage</span><span class="op">(</span><span class="st">"/results/efficacy-analysis"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Load review history</span></span>
-<span><span class="va">reviews</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/loadReviews.html">loadReviews</a></span><span class="op">(</span><span class="st">"/workflows/safety-analysis"</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
 <h2 id="platform-integration">Platform Integration<a class="anchor" aria-label="anchor" href="#platform-integration"></a>
 </h2>
 <p>improveR integrates with the broader improve platform ecosystem:</p>
@@ -252,6 +149,14 @@
 <li>
 <strong>Compliance</strong>: 21 CFR Part 11 validation and audit capabilities</li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>You can install the development version of improveR:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"https://r.scinteco.com/improveR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="about-scinteco">About Scinteco<a class="anchor" aria-label="anchor" href="#about-scinteco"></a>

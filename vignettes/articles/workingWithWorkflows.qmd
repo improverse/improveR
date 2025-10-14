@@ -188,7 +188,6 @@ Note that the result presented in the chunk above includes also steps from the '
 
 ```{r}
 #| code-summary: "Check for files connecting Step 3 of AT Data Order with Step 1 of AT Reporting"
-#| cache: true
 
 filesATDOS3ATReprotingS1 <- envATReportingStep1$workflow$internalLinks %>% 
   dplyr::filter(str_detect(sourceStep, regex("DataOrder"))) %>%
@@ -196,12 +195,10 @@ filesATDOS3ATReprotingS1 <- envATReportingStep1$workflow$internalLinks %>%
   select(name, sourceInventoryPath, sourceStep, targetStep)
 
 filesATDOS3ATReprotingS1
-
 ```
 
 
 In `Reporting/Step 1` these files show up in the `remoteFiles` binding with `asLink` set to `TRUE`.
-
 ```{r}
 #| code-summary: "Get remote files of `Reporting/Step 1` and check for files"
 #| cache: true

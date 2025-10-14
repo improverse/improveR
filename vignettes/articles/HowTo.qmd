@@ -3,12 +3,12 @@ title: "How to..."
 format:
   html:
     toc: true
-    toc-depth: 4
+    toc-depth: 2
     toc-title: Contents
     # toc-location: right
     #toc-collapsed: false
-    code-fold: show
-    number-sections: true
+    code-fold: false
+    number-sections: false
     number-depth: 2
     # smooth-scroll: true
     # message: false
@@ -26,9 +26,10 @@ format:
     fig-align: left
     code-annotations: true
 knitr:
-    opts_chunk: 
+    opts_chunk:
       collapse: true
       dev: "ragg_png"
+      code-fold: show
 # params:
 #   include_questions: true
 editor_options: 
@@ -41,15 +42,38 @@ lightbox: true
 
 
 ```{r}
-#| label: setup
+#| include: false 
 library(improveR)
+library(tidyverse, quietly = T)
+library(tictoc) #time keeping of functions
+options(width=10000) #make results window wide; horizontal scrollbar
+
+
+fn_connect <- function() {
+  Sys.setenv(
+    IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
+    
+  )
+  Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
+
+  clearConnectionData()
+  improveRtestsupport::improveConnect()
+
+  setEditable(TRUE)
+  print(Sys.getenv("IMPROVER_REPO_URL"))
+}
+
+fn_connect()
+
+improveConnected()
 ```
 
 
-# ... all steps of an analysis Tree
+# ... get all steps of an analysis tree
 
 ```{r}
 #| eval: false
+#| code-fold: false
 
 childResourcesATModeling <- improveR::loadChildResources(ident='/improve-tutorial/Modeling/') %>%
   select(data) %>%
@@ -59,11 +83,29 @@ childResourcesATModeling <- improveR::loadChildResources(ident='/improve-tutoria
 ```
 
 
-# ... get the workflow leading to a step
+# ... get all child steps of a step
 
+Version 1:
 ```{r}
+#| code-fold: false
+dfChild <- loadChildSteps(ident="improve-tutorial/Modeling/Step 1")
+dfChild$data[[1]] %>%
+  select(path, resourceId)
+```
+
+Version 2:
+```{r}
+#| code-fold: false
+envStep <- getStep(ident="improve-tutorial/Modeling/Step 1")
+envStep$children$load()
+ls(envStep$children)
+```
+
+# ... get the workflow leading to a step
+```{r}
+#| code-fold: false
 #| eval: false
-envATReportingStep1 <- getStep(""/improve-tutorial/Reporting/Step 1"")
+envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
 
 # get the workflow and show details on Step 'Modeling/Step 10'
 envATReportingStep1$lineage$load(treeDepth=-1)
@@ -79,6 +121,7 @@ Note that before calling `lineage$load()`, the `df()` in the `workflow` binding 
 # ... get the elements aka resources of a step's inventory
 
 ```{r}
+#| code-fold: false
 #| eval: false
 
 # appraoch 1 
@@ -100,10 +143,12 @@ envStep$stepDf #no does not show content of inventory; in the inventory is more 
 
 
 ```
+
 # ... remove a step from a workflow
 
 ```{r}
 #| eval: false
+#| code-fold: false
 #| code-summary: "Remove step from workflow leading a specific step"
 step$workflow$removeStep()
 ```
@@ -112,6 +157,7 @@ step$workflow$removeStep()
 
 ```{r}
 #| eval: false
+#| code-fold: false
 
 envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
 changedAndOutdatedFiles <- envATReportingStep1$workflow$changedAndOutdatedFiles()
@@ -139,7 +185,7 @@ x$outdatedLink  #outdatedLink can be FALSE even if in the inventory of the Step 
 
 ```{r}
 #| eval: false
-
+#| code-fold: false
 
 
 step$workflow$rerunChangedandOutdated
@@ -148,7 +194,7 @@ step$workflow$rerunChangedandOutdated
 
 # Common Errors
 
-## Tooling
+# Tooling
 
 When defining a step's tooling, no interactive e.g. RStudio instance is permissble. Executing a step via {improveR} requires a tooling
 which can be run in batch mode. 

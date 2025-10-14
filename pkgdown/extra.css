@@ -341,7 +341,6 @@ details summary {
   font-weight: normal !important;
   margin: var(--spacing-sm) 0 !important;
   color: var(--text-color) !important;
-  padding: var(--spacing-sm) 0;
   transition: color 0.2s ease;
 }
 
@@ -359,7 +358,23 @@ details[open]:not(.code-fold) {
   margin: 0 !important;
   border-radius: 0px !important;
   border-width: thin !important;
-  border-left: 3px solid var(--medium-gray);
+  border-left: 3px solid var(--scinteco-cyan);
+}
+
+/* Nested details - dashed border for details inside other details */
+details details[open]:not(.code-fold) {
+  border-left: 3px dashed var(--scinteco-cyan);
+  margin-bottom: 5px !important;
+}
+
+/* Summary tags inside expanded details - light gray background */
+details[open]:not(.code-fold) > summary {
+  background-color: var(--medium-gray) !important;
+}
+
+/* Hide markdown heading markers used for VS Code navigation */
+.md-marker {
+  display: none;
 }
 
 /* Code-fold details */

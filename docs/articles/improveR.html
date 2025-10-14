@@ -86,9 +86,215 @@
 
     
     
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p><strong>improveR</strong> is the R interface to Scinteco’s improve
+platform - a secure, versioned repository for pharmaceutical R&amp;D
+workflows. It provides seamless integration between R and the improve
+platform, enabling 21 CFR Part 11 compliant workflow management for
+pharmaceutical modeling, biostatistical analysis, and data science.</p>
+<p>Key capabilities include:</p>
+<ul>
+<li>
+<strong>Workflow Management</strong>: Create and execute multi-step
+pharmaceutical modeling workflows</li>
+<li>
+<strong>Version Control</strong>: Full versioning of data, code, and
+analyses with complete audit trails</li>
+<li>
+<strong>Resource Management</strong>: Load and save analytical
+resources with metadata and lineage tracking</li>
+<li>
+<strong>Collaborative Research</strong>: Team-based review system
+for pharmaceutical research</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>Install improveR from the Scinteco repository:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">improveR</span><span class="op">)</span></span></code></pre></div>
-  </main>
+<code class="sourceCode R"><span><span class="co"># Add the improve repository</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  improve <span class="op">=</span> <span class="st">"https://scinteco-improver.s3.amazonaws.com/main/"</span>,</span>
+<span>  CRAN <span class="op">=</span> <span class="st">"https://cloud.r-project.org"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Install the package</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"improveR"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Optional: Install CLI tools</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"improveRcontributions"</span><span class="op">)</span></span></code></pre></div>
+<p>For detailed installation instructions, see
+<code><a href="../articles/install-improveR.html">vignette("install-improveR")</a></code>.</p>
+</div>
+<div class="section level2">
+<h2 id="setup-and-connection">Setup and Connection<a class="anchor" aria-label="anchor" href="#setup-and-connection"></a>
+</h2>
+<p>Configure your environment variables to connect to the improve
+repository:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Add to your .Renviron file:</span></span>
+<span><span class="co"># Sys.setenv(IMPROVER_REPO_URL = "https://&lt;url&gt;:&lt;port&gt;/repository")</span></span>
+<span><span class="co"># Sys.setenv(IMPROVER_STEP = "&lt;valid-entityId&gt;")</span></span>
+<span></span>
+<span><span class="co"># Load the package</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">improveR</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Connect to the repository</span></span>
+<span><span class="fu"><a href="../reference/improveConnect.html">improveConnect</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Enable editing</span></span>
+<span><span class="fu"><a href="../reference/setEditable.html">setEditable</a></span><span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Verify connection</span></span>
+<span><span class="fu"><a href="../reference/whoami.html">whoami</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="core-concepts">Core Concepts<a class="anchor" aria-label="anchor" href="#core-concepts"></a>
+</h2>
+<div class="section level3">
+<h3 id="resources">Resources<a class="anchor" aria-label="anchor" href="#resources"></a>
+</h3>
+<p>The improve platform organizes everything as
+<strong>resources</strong> - versioned entities with unique
+identifiers:</p>
+<ul>
+<li>
+<strong>Folders</strong>: Organize resources hierarchically</li>
+<li>
+<strong>Files</strong>: Store data, scripts, and outputs with
+automatic versioning</li>
+<li>
+<strong>Links</strong>: Create stable references to specific
+versions of resources</li>
+<li>
+<strong>Steps</strong>: Executable units of analytical work within
+workflows</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load a resource by path</span></span>
+<span><span class="va">resource</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadResource.html">loadResource</a></span><span class="op">(</span><span class="st">"/Projects/my-analysis/data"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load by entity ID</span></span>
+<span><span class="va">resource</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadResource.html">loadResource</a></span><span class="op">(</span><span class="st">"EN-12345"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># List folder contents</span></span>
+<span><span class="va">children</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadChildResources.html">loadChildResources</a></span><span class="op">(</span><span class="va">resource</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create a new file</span></span>
+<span><span class="va">myData</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">myData</span>, <span class="st">"data.csv"</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dataFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createFile.html">createFile</a></span><span class="op">(</span></span>
+<span>  targetIdent <span class="op">=</span> <span class="va">resource</span><span class="op">$</span><span class="va">entityId</span>,</span>
+<span>  fileName <span class="op">=</span> <span class="st">"data.csv"</span>,</span>
+<span>  localPath <span class="op">=</span> <span class="st">"data.csv"</span>,</span>
+<span>  comment <span class="op">=</span> <span class="st">"My analysis data"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="workflows">Workflows<a class="anchor" aria-label="anchor" href="#workflows"></a>
+</h3>
+<p>Workflows chain together analytical <strong>steps</strong> organized
+in <strong>analysis trees</strong>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create an analysis tree</span></span>
+<span><span class="va">analysisTree</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createAnalysisTree.html">createAnalysisTree</a></span><span class="op">(</span></span>
+<span>  targetIdent <span class="op">=</span> <span class="st">"/Projects/my-analysis"</span>,</span>
+<span>  treeName <span class="op">=</span> <span class="st">"EDA_Workflow"</span>,</span>
+<span>  comment <span class="op">=</span> <span class="st">"Exploratory data analysis"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create a step environment</span></span>
+<span><span class="va">stepEnv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createStepTemplateEnv.html">createStepTemplateEnv</a></span><span class="op">(</span>treeIdent <span class="op">=</span> <span class="va">analysisTree</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Configure the step</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="fu">setStepDescription</span><span class="op">(</span><span class="st">"Load and prepare data"</span><span class="op">)</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="fu">setStepRationale</span><span class="op">(</span><span class="st">"Initial data loading and validation"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Add input files</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="fu">addStepRemoteFile</span><span class="op">(</span>ident <span class="op">=</span> <span class="va">dataFile</span><span class="op">$</span><span class="va">entityId</span>, variableName <span class="op">=</span> <span class="st">"input-data"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set execution configuration</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="fu">setStepRunserverLabel</span><span class="op">(</span><span class="st">"runserver"</span><span class="op">)</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="fu">setStepToolLabel</span><span class="op">(</span><span class="st">"R_4.2"</span><span class="op">)</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="fu">setStepToolInstance</span><span class="op">(</span><span class="st">"rbatch"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create the step</span></span>
+<span><span class="va">resultStep</span> <span class="op">&lt;-</span> <span class="va">stepEnv</span><span class="op">$</span><span class="fu">realise</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">step</span> <span class="op">&lt;-</span> <span class="va">resultStep</span><span class="op">$</span><span class="fu">getStepResource</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="navigating-workflows">Navigating Workflows<a class="anchor" aria-label="anchor" href="#navigating-workflows"></a>
+</h3>
+<p>Use <code><a href="../reference/getStep.html">getStep()</a></code> to explore workflow relationships:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Get a step with its full context</span></span>
+<span><span class="va">stepEnv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStep.html">getStep</a></span><span class="op">(</span><span class="st">"/Projects/my-analysis/EDA_Workflow/Step 1"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load and explore child steps</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="va">children</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/ls.html" class="external-link">ls</a></span><span class="op">(</span><span class="va">stepEnv</span><span class="op">$</span><span class="va">children</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load and explore lineage (upstream dependencies)</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="va">lineage</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span>treeDepth <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">workflow</span> <span class="op">&lt;-</span> <span class="va">stepEnv</span><span class="op">$</span><span class="va">workflow</span><span class="op">$</span><span class="fu">df</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load usage (downstream consumers)</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="va">usage</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span>treeDepth <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check step state</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="fu">getStepState</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get step inventory</span></span>
+<span><span class="va">inventory</span> <span class="op">&lt;-</span> <span class="va">stepEnv</span><span class="op">$</span><span class="fu">getStepInventory</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
+</h2>
+<p>Now that you understand the basics, explore these topics in more
+detail:</p>
+<ul>
+<li>
+<strong><a href="basic-node-types.html">Basic Node
+Types</a></strong>: Detailed guide to folders, files, links, and
+versioning</li>
+<li>
+<strong><a href="workflows-basic.html">Workflows Basic</a></strong>:
+Create and execute your first workflow</li>
+<li>
+<strong><a href="workingWithSteps.html">Working with
+Steps</a></strong>: Advanced step management and navigation</li>
+<li>
+<strong><a href="workingWithWorkflows.html">Working with
+Workflows</a></strong>: Workflow orchestration and execution</li>
+<li>
+<strong><a href="cli-tools.html">CLI Tools</a></strong>: Git-like
+version control operations</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="getting-help">Getting Help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
+</h2>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Function documentation</span></span>
+<span><span class="op">?</span><span class="va">improveConnect</span></span>
+<span><span class="op">?</span><span class="va">createFile</span></span>
+<span><span class="op">?</span><span class="va">getStep</span></span>
+<span></span>
+<span><span class="co"># List all improveR functions</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/ls.html" class="external-link">ls</a></span><span class="op">(</span><span class="st">"package:improveR"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Disconnect when done</span></span>
+<span><span class="fu"><a href="../reference/improveDisconnect.html">improveDisconnect</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>For support, visit the <a href="https://www.scinteco.com/">Scinteco
+website</a>.</p>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
