@@ -1,5 +1,5 @@
 ---
-title: "Getting started with improveR"
+title: "Getting started with {improveR}"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting started with improveR}

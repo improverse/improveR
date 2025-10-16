@@ -7,6 +7,13 @@
   --scinteco-cyan: #00beed;
   --scinteco-cyan-hover: #0098c7;
 
+  /* Improve colors from improverse.net */
+  --color-improve-blue: #0066CC;
+  --color-improve-dark: #001A33;
+  --color-improve-light: #E6F2FF;
+  --color-galaxy: #4A00E0;
+  --color-star: #FFC700;
+
   /* Modern color palette */
   --primary-blue: #2563eb;
   --primary-blue-hover: #1d4ed8;
@@ -128,7 +135,7 @@ h2 + h3,
 /* Navbar links */
 .navbar-nav .nav-link {
   color: var(--text-color) !important;
-  font-weight: 500;
+  font-weight: normal;
   transition: color 0.2s ease;
 }
 
@@ -172,6 +179,27 @@ h2 + h3,
 
 [data-bs-theme="dark"] .navbar-nav .dropdown-menu .dropdown-item:hover {
   background-color: #374151 !important;
+}
+
+/* Highlight "How to..." dropdown item */
+.navbar-nav .dropdown-menu .dropdown-item[href$="HowTo.html"] {
+  background-color: #fff3cd !important;
+  font-weight: 600 !important;
+  border-left: 3px solid #ffc107 !important;
+}
+
+.navbar-nav .dropdown-menu .dropdown-item[href$="HowTo.html"]:hover {
+  background-color: #ffe69c !important;
+}
+
+/* Dark mode "How to..." highlight */
+[data-bs-theme="dark"] .navbar-nav .dropdown-menu .dropdown-item[href$="HowTo.html"] {
+  background-color: #4a4320 !important;
+  border-left: 3px solid #ffc107 !important;
+}
+
+[data-bs-theme="dark"] .navbar-nav .dropdown-menu .dropdown-item[href$="HowTo.html"]:hover {
+  background-color: #5e5628 !important;
 }
 
 /* ==========================================================================
@@ -416,6 +444,11 @@ details[open] > summary {
   background: #1f2937;
 }
 
+/* TOC font weight - all links normal weight */
+#toc a {
+  font-weight: normal !important;
+}
+
 /* ==========================================================================
    Tables
    ========================================================================== */
@@ -559,3 +592,26 @@ html {
     padding: var(--spacing-md);
   }
 }
+
+/* ==========================================================================
+   Improve Colors Styling (from improverse.net)
+   ========================================================================== */
+
+/* Text selection with improve-light color */
+::selection {
+  background-color: var(--color-improve-light);
+  color: var(--color-improve-dark);
+}
+
+::-moz-selection {
+  background-color: var(--color-improve-light);
+  color: var(--color-improve-dark);
+}
+
+/* Optional: Gradient background similar to improverse.net */
+/* Uncomment if desired */
+/*
+body {
+  background: linear-gradient(180deg, #fff, #f8faff) !important;
+}
+*/

@@ -9,11 +9,10 @@ articles:
   install-improveR: install-improveR.html
   articles/relationToOtherPackages: relationToOtherPackages.html
   articles/rstudioWorkflows: rstudioWorkflows.html
-  articles/tutorialSteps: tutorialSteps.html
   workflows-basic: workflows-basic.html
   articles/workingWithSteps: workingWithSteps.html
   articles/workingWithWorkflows: workingWithWorkflows.html
-last_built: 2025-10-14T12:10Z
+last_built: 2025-10-16T22:00Z
 urls:
   reference: https://www.scinteco.com/reference
   article: https://www.scinteco.com/articles

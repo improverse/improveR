@@ -11,3 +11,4 @@
 ^vignettes/articles/*_files$
 ^vignettes/articles$
 ^CLAUDE\.md$
+^AGENTS\.md$

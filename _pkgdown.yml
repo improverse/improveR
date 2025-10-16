@@ -10,6 +10,7 @@ template:
 
 exclude:
   - "CLAUDE.md"
+  - "AGENTS.md"
 
 toc:
   depth: 4
@@ -26,6 +27,9 @@ navbar:
     articles:
       text: Articles
       menu:
+        - text: How to...
+          href: articles/HowTo.html
+        - text: -----------
         - text: Installing improveR
           href: articles/install-improveR.html
         - text: -----------
@@ -33,16 +37,13 @@ navbar:
           href: articles/workingWithSteps.html
         - text: Working with Workflows
           href: articles/workingWithWorkflows.html
-        - text: Working with improveR in RStudio 
+        - text: Working with improveR in RStudio
           href: articles/rstudioWorkflows.html
         - text: -----------
         - text: CLI Tools
           href: articles/cli-tools.html
         - text: Node Types
           href: articles/basic-node-types.html
-        - text: -----------
-        - text: How to...
-          href: articles/HowTo.html
 
 
 reference:

@@ -564,12 +564,12 @@ For repetitive analysis patterns:
 
 ### Step Execution Failures
 
-**Symptom**: Step fails in validated environment but succeeds locally
+**Symptom**: Step fails in the validated environment but succeeds locally
 
 **Causes**:
 
 - Missing package dependencies in runserver environment
-- Hardcoded paths specific to local machine
+- Hard-coded paths specific to local machine
 - Reliance on interactive input or user intervention
 - Insufficient memory or computational resources
 
@@ -582,7 +582,7 @@ For repetitive analysis patterns:
 
 ### File Synchronization Issues
 
-**Symptom**: Files not appearing in workspace after checkout
+**Symptom**: Files do not appear in the workspace after checkout
 
 **Causes**:
 
@@ -598,7 +598,7 @@ For repetitive analysis patterns:
 
 ### Output Validation Failures
 
-**Symptom**: Expected outputs not generated after execution
+**Symptom**: Expected outputs are not generated after execution
 
 **Causes**:
 
