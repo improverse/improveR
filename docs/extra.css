@@ -174,6 +174,27 @@ h2 + h3,
   background-color: #374151 !important;
 }
 
+/* Highlight "How to..." dropdown item */
+.navbar-nav .dropdown-menu .dropdown-item[href$="HowTo.html"] {
+  background-color: #fff3cd !important;
+  font-weight: 600 !important;
+  border-left: 3px solid #ffc107 !important;
+}
+
+.navbar-nav .dropdown-menu .dropdown-item[href$="HowTo.html"]:hover {
+  background-color: #ffe69c !important;
+}
+
+/* Dark mode "How to..." highlight */
+[data-bs-theme="dark"] .navbar-nav .dropdown-menu .dropdown-item[href$="HowTo.html"] {
+  background-color: #4a4320 !important;
+  border-left: 3px solid #ffc107 !important;
+}
+
+[data-bs-theme="dark"] .navbar-nav .dropdown-menu .dropdown-item[href$="HowTo.html"]:hover {
+  background-color: #5e5628 !important;
+}
+
 /* ==========================================================================
    Links
    ========================================================================== */
@@ -414,6 +435,11 @@ details[open] > summary {
 
 [data-bs-theme="dark"] #toc {
   background: #1f2937;
+}
+
+/* TOC font weight - all links normal weight */
+#toc a {
+  font-weight: normal !important;
 }
 
 /* ==========================================================================
