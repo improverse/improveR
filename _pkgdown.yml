@@ -3,12 +3,48 @@ template:
   bootstrap: 5
   light-switch: true
   bslib:
-    bootswatch: materia
-    
+    bootswatch: flatly
+  params:
+    toc:
+      depth: 4
+
+exclude:
+  - "CLAUDE.md"
+  - "AGENTS.md"
+
+toc:
+  depth: 4
+
 navbar:
   structure:
-    left:  [intro, reference, articles, news]
+    left:  [intro, reference, articles, FAQ, news]
     right: [search, github, lightswitch]
+
+  components:
+    faqs:
+      text: "FAQs"
+      href: articles/faqs.html # This creates a direct link
+    articles:
+      text: Articles
+      menu:
+        - text: How to...
+          href: articles/HowTo.html
+        - text: -----------
+        - text: Installing improveR
+          href: articles/install-improveR.html
+        - text: -----------
+        - text: Working with Steps
+          href: articles/workingWithSteps.html
+        - text: Working with Workflows
+          href: articles/workingWithWorkflows.html
+        - text: Working with improveR in RStudio
+          href: articles/rstudioWorkflows.html
+        - text: -----------
+        - text: CLI Tools
+          href: articles/cli-tools.html
+        - text: Node Types
+          href: articles/basic-node-types.html
+
 
 reference:
 - title: Step and workflow management
@@ -28,6 +64,7 @@ reference:
   - resetToolInstances
   - runStepResource
   - createAnalysisTree
+  - workflowTemplateFromJSON
 
 - title: Authentication
   contents:
@@ -129,7 +166,7 @@ reference:
   - uploadFolder
   - whoami
 
-- title: Unassigned/Revise
+- title: Other
   contents:
   - "%>%"
   - applyTokenData

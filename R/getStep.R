@@ -74,8 +74,7 @@ getStep <- function(ident,workflow=NULL) {
         return(workflow$steps[[selectedStep$fullName]])
       }
     } else {
-      log_warn(ident,"does not exist or is not a Step")
-      return(NULL)
+      log_warn(ident, "does not exist or is not a Step")
     }
   }
 

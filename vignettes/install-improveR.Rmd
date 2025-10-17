@@ -28,17 +28,9 @@ This guide will walk you through installing the improveR package from the improv
 First, we need to add the improve repository as a secondary repository source:
 
 ```{r configure-repo}
-# Get current repositories
-current_repos <- getOption("repos")
-cat("Current repositories:\n")
-print(current_repos)
-
 # Add improve repository
-improve_repo <- c(improve = "https://scinteco-improver.s3.amazonaws.com/main/")
-new_repos <- c(current_repos, improve_repo)
-
-# Set the new repository configuration
-options(repos = new_repos)
+options(repos = c(getOption("repos"),
+  improve = "https://r.scinteco.com/4.4.0/"))
 
 # Verify the configuration
 cat("\nUpdated repositories:\n")
@@ -51,9 +43,9 @@ Now we can install the improveR package from the improve repository:
 
 ```{r install-improver}
 # Install improveR package
-install.packages("improveR", repos = "https://scinteco-improver.s3.amazonaws.com/main/")
+install.packages("improveR")
 #this package contains the CLI tools
-install.packages("improveRcontributions", repos = "https://scinteco-improver.s3.amazonaws.com/main/")
+install.packages("improveRcontributions")
 # Load the package to verify installation
 library(improveR)
 

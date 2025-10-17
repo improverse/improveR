@@ -1,0 +1,236 @@
+---
+title: "How to..."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-title: Contents
+    toc-location: right
+    code-fold: false
+    number-sections: false
+    number-depth: 2
+    # smooth-scroll: true
+    # message: false
+    # warning: false
+    # highlight-style: nord
+    # output-file:
+    # embed-resources: true
+    # theme: 
+    #   light: [materia, style.scss]
+    #   dark: slate
+    fontsize: 16px
+    # grid:
+    # sidebar-width: 300px
+    fig-cap-location: top
+    fig-align: left
+    code-annotations: true
+knitr:
+    opts_chunk: 
+      collapse: true
+      dev: "ragg_png"
+# params:
+#   include_questions: true
+editor_options: 
+  markdown: 
+    wrap: 72
+# project:
+#   execute-dir: project
+lightbox: true
+---
+
+```{r}
+#| include: false 
+library(improveR)
+library(tidyverse, quietly = T)
+library(tictoc) #time keeping of functions
+options(width=10000) #make results window wide; horizontal scrollbar
+
+
+fn_connect <- function() {
+  Sys.setenv(
+    IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
+    
+  )
+  Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
+
+  clearConnectionData()
+  improveRtestsupport::improveConnect()
+
+  setEditable(TRUE)
+  print(Sys.getenv("IMPROVER_REPO_URL"))
+}
+
+fn_connect()
+
+improveConnected()
+```
+
+# Common Tasks
+## and how to solve them
+
+This guide provides quick examples for common improveR operations.
+
+# get all steps of an analysis tree
+
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+childResourcesATModeling <- improveR::loadChildResources(ident='/improve-tutorial/Modeling/') %>%
+  select(data) %>%
+  unnest(data) %>%
+  select(""name"", ""entityId"", ""path"")
+```
+
+
+# get all analysis trees within a folder
+
+Get all analysis trees inside the folder 'improve-tutorial'.
+
+```{r}
+#| cache: true
+allAnalysisTrees <- improveR::loadChildResources(ident="/improve-tutorial/")
+allAnalysisTrees$data[[1]] %>% select(nodeType, name, path)
+```
+
+
+
+# get all child steps of a step
+
+Version 1:
+```{r}
+#| code-fold: false
+dfChild <- loadChildSteps(ident="improve-tutorial/Modeling/Step 1")
+dfChild$data[[1]] %>%
+  select(path, resourceId)
+```
+
+Version 2:
+```{r}
+#| code-fold: false
+envStep <- getStep(ident="improve-tutorial/Modeling/Step 1")
+envStep$children$load()
+ls(envStep$children)
+```
+
+
+# get the workflow leading to a step
+```{r}
+#| code-fold: false
+#| eval: false
+envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
+
+# get the workflow and show details on Step 'Modeling/Step 10'
+envATReportingStep1$lineage$load(treeDepth=-1)
+
+#show all steps which form part of the workflow
+envATReportingStep1$workflow$df()
+```
+
+Note that before calling `lineage$load()`, the `df()` in the `workflow` binding will only return the step itself, i.e.,
+`Reporting/Step 1`.
+
+
+# ... get the elements aka resources of a step's inventory
+
+```{r}
+#| code-fold: false
+#| eval: false
+
+# approach 1 
+stepInventory <- loadChildResources(ident="/improve-tutorial/Modeling/Step 1")$data[[1]]
+ncol(stepInventory)
+
+# approach 2
+envStep <- getStep(ident="/improve-tutorial/Modeling/Step 1")
+stepInventory2 <- envStep$getStepInventory()$data[[1]]
+ncol(stepInventory2)
+
+# the approach with getStep returns two additional columns
+setdiff(names(stepInventory2), names(stepInventory)) # 'isVersion', 'inventoryPath'
+
+# approach 3
+envStep <- getStep(ident="/improve-tutorial/Modeling/Step 1")
+envStep$stepDf #does not show content of inventory; the inventory contains more than remote files
+```
+
+# ... remove a step from a workflow
+
+```{r}
+#| eval: false
+#| code-fold: false
+#| code-summary: "Remove step from workflow leading a specific step"
+step$workflow$removeStep()
+```
+
+# ... get the outdated elements of an inventory
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
+changedAndOutdatedFiles <- envATReportingStep1$workflow$changedAndOutdatedFiles()
+
+#outdated elements in an inventory
+inventory <- envATReportingStep1$getStepInventory()
+inventoryOutdatedLinks <- inventory %>%
+  select(data) %>%
+  unnest(data) %>%
+  filter(outdatedLink==TRUE) 
+nrow(inventoryOutdatedLinks)
+
+#outdated link in resource
+x <- loadResource("/improve-tutorial/Reporting/Step 1")
+x$outdatedLink  #outdatedLink can be FALSE even if there are outdated elements in the inventory of the Step
+
+```
+
+* Elaborate on the difference between outdated elements of an inventory and 'changedAndOutdated' in the workflow context.
+* 'outdatedAndChanged' is different from just 'outdated'. It also includes files that have changed.
+* 'outdatedLink' refers only to outdated links (yellow frame).
+* 'changed' refers to files that are not the same (red frame).
+
+# ... rerun changed and outdated steps within a workflow
+
+```{r}
+#| eval: false
+#| code-fold: false
+step$workflow$rerunChangedAndOutdated()
+```
+
+# ... create a step template
+
+```{r}
+stepTemplateEnv <- createStepTemplateEnv()
+```
+
+# delete a resource (folder, analysis tree, step)
+
+```{r}
+#| include: false
+#| code-summary: "setup analysis tree with only one step; which is deleted below"
+createAnalysisTree(targetIdent = "improve-tutorial/", treeName="yourTree")
+improveR:::createStep(treeIdent = "improve-tutorial/yourTree")
+```
+
+```{r}
+#| code-summary: "Delete step from analysis tree"
+
+#Get steps inside the analysis tree
+steps <- loadChildResources("improve-tutorial/yourTree")$data[[1]] 
+steps %>% select(nodeType, name, path, entityId)
+
+#Delete the steps via their entityId, or equivalent ident
+delete(res=steps$entityId)
+
+#Loading child resources of tree again confirms that step(s) were removed
+loadChildResources("improve-tutorial/yourTree")$data[[1]]
+```
+
+```{r}
+#| include: false
+#| code-summary: "Reset folder"
+delete(res="improve-tutorial/yourTree")
+```

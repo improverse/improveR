@@ -285,7 +285,10 @@ createWorkflow <- function() {
 
   # Create a re-execution plan for outdated steps
   # @return A data.frame describing the execution plan
-  env$createReexecutionPlan <- function(includeDownstream = TRUE, includeAllSteps = FALSE) {
+  env$createReexecutionPlan <- function(
+    includeDownstream = TRUE,
+    includeAllSteps = FALSE
+  ) {
     stepsDf <- env$df()
     .workflow_private$collectInternalLinks(env)
     iL <- env$internalLinks
@@ -298,11 +301,16 @@ createWorkflow <- function() {
     } else {
       # Only changed and outdated steps
       caof <- env$changedAndOutdatedFiles()
-      allStepsToExecute <- stepsDf[stepsDf$sourceEntityId %in% unique(caof$stepEntityId), ]
+      allStepsToExecute <- stepsDf[
+        stepsDf$sourceEntityId %in% unique(caof$stepEntityId),
+      ]
 
       # Optionally include downstream steps that use the outputs
       if (includeDownstream && nrow(allStepsToExecute) > 0) {
-        usingSteps <- stepsDf[stepsDf$fullName %in% .workflow_private$getInternalUsage(env, allStepsToExecute$fullName), ]
+        usingSteps <- stepsDf[
+          stepsDf$fullName %in%
+            .workflow_private$getInternalUsage(env, allStepsToExecute$fullName),
+        ]
         allSteps <- rbind(allStepsToExecute, usingSteps) %>%
           dplyr::distinct(.data$fullName, .keep_all = TRUE)
       } else {
@@ -316,35 +324,54 @@ createWorkflow <- function() {
 
       if (includeAllSteps) {
         # When rerunning all steps, update all internal links for this step
-        internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
+        internalLinks <- env$internalLinks[
+          env$internalLinks$targetStep == st$fullName,
+        ]
         if (!is.null(internalLinks) && nrow(internalLinks) > 0) {
           linkIds <- .workflow_private$getLinkTarget(env, internalLinks)
         }
         allUpdates <- linkIds
       } else {
         # Only update outdated links when doing partial rerun
-        outDatedLinksDf <- dplyr::filter(caof, .data$nodeType == "LIV" & .data$stepEntityId == st$sourceEntityId)
+        outDatedLinksDf <- dplyr::filter(
+          caof,
+          .data$nodeType == "LIV" & .data$stepEntityId == st$sourceEntityId
+        )
         if (nrow(outDatedLinksDf) > 0) {
           outDatedLinks <- outDatedLinksDf %>%
             dplyr::pull("entityId") %>%
             loadResource() %>%
             dplyr::pull("entityId")
         }
-        internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
+        internalLinks <- env$internalLinks[
+          env$internalLinks$targetStep == st$fullName,
+        ]
         if (!is.null(internalLinks)) {
           linkIds <- .workflow_private$getLinkTarget(env, internalLinks)
         }
-        allUpdates <- Filter(function(x) !is.null(x), unique(c(outDatedLinks, linkIds)))
+        allUpdates <- Filter(
+          function(x) !is.null(x),
+          unique(c(outDatedLinks, linkIds))
+        )
       }
       st$toUpdate <- list(allUpdates)
-      usingSteps <- env$internalLinks[env$internalLinks$sourceStep == st$fullName, ]$targetStep
-      usedSteps <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]$sourceStep
+      usingSteps <- env$internalLinks[
+        env$internalLinks$sourceStep == st$fullName,
+      ]$targetStep
+      usedSteps <- env$internalLinks[
+        env$internalLinks$targetStep == st$fullName,
+      ]$sourceStep
       st$lineage <- paste(usedSteps, collapse = ",", sep = "/")
-      if (st$lineage == "") st$lineage <- NA
+      if (st$lineage == "") {
+        st$lineage <- NA
+      }
       st$usage <- paste(usingSteps, collapse = ",", sep = "/")
-      if (st$usage == "") st$usage <- NA
+      if (st$usage == "") {
+        st$usage <- NA
+      }
       return(st)
     })
+
     executionPlan <- dplyr::select(
       executionPlan,
       "description",
@@ -432,12 +459,12 @@ createWorkflow <- function() {
     }
     stepEnv <- env$steps[[step]]
     rm(list=c(step),pos=env$steps)
-    removeBacklinks <- function(toLink,backLink) {
+    removeBacklinks <- function(toLink, backLink) {
       affected <- ls(stepEnv[[toLink]])
-      affected<-affected[affected!="load"]
-      x<-lapply(affected,function(blRemoveTarget) {
+      affected <- affected[affected != "load"]
+      x <- lapply(affected, function(blRemoveTarget) {
         targetEnv <- env$steps[[blRemoveTarget]][[backLink]]
-        rm(list=c(step),pos=targetEnv)
+        rm(list = c(step), pos = targetEnv)
       })
     }
     suppressWarnings({
