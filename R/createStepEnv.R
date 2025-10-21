@@ -24,12 +24,39 @@ recursiveNavigate <- function(stepEnv,action,stepDepth,treeDepth) {
 
 
 
-#' Create a new step environment
+#' Create Step Environment
 #'
-#' Constructs a new step object with encapsulated state, navigation environments, and public API.
-#' @param stepDf Data frame with step metadata
-#' @param workflow Workflow environment this step belongs to
-#' @return An environment representing the step
+#' Constructs a specialized R environment object that encapsulates a step's complete
+#' context and provides programmatic access to all step-related data and operations.
+#' This environment serves as a comprehensive interface containing the step's metadata,
+#' file relationships, navigation capabilities, and workflow context.
+#'
+#' @param stepDf Data frame with step metadata from an existing step.
+#' @param workflow Workflow environment this step belongs to.
+#'
+#' @return An environment representing the step with the following components:
+#'   \describe{
+#'     \item{stepDf}{Data frame containing the step configuration and metadata}
+#'     \item{children, parent, usage, lineage}{Nested environments with lazy-loading for step relationships}
+#'     \item{getStepInventory()}{Method to retrieve step inventory}
+#'     \item{getStepResource()}{Method to get the step resource object}
+#'     \item{getStepState()}{Method to get the step's execution state}
+#'     \item{getStepWithoutCache()}{Method to get fresh step data from server}
+#'     \item{retrieveMainProcess()}{Method to get the main process configuration}
+#'     \item{createTemplate()}{Method to create a template from this step}
+#'   }
+#'
+#' @details
+#' This function is typically called internally by \code{\link{getStep}}, which users
+#' should use instead of calling \code{createStepEnv} directly. The environment-based
+#' approach enables intuitive navigation through workflow hierarchies using R's \code{$}
+#' operator.
+#'
+#' @seealso
+#' \code{\link{getStep}} for the user-facing function that calls this internally,
+#' \code{\link{createStepTemplateEnv}} for creating new step templates,
+#' \code{\link{loadChildSteps}} and \code{\link{loadParentStep}} for navigation
+#'
 #' @export
 createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   env <- new.env(parent = emptyenv())

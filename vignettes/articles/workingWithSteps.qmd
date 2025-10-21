@@ -689,6 +689,7 @@ changeStepRationale(ident=stepIdent, rationale="Investigate linear relationship"
 loadResource(stepIdent)$rationale
 ```
 
+# createStepEnv
 
 The `createStepEnv()` function constructs a specialized R environment object that encapsulates a step's complete context and provides programmatic access to all step-related data and operations. This environment serves as a comprehensive interface containing the step's metadata, file relationships, navigation capabilities, and workflow context in a structured, object-like format. The function creates an environment that includes nested sub-environments for children, parent, usage, and lineage relationships, along with functional bindings for operations like `getStepInventory()`, `getStepResource()`, and `getStepState()`. This environment-based approach enables intuitive navigation through workflow hierarchies using R's `$` operator and provides a unified API for step manipulation and introspection that supports both interactive analysis and programmatic workflow management.
 
@@ -702,6 +703,7 @@ The function builds a step environment in stages. First, it loads the step's bas
 
 The function adds helpful methods like `getStepInventory()` and `getStepWithoutCache()` that you can call directly on the step. It also sets up a workflow environment for managing execution and dependencies. The result contains both the step's data and the tools you need to work with it.
 
+## Example
 
 ```{r}
 stepIdent <- "/improve-tutorial/Modeling/Step 1"

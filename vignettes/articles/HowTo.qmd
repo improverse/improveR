@@ -73,7 +73,7 @@ This guide provides quick examples for common {improveR} operations.
 
 # attach a step to a parent
 
-See [reference](../reference/attachStep.html). See [article](../articles/workingWithSteps.html#attachstep)
+See [reference](../reference/attachStep.html). See [article](../articles/workingWithSteps.html#attachstep).
 
 ```{r}
 #| eval: false
@@ -82,11 +82,30 @@ attachStep(ident, parent, from = pwd())
 
 # change the description of a step
 
-See [reference](../reference/changeStepDescription.html). See [article](../articles/workingWithSteps.html#changestepdescription)
+See [reference](../reference/changeStepDescription.html). See [article](../articles/workingWithSteps.html#changestepdescription).
 
 ```{r}
 #| eval: false
 changeStepDescription(ident=stepIdent, description="new description")
+```
+
+# change the rationale of a step
+
+See [reference](../reference/changeStepRationale.html). See [article](../articles/workingWithSteps.html#changesteprationale).
+
+```{r}
+#| eval: false
+changeStepRationale(ident=stepIdent, description="new description")
+```
+
+# create a step environment
+
+See [reference](../reference/createStepEnv.html). See [article](../articles/workingWithSteps.html#createstepenv).
+```{r}
+#| eval: false
+stepDf <- improveR:::getStepDf(stepIdent)
+workflow <- createWorkflow()
+createStepEnv(stepDf, workflow)
 ```
 
 
