@@ -3,7 +3,7 @@ title: "How to..."
 format:
   html:
     toc: true
-    toc-depth: 2
+    toc-depth: 1
     toc-title: Contents
     toc-location: right
     code-fold: false
@@ -66,6 +66,7 @@ improveConnected()
 ```
 
 # Common Tasks
+
 ## and how to solve them
 
 This guide provides quick examples for common {improveR} operations.
@@ -94,11 +95,9 @@ allAnalysisTrees <- improveR::loadChildResources(ident="/improve-tutorial/")
 allAnalysisTrees$data[[1]] %>% select(nodeType, name, path)
 ```
 
-
-
 # get all child steps of a step
 
-Version 1:
+## Version 1: loadChildSteps()
 ```{r}
 #| code-fold: false
 dfChild <- loadChildSteps(ident="improve-tutorial/Modeling/Step 1")
@@ -106,7 +105,7 @@ dfChild$data[[1]] %>%
   select(path, resourceId)
 ```
 
-Version 2:
+## Version 2: getStep()
 ```{r}
 #| code-fold: false
 envStep <- getStep(ident="improve-tutorial/Modeling/Step 1")
@@ -233,4 +232,10 @@ loadChildResources("improve-tutorial/yourTree")$data[[1]]
 #| include: false
 #| code-summary: "Reset folder"
 delete(res="improve-tutorial/yourTree")
+```
+
+# trigger the execution of a step
+```{r}
+#| eval: false
+runStepResource(ident="improve-tutorial/Modeling/Step 9")
 ```
