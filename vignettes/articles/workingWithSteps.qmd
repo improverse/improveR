@@ -118,7 +118,7 @@ The `getStep` function is central when it comes to working with steps specifical
 
 ## Relation to other functions 
 
-In the broader improveR ecosystem, `getStep` serves as a critical integration point. It connects individual step management with workflow-level orchestration through `getWorkflow`. The function supports execution coordination with functions like `finishRunResource` and `runStepResource`. It interfaces with the distributed resource management system through authenticated REST API calls and intelligent caching strategies. The step environment created by `getStep()` includes several functions which further facilitate working with the step: `createTemplate()`, `getStepInventory()`, `getStepResource()`, `getStepState()`, `getStepWithoutCache()`, and `retrieveMainProcess` (for details see [below](#details)).
+In the broader {improveR} ecosystem, `getStep` serves as a critical integration point. It connects individual step management with workflow-level orchestration through `getWorkflow`. The function supports execution coordination with functions like `finishRunResource` and `runStepResource`. It interfaces with the distributed resource management system through authenticated REST API calls and intelligent caching strategies. The step environment created by `getStep()` includes several functions which further facilitate working with the step: `createTemplate()`, `getStepInventory()`, `getStepResource()`, `getStepState()`, `getStepWithoutCache()`, and `retrieveMainProcess` (for details see [below](#details)).
 
 ## Under the hood
 
@@ -533,11 +533,11 @@ identical(x, y)
 
 ## Purpose of the function
 
-The `attachStep` function establishes hierarchical relationships between steps in improveR workflows by attaching a step to another step that serves as its parent. This function is essential for creating structured hierarchies that reflect the logical flow and dependencies between analytical steps. It provides flexibility to reorganize existing workflows, insert new steps into established processes, or correct relationships that were initially configured incorrectly, while maintaining workflow integrity and enabling proper execution planning and dependency tracking. 
+The `attachStep` function establishes hierarchical relationships between steps in {improveR} workflows by attaching a step to another step that serves as its parent. This function is essential for creating structured hierarchies that reflect the logical flow and dependencies between analytical steps. It provides flexibility to reorganize existing workflows, insert new steps into established processes, or correct relationships that were initially configured incorrectly, while maintaining workflow integrity and enabling proper execution planning and dependency tracking. 
 
 ## Relation to other functions
 
-Within the step functions family, `attachStep` forms a complementary pair with `detachStep` for managing step hierarchy, working together with `createStep` to provide complete workflow structure control. The function integrates closely with navigation functions like `getStep`, `loadParentStep`, and `loadChildSteps` by ensuring cached relationships are updated through `unloadParentStep` calls. In the broader improveR ecosystem, it connects with the resource management system via `loadResource`.
+Within the step functions family, `attachStep` forms a complementary pair with `detachStep` for managing step hierarchy, working together with `createStep` to provide complete workflow structure control. The function integrates closely with navigation functions like `getStep`, `loadParentStep`, and `loadChildSteps` by ensuring cached relationships are updated through `unloadParentStep` calls. In the broader {improveR} ecosystem, it connects with the resource management system via `loadResource`.
 
 ## Under the hood
 
@@ -579,7 +579,7 @@ The `detachStep()` function is the counterpart to `attachStep()` and removes the
 
 ## Relation to other functions
 
-Within the step functions family, `detachStep` works as the complementary counterpart to `attachStep`, providing the opposite operation for managing step hierarchies. It integrates with navigation functions like `loadParentStep` and `loadChildSteps` by updating cached parent-child relationships through `unloadChildSteps` and `unloadParentStep` calls. The function works seamlessly with `createStep` and other step management functions to provide complete control of the analysis' structure. In the broader improveR ecosystem, it connects with the resource management system via `loadResource` for step validation and uses the authentication infrastructure to make REST API calls that persist structural changes across the distributed system.
+Within the step functions family, `detachStep` works as the complementary counterpart to `attachStep`, providing the opposite operation for managing step hierarchies. It integrates with navigation functions like `loadParentStep` and `loadChildSteps` by updating cached parent-child relationships through `unloadChildSteps` and `unloadParentStep` calls. The function works seamlessly with `createStep` and other step management functions to provide complete control of the analysis' structure. In the broader {improveR} ecosystem, it connects with the resource management system via `loadResource` for step validation and uses the authentication infrastructure to make REST API calls that persist structural changes across the distributed system.
 
 ## Under the hood
 
@@ -686,7 +686,7 @@ The `createStepEnv` function constructs a specialized R environment object that 
 
 ## Relation to other functions
 
-Within the step functions family, `createStepEnv` serves as the foundational building block that underlies `getStep()`, which calls `createStepEnv` internally to generate the rich environment objects that users interact with. The function works closely with navigation functions like `loadChildSteps`, `loadParentStep`, and workflow analysis functions by providing the structured environment that contains lazy-loading mechanisms for these relationships. It integrates with resource management functions through embedded `loadResource` calls and connects with the broader improveR ecosystem by creating environments that interface with authentication systems, caching mechanisms, and REST API endpoints. The environments created by `createStepEnv` also support workflow execution functions by providing access to process definitions, file dependencies, and execution state information necessary for step orchestration and dependency tracking.
+Within the step functions family, `createStepEnv` serves as the foundational building block that underlies `getStep()`, which calls `createStepEnv` internally to generate the rich environment objects that users interact with. The function works closely with navigation functions like `loadChildSteps`, `loadParentStep`, and workflow analysis functions by providing the structured environment that contains lazy-loading mechanisms for these relationships. It integrates with resource management functions through embedded `loadResource` calls and connects with the broader {improveR} ecosystem by creating environments that interface with authentication systems, caching mechanisms, and REST API endpoints. The environments created by `createStepEnv` also support workflow execution functions by providing access to process definitions, file dependencies, and execution state information necessary for step orchestration and dependency tracking.
 
 ## Under the hood
 

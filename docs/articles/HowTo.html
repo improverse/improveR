@@ -103,7 +103,7 @@
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(data) <span class="sc">%&gt;%</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">""</span>name<span class="st">""</span>, <span class="st">""</span>entityId<span class="st">""</span>, <span class="st">""</span>path<span class="st">""</span>)</span></code></pre></div>
 </div>
-</section><section class="section level2"><h2 id="get-all-analysis-trees-witin-a-folder">get all analysis trees witin a folder<a class="anchor" aria-label="anchor" href="#get-all-analysis-trees-witin-a-folder"></a>
+</section><section class="section level2"><h2 id="get-all-analysis-trees-within-a-folder">get all analysis trees within a folder<a class="anchor" aria-label="anchor" href="#get-all-analysis-trees-within-a-folder"></a>
 </h2>
 <p>Get all analysis trees inside the folder ‘improve-tutorial’.</p>
 <div class="cell">
@@ -139,10 +139,10 @@
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">envStep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStep.html">getStep</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"improve-tutorial/Modeling/Step 1"</span><span class="op">)</span></span>
 <span><span class="va">envStep</span><span class="op">$</span><span class="va">children</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">## 2025-10-16 21:34:20.229329 INFO::adding  Step 7 ST-54672 to children</span></span>
-<span><span class="co">## 2025-10-16 21:34:22.608786 INFO::adding  Step 6 ST-54651 to children</span></span>
-<span><span class="co">## 2025-10-16 21:34:24.973057 INFO::adding  Step 8 ST-54675 to children</span></span>
-<span><span class="co">## 2025-10-16 21:34:27.410519 INFO::adding  Step 1 ST-65316 to children</span></span>
+<span><span class="co">## 2025-10-21 08:24:13.527749 INFO::adding  Step 7 ST-54672 to children</span></span>
+<span><span class="co">## 2025-10-21 08:24:15.928068 INFO::adding  Step 6 ST-54651 to children</span></span>
+<span><span class="co">## 2025-10-21 08:24:18.378311 INFO::adding  Step 8 ST-54675 to children</span></span>
+<span><span class="co">## 2025-10-21 08:24:20.784805 INFO::adding  Step 1 ST-65316 to children</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/ls.html" class="external-link">ls</a></span><span class="op">(</span><span class="va">envStep</span><span class="op">$</span><span class="va">children</span><span class="op">)</span></span>
 <span><span class="co">## [1] "load"                  "Modeling/Step 6/54651" "Modeling/Step 7/54672" "Modeling/Step 8/54675" "Review/Step 1/65316"</span></span></code></pre></div>
 </div>
@@ -158,12 +158,12 @@
 <span><span class="co">#show all steps which form part of the workflow</span></span>
 <span><span class="va">envATReportingStep1</span><span class="op">$</span><span class="va">workflow</span><span class="op">$</span><span class="fu">df</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>Note that before calling <code>lineage$load()</code>, the <code><a href="https://rdrr.io/r/stats/Fdist.html" class="external-link">df()</a></code> in the <code>workflow</code> binding will only return the step itself, i.e. <code>Reporting/Step 1</code>.</p>
+<p>Note that before calling <code>lineage$load()</code>, the <code><a href="https://rdrr.io/r/stats/Fdist.html" class="external-link">df()</a></code> in the <code>workflow</code> binding will only return the step itself, i.e., <code>Reporting/Step 1</code>.</p>
 </section><section class="section level2"><h2 id="get-the-elements-aka-resources-of-a-steps-inventory">get the elements aka resources of a step’s inventory<a class="anchor" aria-label="anchor" href="#get-the-elements-aka-resources-of-a-steps-inventory"></a>
 </h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># appraoch 1 </span></span>
+<code class="sourceCode R"><span><span class="co"># approach 1 </span></span>
 <span><span class="va">stepInventory</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadChildResources.html">loadChildResources</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"/improve-tutorial/Modeling/Step 1"</span><span class="op">)</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">stepInventory</span><span class="op">)</span></span>
 <span></span>
@@ -177,15 +177,15 @@
 <span></span>
 <span><span class="co"># approach 3</span></span>
 <span><span class="va">envStep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStep.html">getStep</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"/improve-tutorial/Modeling/Step 1"</span><span class="op">)</span></span>
-<span><span class="va">envStep</span><span class="op">$</span><span class="va">stepDf</span> <span class="co">#no does not show content of inventory; in the inventory is more than remote files;</span></span></code></pre></div>
+<span><span class="va">envStep</span><span class="op">$</span><span class="va">stepDf</span> <span class="co">#does not show content of inventory; the inventory contains more than remote files</span></span></code></pre></div>
 </div>
-</section><section class="section level2"><h2 id="remove-a-step-from-a-workflow">… remove a step from a workflow<a class="anchor" aria-label="anchor" href="#remove-a-step-from-a-workflow"></a>
+</section><section class="section level2"><h2 id="remove-a-step-from-a-workflow">remove a step from a workflow<a class="anchor" aria-label="anchor" href="#remove-a-step-from-a-workflow"></a>
 </h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">step</span><span class="op">$</span><span class="va">workflow</span><span class="op">$</span><span class="fu">removeStep</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section class="section level2"><h2 id="get-the-outdated-elements-of-an-inventory">… get the outdated elements of an inventory<a class="anchor" aria-label="anchor" href="#get-the-outdated-elements-of-an-inventory"></a>
+</section><section class="section level2"><h2 id="get-the-outdated-elements-of-an-inventory">get the outdated elements of an inventory<a class="anchor" aria-label="anchor" href="#get-the-outdated-elements-of-an-inventory"></a>
 </h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
@@ -202,18 +202,19 @@
 <span></span>
 <span><span class="co">#outdated link in resource</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadResource.html">loadResource</a></span><span class="op">(</span><span class="st">"/improve-tutorial/Reporting/Step 1"</span><span class="op">)</span></span>
-<span><span class="va">x</span><span class="op">$</span><span class="va">outdatedLink</span>  <span class="co">#outdatedLink can be FALSE even if in the inventory of the Step are outdated elements</span></span></code></pre></div>
+<span><span class="va">x</span><span class="op">$</span><span class="va">outdatedLink</span>  <span class="co">#outdatedLink can be FALSE even if there are outdated elements in the inventory of the Step</span></span></code></pre></div>
 </div>
-<ul>
-<li>elaborate on the difference between outdated elements of an inventory and changedAndOutdated in the workflow context</li>
-<li>outdatedAndChanged is different; also includes changed; changes input is a different one; outdatedLink=&gt;here only outdated links; changed: files are not the same; changed red frame; outdated yellow frame</li>
-</ul></section><section class="section level2"><h2 id="rerun-changed-and-outdated-steps-with-in-a-workflow">… rerun changed and outdated steps with in a workflow<a class="anchor" aria-label="anchor" href="#rerun-changed-and-outdated-steps-with-in-a-workflow"></a>
+<!-- * Elaborate on the difference between outdated elements of an inventory and 'changedAndOutdated' in the workflow context.
+* 'outdatedAndChanged' is different from just 'outdated'. It also includes files that have changed.
+* 'outdatedLink' refers only to outdated links (yellow frame).
+* 'changed' refers to files that are not the same (red frame). -->
+</section><section class="section level2"><h2 id="rerun-changed-and-outdated-steps-within-a-workflow">rerun changed and outdated steps within a workflow<a class="anchor" aria-label="anchor" href="#rerun-changed-and-outdated-steps-within-a-workflow"></a>
 </h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">step</span><span class="op">$</span><span class="va">workflow</span><span class="op">$</span><span class="va">rerunChangedandOutdated</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">step</span><span class="op">$</span><span class="va">workflow</span><span class="op">$</span><span class="fu">rerunChangedAndOutdated</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section class="section level2"><h2 id="create-a-step-template">… create a step template<a class="anchor" aria-label="anchor" href="#create-a-step-template"></a>
+</section><section class="section level2"><h2 id="create-a-step-template">create a step template<a class="anchor" aria-label="anchor" href="#create-a-step-template"></a>
 </h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
@@ -227,7 +228,7 @@
 <span><span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadChildResources.html">loadChildResources</a></span><span class="op">(</span><span class="st">"improve-tutorial/yourTree"</span><span class="op">)</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> </span>
 <span><span class="va">steps</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">select</span><span class="op">(</span><span class="va">nodeType</span>, <span class="va">name</span>, <span class="va">path</span>, <span class="va">entityId</span><span class="op">)</span></span>
 <span><span class="co">##   nodeType   name                              path                                        entityId</span></span>
-<span><span class="co">## 1     Step Step 1 /improve-tutorial/yourTree/Step 1 envhost1.hc.scintecodev.internal-5310:ST-114967</span></span>
+<span><span class="co">## 1     Step Step 1 /improve-tutorial/yourTree/Step 1 envhost1.hc.scintecodev.internal-5310:ST-115287</span></span>
 <span></span>
 <span><span class="co">#Delete the steps via their entityId, or equivalent ident</span></span>
 <span><span class="fu"><a href="../reference/delete.html">delete</a></span><span class="op">(</span>res<span class="op">=</span><span class="va">steps</span><span class="op">$</span><span class="va">entityId</span><span class="op">)</span></span>

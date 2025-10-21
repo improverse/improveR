@@ -68,7 +68,7 @@ improveConnected()
 # Common Tasks
 ## and how to solve them
 
-This guide provides quick examples for common improveR operations.
+This guide provides quick examples for common {improveR} operations.
 
 # get all steps of an analysis tree
 
@@ -132,7 +132,7 @@ Note that before calling `lineage$load()`, the `df()` in the `workflow` binding 
 `Reporting/Step 1`.
 
 
-# ... get the elements aka resources of a step's inventory
+# get the elements aka resources of a step's inventory
 
 ```{r}
 #| code-fold: false
@@ -155,7 +155,7 @@ envStep <- getStep(ident="/improve-tutorial/Modeling/Step 1")
 envStep$stepDf #does not show content of inventory; the inventory contains more than remote files
 ```
 
-# ... remove a step from a workflow
+# remove a step from a workflow
 
 ```{r}
 #| eval: false
@@ -164,7 +164,7 @@ envStep$stepDf #does not show content of inventory; the inventory contains more 
 step$workflow$removeStep()
 ```
 
-# ... get the outdated elements of an inventory
+# get the outdated elements of an inventory
 
 ```{r}
 #| eval: false
@@ -187,12 +187,12 @@ x$outdatedLink  #outdatedLink can be FALSE even if there are outdated elements i
 
 ```
 
-* Elaborate on the difference between outdated elements of an inventory and 'changedAndOutdated' in the workflow context.
+<!-- * Elaborate on the difference between outdated elements of an inventory and 'changedAndOutdated' in the workflow context.
 * 'outdatedAndChanged' is different from just 'outdated'. It also includes files that have changed.
 * 'outdatedLink' refers only to outdated links (yellow frame).
-* 'changed' refers to files that are not the same (red frame).
+* 'changed' refers to files that are not the same (red frame). -->
 
-# ... rerun changed and outdated steps within a workflow
+# rerun changed and outdated steps within a workflow
 
 ```{r}
 #| eval: false
@@ -200,7 +200,7 @@ x$outdatedLink  #outdatedLink can be FALSE even if there are outdated elements i
 step$workflow$rerunChangedAndOutdated()
 ```
 
-# ... create a step template
+# create a step template
 
 ```{r}
 stepTemplateEnv <- createStepTemplateEnv()
