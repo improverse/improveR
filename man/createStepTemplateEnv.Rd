@@ -2,20 +2,95 @@
 % Please edit documentation in R/createStepTemplateEnv.R
 \name{createStepTemplateEnv}
 \alias{createStepTemplateEnv}
-\title{Create a new step template environment}
+\title{Create a Step Template Environment}
 \usage{
 createStepTemplateEnv(treeIdent = NULL, stepDf = NULL, workflow = NULL)
 }
 \arguments{
-\item{treeIdent}{assigns a target tree to the template (optional)}
+\item{treeIdent}{Optional. Assigns a target analysis tree to the template. Can be a tree's
+path, resource ID, or entity ID. If not provided initially, can be set later using
+\code{setStepTree()}.}
 
-\item{stepDf}{Data frame with step metadata (optional)}
+\item{stepDf}{Optional. Data frame with step metadata from an existing step to use as
+a template. Typically obtained from \code{getStep(ident)$stepDf}.}
 
-\item{workflow}{Workflow environment this template belongs to (optional)}
+\item{workflow}{Optional. Workflow environment this template belongs to. Used for
+workflow-level operations and dependency tracking.}
 }
 \value{
-An environment representing the step template
+An environment representing the step template with the following components:
+\describe{
+\item{stepDf}{Data frame containing the step configuration}
+\item{Setter functions}{Methods to modify step properties (e.g., \code{setStepDescription()},
+\code{setStepRationale()}, \code{addStepRemoteFile()})}
+\item{realise()}{Method that transforms the template into an actual step on the server}
+\item{run()}{Method to execute the step after creation}
+\item{getStepEnv()}{Method to retrieve the full step environment after realization}
+}
 }
 \description{
-Constructs a new step template object with encapsulated state and public API.
+Takes an existing step as input and uses it as a blueprint for creating new steps.
+The created template can be adapted to specific use cases by modifying step properties—like
+description, rationale, parent relationships, input files, and tool settings—using setter
+methods. Once configured, calling \code{realise()} creates the actual step on the server.
+This approach is essential for automated workflows, batch step creation, and reproducible
+analyses where you want to script the entire step creation process.
+}
+\details{
+The function builds a template through several stages. First, it generates a unique
+identifier and creates a data frame to store the step configuration. Second, it creates
+an environment containing setter methods for every configurable property. These methods
+update the internal data frame without contacting the server. Third, it attaches a
+\code{realise()} method that transforms the template into an actual step.
+
+When \code{realise()} is called, it validates the configuration, prepares process
+definitions, creates the step via an API request, uploads any local files, and returns
+a complete step environment. The template stays inactive until you call \code{realise()},
+letting you build the complete configuration first.
+
+Available setter methods include:
+\itemize{
+\item \code{setStepTree(treeIdent)} - Set the target analysis tree
+\item \code{setStepDescription(description)} - Set step description
+\item \code{setStepRationale(rationale)} - Set step rationale
+\item \code{setStepParent(parentIdent)} - Set parent step
+\item \code{addStepRemoteFile(ident, name, asLink, variableName)} - Add input files
+\item \code{removeStepRemoteFile(ident)} - Remove input files
+\item \code{setStepToolInstance(toolInstance)} - Configure execution tool
+\item And many more for complete step configuration control
+}
+}
+\examples{
+\dontrun{
+# Create a template from an existing step
+existingStep <- getStep("/improve-tutorial/Modeling/Step 1")
+template <- createStepTemplateEnv(
+  treeIdent = "/improve-tutorial/Modeling/",
+  stepDf = existingStep$stepDf
+)
+
+# Modify the template
+template$setStepDescription("New analysis step")
+template$setStepRationale("Explore alternative model")
+
+# Add a remote file
+template$addStepRemoteFile(
+  ident = "/improve-tutorial/EDA/Step 1/data.csv",
+  variableName = "inputData"
+)
+
+# Realize the step (creates it on the server)
+newStep <- template$realise(run = FALSE)
+
+# Create template in a different tree
+template2 <- createStepTemplateEnv(stepDf = existingStep$stepDf)
+template2$setStepTree("/improve-tutorial/NewAnalysis/")
+newStep2 <- template2$realise(run = TRUE)
+}
+
+}
+\seealso{
+\code{\link{getStep}} to retrieve existing steps that can serve as templates,
+\code{\link{createStep}} which is called internally by \code{realise()},
+\code{\link{importWorkflow}} and \code{\link{exportWorkflow}} for workflow templates
 }
