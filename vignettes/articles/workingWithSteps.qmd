@@ -942,3 +942,33 @@ toolInstancesCombined <- dplyr::bind_rows(as.list(toolInstances), .id = "source"
 toolInstancesCombined %>%
   filter(toolId == mainProcessModelingStep1$toolId)
 ```
+
+
+# runStepResource
+
+## Purpose of the function
+
+The `runStepResource()` function initiates the execution of a step on the server. When you call this function, it triggers the step to start running asynchronously, meaning the step's code and processes begin executing on the improve platform without blocking your R session. This function is essential for starting computational workflows, whether they involve R scripts, NONMEM models, or other tool-based analyses. The function performs a quick validation to ensure the repository is in an editable state, confirms the step exists, and then sends a command to the server to begin execution. Once the execution has been triggered, control returns immediately to your R session, allowing you to continue working or chain additional commands while the step runs in the background on the server.
+
+## Relation to other functions
+
+Within the step functions family, `runStepResource()` forms a fundamental execution pair with `finishRunResource()`. While `runStepResource()` initiates execution, `finishRunResource()` monitors and waits for completion, together enabling complete control over step execution workflows. The function integrates with `getStep()` for step identification and uses `loadResource()` internally to validate that the specified step exists before attempting execution. It connects with `getToolInstances()` and the step's process configuration stored in `stepDf$processes`, as the server uses this configuration to determine which computational tool and runserver should execute the step. In the broader {improveR} ecosystem, `runStepResource()` relies on the authentication infrastructure through `authenticatedREST()` to make secure API calls, and it requires `improveEditable()` to verify that the repository state allows modifications. The function is commonly used in workflow orchestration scenarios where multiple steps need to be executed sequentially or in parallel.
+
+## Under the hood
+
+The function operates through a straightforward three-step process. First, it calls `improveEditable()` to verify that the repository is in an editable state, ensuring that step execution is permitted. Second, it loads the step resource using `loadResource(ident)` to confirm the step exists and retrieve its resource ID. Third, it makes an authenticated POST request to the server endpoint `resources/{stepId}/run`, passing the step's resource ID as a URL parameter. This API call instructs the server to begin executing the step according to its configured processes and tools. The function then returns the original step identifier invisibly, allowing it to be used in piped operations while not cluttering console output. The actual step execution happens asynchronously on the server, managed by the improve platform's execution infrastructure.
+
+## Example
+
+```{r}
+#| code-summary: "Execute a single step"
+#| eval: false
+
+# Trigger execution of a step
+runStepResource(ident="improve-tutorial/Modeling/Step 9")
+
+# Execution has started on the server
+# Your R session is immediately available for other work
+```
+
+
