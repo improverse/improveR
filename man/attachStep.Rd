@@ -2,20 +2,41 @@
 % Please edit documentation in R/step.R
 \name{attachStep}
 \alias{attachStep}
-\title{attaches a step to its parent}
+\title{Attach a Step to a Parent Step}
 \usage{
 attachStep(ident, parent, from = pwd())
 }
 \arguments{
-\item{ident}{ident of the step}
+\item{ident}{Identifier of the step to attach. Can be the step's path, resource (version) id,
+full entity (version) id, or short entity (version) id.}
 
-\item{parent}{ident of the new parent}
+\item{parent}{Identifier of the step that will become the parent. Can be the step's path,
+resource (version) id, full entity (version) id, or short entity (version) id.}
 
-\item{from}{from if a relative path is used}
+\item{from}{Root directory for resolving relative paths. Default is \code{pwd()}.}
+}
+\value{
+The updated step resource, returned invisibly after cache invalidation.
 }
 \description{
-attaches a step to its parent
+Establishes a hierarchical parent-child relationship between steps
+by attaching a step to another step that serves as its parent.
+}
+\examples{
+\dontrun{
+# Attach Step 2 as a child of Step 1
+attachStep(
+  ident = "/improve-tutorial/demoSteps/Step 2",
+  parent = "/improve-tutorial/demoSteps/Step 1"
+)
+}
+
 }
 \references{
 ics1225
+}
+\seealso{
+\code{\link{detachStep}} to remove parent-child relationships,
+\code{\link{loadParentStep}} and \code{\link{loadChildSteps}} for navigating hierarchies,
+\code{\link{getStep}} for retrieving complete step environments
 }

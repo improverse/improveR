@@ -200,12 +200,33 @@ detachStep <- function(ident,  from=pwd()) {
   return(updateResource(ident,from))
 }
 
-#' attaches a step to its parent
-#' @references ics1225
-#' @param ident ident of the step
-#' @param parent ident of the new parent
-#' @param from from if a relative path is used
+#' Attach a Step to a Parent Step
 #'
+#' Establishes a hierarchical parent-child relationship between steps 
+#' by attaching a step to another step that serves as its parent. 
+#'
+#' @param ident Identifier of the step to attach. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param parent Identifier of the step that will become the parent. Can be the step's path,
+#'   resource (version) id, full entity (version) id, or short entity (version) id.
+#' @param from Root directory for resolving relative paths. Default is \code{pwd()}.
+#'
+#' @return The updated step resource, returned invisibly after cache invalidation.
+#' @seealso
+#' \code{\link{detachStep}} to remove parent-child relationships,
+#' \code{\link{loadParentStep}} and \code{\link{loadChildSteps}} for navigating hierarchies,
+#' \code{\link{getStep}} for retrieving complete step environments
+#'
+#' @examples
+#' \dontrun{
+#' # Attach Step 2 as a child of Step 1
+#' attachStep(
+#'   ident = "/improve-tutorial/demoSteps/Step 2",
+#'   parent = "/improve-tutorial/demoSteps/Step 1"
+#' )
+#' }
+#'
+#' @references ics1225
 #' @export
 
 attachStep <- function(ident,parent,  from=pwd()) {
