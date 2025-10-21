@@ -638,9 +638,17 @@ stepIdent <- "/improve-tutorial/demoSteps/Step 1"
 
 loadResource(stepIdent)$description
 
-changeStepDescription(ident=stepIdent, description="changed description")
+changeStepDescription(ident=stepIdent, description="First step in the linear analysis.")
 
 loadResource(stepIdent)$description
+```
+
+
+```{r}
+#| include: false
+#| code-summary: "reset step description"
+
+changeStepDescription(ident=stepIdent, description="First step in the analysis.")
 ```
 
 

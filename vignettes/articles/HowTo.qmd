@@ -71,8 +71,26 @@ improveConnected()
 
 This guide provides quick examples for common {improveR} operations.
 
-# get all steps of an analysis tree
+# attach a step to a parent
 
+See [reference](../reference/attachStep.html). See [article](../articles/workingWithSteps.html#attachstep)
+
+```{r}
+#| eval: false
+attachStep(ident, parent, from = pwd())
+```
+
+# change the description of a step
+
+See [reference](../reference/changeStepDescription.html). See [article](../articles/workingWithSteps.html#changestepdescription)
+
+```{r}
+#| eval: false
+changeStepDescription(ident=stepIdent, description="new description")
+```
+
+
+# get all steps of an analysis tree
 
 ```{r}
 #| eval: false
@@ -83,7 +101,6 @@ childResourcesATModeling <- improveR::loadChildResources(ident='/improve-tutoria
   unnest(data) %>%
   select(""name"", ""entityId"", ""path"")
 ```
-
 
 # get all analysis trees within a folder
 

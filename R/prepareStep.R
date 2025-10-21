@@ -4,11 +4,31 @@ timing <- function(...) {}
 
 
 
-#' changes the step description
+#' Change Step Description
 #'
-#' @param ident ident of the step
-#' @param from from if a relative path is used
-#' @param description new step desciption
+#' Modifies the description field of an existing step, allowing users to update
+#' documentation and clarify the purpose of analytical steps as analyses evolve.
+#'
+#' @param ident Identifier of the step. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param from Root directory for resolving relative paths. Default is \code{pwd()}.
+#' @param description New step description text.
+#'
+#' @return The updated step resource, returned invisibly after cache refresh.
+#'
+#' @seealso
+#' \code{\link{changeStepRationale}} for updating step rationale,
+#' \code{\link{getStep}} for retrieving step information
+#'
+#' @examples
+#' \dontrun{
+#' # Update step description
+#' changeStepDescription(
+#'   ident = "/improve-tutorial/Modeling/Step 1",
+#'   description = "Initial exploratory analysis"
+#' )
+#' }
+#'
 #' @references ics1217
 #' @export
 
