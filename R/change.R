@@ -161,9 +161,11 @@ singleDelete <- function(resId) {
   return(result$status_code==200)
 }
 
-#' deletes resources
-#' multiple sources can be deleted at once
-#' @param res the resources to be deleted
+#' Delete Resource(s)
+#' `delete()` takes takes the ident of one or multiple resources and 
+#' deletes them. Resouces can be, e.g., folders, analysis trees, steps,
+#' or files.
+#' @param res the resource(s) to be deleted
 #' @references ics1139
 #' @export
 delete <- function(res) {
