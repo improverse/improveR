@@ -134,6 +134,9 @@ exportWorkflow <- function(workflow,workflowName,targetFolder=".") {
     # Create a mapping of resourceIds to fullNames
     resourceToFullName <- setNames(workFlowDf$fullName, workFlowDf$sourceEntityId)
 
+    # Initialize parentFullName column with NA
+    workFlowDf$parentFullName <- NA_character_
+
     # Replace parentIdent resourceIds with parent's fullName
     for (i in seq_len(nrow(workFlowDf))) {
       if (!is.na(workFlowDf$parentIdent[i])) {
