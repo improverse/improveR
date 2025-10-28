@@ -206,11 +206,22 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   }
 
   # Set description and rationale
-  if (!is.null(prepStep$description) && prepStep$description != "") {
-    changeStepDescription_deprecated(newStep, description = prepStep$description)
+  if (
+    !is.null(prepStep$description) &&
+      prepStep$description != "" &&
+      !is.na(prepStep$description)
+  ) {
+    changeStepDescription_deprecated(
+      newStep,
+      description = prepStep$description
+    )
   }
 
-  if (!is.null(prepStep$rationale) && prepStep$rationale != "") {
+  if (
+    !is.null(prepStep$rationale) &&
+      prepStep$rationale != "" &&
+      !is.na(prepStep$rationale)
+  ) {
     changeStepRationale_deprecated(newStep, rationale = prepStep$rationale)
   }
 
