@@ -87,14 +87,14 @@ createPreparedStep_deprecated <- function(env, prepStep) {
     logging::logdebug(paste0("Main process - toolInstance: ", mainProcess$toolInstance))
 
     # Extract runserver and tool info from process
-    if (!is.null(mainProcess$runserverLabel) && mainProcess$runserverLabel != "") {
+    if (!is.null(mainProcess$runserverLabel) && !is.na(mainProcess$runserverLabel) && mainProcess$runserverLabel != "") {
       runserver <- loadRunserver(mainProcess$runserverLabel)
 
-      if (!is.null(runserver) && !is.null(mainProcess$toolLabel) && mainProcess$toolLabel != "") {
+      if (!is.null(runserver) && !is.null(mainProcess$toolLabel) && !is.na(mainProcess$toolLabel) && mainProcess$toolLabel != "") {
         tools <- loadToolsForRunserver(runserver$id)
 
         # Try to find the tool by label and instance
-        if (!is.null(mainProcess$toolInstance) && mainProcess$toolInstance != "") {
+        if (!is.null(mainProcess$toolInstance) && !is.na(mainProcess$toolInstance) && mainProcess$toolInstance != "") {
           tool <- loadToolForRunserver(runserver$id,
                                       toolName = mainProcess$toolLabel,
                                       toolInstanceName = mainProcess$toolInstance)

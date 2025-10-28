@@ -130,9 +130,9 @@
   invisible(TRUE)
 }
 
-#' Import a Workflow from a Zip File into a Repository Folder
+#' Import a Workflow from a zip File into a Repository Folder
 #'
-#' This function imports a workflow from a specified zip file into a given repository folder.
+#' The `importWorkflow()` function imports a workflow from a specified zip file into a given repository folder.
 #' It reconstructs the workflow structure, maintains step dependencies, handles file links,
 #' and applies optional tool and link mappings for environment portability.
 #'
@@ -311,7 +311,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
   if (file.exists(linkMappingPath)) {
     importMapping <-jsonlite::read_json(linkMappingPath,simplifyVector = T)
     x<-byNotEmpty(importMapping,function(linkMap){
-      if (is.character(linkMap$ident) && linkMap$ident!="") {
+      if (is.character(linkMap$ident) && !is.na(linkMap$ident) && linkMap$ident!="") {
         linkMapping[[linkMap$key]]<-linkMap$ident
       }
     })
@@ -323,7 +323,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       if (is.null(linkMapping[[providedLinks[i]]])) {
         linkName <- providedLinks[i]
         importLine <- importMapping[importMapping$key==providedLinks[i],]
-        if (nrow(importLine) >0 && is.character(importLine$name) && !grepl(pattern = ",",x = importLine$name,fixed = T)) {
+        if (nrow(importLine) >0 && is.character(importLine$name) && !is.na(importLine$name) && !grepl(pattern = ",",x = importLine$name,fixed = T)) {
           linkName <- importLine$name
         }
         if (startsWith(linkName,"./")) {
