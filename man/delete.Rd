@@ -2,17 +2,17 @@
 % Please edit documentation in R/change.R
 \name{delete}
 \alias{delete}
-\title{deletes resources
-multiple sources can be deleted at once}
+\title{Delete Resource(s)}
 \usage{
 delete(res)
 }
 \arguments{
-\item{res}{the resources to be deleted}
+\item{res}{the resource(s) to be deleted}
 }
 \description{
-deletes resources
-multiple sources can be deleted at once
+\code{delete()} takes takes the ident of one or multiple resources and
+deletes them. Resouces can be, e.g., folders, analysis trees, steps,
+or files.
 }
 \references{
 ics1139

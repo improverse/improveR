@@ -2,23 +2,21 @@
 % Please edit documentation in R/create.R
 \name{createAnalysisTree}
 \alias{createAnalysisTree}
-\title{creates a workflow/analysis tree in the repository and returns the resource object}
+\title{Create an Analysis Tree
+Creates an analysis tree in a specified folder and assigns it a specified name.}
 \usage{
-createAnalysisTree(
-  targetIdent,
-  treeName = "",
-  comment = "Created by improveRW"
-)
+createAnalysisTree(targetIdent, treeName = "", comment = "Created by improveR")
 }
 \arguments{
-\item{targetIdent}{one or many target folders, as resource, id or path}
+\item{targetIdent}{ident of the folder where the analysis tree is to be created in.}
 
-\item{treeName}{one or many treeNames}
+\item{treeName}{name of the newly created analysis tree}
 
-\item{comment}{defaults to Created by improveRW}
+\item{comment}{defaults to "Created by improveR"}
 }
 \description{
-creates a workflow/analysis tree in the repository and returns the resource object
+Create an Analysis Tree
+Creates an analysis tree in a specified folder and assigns it a specified name.
 }
 \references{
 ics1103

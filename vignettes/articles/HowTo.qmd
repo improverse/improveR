@@ -108,6 +108,57 @@ workflow <- createWorkflow()
 createStepEnv(stepDf, workflow)
 ```
 
+# create an analyis tree
+
+See [reference](../reference/createAnalysisTree.html). See [article](../articles/workingWithSteps.html#realise-step).
+```{r}
+#| eval: false
+createAnalysisTree(targetIdent="/improve-tutorial/", treeName="newTree", comment = "this is a comment")
+```
+
+# create a folder
+
+See [reference](../reference/createFolder.html). See [article](../articles/workingWithSteps.html#specify-destination).
+```{r}
+#| eval: false
+createFolder(folderName="NameOfNewFolder", targetIdent="/improve-tutorial/") 
+```
+
+
+# create an external Link
+
+See [reference](../reference/createExternalLink.html). See [article](../articles/basic-node-types.html#working-with-external-links).
+
+```{r}
+#| eval: false
+createExternalLink(targetIdent="/improve-tutorial/demoSteps/Step 1", linkName="Weblink to scinteco", url="https://www.scinteco.com/", comment="Resource to integrate.")
+
+```
+
+
+# create a step template environment
+
+See [reference](../reference/createStepTemplateEnv.html). See [article](../articles/workingWithSteps.html#createsteptemplateenv).
+```{r}
+#| eval: false
+stepDf <- improveR:::getStepDf(stepIdent)
+workflow <- createWorkflow()
+createStepEnv(stepDf, workflow)
+```
+
+
+# export a workflow
+
+See [reference](../reference/exportWorkflow.html). See [article](../articles/workingWithWorkflows.html#exporting-and-importing-workflows).
+
+```{r}
+#| eval: false
+
+stepEnv <- getStep("/improve-tutorial/Reporting/Step 1") #get environment of step to which the workflow leads
+stepEnv$lineage$load(treeDepth=-1, stepDepth=-1) #get the full lineage with -1
+exportWorkflow(envATReportingStep1$workflow, "WFReportingSTep1") #export the workflow binding of stepEnv via exportWorfklow
+```
+
 
 # get all steps of an analysis tree
 
@@ -136,7 +187,7 @@ allAnalysisTrees$data[[1]] %>% select(nodeType, name, path)
 ## Version 1: loadChildSteps()
 ```{r}
 #| code-fold: false
-dfChild <- loadChildSteps(ident="improve-tutorial/Modeling/Step 1")
+dfChild <- loadChildSteps(ident="/improve-tutorial/Modeling/Step 1")
 dfChild$data[[1]] %>%
   select(path, resourceId)
 ```
@@ -144,7 +195,7 @@ dfChild$data[[1]] %>%
 ## Version 2: getStep()
 ```{r}
 #| code-fold: false
-envStep <- getStep(ident="improve-tutorial/Modeling/Step 1")
+envStep <- getStep(ident="/improve-tutorial/Modeling/Step 1")
 envStep$children$load()
 ls(envStep$children)
 ```
@@ -241,37 +292,39 @@ step$workflow$rerunChangedAndOutdated()
 stepTemplateEnv <- createStepTemplateEnv()
 ```
 
-# delete a resource (folder, analysis tree, step)
+# delete a resource
+
+See [reference](../reference/delete.html).
 
 ```{r}
 #| include: false
 #| code-summary: "setup analysis tree with only one step; which is deleted below"
-createAnalysisTree(targetIdent = "improve-tutorial/", treeName="yourTree")
-improveR:::createStep(treeIdent = "improve-tutorial/yourTree")
+createAnalysisTree(targetIdent = "/improve-tutorial/", treeName="yourTree")
+improveR:::createStep(treeIdent = "/improve-tutorial/yourTree")
 ```
 
 ```{r}
 #| code-summary: "Delete step from analysis tree"
 
 #Get steps inside the analysis tree
-steps <- loadChildResources("improve-tutorial/yourTree")$data[[1]] 
+steps <- loadChildResources("/improve-tutorial/yourTree")$data[[1]] 
 steps %>% select(nodeType, name, path, entityId)
 
 #Delete the steps via their entityId, or equivalent ident
 delete(res=steps$entityId)
 
 #Loading child resources of tree again confirms that step(s) were removed
-loadChildResources("improve-tutorial/yourTree")$data[[1]]
+loadChildResources("/improve-tutorial/yourTree")$data[[1]]
 ```
 
 ```{r}
 #| include: false
 #| code-summary: "Reset folder"
-delete(res="improve-tutorial/yourTree")
+delete(res="/improve-tutorial/yourTree")
 ```
 
 # trigger the execution of a step
 ```{r}
 #| eval: false
-runStepResource(ident="improve-tutorial/Modeling/Step 9")
+runStepResource(ident="/improve-tutorial/Modeling/Step 9")
 ```

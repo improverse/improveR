@@ -90,9 +90,9 @@ h2 + h3,
   margin-top: 0.5em;
 }
 
-/* Heading level 2 - remove bold (preserve existing behavior) */
+/* Heading level 2 - make bold */
 .level2 h3 {
-  font-weight: normal !important;
+  font-weight: bold !important;
 }
 
 /* ==========================================================================

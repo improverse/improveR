@@ -2,19 +2,29 @@
 % Please edit documentation in R/create.R
 \name{createFolder}
 \alias{createFolder}
-\title{creates a folder in the repository and returns the resource object}
+\title{Create Folder(s)}
 \usage{
-createFolder(targetIdent, folderName = "", comment = "Created by improveRW")
+createFolder(targetIdent, folderName = "", comment = "Created by improveR")
 }
 \arguments{
-\item{targetIdent}{one or many target folders, as resource, id or path}
+\item{targetIdent}{Ident(s) of location where new folder(s) should be located}
 
-\item{folderName}{one or many folderNames}
+\item{folderName}{Name(s) of new folder(s)}
 
-\item{comment}{defaults to Created by improveRW}
+\item{comment}{defaults to "Created by improveR"}
 }
 \description{
-creates a folder in the repository and returns the resource object
+\code{createFolder()} creates one or multiple folder(s) in the repository and returns the resource object(s).
+}
+\examples{
+\dontrun{
+# Create a folder in the repository root
+createFolder(targetIdent = "/", folderName = "folderInRoot")
+
+# Create a folder inside an existing folder by path
+createFolder(targetIdent = "improve-tutorial/", folderName = "folderInImproveTutorial")
+
+}
 }
 \references{
 ics1101

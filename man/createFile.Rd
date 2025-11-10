@@ -2,26 +2,26 @@
 % Please edit documentation in R/create.R
 \name{createFile}
 \alias{createFile}
-\title{creates a file in the repository and returns the resource object}
+\title{Create a File}
 \usage{
 createFile(
   targetIdent,
   fileName = "",
   localPath = "",
-  comment = "Created by improveRW"
+  comment = "Created by improveR"
 )
 }
 \arguments{
 \item{targetIdent}{one or many target folders, as resource, id or path}
 
-\item{fileName}{one or many fileNames}
+\item{fileName}{Name of the file to be created.}
 
 \item{localPath}{path to a local file for initial file contents}
 
-\item{comment}{defaults to Created by improveRW}
+\item{comment}{defaults to "Created by improveR"}
 }
 \description{
-creates a file in the repository and returns the resource object
+The function \code{createFile()} generates a file in the repository and returns the resource object.
 }
 \references{
 ics1102

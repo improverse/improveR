@@ -5,7 +5,7 @@ format:
     theme: none
     minimal: true
     toc: true
-    toc-depth: 4
+    toc-depth: 2
     toc-title: Contents
     toc-location: left
     #toc-collapsed: false
@@ -16,9 +16,9 @@ format:
     # message: false
     # warning: false
     # highlight-style: nord
-    # output-file: 
+    # output-file:
     embed-resources: true
-    # theme: 
+    # theme:
     #   light: [materia, style.scss]
     #   dark: slate
     fontsize: 16px
@@ -49,7 +49,6 @@ lightbox: true
 library(improveR)
 #packageVersion("improveR")
 library(tidyverse, quietly = T)
-library(tictoc) #time keeping of functions
 options(width=10000) #make results window wide; horizontal scrollbar
 
 fn_connect <- function() {
@@ -59,12 +58,14 @@ fn_connect <- function() {
   )
   Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
-  clearConnectionData()
+  improveR::clearConnectionData()
   improveRtestsupport::improveConnect() #new
   #  improveConnect()
 
   setEditable(TRUE)
-  print(Sys.getenv("IMPROVER_REPO_URL"))
+  print(paste("IMPROVER_REPO_URL:",Sys.getenv("IMPROVER_REPO_URL")))
+  print(paste("IMPROVER_STEP:", Sys.getenv("IMPROVER_STEP")))
+  print(paste("pwd$path:", pwd()$path))
 }
 
 fn_connect()
@@ -85,11 +86,9 @@ This article provides an overview of {improveR}'s most relevant functions for wo
 ![](img/dmgFolderComplete1.png)
 :::
 
-
 The graph above depicts improve's Data Manipulation Graph (DMG) for
 the entire folder. Step `Reporting/Step 1` (ST-62516) in the Analysis Tree 'Reporting' is its final step
 in the overall workflow.
-
 
 # Retrieving an existing workflow
 
@@ -377,6 +376,195 @@ changedAndOutdatedFiles %>%
 envATDAOStep6$workflow$rerunChangedAndOutdated() #does not work
 ```
 
+# Exporting and Importing Workflows
+
+## Exporting
+
+*Calling exportWorkflow()*
+
+To export an already existing workflow, the following steps have to be taken:
+
+1. Get the step environment of the step to which the workflow leads.
+2. Load its lineage (or usage) and define its scope using `treeDepth` and `stepDepth`. The workflow becomes available in the `workflow` binding.
+3. Call `exportWorkflow()` on the `workflow` element and assign a name to the export file.
+
+```{r}
+#| code-summary: "Export workflow"
+
+# Get step environment
+stepEnv <- getStep("/improve-tutorial/Reporting/Step 1")
+# Load workflow
+stepEnv$lineage$load(treeDepth=-1, stepDepth=-1)
+
+# Export workflow
+exportWorkflow(stepEnv$workflow, "workflowReportingStep1")
+```
+
+The `exportWorkflow()` function creates a portable, self-contained archive of a workflow.
+This ensures portability across different improve repositories and installations while maintaining regulatory compliance and data lineage tracking.
+Unlike the [`toJSON()`](#exporting-a-workflow-template) method which saves only the workflow structure and parameter definitions to a single JSON, `exportWorkflow()` produces all files needed to reconstruct and run the workflow in a new environment.
+
+**Files created by exportWorkflow()**
+
+More specifically, executing `exportWorkflow()` creates
+
+1) `<workflowName>.zip`: e.g., 'workflowReportingStep1' 
+2) `<workflowName>LinkMapping.json`: Configures how external resource references should be mapped
+3) `<workflowName>ToolMapping.json`: Configures how computational tool configurations should be mapped when importing into a target environment with different servers, tools, or resources
+
+Peeking into *content of the extracted .zip file*, we can see that it contains 
+
+- several folders with hashed names
+- `workflow.json`
+- `internalLinks.json`
+- `links` folder
+
+<details>
+<summary>Content of zip file</summary>
+<div>
+Each of the *folders with a hashed name* represents one specific step of the exported workflow. Each of them contains
+subfolders with the files that are inputs to or outputs from the step's execution.
+
+<details>
+<summary>Show structure of zip file content</summary>
+```{r}
+#| echo: false
+#| code-summary: "Content of zip-file"
+#| code-fold: false
+library(fs)
+unzip("workflowReportingStep1.zip")
+fs::dir_tree("workflowReportingStep1")
+```
+
+The *`workflow.json`* file is the core metadata file that contains complete      
+definitions for every step in the workflow. It serves as the blueprint       
+for reconstructing the entire workflow structure in a new environment.   
+Each element in the JSON array represents one workflow step.
+Unlike `internalLinks.json` which only tracks step-to-step connections, 
+`workflow.json` contains the complete specification of each individual step 
+including all its configuration, tool settings, and external file
+references. Together with the step folders (containing actual files) and 
+internalLinks.json (defining dependencies), it provides everything needed 
+to fully reconstruct and execute the workflow.
+
+<details>
+<summary>Show content of workflow.json</summary>
+```{r}
+#| code-summary: "Content of workflow.json"
+#| code-fold: false
+#| echo: false
+workflow <- jsonlite::read_json("workflowReportingStep1/workflow.json")
+length(workflow)
+listviewer::jsonedit(workflow)
+```
+</details>
+
+The file *`internalLinks.json`* captures step-to-step dependencies within the workflow. Each element of the JSON file describes the link of one specific resource (e.g., a file) from a specific source step to a specific target step. 
+
+<details>
+<summary>Show content of internalLinks.json</summary>
+```{r}
+#| code-summary: "Show link description inside internalLinks.json"
+#| code-fold: true
+#| echo: false
+
+internalLinks <- jsonlite::read_json("workflowReportingStep1/internalLinks.json")
+listviewer::jsonedit(internalLinks)
+```
+</details>
+
+The unpacked zip file also contains a `links` folder. This folder stores external file dependencies that are referenced      
+by workflow steps but originate from outside the workflow itself (i.e., they are not outputs from other workflow steps).
+Since there are no external resources imported in the presented workflow, this folder is empty.
+</div>
+</details>
+
+To sum up, `exportWorkflow()` creates a complete, self-contained archive of the requested workflow, which can be easily transferred to another repository.
+
+## Importing
+
+The `importWorkflow()` function reconstructs a complete workflow from an exported zip archive into a target repository folder, recreating all steps, dependencies, and file relationships in the new environment.
+
+**What it processes:**
+
+- **Workflow structure**: Reads `workflow.json` to reconstruct all step definitions with their complete metadata and configuration
+- **Step dependencies**: Processes `internalLinks.json` to restore step-to-step connections and execution order
+- **External files**: Uploads files from the `links/` folder to the target repository or maps them to existing resources
+- **Step files**: Recreates each step with its `inputFiles/` and `outputFiles/` in the correct repository location
+- **Parent relationships**: Restores hierarchical step relationships when present
+
+**Environment adaptation:**
+
+The function uses optional mapping files to adapt the workflow to the target environment:
+
+- `<workflowName>LinkMapping.json`: Maps external file references to resources that already exist in the target repository, avoiding duplicate uploads
+- `<workflowName>ToolMapping.json`: Remaps computational tool configurations (servers, tool versions, instances) to match what is available in the target environment
+
+These mappings are validated before import begins, and the import will abort if any mapped resources or tools cannot be found.
+
+**Import process:**
+
+The function systematically recreates the workflow by processing steps in dependency order, ensuring that any step's dependencies are created before the step itself. Each step is uploaded with its complete file inventory and execution history, maintaining data lineage and regulatory compliance in the target repository.
+
+```{r}
+knitr::knit_exit()
+```
+
+### Example
+
+The example below imports the above exported workflow into a newly created folder.
+
+```{r}
+improveR::importWorkflow()
+```
+
+```{r}
+#| code-summary: "Import workflow"
+
+createFolder(targetIdent = "/improve-tutorial/", folderName = "newWorkflowFolder")
+
+importWorkflow(workflowFile="workflowReportingStep1.zip", importRepoFolder="/improve-tutorial/newWorkflowFolder")
+```
+
+
+
+
+
+```{r}
+#| include: false
+#| code-summary: "Clean up files created by import"
+delete("/improve-tutorial/newWorkflow")
+delete("/improve-tutorial/newWorkflow/Step 46")
+
+delete("/improve-tutorial/FolderForImportedWorkflow") #deleting folder works; deleting steps works
+
+```
+
+
+```{r}
+newWorkflow <- loadFullChildResources("/improve-tutorial/newWorkflow")
+newWorkflow$data[[1]]
+```
+
+
+
+## Difference to exporting and importing workflow templates
+
+
+
+
+```{r}
+#| include: false
+#| code-summary: "Set the home directory to status ante; remove files created by calling exportWorkflow"
+fs::file_delete(c("workflowReportingStep1.zip", "workflowReportingStep1", "workflowReportingStep1ToolMapping.json"))
+```
+
+```{r}
+knitr::knit_exit()
+```
+
+
+
 # Workflow templates
 
 Working with workflows in {improveR} is not limited to the creation and (re)execution of workflows, but
@@ -385,7 +573,7 @@ also allows for using already existing workflows as a template which can then be
 ```{r}
 #| code-summary: "Create a template based on an existing workflow"
 
-envATReportingStep1 <- getStep("improve-tutorial/Reporting/Step 1")
+envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
 envATReportingStep1$lineage$load(treeDepth=-1)
 workflowDf <- envATReportingStep1$workflow$df()
 
@@ -499,7 +687,7 @@ Below an example which
 #| code-summary: "Realize workflow template"
 
 # get the workflow
-envATDOStep6 <- getStep("improve-tutorial/DataOrder/Step 6")
+envATDOStep6 <- getStep("/improve-tutorial/DataOrder/Step 6")
 envATDOStep6$lineage$load(treeDepth=-1)
 workflowDf <- envATDOStep6$workflow$df()
 
@@ -513,6 +701,7 @@ fullLineageWFTemplate$setWorkflowTreeName("newWorkflow")
 
 # realize the template
 fullLineageWFTemplate$realise()
+
 ```
 
 After the code's execution the elements of the new workflow appear in the newly created analysis tree.
@@ -532,12 +721,22 @@ content of two inventories shows that they are equal when it comes to the files'
 ```{r}
 #| code-summary: "Steps are identical"
 
-dataNewWorkflowStep3 <- loadChildResources("improve-tutorial/newWorkflow/Step 3")$data[[1]]
+dataNewWorkflowStep3 <- loadChildResources("/improve-tutorial/newWorkflow/Step 3")$data[[1]]
 nrow(dataNewWorkflowStep3)
-dataOrderStep3 <- loadChildResources("improve-tutorial/DataOrder/Step 3")$data[[1]]
+dataOrderStep3 <- loadChildResources("/improve-tutorial/DataOrder/Step 3")$data[[1]]
 nrow(dataOrderStep3)
 
 setequal(dataNewWorkflowStep3$name, dataOrderStep3$name)
+```
+
+```{r}
+#| code-summary: "Clean up files"
+#| include: false
+
+improveR::delete("/improve-tutorial/newWorkflow/")
+improveR::delete("/improve-tutorial/newWorkflow/Step 5") #step deletion works;
+
+improveR::delete("envhost1.hc.scintecodev.internal-5310:AT-111611")
 ```
 
 ## Exporting a workflow template
@@ -546,14 +745,152 @@ To export a workflow into a file the function binding `toJSON` can be called.
 
 ```{r}
 #| code-summary: "Export workflow to json"
+
 fullLineageWFTemplate$toJSON("fullLineageWF.json")
+
 ```
+
+Below the json file's structure.
 
 ```{r}
 #| echo: false
 fullLineageWFJson <- jsonlite::read_json("fullLineageWF.json")
 listviewer::jsonedit(fullLineageWFJson)
 ```
+
+## Import a workflow template
+
+When it comes to importing a previously exported workflow template, {improveR}'s `workflowTemplateFromJSON()` does the job.
+
+```{r}
+#| code-summary: "Import workflow template"
+fullLineageWFImported <- workflowTemplateFromJSON(
+  filepath = "fullLineageWF.json"
+)
+```
+
+### Is the imported workflow identical to its source 
+
+Note that the content and structure of this new object is not identical to the previously exported
+workflow. 
+
+```{r}
+#| eval: false
+#| include: false
+#| #CHECK WHY IS THE IMPORTED WORKFLOW NOT IDENTICAL TO THE SOURCE OF THE EXPORT; CLARIFY THE DIFFERENCES
+identical(fullLineageWFImported, fullLineageWFTemplate)
+# fullLineageWFImported$realise()
+library(waldo)
+envDiff <- waldo::compare(fullLineageWFTemplate, fullLineageWFImported)
+```
+
+### Specify destination 
+
+This workflow template is again transformed into an actual workflow by calling the `realise()` function of the template's
+environment. To specify the location (folder, analysis tree) of the new workflow, the template's setter functions are used.
+Beware that the function calls will fail, unless the desired location already exists.
+
+```{r}
+#| code-summary: "Set folder and analysis tree where workflow template should be 'realised' to"
+
+fullLineageWFImported$setWorkflowTreeRootFolder("/improve-tutorial/FolderForImportedWorkflow/")
+
+fullLineageWFImported$setWorkflowTreeName("DataOrder2")
+```
+ 
+```{r}
+#| code-summary: "Realising workflow template fails due to non-existing destination"
+#| error: true
+fullLineageWFImported$realise()
+```
+
+```{r}
+#| code-summary: "Create new folder and analysis tree and realise workflow template again"
+
+# create destination folder and analysis tree
+createFolder(folderName="FolderForImportedWorkflow", targetIdent="/improve-tutorial/") 
+createAnalysisTree(targetIdent="/improve-tutorial/FolderForImportedWorkflow", treeName="DataOrder2")
+
+# realising teplates succeeds now
+fullLineageWFImported$realise()
+```
+
+Now, with the specified destination created the reaslisation of the workflow works.
+The DMG in the client reveals the correct worklfow relations of the steps.
+Note that the newly realised workflow features a continuous numbering of the steps, and hence
+may differ from the 'original', i.e., the exported workflow. This behavior is on purpose and
+intends to offer a clean slate as to the steps' names. 
+
+::: {#fig-importWorkflow layout-ncol=2 fig-cap="Improve client - imported workflow templated realised to new folder 'improve-tutorial2' and new analysis tree 'DataOrder2'"}
+
+![](img/importWorkflowNewFolderNewAT.png)
+
+![](img/importWorkflowNewFolderNewATDMG.png)
+
+:::
+
+
+```{r}
+#| include: false
+#| code-summary: "Set folder and analysis tree for workflow template import/realisation to status ante"
+
+delete("/improve-tutorial/FolderForImportedWorkflow")
+
+```
+
+```{r}
+knitr::knit_exit()
+```
+
+
+### danger of duplication
+
+Note that the imported workflow has to be assigned to a variable/name.
+
+If no alternative destination is specified, calling `realise()` re-creates the workflow
+in the same folder and analysis trees from where its export was created. (Without any
+changed parameters, this will lead to a duplication of steps within original analysis trees).
+
+```{r}
+#| code-summary: "Realise imported workflow into original analysis tree(s)"
+
+fullLineageWFImported <- workflowTemplateFromJSON(
+  filepath = "fullLineageWF.json"
+)
+
+#get content of analysis tree 'DataOrder' before imported workflow is realised
+dfStepsPresent <- loadChildResources("/improve-tutorial/DataOrder")$data[[1]] %>%
+  select(path, entityId, createdAtDate) %>%
+  arrange(desc(createdAtDate))
+dfStepsPresent
+
+#realise imported workflow
+fullLineageWFImported$realise()
+
+#get content of analysis tree 'DataOrder' after imported workflow is realised
+dfStepsAfterImport <- loadChildResources("/improve-tutorial/DataOrder")$data[[
+  1
+]] %>%
+  select(path, entityId, createdAtDate) %>%
+  arrange(desc(createdAtDate))
+dfStepsAfterImport
+
+```
+
+```{r}
+#| include: false
+#| code-summary: "Remove steps which were added to AT Dataorder by realising the workflow"
+
+#delete those steps in the analysis tree DataOrder which were not present before the realisation
+#of the imported workflow; resets the analysis tree to the status ante;
+newSteps <- dfStepsAfterImport %>%
+    filter(!(entityId %in% dfStepsPresent$entityId)) %>%
+    pull(entityId)
+delete(newSteps)
+```
+
+
+
 
 
 ```{r}

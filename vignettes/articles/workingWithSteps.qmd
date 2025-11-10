@@ -57,7 +57,7 @@ fn_connect <- function() {
   )
   Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
-  clearConnectionData()
+  improveR::clearConnectionData()
   improveRtestsupport::improveConnect()
 
   setEditable(TRUE)
@@ -814,9 +814,9 @@ dfRemoteFiles <- stepTemplateEnv$stepDf$remoteFiles[[1]]
 dfRemoteFiles %>% select(name, asLink)
 
 # add a new remote file; use file from a preceding step ()
-envStepEDA15 <- getStep("improve-tutorial/EDA/Step 15")
+envStepEDA15 <- getStep("/improve-tutorial/EDA/Step 15")
 
-graphIdent <- loadChildResources("improve-tutorial/EDA/Step 15")$data[[1]] %>%
+graphIdent <- loadChildResources("/improve-tutorial/EDA/Step 15")$data[[1]] %>%
   filter(name=="tableStatsAll.png") %>%
   select(resourceId)
 graphIdent
@@ -847,26 +847,26 @@ It is also possible to 'realize' the step template into a different analysis tre
 #| code-summay: "Realising step template in new analysis tree"
 
 #Create new analysis tree
-createAnalysisTree(targetIdent="improve-tutorial/", treeName="newTree", comment="created by improveR")
+createAnalysisTree(targetIdent="/improve-tutorial/", treeName="newTree", comment="created by improveR")
 #Show folder with all its analysis trees; 'newTree' is among them
-loadChildResources(ident="improve-tutorial/")$data[[1]] %>% arrange(desc(createdAt)) %>% select(nodeType, name, path)
+loadChildResources(ident="/improve-tutorial/")$data[[1]] %>% arrange(desc(createdAt)) %>% select(nodeType, name, path)
 
 #Check analysis tree "newTree"; does not contain any steps
-loadChildResources(ident="improve-tutorial/newTree")$data[[1]] 
+loadChildResources(ident="/improve-tutorial/newTree")$data[[1]] 
 
 #Define analysis tree in stepTemplateEnv call
-stepTemplateEnv$setStepTree(treeIdent="improve-tutorial/newTree")
+stepTemplateEnv$setStepTree(treeIdent="/improve-tutorial/newTree")
 stepTemplateEnv$stepDf$treeIdent #confirm the changes made
 loadResource(stepTemplateEnv$stepDf$treeIdent)$path #confirm that treeIdent is equivalent to the tree's path
 
 stepTemplateEnv$realise(run=FALSE) #realise the step with modified treeIdent
 
 #Check analysis tree "newTree" for presence of new step
-loadChildResources(ident="improve-tutorial/newTree")$data[[1]] %>%
+loadChildResources(ident="/improve-tutorial/newTree")$data[[1]] %>%
     select("name", "entityId", "path")
 
 #Check contained step for step description and rationale
-getStep("improve-tutorial/newTree/Step 1")$stepDf %>%
+getStep("/improve-tutorial/newTree/Step 1")$stepDf %>%
   select(description, rationale) 
 ```
 
@@ -874,7 +874,7 @@ getStep("improve-tutorial/newTree/Step 1")$stepDf %>%
 #| code-summary: "remove analysis tree created above/reset folder so that analysis tree works"
 #| include: false
 #| eval: true
-delete(res="improve-tutorial/newTree")
+delete(res="/improve-tutorial/newTree")
 ```
 
 # getToolInstances
@@ -935,7 +935,7 @@ If we are interested in the tooling of a specific step calling `getMainProcess` 
 
 ```{r}
 #| code-summary: "Get tooling of specific step"
-mainProcessModelingStep1 <- getMainProcess("improve-tutorial/Modeling/Step 1")
+mainProcessModelingStep1 <- getMainProcess("/improve-tutorial/Modeling/Step 1")
 mainProcessModelingStep1
 ```
 
@@ -975,7 +975,7 @@ The function operates through a straightforward three-step process. First, it ca
 #| eval: false
 
 # Trigger execution of a step
-runStepResource(ident="improve-tutorial/Modeling/Step 9")
+runStepResource(ident="/improve-tutorial/Modeling/Step 9")
 
 # Execution has started on the server
 # Your R session is immediately available for other work
