@@ -423,8 +423,9 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     }
     #create step, add links
     #remove inputfiles
-    remoteFiles <- template$stepDf$remoteFiles[[1]]
-    remoteFiles <- remoteFiles[remoteFiles$asLink,]
+    # Save original remoteFiles before filtering (needed for variable binding later)
+    originalRemoteFiles <- template$stepDf$remoteFiles[[1]]
+    remoteFiles <- originalRemoteFiles[originalRemoteFiles$asLink,]
     template$stepDf$remoteFiles[[1]]<- remoteFiles
     template$realise(run=F)
     
@@ -463,7 +464,91 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       }
     }
     pushCli(stepInputFolderPath)
-    #TODO map variables
+
+    # Bind variables for uploaded input files
+    # Use the ORIGINAL remoteFiles (before filtering), not the filtered version
+    allRemoteFiles <- originalRemoteFiles
+    variableFiles <- allRemoteFiles[!allRemoteFiles$asLink & !is.na(allRemoteFiles$variableName) & allRemoteFiles$variableName != "",]
+
+    if (!is.null(variableFiles) && nrow(variableFiles) > 0) {
+
+      # Reload step to get updated file list after push
+      nextStep <- loadResource(template$stepDf$entityId)
+      stepProcesses <- loadProcessesForStep(nextStep$resourceId)
+
+      for (i in 1:nrow(variableFiles)) {
+        varFile <- variableFiles[i,]
+
+        tryCatch({
+          # Find the process for this variable
+          variableProcess <- stepProcesses[stepProcesses$name == varFile$variableProcess,]
+          if (nrow(variableProcess) == 0) {
+            warning(paste("Process not found:", varFile$variableProcess, "for variable:", varFile$variableName))
+            next
+          }
+          processId <- as.character(variableProcess$id)
+
+          # Find the uploaded file by name in the step's inventory
+          fileName <- varFile$name
+          if (startsWith(fileName, "./")) {
+            fileName <- substr(fileName, 3, nchar(fileName))
+          }
+
+          stepInventoryResult <- getStepResourceInventory(nextStep, recurse = FALSE, update = TRUE)
+          stepInventory <- stepInventoryResult$data[[1]]
+          uploadedFile <- stepInventory[stepInventory$name == fileName,]
+
+          if (is.null(uploadedFile) || nrow(uploadedFile) == 0) {
+            warning(paste("Uploaded file not found in inventory:", fileName, "for variable:", varFile$variableName))
+            next
+          }
+
+          fileResourceId <- uploadedFile$resourceId[1]
+
+          # Create or get the process variable
+          variables <- getProcessFileVariables(nextStep, processId)
+          variableId <- as.character(variables[variables$name == varFile$variableName,]$id)
+
+          if (length(variableId) == 0) {
+            # Create new variable
+            position <- 1
+            if (!is.null(variables) && nrow(variables) > 0) {
+              position <- max(variables$position) + 1
+            }
+            variable <- createProcessFileVariable(
+              ident = nextStep$resourceId,
+              processId = processId,
+              name = varFile$variableName,
+              variableType = "fileRef",
+              position = position
+            )
+            variableId <- variable[[1]][1]
+          }
+
+          # Bind the variable to the file
+          result <- authenticatedREST(
+            "/resources/{resourceId}/processes/{processId}/variables/{variableId}",
+            urlParams = list(
+              resourceId = nextStep$resourceId,
+              processId = processId,
+              variableId = variableId
+            ),
+            data = list(
+              type = "processVariable",
+              id = variableId,
+              name = varFile$variableName,
+              position = 1,
+              valueResourceId = fileResourceId,
+              variableType = "fileRef"
+            ),
+            restType = "PUT"
+          )
+
+        }, error = function(e) {
+          warning(paste("Failed to bind variable", varFile$variableName, "for file", varFile$name, ":", e$message))
+        })
+      }
+    }
 
     # push output files
     #push run

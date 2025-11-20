@@ -21,6 +21,7 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
   env <- new.env(parent = emptyenv())
   env$this <- env
   env$workflow <- workflow
+  env$addParental <- addParental
 
   # Initialize parameter registry
   env$parameters <- new.env(parent = emptyenv())
@@ -303,6 +304,51 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
         finishRunResource(env$steps[[item]]$stepDf$sourceEntityId)
       }
     }
+
+    # Restore parent relationships after all steps are realised
+    # Only when addParental=FALSE (don't conflict with addParental feature)
+    if (!env$addParental) {
+      workflowDf <- env$df()
+
+      if ("parentIdent" %in% names(workflowDf)) {
+        # Build mapping from original sourceEntityId to fullName
+        # We need to find the original sourceEntityId before realise updated it
+        # The templateEntityId stores the original sourceEntityId
+
+        # Get steps with parentIdent
+        stepsWithParent <- workflowDf[!is.na(workflowDf$parentIdent), ]
+
+        if (nrow(stepsWithParent) > 0) {
+          for (i in seq_len(nrow(stepsWithParent))) {
+            childFullName <- stepsWithParent$fullName[i]
+            parentOriginalId <- stepsWithParent$parentIdent[i]
+
+            # Find parent step by matching templateEntityId (original sourceEntityId)
+            # After realise, templateEntityId holds the original, sourceEntityId holds the new
+            parentRow <- which(workflowDf$templateEntityId == parentOriginalId)
+
+            if (length(parentRow) == 1) {
+              # Get new entityIds from stepTemplates (they have updated sourceEntityId after realise)
+              childNewId <- workflowDf[workflowDf$fullName==childFullName,]$sourceEntityId
+              parentFullName <- workflowDf[parentRow,]$fullName
+              parentNewId <- workflowDf[parentRow,]$sourceEntityId
+
+              if (!is.null(childNewId) && !is.null(parentNewId) &&
+                  !is.na(childNewId) && !is.na(parentNewId)) {
+                tryCatch({
+                  detachStep(childNewId)
+                  attachStep(childNewId, parentNewId)
+                  logging::loginfo(paste("Restored parent relationship:", childNewId,childFullName, "->", parentNewId,parentFullName))
+                }, error = function(e) {
+                  logging::logwarn(paste("Failed to restore parent relationship for", childFullName, ":", e$message))
+                })
+              }
+            }
+          }
+        }
+      }
+    }
+
     return(workflow)
   }
 
@@ -317,9 +363,30 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
   # @param required Whether this parameter must be set before realization
   # @param defaultValue Default value if not set
   env$parameterizeStep <- function(paramName, stepPattern, property, target = NULL, required = TRUE, defaultValue = NULL) {
+    # Validate stepPattern matches exactly one step (unless it's a wildcard pattern)
+    workflowDf <- env$df()
+    matchingSteps <- .workflow_template_private$findMatchingSteps(env, stepPattern, workflowDf)
+
+    if (length(matchingSteps) == 0) {
+      stop("Parameter '", paramName, "': stepPattern '", stepPattern, "' matches no steps. ",
+           "Available descriptions: ", paste(workflowDf$description, collapse = ", "), call. = FALSE)
+    }
+
+    if (length(matchingSteps) > 1 && !grepl("\\*", stepPattern)) {
+      stop("Parameter '", paramName, "': stepPattern '", stepPattern, "' matches multiple steps: ",
+           paste(matchingSteps, collapse = ", "), ". Use a more specific pattern.", call. = FALSE)
+    }
+
+    # Store the resolved fullName for single matches (not wildcards)
+    resolvedPattern <- if (length(matchingSteps) == 1 && !grepl("\\*", stepPattern)) {
+      matchingSteps[1]
+    } else {
+      stepPattern
+    }
+
     paramDef <- list(
       name = paramName,
-      stepPattern = stepPattern,
+      stepPattern = resolvedPattern,
       property = property,
       target = target,
       required = required,
@@ -573,7 +640,7 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       matchingSteps <- .workflow_template_private$findMatchingSteps(env, paramDef$stepPattern, workflowDf)
 
       if (length(matchingSteps) == 0) {
-        logging::logwarn("Parameter '", paramName, "' matched no steps with pattern '", paramDef$stepPattern, "'")
+        logging::logwarn(paste0("Parameter '", paramName, "' matched no steps with pattern '", paramDef$stepPattern, "'"))
         next
       }
 
@@ -632,8 +699,11 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       matching <- workflowDf[startsWith(workflowDf$fullName, prefix), ]
       return(matching$fullName)
     } else {
-      # Exact description match
-      matching <- workflowDf[workflowDf$description == pattern, ]
+      # Try exact fullName match first, then exact description match
+      matching <- workflowDf[workflowDf$fullName == pattern, ]
+      if (nrow(matching) == 0) {
+        matching <- workflowDf[workflowDf$description == pattern, ]
+      }
       return(matching$fullName)
     }
   }
