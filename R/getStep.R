@@ -313,7 +313,7 @@ getStepDf <- function(ident) {
     if (("revisionFromTime" %in% names(files))) {
       files <- loadResource(files)
     }
-    files <- files[files$lastModifiedOn<processes$startedAt,]
+    files <- files[files$lastModifiedOn<=processes$startedAt,]
   }
   inventory <- plyr::rbind.fill(links,files)
   #TODO nodeTypes
