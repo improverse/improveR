@@ -2,7 +2,11 @@
 % Please edit documentation in R/change.R
 \name{delete}
 \alias{delete}
-\title{Delete Resource(s)}
+\title{Delete Resource(s)
+\code{delete()} takes takes the ident of one or multiple resources and
+deletes them. Resouces can be, e.g., folders, analysis trees, steps,
+or files. Deletion will be prevented if any step within the resource(s)
+has a runStatus other than "INITIAL" or "FINISHED".}
 \usage{
 delete(res)
 }
@@ -10,9 +14,11 @@ delete(res)
 \item{res}{the resource(s) to be deleted}
 }
 \description{
+Delete Resource(s)
 \code{delete()} takes takes the ident of one or multiple resources and
 deletes them. Resouces can be, e.g., folders, analysis trees, steps,
-or files.
+or files. Deletion will be prevented if any step within the resource(s)
+has a runStatus other than "INITIAL" or "FINISHED".
 }
 \references{
 ics1139

@@ -180,10 +180,32 @@ createProcessFileVariable <- function(ident, processId,name,variableType,positio
   return(variablesDf)
 }
 
-#' detaches a step from its parent
+#' Detach Step from Parent
 #'
-#' @param ident ident of the step
-#' @param from from if a relative path is used
+#' Removes the hierarchical relationship between a step and its parent, allowing
+#' users to reorganize workflows, isolate steps, or prepare steps for reassignment
+#' to different parents.
+#'
+#' @param ident Identifier of the step to detach. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param from Root directory for resolving relative paths. Default is \code{pwd()}.
+#'
+#' @return The updated step resource, returned invisibly after cache invalidation.
+#'
+#' @seealso
+#' \code{\link{attachStep}} to create parent-child relationships,
+#' \code{\link{loadParentStep}} and \code{\link{loadChildSteps}} for navigating hierarchies,
+#' \code{\link{getStep}} for retrieving complete step environments
+#'
+#' @examples
+#' \dontrun{
+#' # Detach step from its parent
+#' detachStep(ident = "/improve-tutorial/demoSteps/Step 2")
+#'
+#' # Verify the step no longer has a parent
+#' loadParentStep("/improve-tutorial/demoSteps/Step 2")
+#' }
+#'
 #' @references ics1225
 #' @export
 

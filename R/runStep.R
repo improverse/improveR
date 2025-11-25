@@ -31,16 +31,150 @@
 #' @references ics1140
 #' @export
 runStepResource <- function(ident) {
+  newStep <- updateResource(ident)
+  if (newStep$runStatus == "RUNNING") {
+    log_error("Step is already running.")
+    return(NULL)
+  }
+
   improveEditable()
-  newStep <- loadResource(ident)
-  result <- authenticatedREST("resources/{stepId}/run",
-                              urlParams = list(stepId=newStep$resourceId),
-                              restType = "POST")
+  result <- authenticatedREST(
+    "resources/{stepId}/run",
+    urlParams = list(stepId = newStep$resourceId),
+    restType = "POST"
+  )
+  
   invisible(ident)
 }
 
 
+#' Terminate a Running Step Resource
+#'
+#' Stops the execution of a currently running step on the server. This function sends
+#' a termination request to the improve platform, which will halt the step's processes
+#' and mark it as terminated. This is useful when you need to cancel a long-running
+#' step that is no longer needed or when troubleshooting workflow execution issues.
+#'
+#' @param ident A step identifier. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param verbose Logical. If \code{TRUE}, prints verbose output with HTTP status messages
+#'   during termination (200: Step terminated, 304: Could not start run, 500: Runserver
+#'   not reachable) and status confirmation messages. Defaults to \code{FALSE}.
+#'
+#' @return Logical value returned invisibly: \code{TRUE} if the termination request
+#'   was successful (HTTP status 200), \code{FALSE} otherwise.
+#'
+#' @details
+#' The function first validates that the repository is in an editable state using
+#' \code{setEditable()}, then loads the specified step resource and sends a
+#' termination command to the server. The server will stop all running processes
+#' associated with the step.
+#'
+#' After a successful termination request, the function automatically polls the step's
+#' status for up to 30 seconds (checking every 0.5 seconds) to confirm the server has
+#' updated the runStatus. This prevents race conditions when immediately checking status
+#' after termination, which is particularly important in rendered documents where code
+#' executes rapidly without human delays.
+#'
+#' Note that terminating a step does not delete any outputs or results that may
+#' have already been generated before termination.
+#'
+#' @seealso \code{\link{runStepResource}} to execute a step,
+#'   \code{\link{finishRunResource}} to wait for step completion
+#'
+#' @examples
+#' \dontrun{
+#' # Terminate a running step
+#' terminateStepResource(ident = "/improve-tutorial/Modeling/Step 1")
+#'
+#' # Terminate with verbose output
+#' terminateStepResource(ident = "/improve-tutorial/Modeling/Step 1", verbose = TRUE)
+#' }
+#'
+#' @references ics1140ö
+#' @export
+terminateStepResource <- function(ident, verbose = FALSE) {
+  setEditable()
+  stepToTerminate <- updateResource(ident)
 
+  if (is.null(stepToTerminate)) {
+    logging::logwarn("Step could not be loaded.")
+    return(invisible(NULL))
+  }
+
+  if (!is.null(stepToTerminate) && stepToTerminate$runStatus == "RUNNING") {
+    result <- authenticatedREST(
+      "resources/{stepId}/terminate",
+      urlParams = list(stepId = stepToTerminate$resourceId),
+      restType = "POST"
+    )
+  } else {
+    logging::logwarn(
+      glue::glue(
+        "{stepToTerminate$path} has run status {stepToTerminate$runStatus}.
+      Cannot be terminated."
+      )
+    )
+    return(invisible(NULL))
+  }
+
+  status <- httr::status_code(result)
+
+  if (isTRUE(verbose)) {
+    # Map specific codes to messages
+    if (identical(status, 200L)) {
+      logging::loginfo(glue::glue(
+        "{ident} - HTTP {status}: Step is terminated"
+      ))
+    } else if (identical(status, 304L)) {
+      logging::loginfo(glue::glue(
+        "{ident} - HTTP {status}: Could start the run."
+      ))
+    } else if (identical(status, 500L)) {
+      logging::loginfo(glue::glue(
+        "{ident} - HTTP {status}: Runserver is not reachable"
+      ))
+    } else {
+      logging::loginfo(glue::glue("{ident} - HTTP {status}: received"))
+    }
+  }
+
+  # If termination request was successful, poll for status confirmation
+  if (identical(status, 200L)) {
+    maxWaitTime <- 30 # seconds
+    pollInterval <- 0.5 # seconds
+    elapsed <- 0
+
+    while (elapsed < maxWaitTime) {
+      Sys.sleep(pollInterval)
+      elapsed <- elapsed + pollInterval
+
+      # Refresh the step resource to get current status from server
+      stepCheck <- tryCatch(
+        updateResource(stepToTerminate),
+        error = function(e) NULL
+      )
+
+      # If status is no longer RUNNING, termination is confirmed
+      if (!is.null(stepCheck) && stepCheck$runStatus != "RUNNING") {
+        if (isTRUE(verbose)) {
+          logging::loginfo(glue::glue(
+            "{ident} - Status confirmed: {stepCheck$runStatus}"
+          ))
+        }
+        break
+      }
+    }
+
+    if (elapsed >= maxWaitTime && isTRUE(verbose)) {
+      logging::logwarn(glue::glue(
+        "{ident} - Termination timeout: Status confirmation took longer than {maxWaitTime}s"
+      ))
+    }
+  }
+
+  return(invisible(identical(status, 200L)))
+}
 
 
 #' finishRunResource

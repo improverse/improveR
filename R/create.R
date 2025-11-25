@@ -1,21 +1,43 @@
-#' creates a folder in the repository and returns the resource object
-#' @param targetIdent one or many target folders, as resource, id or path
-#' @param folderName one or many folderNames
-#' @param comment defaults to Created by improveRW
+#' Create Folder(s)
+#'
+#' `createFolder()` creates one or multiple folder(s) in the repository and returns the resource object(s).
+#' @param targetIdent Ident(s) of location where new folder(s) should be located
+#' @param folderName Name(s) of new folder(s)
+#' @param comment defaults to "Created by improveR"
 #' @references ics1101
+#' @examples
+#' \dontrun{
+#' # Create a folder in the repository root
+#' createFolder(targetIdent = "/", folderName = "folderInRoot")
+#'
+#' # Create a folder inside an existing folder by path
+#' createFolder(targetIdent = "/improve-tutorial/", folderName = "folderInImproveTutorial")
+#'
+#' }
 #' @export
-createFolder <- function(targetIdent,folderName="",comment="Created by improveRW") {
-  return(createGeneric(targetIdent,folderName,"Folder",comment=comment))
+createFolder <- function(
+  targetIdent,
+  folderName = "",
+  comment = "Created by improveR"
+) {
+  return(createGeneric(targetIdent, folderName, "Folder", comment = comment))
 }
 
-#' creates a file in the repository and returns the resource object
+#' Create a File
+#'
+#' The function `createFile()` generates a file in the repository and returns the resource object.
 #' @param targetIdent one or many target folders, as resource, id or path
-#' @param fileName one or many fileNames
+#' @param fileName Name of the file to be created.
 #' @param localPath path to a local file for initial file contents
-#' @param comment defaults to Created by improveRW
+#' @param comment defaults to "Created by improveR"
 #' @references ics1102
 #' @export
-createFile <- function(targetIdent,fileName="",localPath="",comment="Created by improveRW") {
+createFile <- function(
+  targetIdent,
+  fileName = "",
+  localPath = "",
+  comment = "Created by improveR"
+) {
   improveEditable()
   if (!is.character(fileName)) {
     log_warn("name needs to be of type character")
@@ -55,25 +77,49 @@ createFile <- function(targetIdent,fileName="",localPath="",comment="Created by 
   return(fileRes)
 }
 
-#' creates a workflow/analysis tree in the repository and returns the resource object
-#' @param targetIdent one or many target folders, as resource, id or path
-#' @param treeName one or many treeNames
-#' @param comment defaults to Created by improveRW
+#' Create an Analysis Tree
+#' Creates an analysis tree in a specified folder and assigns it a specified name.
+#' @param targetIdent ident of the folder where the analysis tree is to be created in.
+#' @param treeName name of the newly created analysis tree
+#' @param comment defaults to "Created by improveR"
 #' @references ics1103
 #' @export
-createAnalysisTree <- function(targetIdent,treeName="",comment="Created by improveRW") {
-  return(createGeneric(targetIdent,treeName,"Analysis Tree",comment=comment))
+createAnalysisTree <- function(
+  targetIdent,
+  treeName = "",
+  comment = "Created by improveR"
+) {
+  return(createGeneric(
+    targetIdent,
+    treeName,
+    "Analysis Tree",
+    comment = comment
+  ))
 }
 
-#' creates an external link in the repository and returns the resource object
-#' @param targetIdent one or many target folders, as resource, id or path
-#' @param linkName one or many linkNames
-#' @param url url for the external link
-#' @param comment defaults to Created by improveRW
+#' Create an External Link
+#'
+#' An externa link is a link pointing to a resource outside of the respository.
+#' The function createExternalLink() establishes such a link within a folder, analysis tree, or step.
+#' @param targetIdent ident of a folder, analysis tree, or step where the external link should be created
+#' @param linkName Name of the link
+#' @param url url pointing at the the external resource, e.g., a database.
+#' @param comment defaults to Created by improveR
 #' @references ics1104
 #' @export
-createExternalLink <- function(targetIdent,linkName="",url,comment="Created by improveRW") {
-  return(createGeneric(targetIdent,linkName,"ExtLink",url = url,comment=comment))
+createExternalLink <- function(
+  targetIdent,
+  linkName = "",
+  url,
+  comment = "Created by improveR"
+) {
+  return(createGeneric(
+    targetIdent,
+    linkName,
+    "ExtLink",
+    url = url,
+    comment = comment
+  ))
 }
 
 resolveImplicitResourceName <- function(targetIdent,folderName) {

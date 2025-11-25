@@ -27,7 +27,7 @@ filterOutsideLinks <- function(workflow) {
 
 #' Export a Workflow to a Portable Zip File
 #'
-#' This function exports a workflow to a zip file that can be imported into another repository.
+#' The `exportWorkflow()` function exports a workflow to a zip file that can be imported into another repository.
 #' It preserves workflow structure, step dependencies, file relationships, and includes all
 #' necessary files for reconstruction in a different environment.
 #'
@@ -96,10 +96,6 @@ filterOutsideLinks <- function(workflow) {
 #'
 #' @examples
 #' \dontrun{
-#' # Create and export a workflow
-#' wf <- createWorkflow()
-#' # ... add steps to workflow ...
-#'
 #' # Export to current directory
 #' exportWorkflow(wf, "myWorkflow")
 #' # Creates: myWorkflow.zip, myWorkflowLinkMapping.json, myWorkflowToolMapping.json

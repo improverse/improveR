@@ -22,7 +22,7 @@ createFolder(targetIdent, folderName = "", comment = "Created by improveR")
 createFolder(targetIdent = "/", folderName = "folderInRoot")
 
 # Create a folder inside an existing folder by path
-createFolder(targetIdent = "improve-tutorial/", folderName = "folderInImproveTutorial")
+createFolder(targetIdent = "/improve-tutorial/", folderName = "folderInImproveTutorial")
 
 }
 }

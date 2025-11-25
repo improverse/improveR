@@ -2,7 +2,7 @@
 % Please edit documentation in R/importWorkflow.R
 \name{importWorkflow}
 \alias{importWorkflow}
-\title{Import a Workflow from a Zip File into a Repository Folder}
+\title{Import a Workflow from a zip File into a Repository Folder}
 \usage{
 importWorkflow(workflowFile, importRepoFolder)
 }
@@ -24,7 +24,7 @@ None. The function is called for its side effects. Steps are created in the
 target repository with preserved dependencies and file relationships.
 }
 \description{
-This function imports a workflow from a specified zip file into a given repository folder.
+The \code{importWorkflow()} function imports a workflow from a specified zip file into a given repository folder.
 It reconstructs the workflow structure, maintains step dependencies, handles file links,
 and applies optional tool and link mappings for environment portability.
 }
