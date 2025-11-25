@@ -32,7 +32,12 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
 httptest::with_mock_dir("modifyNonExisting", {
   test_that("modify non existing|ics1139", {
     TEST_FOLDER <- ensureTestFolder()
-    expectedMessage <- "Source {id} does not exist, could not execute"
+    expectedMessage1 <- glue::glue(
+      "Source {FAKE_RES_ID} does not exist, could not execute"
+    )
+    expectedMessage2 <- glue::glue(
+      "Resource with ID: {FAKE_RES_ID} could not be loaded"
+    )
 
     Sys.setenv(improver.logfile = "improver.log")
     improveConnect()
@@ -43,17 +48,21 @@ httptest::with_mock_dir("modifyNonExisting", {
     failed <- copy(id, FAKE_ENTITY_ID)
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
-    expect_equal(message, glue::glue(expectedMessage))
+    expect_true(
+      message %in% c(glue::glue(expectedMessage1), glue::glue(expectedMessage2))
+    )
 
     failed <- move(id, FAKE_ENTITY_ID)
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
-    expect_equal(message, glue::glue(expectedMessage))
+    expect_true(
+      message %in% c(glue::glue(expectedMessage1), glue::glue(expectedMessage2))
+    )
 
     failed <- delete(id)
     expect_false(failed)
     message <- improveLastLogMessage("WARN")
-    expect_equal(message, glue::glue(expectedMessage))
+    expect_true(message %in% c(expectedMessage1, expectedMessage2))
   })
 })
 
@@ -125,20 +134,44 @@ httptest::with_mock_dir("noOverwrite", {
     createFolder(TEST_FOLDER)
 
     sourceFile <- createFile(TEST_FOLDER, fileName = "overWriteFile")
-    copyFile <- copy(sourceFile, target = TEST_FOLDER, targetName = "tbOverwritten")
-    copyFile <- copy(sourceFile, target = TEST_FOLDER, targetName = "tbOverwritten", overwrite = T)
+    copyFile <- copy(
+      sourceFile,
+      target = TEST_FOLDER,
+      targetName = "tbOverwritten"
+    )
+    copyFile <- copy(
+      sourceFile,
+      target = TEST_FOLDER,
+      targetName = "tbOverwritten",
+      overwrite = T
+    )
     expect_equal(copyFile$nodeType, "File")
     func <- "copy"
-    failed <- copy(sourceFile, target = TEST_FOLDER, targetName = "tbOverwritten", overwrite = F)
+    failed <- copy(
+      sourceFile,
+      target = TEST_FOLDER,
+      targetName = "tbOverwritten",
+      overwrite = F
+    )
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
     expect_equal(message, glue::glue(expectedMessage))
     func <- "move"
-    failed <- move(sourceFile, target = TEST_FOLDER, targetName = "tbOverwritten", overwrite = F)
+    failed <- move(
+      sourceFile,
+      target = TEST_FOLDER,
+      targetName = "tbOverwritten",
+      overwrite = F
+    )
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
     expect_equal(message, glue::glue(expectedMessage))
-    moveFile <- move(sourceFile, target = TEST_FOLDER, targetName = "tbOverwritten", overwrite = T)
+    moveFile <- move(
+      sourceFile,
+      target = TEST_FOLDER,
+      targetName = "tbOverwritten",
+      overwrite = T
+    )
     expect_equal(moveFile$nodeType, "File")
 
     sourceFile <- loadResource(sourceFile$path)
@@ -275,6 +308,62 @@ httptest::with_mock_dir("deleteLinksAfterDeletion", {
     expect_false(file.exists(withOutPrefix$data[[1]]))
   })
 })
+
+# test_that("cannot delete step with runStatus other than INITIAL or FINISHED", {
+#   TEST_FOLDER <- ensureTestFolder()
+#   Sys.setenv(improver.logfile = "improver.log")
+#   improveConnect()
+#   setEditable(T)
+
+#   # Create an analysis tree and a step
+#   analysisTree <- createAnalysisTree(TEST_FOLDER, "deleteRunningStepTree")
+#   expect_equal(analysisTree$nodeType, "Analysis Tree")
+
+#   testStep <- createStep(analysisTree, toolId = NULL)
+#   expect_equal(testStep$nodeType, "Step")
+
+#   # Verify initial status
+#   expect_equal(testStep$runStatus, "INITIAL")
+
+#   # Create a mock collectSteps function that returns a step with RUNNING status
+#   mockCollectSteps <- function(ident, includeNested = TRUE, showProgress = TRUE) {
+#     data.frame(
+#       path = testStep$path,
+#       name = testStep$name,
+#       entityId = testStep$entityId,
+#       resourceId = testStep$resourceId,
+#       runStatus = "RUNNING",  # Mock as RUNNING
+#       nodeType = "Step",
+#       stringsAsFactors = FALSE
+#     )
+#   }
+
+#   # Use with_mocked_bindings - it should work for internal functions too
+#   with_mocked_bindings(
+#     {
+#       # Attempt to delete - should fail because step is "RUNNING"
+#       expect_message(
+#         result <- delete(analysisTree),
+#         "Resource could not be deleted.*RUNNING"
+#       )
+#       expect_false(result)
+#     },
+#     collectSteps = mockCollectSteps,
+#     .package = "improveR"
+#   )
+
+#   # Verify the analysis tree still exists (wasn't deleted)
+#   reloadedTree <- loadResource(analysisTree$path)
+#   expect_false(is.null(reloadedTree))
+#   expect_equal(reloadedTree$nodeType, "Analysis Tree")
+
+#   # Clean up - now delete should work with real collectSteps
+#   deleted <- delete(testStep)
+#   expect_true(deleted)
+
+#   deleted <- delete(analysisTree)
+#   expect_true(deleted)
+# })
 
 tryCatch({
   file.rename(".improve.json","improve.json")

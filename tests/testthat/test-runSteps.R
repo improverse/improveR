@@ -984,6 +984,74 @@ test_that("remoteFile names are loaded correctly|ics1213", {
 })
 
 
+test_that("terminate running step|ics1140", {
+  #TEST_FOLDER <- ensureTestFolder()
+
+  # Create a test tree
+  testTree <- improveR::createAnalysisTree(
+    targetIdent = TEST_FOLDER,
+    treeName = "TerminateStepTest"
+  )
+
+  # Create a step template that will take some time to execute
+  stepEnv <- rBatchStep(testTree)
+  stepEnv$setStepDescription("Long Running Step")
+  stepEnv$setStepRationale("Testing step termination")
+  stepEnv$addStepRemoteFile(
+    paste0(TEST_FOLDER, "/DataManipulation.R"),
+    variableName = "command-file"
+  )
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+
+  # Realize the step WITHOUT running it (run = FALSE)
+  step <- stepEnv$realise(run = FALSE)
+
+  # Get the step resource for reference
+  stepResource <- step$getStepResource()
+
+  # Verify initial state is not RUNNING
+  expect_true(stepResource$runStatus %in% c("INITIAL", "CREATED"))
+
+  # Manually start the step execution
+  runStepResource(stepResource$resourceId)
+
+  # Give the step a moment to start
+  Sys.sleep(2)
+
+  # Update the step resource to get current status
+  stepResource <- improveR::updateResource(stepResource)
+
+  # Verify the step is running (or at least not FINISHED yet)
+  # Note: depending on timing, it might be QUEUED, RUNNING, or already FINISHED
+  # if the step executes very quickly
+  cat("\nStep status before termination:", stepResource$runStatus, "\n")
+
+  # Terminate the step - this is what we're testing
+  result <- terminateStepResource(stepResource$resourceId, verbose = TRUE)
+
+  # Verify termination was successful
+  expect_true(result, info = "terminateStepResource should return TRUE on success")
+
+  # Give the server a moment to process the termination
+  Sys.sleep(2)
+
+  # Update step status after termination
+  stepResource <- improveR::updateResource(stepResource)
+
+  # Verify the step is terminated
+  cat("\nStep status after termination:", stepResource$runStatus, "\n")
+  expect_true(
+    stepResource$runStatus %in% c("TERMINATED", "FAILED", "FINISHED"),
+    info = paste("Step should be terminated or stopped, but was:", stepResource$runStatus)
+  )
+
+  # Optional: Test verbose parameter
+  # Terminating an already terminated step should handle gracefully
+  result2 <- terminateStepResource(stepResource$resourceId, verbose = TRUE)
+  # This might return FALSE since step is already stopped
+  expect_type(result2, "logical")
+})
 
 
 

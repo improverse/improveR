@@ -323,6 +323,15 @@ loadChildResources("/improve-tutorial/yourTree")$data[[1]]
 delete(res="/improve-tutorial/yourTree")
 ```
 
+# terminate the execution of a step
+
+See [reference](../reference/terminateStepResource.html). See [article](../articles/workingWithSteps.html).
+
+```{r}
+#| eval: false
+terminateStepResource(ident="/improve-tutorial/Modeling/Step 9")
+```
+
 # trigger the execution of a step
 ```{r}
 #| eval: false
