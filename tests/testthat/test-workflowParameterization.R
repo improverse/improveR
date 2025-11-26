@@ -79,11 +79,11 @@ test_that("parameterize workflow - change dataset in initial step|ics1213,imr166
   cat("Creating final step in L3...\n")
   s1t3 <- mockStep(dmgL3, s1t2, "S1T3", "report", dataSet2 = s2t2)
 
-  cat("\n=== LOADING WORKFLOW WITH FULL LINEAGE ===\n")
+  cat("\n=== LOADING WORKFLOW WITH FULL DEPENDENCIES ===\n")
 
-  # Load the last step and its full lineage
+  # Load the last step and its full dependencies
   lastStep <- loadChildResources(dmgL3) %>% strip() %>% getStep()
-  lastStep$lineage$load(stepDepth = -1, treeDepth = -1)
+  lastStep$dependencies$load(stepDepth = -1, treeDepth = -1)
 
   # Create workflow template
   workflowTemplate <- lastStep$workflow$createTemplate()
@@ -200,11 +200,11 @@ test_that("parameterize workflow using declarative API|ics1213,imr166", {
   cat("Creating final step...\n")
   s1t3 <- mockStep(dmgL3, s1t1, "S1T3", "report")
 
-  cat("\n=== LOADING WORKFLOW WITH FULL LINEAGE ===\n")
+  cat("\n=== LOADING WORKFLOW WITH FULL DEPENDENCIES ===\n")
 
-  # Load the last step and its full lineage
+  # Load the last step and its full dependencies
   lastStep <- loadChildResources(dmgL3) %>% strip() %>% getStep()
-  lastStep$lineage$load(stepDepth = -1, treeDepth = -1)
+  lastStep$dependencies$load(stepDepth = -1, treeDepth = -1)
 
   # Create workflow template
   workflowTemplate <- lastStep$workflow$createTemplate()
@@ -332,17 +332,20 @@ test_that("workflow template JSON serialization and deserialization|ics1213,imr1
 
   cat("\n=== BUILDING WORKFLOW FOR JSON TEST ===\n")
 
-  # Create workflow with proper lineage (2 steps with dependency)
-  dmgL1 <- createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "JSON DMG L1")
+  # Create workflow with proper dependencies (2 steps with dependencies)
+  dmgL1 <- createAnalysisTree(
+    targetIdent = TEST_FOLDER,
+    treeName = "JSON DMG L1"
+  )
 
-  cat("Creating steps with lineage...\n")
+  cat("Creating steps with dependencies...\n")
   i1 <- mockStep(dmgL1, paste0(TEST_FOLDER, "/data.csv"), "Initial JSON", "data input")
   s1 <- mockStep(dmgL1, i1, "Process JSON", "data processing")  # s1 uses i1's output
 
-  # Load workflow - get last step and load its lineage
+  # Load workflow - get last step and load its dependencies
   allSteps <- loadFullChildResources(dmgL1) %>% strip()
-  lastStep <- getStep(allSteps[allSteps$description=="Process JSON", ])  # Get the last step
-  lastStep$lineage$load(stepDepth = -1, treeDepth = -1)
+  lastStep <- getStep(allSteps[allSteps$description == "Process JSON", ]) # Get the last step
+  lastStep$dependencies$load(stepDepth = -1, treeDepth = -1)
 
   workflowTemplate <- lastStep$workflow$createTemplate()
 

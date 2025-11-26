@@ -1,6 +1,6 @@
 # Test suite for import/export workflow functionality
 # Tests the complete round-trip of exporting and importing workflows
-# including dependency preservation, file handling, and mapping configurations
+# including dependencies preservation, file handling, and mapping configurations
 
 Sys.setenv(TEST_NAME="importExport")
 
@@ -233,8 +233,10 @@ test_that("Export and import with linear dependencies", {
   }
 
   step3ImportEnv <- importedWorkflow$steps[[step3Import$fullName]]
-  expect_true(is.environment(step3ImportEnv$lineage),
-              info = "Step3 should have dependencies")
+  expect_true(
+    is.environment(step3ImportEnv$dependencies),
+    info = "Step3 should have dependencies"
+  )
 
   # Clean up
   unlink(exportFile)
@@ -287,7 +289,7 @@ test_that("Export and import with branching dependencies", {
   importWorkflow(exportFile, importFolder)
 
   importTree <- loadResource("./BranchingDeps", importFolder)
-  # Verify both branches have correct dependency
+  # Verify both branches have correct dependencies
   importedWorkflow <- getWorkflow(importTree)
   importedSteps <- importedWorkflow$df()
 
@@ -303,12 +305,18 @@ test_that("Export and import with branching dependencies", {
   branchAEnv <- importedWorkflow$steps[[branchA$fullName]]
   branchBEnv <- importedWorkflow$steps[[branchB$fullName]]
 
-  # Check lineage - should have items besides 'load' function
-  branchALineageItems <- setdiff(ls(branchAEnv$lineage), "load")
-  branchBLineageItems <- setdiff(ls(branchBEnv$lineage), "load")
+  # Check dependencies - should have items besides 'load' function
+  branchADependenciesItems <- setdiff(ls(branchAEnv$dependencies), "load")
+  branchBDependenciesItems <- setdiff(ls(branchBEnv$dependencies), "load")
 
-  expect_true(length(branchALineageItems) > 0, info = "Branch A should have dependency")
-  expect_true(length(branchBLineageItems) > 0, info = "Branch B should have dependency")
+  expect_true(
+    length(branchADependenciesItems) > 0,
+    info = "Branch A should have dependencies"
+  )
+  expect_true(
+    length(branchBDependenciesItems) > 0,
+    info = "Branch B should have dependencies"
+  )
 
   # Clean up
   unlink(exportFile)
@@ -515,19 +523,25 @@ test_that("Empty workflow export and import", {
   delete(sourceTree)
 })
 
-test_that("Complex diamond dependency pattern", {
+test_that("Complex diamond dependencies pattern", {
   # Ensure TEST_FOLDER exists for individual test runs
   TEST_FOLDER <- ensureTestFolder()
 
   # Create diamond pattern: Step1 → Step2 → Step4
   #                              ↘ Step3 ↗
-  sourceTree <- createAnalysisTree(targetIdent = TEST_FOLDER,
-                                  treeName = "DiamondDeps")
+  sourceTree <- createAnalysisTree(
+    targetIdent = TEST_FOLDER,
+    treeName = "DiamondDeps"
+  )
 
   # Step 1: Initial data
-  step1 <- createTestStep(sourceTree, "Step1", "Initial",
-                         paste0(TEST_FOLDER, "/DataManipulation.R"),
-                         paste0(TEST_FOLDER, "/data.csv"))
+  step1 <- createTestStep(
+    sourceTree,
+    "Step1",
+    "Initial",
+    paste0(TEST_FOLDER, "/DataManipulation.R"),
+    paste0(TEST_FOLDER, "/data.csv")
+  )
   step1Real <- step1$realise()
   step1$finishRun()
 
@@ -535,8 +549,12 @@ test_that("Complex diamond dependency pattern", {
   output1 <- inventory1[inventory1$name == "chapter15_example_cleaned.rds", ]
 
   # Step 2: Left branch
-  step2 <- createTestStep(sourceTree, "Step2", "Left branch",
-                         paste0(TEST_FOLDER, "/EDA.R"))
+  step2 <- createTestStep(
+    sourceTree,
+    "Step2",
+    "Left branch",
+    paste0(TEST_FOLDER, "/EDA.R")
+  )
   step2$addStepRemoteFile(output1, name = "chapter15_example_cleaned.rds")
   step2Real <- step2$realise()
   step2$finishRun()
@@ -545,8 +563,12 @@ test_that("Complex diamond dependency pattern", {
   output2 <- inventory2[inventory2$name == "EDA_table.html", ]
 
   # Step 3: Right branch
-  step3 <- createTestStep(sourceTree, "Step3", "Right branch",
-                         paste0(TEST_FOLDER, "/test_lm_plot.R"))
+  step3 <- createTestStep(
+    sourceTree,
+    "Step3",
+    "Right branch",
+    paste0(TEST_FOLDER, "/test_lm_plot.R")
+  )
   step3$addStepRemoteFile(output1, name = "chapter15_example_cleaned.rds")
   step3Real <- step3$realise()
   step3$finishRun()
@@ -555,8 +577,12 @@ test_that("Complex diamond dependency pattern", {
   output3 <- inventory3[inventory3$name == "model_fit.html", ]
 
   # Step 4: Merge point
-  step4 <- createTestStep(sourceTree, "Step4", "Merge",
-                         paste0(TEST_FOLDER, "/report.R"))
+  step4 <- createTestStep(
+    sourceTree,
+    "Step4",
+    "Merge",
+    paste0(TEST_FOLDER, "/report.R")
+  )
   step4$addStepRemoteFile(output2, name = "EDA_table.html")
   step4$addStepRemoteFile(output3, name = "model_fit.html")
   step4Real <- step4$realise()
@@ -564,8 +590,11 @@ test_that("Complex diamond dependency pattern", {
 
   # Export
   workflow <- getWorkflow(sourceTree)
-  exportWorkflow(workflow, workflowName = "DiamondExport",
-                targetFolder = tempdir())
+  exportWorkflow(
+    workflow,
+    workflowName = "DiamondExport",
+    targetFolder = tempdir()
+  )
 
   exportFile <- file.path(tempdir(), "DiamondExport.zip")
 
@@ -584,12 +613,24 @@ test_that("Complex diamond dependency pattern", {
   # Comprehensive diagnostic output for diamond test
   cat("\n=== DIAMOND TEST DIAGNOSTIC OUTPUT ===\n")
   cat("Number of imported steps:", nrow(importedSteps), "\n")
-  cat("Imported step descriptions:", paste(importedSteps$description, collapse=", "), "\n")
-  cat("Imported step fullNames:", paste(importedSteps$fullName, collapse=", "), "\n\n")
+  cat(
+    "Imported step descriptions:",
+    paste(importedSteps$description, collapse = ", "),
+    "\n"
+  )
+  cat(
+    "Imported step fullNames:",
+    paste(importedSteps$fullName, collapse = ", "),
+    "\n\n"
+  )
 
   # Check original workflow structure
   cat("Original workflow had", nrow(workflow$df()), "steps\n")
-  cat("Original descriptions:", paste(workflow$df()$description, collapse=", "), "\n\n")
+  cat(
+    "Original descriptions:",
+    paste(workflow$df()$description, collapse = ", "),
+    "\n\n"
+  )
 
   # Check internal links
   cat("Original internal links:\n")
@@ -610,7 +651,11 @@ test_that("Complex diamond dependency pattern", {
   cat("\nWorkflow$steps environment contents:\n")
   if (!is.null(importedWorkflow$steps)) {
     cat("  Environment class:", class(importedWorkflow$steps), "\n")
-    cat("  Step names in environment:", paste(ls(importedWorkflow$steps), collapse=", "), "\n")
+    cat(
+      "  Step names in environment:",
+      paste(ls(importedWorkflow$steps), collapse = ", "),
+      "\n"
+    )
   } else {
     cat("  workflow$steps is NULL!\n")
   }
@@ -623,19 +668,30 @@ test_that("Complex diamond dependency pattern", {
     cat("  fullName:", mergeStep$fullName, "\n")
     cat("  handle:", mergeStep$handle, "\n")
 
-    if (!is.null(importedWorkflow$steps) && exists(mergeStep$fullName, envir = importedWorkflow$steps)) {
+    if (
+      !is.null(importedWorkflow$steps) &&
+        exists(mergeStep$fullName, envir = importedWorkflow$steps)
+    ) {
       mergeStepEnv <- importedWorkflow$steps[[mergeStep$fullName]]
       cat("  Step environment found\n")
-      cat("  Environment contents:", paste(ls(mergeStepEnv), collapse=", "), "\n")
+      cat(
+        "  Environment contents:",
+        paste(ls(mergeStepEnv), collapse = ", "),
+        "\n"
+      )
 
-      if ("lineage" %in% ls(mergeStepEnv)) {
-        cat("  Lineage exists\n")
-        cat("  Lineage class:", class(mergeStepEnv$lineage), "\n")
-        if (is.environment(mergeStepEnv$lineage)) {
-          cat("  Lineage contents:", paste(ls(mergeStepEnv$lineage), collapse=", "), "\n")
+      if ("dependencies" %in% ls(mergeStepEnv)) {
+        cat("  Dependencies exists\n")
+        cat("  Dependencies class:", class(mergeStepEnv$dependencies), "\n")
+        if (is.environment(mergeStepEnv$dependencies)) {
+          cat(
+            "  Dependencies contents:",
+            paste(ls(mergeStepEnv$dependencies), collapse = ", "),
+            "\n"
+          )
         }
       } else {
-        cat("  No lineage found in step environment!\n")
+        cat("  No dependencies found in step environment!\n")
       }
     } else {
       cat("  Step environment NOT found in workflow$steps!\n")
@@ -644,22 +700,29 @@ test_that("Complex diamond dependency pattern", {
     cat("  No merge step found with description 'Merge'\n")
   }
 
-  # Check all steps for lineage
-  cat("\nLineage check for all steps:\n")
+  # Check all steps for dependencies
+  cat("\nDependencies check for all steps:\n")
   for (i in seq_len(nrow(importedSteps))) {
     stepName <- importedSteps$fullName[i]
     cat("  Step:", stepName, "\n")
-    if (!is.null(importedWorkflow$steps) && exists(stepName, envir = importedWorkflow$steps)) {
+    if (
+      !is.null(importedWorkflow$steps) &&
+        exists(stepName, envir = importedWorkflow$steps)
+    ) {
       stepEnv <- importedWorkflow$steps[[stepName]]
-      if ("lineage" %in% ls(stepEnv)) {
-        if (is.environment(stepEnv$lineage)) {
-          lineageContent <- ls(stepEnv$lineage)
-          cat("    Lineage items:", paste(lineageContent, collapse=", "), "\n")
+      if ("dependencies" %in% ls(stepEnv)) {
+        if (is.environment(stepEnv$dependencies)) {
+          dependenciesContent <- ls(stepEnv$dependencies)
+          cat(
+            "    Dependencies items:",
+            paste(dependenciesContent, collapse = ", "),
+            "\n"
+          )
         } else {
-          cat("    Lineage is not an environment\n")
+          cat("    Dependencies is not an environment\n")
         }
       } else {
-        cat("    No lineage\n")
+        cat("    No dependencies\n")
       }
     } else {
       cat("    Step environment not found\n")
@@ -668,13 +731,18 @@ test_that("Complex diamond dependency pattern", {
   cat("=== END DIAGNOSTIC OUTPUT ===\n\n")
 
   mergeStepEnv <- importedWorkflow$steps[[mergeStep$fullName]]
-  expect_true(is.environment(mergeStepEnv$lineage),
-              info = "Merge step should have dependencies")
+  expect_true(
+    is.environment(mergeStepEnv$dependencies),
+    info = "Merge step should have dependencies"
+  )
 
   # Check it has two dependencies (excluding the 'load' function)
-  lineageItems <- setdiff(ls(mergeStepEnv$lineage), "load")
-  expect_equal(length(lineageItems), 2,
-               info = "Merge step should have two dependencies")
+  dependenciesItems <- setdiff(ls(mergeStepEnv$dependencies), "load")
+  expect_equal(
+    length(dependenciesItems),
+    2,
+    info = "Merge step should have two dependencies"
+  )
 
   # Clean up
   unlink(exportFile)
@@ -749,17 +817,29 @@ test_that("Export and import with hierarchical steps", {
   childStep <- createTestStep(sourceTree, "ChildStep", "Child of root",
                              paste0(TEST_FOLDER, "/EDA.R"))
   childStep$setStepParent(rootStepReal$stepDf$sourceEntityId, inheritFromParent = FALSE)
-  # Add dependency on root output
+  # Add dependencies on root output
   inventory1 <- rootStepReal$getStepInventory()$data[[1]]
-  outputFile1 <- inventory1[inventory1$name == "chapter15_example_cleaned.rds", ]
-  childStep$addStepRemoteFile(outputFile1, name = "chapter15_example_cleaned.rds")
+  outputFile1 <- inventory1[
+    inventory1$name == "chapter15_example_cleaned.rds",
+  ]
+  childStep$addStepRemoteFile(
+    outputFile1,
+    name = "chapter15_example_cleaned.rds"
+  )
   childStepReal <- childStep$realise()
   childStep$finishRun()
 
   # Create grandchild step
-  grandchildStep <- createTestStep(sourceTree, "GrandchildStep", "Grandchild step",
-                                  paste0(TEST_FOLDER, "/test_lm_plot.R"))
-  grandchildStep$setStepParent(childStepReal$stepDf$sourceEntityId, inheritFromParent = TRUE)
+  grandchildStep <- createTestStep(
+    sourceTree,
+    "GrandchildStep",
+    "Grandchild step",
+    paste0(TEST_FOLDER, "/test_lm_plot.R")
+  )
+  grandchildStep$setStepParent(
+    childStepReal$stepDf$sourceEntityId,
+    inheritFromParent = TRUE
+  )
   # Use output from child
   inventory2 <- childStepReal$getStepInventory()$data[[1]]
   outputFile2 <- inventory2[inventory2$name == "EDA_table.html", ]
@@ -768,21 +848,36 @@ test_that("Export and import with hierarchical steps", {
   grandchildStep$finishRun()
 
   # Create another child of root (sibling to childStep)
-  siblingStep <- createTestStep(sourceTree, "SiblingStep", "Another child of root",
-                               paste0(TEST_FOLDER, "/report.R"))
-  siblingStep$setStepParent(rootStepReal$stepDf$sourceEntityId, inheritFromParent = FALSE)
-  siblingStep$addStepRemoteFile(outputFile1, name = "chapter15_example_cleaned.rds")
+  siblingStep <- createTestStep(
+    sourceTree,
+    "SiblingStep",
+    "Another child of root",
+    paste0(TEST_FOLDER, "/report.R")
+  )
+  siblingStep$setStepParent(
+    rootStepReal$stepDf$sourceEntityId,
+    inheritFromParent = FALSE
+  )
+  siblingStep$addStepRemoteFile(
+    outputFile1,
+    name = "chapter15_example_cleaned.rds"
+  )
   siblingStepReal <- siblingStep$realise()
   siblingStep$finishRun()
 
   # Export workflow
   workflow <- getWorkflow(sourceTree)
-  exportWorkflow(workflow, workflowName = "HierarchyExport",
-                targetFolder = tempdir())
+  exportWorkflow(
+    workflow,
+    workflowName = "HierarchyExport",
+    targetFolder = tempdir()
+  )
 
   exportFile <- file.path(tempdir(), "HierarchyExport.zip")
-  expect_true(file.exists(exportFile),
-              info = "Hierarchy export zip should be created")
+  expect_true(
+    file.exists(exportFile),
+    info = "Hierarchy export zip should be created"
+  )
 
   # Delete source
   delete(sourceTree)
@@ -796,26 +891,41 @@ test_that("Export and import with hierarchical steps", {
   importedSteps <- importedWorkflow$df()
 
   # Check all steps imported
-  expect_equal(nrow(importedSteps), 4,
-               info = "Should have all 4 hierarchical steps")
+  expect_equal(
+    nrow(importedSteps),
+    4,
+    info = "Should have all 4 hierarchical steps"
+  )
 
   # Verify parent relationships preserved
   childImport <- importedSteps[importedSteps$description == "Child of root", ]
-  expect_false(is.na(childImport$parentIdent),
-               info = "Child should have parent reference")
+  expect_false(
+    is.na(childImport$parentIdent),
+    info = "Child should have parent reference"
+  )
 
-  grandchildImport <- importedSteps[importedSteps$description == "Grandchild step", ]
-  expect_false(is.na(grandchildImport$parentIdent),
-               info = "Grandchild should have parent reference")
+  grandchildImport <- importedSteps[
+    importedSteps$description == "Grandchild step",
+  ]
+  expect_false(
+    is.na(grandchildImport$parentIdent),
+    info = "Grandchild should have parent reference"
+  )
 
-  siblingImport <- importedSteps[importedSteps$description == "Another child of root", ]
-  expect_false(is.na(siblingImport$parentIdent),
-               info = "Sibling should have parent reference")
+  siblingImport <- importedSteps[
+    importedSteps$description == "Another child of root",
+  ]
+  expect_false(
+    is.na(siblingImport$parentIdent),
+    info = "Sibling should have parent reference"
+  )
 
   # Check dependencies still work
   grandchildEnv <- importedWorkflow$steps[[grandchildImport$fullName]]
-  expect_true(is.environment(grandchildEnv$lineage),
-              info = "Grandchild should have dependencies")
+  expect_true(
+    is.environment(grandchildEnv$dependencies),
+    info = "Grandchild should have dependencies"
+  )
 
   # Clean up
   unlink(exportFile)
@@ -823,15 +933,21 @@ test_that("Export and import with hierarchical steps", {
   unlink(file.path(tempdir(), "HierarchyExportToolMapping.json"))
 })
 
-test_that("Import fails gracefully when dependency outputs are missing", {
+test_that("Import fails gracefully when dependencies outputs are missing", {
   # Create workflow where step2 depends on output from step1 that doesn't exist
-  sourceTree <- createAnalysisTree(targetIdent = TEST_FOLDER,
-                                  treeName = "MissingOutputDeps")
+  sourceTree <- createAnalysisTree(
+    targetIdent = TEST_FOLDER,
+    treeName = "MissingOutputDeps"
+  )
 
   # Step 1: Creates a file but we'll reference a non-existent output
-  step1 <- createTestStep(sourceTree, "Step1", "Producer step",
-                         paste0(TEST_FOLDER, "/DataManipulation.R"),
-                         paste0(TEST_FOLDER, "/data.csv"))
+  step1 <- createTestStep(
+    sourceTree,
+    "Step1",
+    "Producer step",
+    paste0(TEST_FOLDER, "/DataManipulation.R"),
+    paste0(TEST_FOLDER, "/data.csv")
+  )
   step1Real <- step1$realise()
   step1$finishRun()
 
@@ -847,28 +963,38 @@ test_that("Import fails gracefully when dependency outputs are missing", {
   )
 
   # Step 2: Tries to use the non-existent output
-  step2 <- createTestStep(sourceTree, "Step2", "Consumer step",
-                         paste0(TEST_FOLDER, "/EDA.R"))
+  step2 <- createTestStep(
+    sourceTree,
+    "Step2",
+    "Consumer step",
+    paste0(TEST_FOLDER, "/EDA.R")
+  )
 
   # Try to add non-existent file - this should warn or error
   expect_error(
-    step2$addStepRemoteFile(fakeOutput$entityId, name = "nonexistent_output.rds"),
+    step2$addStepRemoteFile(
+      fakeOutput$entityId,
+      name = "nonexistent_output.rds"
+    ),
     info = "Should error when trying to load non-existent resource"
   )
 
-  # Create step2 without the bad dependency for export test
+  # Create step2 without the bad dependencies for export test
   step2Real <- step2$realise()
 
   # Export should still work but import might have issues
   workflow <- getWorkflow(sourceTree)
-  exportWorkflow(workflow, workflowName = "MissingOutputExport",
-                targetFolder = tempdir())
+  exportWorkflow(
+    workflow,
+    workflowName = "MissingOutputExport",
+    targetFolder = tempdir()
+  )
 
   exportFile <- file.path(tempdir(), "MissingOutputExport.zip")
 
-  # Import should succeed since we didn't add the bad dependency
+  # Import should succeed since we didn't add the bad dependencies
   importFolder <- createFolder(TEST_FOLDER, "ImportMissingOutput")
-  # Import should work fine since step2 doesn't have the bad dependency
+  # Import should work fine since step2 doesn't have the bad dependencies
   expect_no_warning(
     importWorkflow(exportFile, importFolder)
   )
