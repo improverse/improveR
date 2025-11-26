@@ -155,7 +155,7 @@ See [reference](../reference/exportWorkflow.html). See [article](../articles/wor
 #| eval: false
 
 stepEnv <- getStep("/improve-tutorial/Reporting/Step 1") #get environment of step to which the workflow leads
-stepEnv$lineage$load(treeDepth=-1, stepDepth=-1) #get the full lineage with -1
+stepEnv$dependencies$load(treeDepth=-1, stepDepth=-1) #get the full dependencies with -1
 exportWorkflow(envATReportingStep1$workflow, "WFReportingSTep1") #export the workflow binding of stepEnv via exportWorfklow
 ```
 
@@ -208,13 +208,13 @@ ls(envStep$children)
 envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
 
 # get the workflow and show details on Step 'Modeling/Step 10'
-envATReportingStep1$lineage$load(treeDepth=-1)
+envATReportingStep1$dependencies$load(treeDepth=-1)
 
 #show all steps which form part of the workflow
 envATReportingStep1$workflow$df()
 ```
 
-Note that before calling `lineage$load()`, the `df()` in the `workflow` binding will only return the step itself, i.e.,
+Note that before calling `dependencies$load()`, the `df()` in the `workflow` binding will only return the step itself, i.e.,
 `Reporting/Step 1`.
 
 
