@@ -163,8 +163,8 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       stepDf = stepDf,
       workflow = env
     )
-    stepTemplates[[stepName]]$lineage <- rlang::env_clone(stepEnv$lineage)
-    rm(list=c("load"),pos=stepTemplates[[stepName]]$lineage)
+    stepTemplates[[stepName]]$dependencies <- rlang::env_clone(stepEnv$dependencies)
+    rm(list = c("load"), pos = stepTemplates[[stepName]]$dependencies)
     stepTemplates[[stepName]]$usage <- rlang::env_clone(stepEnv$usage)
     rm(list=c("load"),pos=stepTemplates[[stepName]]$usage)
     stepTemplates[[stepName]]$parent <- rlang::env_clone(stepEnv$parent)
@@ -237,8 +237,10 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
       usingSteps <- env$internalLinks[env$internalLinks$sourceStep == st$fullName, ]$targetStep
       usedSteps <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]$sourceStep
-      st$lineage <- paste(unique(usedSteps), collapse = ",", sep = "/")
-      if (st$lineage == "") st$lineage <- NA
+      st$dependencies <- paste(unique(usedSteps), collapse = ",", sep = "/")
+      if (st$dependencies == "") {
+        st$dependencies <- NA
+      }
       st$usage <- paste(unique(usingSteps), collapse = ",", sep = "/")
       if (st$usage == "") st$usage <- NA
       st$toUpdate<-NA
@@ -256,7 +258,7 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       "sourceName",
       "fullName",
       "toUpdate",
-      "lineage",
+      "dependencies",
       "usage"
     )
     executionPlan$inPlace <- FALSE
@@ -275,13 +277,13 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       nextData <- orderedWorkflow[i, ]
       nextItem <- nextData$fullName
 
-      if ("lineage" %in% names(nextData) && !is.na(nextData$lineage)) {
-        dependencies <- unique(strsplit(nextData$lineage, ",")[[1]])
-        for (dependency in dependencies) {
-          if (dependency %in% executionList) {
+      if ("dependencies" %in% names(nextData) && !is.na(nextData$dependencies)) {
+        dependencies <- unique(strsplit(nextData$dependencies, ",")[[1]])
+        for (dependencies in dependencies) {
+          if (dependencies %in% executionList) {
             logging::loginfo("waiting to finish")
-            finishRunResource(env$stepTemplates[[dependency]]$stepDf$entityId)
-            executionList <- executionList[executionList != dependency]
+            finishRunResource(env$stepTemplates[[dependencies]]$stepDf$entityId)
+            executionList <- executionList[executionList != dependencies]
           }
         }
       }
@@ -560,32 +562,39 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
 
   .workflow_template_private$executionOrderInternal <- function(env, plan, startSteps = NULL, counter = 0) {
     counter <- counter + 1
-    if (!"lineage" %in% names(plan)) {
-      plan$lineage <- NA
+    if (!"dependencies" %in% names(plan)) {
+      plan$dependencies <- NA
     }
     if (!"usage" %in% names(plan)) {
       plan$usage <- NA
     }
     if (is.null(startSteps)) {
-      startSteps <- plan[is.na(plan$lineage), ]
-      plan <- plan[!is.na(plan$lineage), ]
+      startSteps <- plan[is.na(plan$dependencies), ]
+      plan <- plan[!is.na(plan$dependencies), ]
     }
     if (is.null(startSteps) || nrow(startSteps) == 0) {
-      logging::logwarn("No step without dependency, no executable order")
+      logging::logwarn("No step without dependencies, no executable order")
       return(NULL)
     }
     for (s in seq_len(nrow(startSteps))) {
       startStep <- startSteps[s, ]
       if (!is.na(startStep$usage)) {
-        lineages <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
-        if (length(lineages) > 0) {
-          for (lineage in lineages) {
-            lineageHandle <- plan[plan$fullName == lineage, ]
-            if (nrow(lineageHandle) == 1 && "lineage" %in% names(lineageHandle)) {
-              dependencies <- strsplit(lineageHandle$lineage, ",", fixed = TRUE)[[1]]
+        dependenciess <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
+        if (length(dependenciess) > 0) {
+          for (dependencies in dependenciess) {
+            dependenciesHandle <- plan[plan$fullName == dependencies, ]
+            if (
+              nrow(dependenciesHandle) == 1 &&
+                "dependencies" %in% names(dependenciesHandle)
+            ) {
+              dependencies <- strsplit(
+                dependenciesHandle$dependencies,
+                ",",
+                fixed = TRUE
+              )[[1]]
               if (all(dependencies %in% startSteps$fullName)) {
-                startSteps <- plyr::rbind.fill(startSteps, lineageHandle)
-                plan <- plan[plan$fullName != lineage, ]
+                startSteps <- plyr::rbind.fill(startSteps, dependenciesHandle)
+                plan <- plan[plan$fullName != dependencies, ]
               }
             }
           }

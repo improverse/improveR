@@ -13,7 +13,7 @@
 #' @param stepDf Optional. Data frame with step metadata from an existing step to use as
 #'   a template. Typically obtained from \code{getStep(ident)$stepDf}.
 #' @param workflow Optional. Workflow environment this template belongs to. Used for
-#'   workflow-level operations and dependency tracking.
+#'   workflow-level operations and dependencies tracking.
 #'
 #' @return An environment representing the step template with the following components:
 #'   \describe{
@@ -717,9 +717,9 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     invisible(env)
   }
 
-  env$addStepLineage <- function(stepHandle, lineageHandle) {
-    env$addStepValue(stepHandle, "lineage", lineageHandle)
-    env$addStepValue(lineageHandle, "usage", stepHandle)
+  env$addStepDependencies <- function(stepHandle, dependenciesHandle) {
+    env$addStepValue(stepHandle, "dependencies", dependenciesHandle)
+    env$addStepValue(dependenciesHandle, "usage", stepHandle)
     invisible(env)
   }
 

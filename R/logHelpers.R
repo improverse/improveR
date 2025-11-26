@@ -45,7 +45,7 @@ initImproveLogging <- function(logLevel) {
   }
 }
 
-#NOTE: margittr pipe replaced by base pipe to reduce dependency
+#NOTE: margittr pipe replaced by base pipe to reduce dependencies
 improveLastLogMessage<- function (type="",number=1) {
   logItems <- parseLogFile()
   if (is.null(logItems)) {

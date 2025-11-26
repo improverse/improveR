@@ -49,7 +49,7 @@ createStepName <- function(step) {
 #'
 #' Returns a detailed environment object containing a step's properties, relationships
 #' with other steps, and methods for working with the step. This environment provides
-#' the foundational interface for complex workflow operations, dependency tracking, and
+#' the foundational interface for complex workflow operations, dependencies tracking, and
 #' analytical pipeline execution.
 #'
 #' @param ident Step identifier. Can be the step's path, resource (version) id,
@@ -60,8 +60,8 @@ createStepName <- function(step) {
 #' @return An environment representing the step with the following components:
 #'   \describe{
 #'     \item{stepDf}{Data frame containing step metadata and configuration}
-#'     \item{children, parent, usage, lineage}{Nested environments with lazy-loading for step relationships}
-#'     \item{workflow}{Workflow environment for orchestration and dependency tracking}
+#'     \item{children, parent, usage, dependencies}{Nested environments with lazy-loading for step relationships}
+#'     \item{workflow}{Workflow environment for orchestration and dependencies tracking}
 #'     \item{getStepInventory()}{Method to retrieve the step's file inventory}
 #'     \item{getStepResource()}{Method to get the step resource object}
 #'     \item{getStepState()}{Method to get the step's execution state}

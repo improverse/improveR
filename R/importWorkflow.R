@@ -157,7 +157,7 @@
 #'   \item Uploads external link files to the repository
 #'   \item Applies optional link mappings from \code{<workflowName>LinkMapping.json}
 #'   \item Applies optional tool mappings from \code{<workflowName>ToolMapping.json}
-#'   \item Creates steps in dependency order
+#'   \item Creates steps in dependencies order
 #'   \item Uploads input and output files for each step
 #' }
 #'
@@ -272,9 +272,9 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
           if (!(link$targetStep %in% ls(sourceStep$usage))) {
             sourceStep$usage[[link$targetStep]] <- targetStep
           }
-          # Establish lineage relationship (target depends on source)
-          if (!(link$sourceStep %in% ls(targetStep$lineage))) {
-            targetStep$lineage[[link$sourceStep]] <- sourceStep
+          # Establish dependencies relationship (target depends on source)
+          if (!(link$sourceStep %in% ls(targetStep$dependencies))) {
+            targetStep$dependencies[[link$sourceStep]] <- sourceStep
           }
         }
       }
@@ -410,14 +410,14 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     template <- workflowTemplate$stepTemplates[[nextItem]]
 
 
-    if ("lineage" %in% names(nextData) && !is.na(nextData$lineage)) {
-      dependencies <- unique(strsplit(nextData$lineage,",")[[1]])
+    if ("dependencies" %in% names(nextData) && !is.na(nextData$dependencies)) {
+      dependencies <- unique(strsplit(nextData$dependencies, ",")[[1]])
       for (j in 1:length(dependencies)) {
-        dependency <- dependencies[j]
-        if (dependency %in% executionList) {
+        dependencies <- dependencies[j]
+        if (dependencies %in% executionList) {
           logging::loginfo("waiting to finish")
-          #finishRun(dependency)
-          executionList <- executionList[executionList!=dependency]
+          #finishRun(dependencies)
+          executionList <- executionList[executionList != dependencies]
         }
       }
     }

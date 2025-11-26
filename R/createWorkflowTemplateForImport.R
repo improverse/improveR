@@ -29,34 +29,36 @@ createWorkflowTemplateForImport <- function(workflow, internalLinksData = NULL) 
   for (stepName in names(workflow$steps)) {
     stepEnv <- workflow$steps[[stepName]]
     stepDf <- stepEnv$stepDf
-    
+
     # During import, we don't modify remoteFiles as resources don't exist yet
     # The relationships are already established by importWorkflow
-    
+
     stepTemplates[[stepName]] <- createStepTemplateEnv(
       stepDf = stepDf,
       workflow = env
     )
-    
-    # Copy lineage and usage relationships
-    stepTemplates[[stepName]]$lineage <- rlang::env_clone(stepEnv$lineage)
-    if ("load" %in% ls(stepTemplates[[stepName]]$lineage)) {
-      rm(list=c("load"), pos=stepTemplates[[stepName]]$lineage)
+
+    # Copy dependencies and usage relationships
+    stepTemplates[[stepName]]$dependencies <- rlang::env_clone(
+      stepEnv$dependencies
+    )
+    if ("load" %in% ls(stepTemplates[[stepName]]$dependencies)) {
+      rm(list = c("load"), pos = stepTemplates[[stepName]]$dependencies)
     }
-    
+
     stepTemplates[[stepName]]$usage <- rlang::env_clone(stepEnv$usage)
     if ("load" %in% ls(stepTemplates[[stepName]]$usage)) {
-      rm(list=c("load"), pos=stepTemplates[[stepName]]$usage)
+      rm(list = c("load"), pos = stepTemplates[[stepName]]$usage)
     }
-    
+
     stepTemplates[[stepName]]$parent <- rlang::env_clone(stepEnv$parent)
     if ("load" %in% ls(stepTemplates[[stepName]]$parent)) {
-      rm(list=c("load"), pos=stepTemplates[[stepName]]$parent)
+      rm(list = c("load"), pos = stepTemplates[[stepName]]$parent)
     }
-    
+
     stepTemplates[[stepName]]$children <- rlang::env_clone(stepEnv$children)
     if ("load" %in% ls(stepTemplates[[stepName]]$children)) {
-      rm(list=c("load"), pos=stepTemplates[[stepName]]$children)
+      rm(list = c("load"), pos = stepTemplates[[stepName]]$children)
     }
   }
   env$stepTemplates <- stepTemplates
@@ -100,18 +102,18 @@ createWorkflowTemplateForImport <- function(workflow, internalLinksData = NULL) 
   env$createExecutionPlan <- function() {
     plan <- env$df()
     
-    # Build lineage strings from the established relationships
+    # Build dependencies strings from the established relationships
     for (i in seq_len(nrow(plan))) {
       stepName <- plan$fullName[i]
       template <- env$stepTemplates[[stepName]]
-      
-      lineageSteps <- ls(template$lineage)
-      if (length(lineageSteps) > 0 && !("load" %in% lineageSteps)) {
-        plan$lineage[i] <- paste(lineageSteps, collapse = ",")
+
+      dependenciesSteps <- ls(template$dependencies)
+      if (length(dependenciesSteps) > 0 && !("load" %in% dependenciesSteps)) {
+        plan$dependencies[i] <- paste(dependenciesSteps, collapse = ",")
       } else {
-        plan$lineage[i] <- NA
+        plan$dependencies[i] <- NA
       }
-      
+
       usageSteps <- ls(template$usage)
       if (length(usageSteps) > 0 && !("load" %in% usageSteps)) {
         plan$usage[i] <- paste(usageSteps, collapse = ",")
@@ -131,18 +133,18 @@ createWorkflowTemplateForImport <- function(workflow, internalLinksData = NULL) 
   
   .workflow_template_private$executionOrderInternal <- function(env, plan, startSteps = NULL, counter = 0) {
     counter <- counter + 1
-    if (!"lineage" %in% names(plan)) {
-      plan$lineage <- NA
+    if (!"dependencies" %in% names(plan)) {
+      plan$dependencies <- NA
     }
     if (!"usage" %in% names(plan)) {
       plan$usage <- NA
     }
     if (is.null(startSteps)) {
-      startSteps <- plan[is.na(plan$lineage), ]
-      plan <- plan[!is.na(plan$lineage), ]
+      startSteps <- plan[is.na(plan$dependencies), ]
+      plan <- plan[!is.na(plan$dependencies), ]
     }
     if (is.null(startSteps) || nrow(startSteps) == 0) {
-      logging::logwarn("No step without dependency, no executable order")
+      logging::logwarn("No step without dependencies, no executable order")
       return(NULL)
     }
     
@@ -156,10 +158,10 @@ createWorkflowTemplateForImport <- function(workflow, internalLinksData = NULL) 
           for (usageStep in usageSteps) {
             # Check if this usage step is still in the plan
             candidateStep <- plan[plan$fullName == usageStep, ]
-            if (nrow(candidateStep) == 1 && "lineage" %in% names(candidateStep)) {
+            if (nrow(candidateStep) == 1 && "dependencies" %in% names(candidateStep)) {
               # Check if all dependencies of this candidate are already in startSteps
-              dependencies <- if (!is.na(candidateStep$lineage)) {
-                strsplit(candidateStep$lineage, ",", fixed = TRUE)[[1]]
+              dependencies <- if (!is.na(candidateStep$dependencies)) {
+                strsplit(candidateStep$dependencies, ",", fixed = TRUE)[[1]]
               } else {
                 character(0)
               }
