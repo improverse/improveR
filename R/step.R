@@ -224,8 +224,8 @@ detachStep <- function(ident,  from=pwd()) {
 
 #' Attach a Step to a Parent Step
 #'
-#' Establishes a hierarchical parent-child relationship between steps 
-#' by attaching a step to another step that serves as its parent. 
+#' Establishes a hierarchical parent-child relationship between steps
+#' by attaching a step to another step that serves as its parent.
 #'
 #' @param ident Identifier of the step to attach. Can be the step's path, resource (version) id,
 #'   full entity (version) id, or short entity (version) id.
@@ -251,19 +251,29 @@ detachStep <- function(ident,  from=pwd()) {
 #' @references ics1225
 #' @export
 
-attachStep <- function(ident,parent,  from=pwd()) {
-  stepEntity <- loadResource(ident,from)
-  stepParentEntity <- loadResource(parent,from)
+attachStep <- function(ident, parent, from = pwd()) {
+  stepEntity <- loadResource(ident, from)
+  stepParentEntity <- loadResource(parent, from)
   tree <- stepEntity$parentId
 
-  result <- authenticatedREST("/resources/{treeId}/steps/{stepId}/attachStepToParent",
-                                            urlParams = list(stepId=stepEntity$resourceId,treeId=tree),
-                                            queryParams = list(parentStepId=stepParentEntity$resourceId),
-                                            restType = "PUT"
+  result <- authenticatedREST(
+    "/resources/{treeId}/steps/{stepId}/attachStepToParent",
+    urlParams = list(stepId = stepEntity$resourceId, treeId = tree),
+    queryParams = list(parentStepId = stepParentEntity$resourceId),
+    restType = "PUT"
   )
-  unloadParentStep(stepEntity,from)
+
+  if (is.null(result)) {
+    logging::logwarn("Step was not attached.")
+  }
+
+  if (stepEntity$resourceId == stepParentEntity$resourceId) {
+    logging::logwarn("Step cannot be attached to itself.")
+  }
+
+  unloadParentStep(stepEntity, from)
   unloadChildSteps(stepParentEntity)
-  return(updateResource(ident,from))
+  return(updateResource(ident, from))
 }
 
 #' createProcess
