@@ -51,13 +51,12 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
 
 test_that("test for attaching step to itself", {
   TEST_FOLDER <- ensureTestFolder()
-  
 
   testTree <- improveR::createAnalysisTree(
     targetIdent = TEST_FOLDER,
     treeName = "stepsTree"
   )
-  
+
   stepCreated <- createStep(treeIdent = testTree)
 
   #attach step to itself
@@ -73,6 +72,8 @@ test_that("test for attaching step to itself", {
   expect_false(stepCreated$entityId %in% stepChildrenIds)
 
   #resource cannot be its own parent
-  expect_false(stepTestAttached$resourceId==stepTestAttached$parentId) 
+  expect_false(stepTestAttached$resourceId == stepTestAttached$parentId)
 
+  #step remains unchanged after trying to attach it to itself
+  expect_true(identical(stepCreated, stepTestAttached))
 })
