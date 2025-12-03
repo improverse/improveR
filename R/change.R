@@ -170,6 +170,12 @@ singleDelete <- function(resId) {
 #' @references ics1139
 #' @export
 delete <- function(res) {
+  
+
+#runStatus of steps should only be collected if steps are actually relevant; not for files and links
+resNodeType <- loadResource(res)$nodeType
+
+if (!is.null(resNodeType) && !resNodeType %in% c("File", "Link")) {
   stepStatus <- checkRunStatus(
     res,
     verbose = TRUE,
@@ -181,6 +187,7 @@ delete <- function(res) {
     logging::logwarn("NO resource was deleted.")
     return(invisible(FALSE))
   }
+}
 
   # Proceed with deletion (stepStatus is TRUE)
   result <- multiplexResourceFunction(
@@ -335,7 +342,7 @@ collectSteps <- function(
     updateResource(ident),
     error = \(e) {
       message(glue::glue("Source {ident} does not exist."))
-      return(FALSE)
+      return(NULL)
     }
   )
 
@@ -346,10 +353,7 @@ collectSteps <- function(
     return(FALSE)
   }
 
-  # if (!isTRUE(improveR:::isResourceUp2Date(ident))) {
-  #   updateResource(ident)
-  # }
-
+  # browser()
   #what if the resource is a file and not a step, tree, or folder => files don't nest steps/don't have runStatus; end evaluation here; return FALSE
   if (resources$nodeType == "File" || resources$nodeType == "Link") {
     # if (isTRUE(echo)) {
