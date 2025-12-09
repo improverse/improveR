@@ -63,6 +63,7 @@ reference:
   - getToolInstances
   - resetToolInstances
   - runStepResource
+  - terminateStepResource
   - createAnalysisTree
   - workflowTemplateFromJSON
 
@@ -144,6 +145,7 @@ reference:
   - loadMetaDataDefinition
   - loadMetaDataDefinitionPickList
   - loadMetaDataDefinitions
+  - loadParentalDescendant
   - loadParentStep
   - loadResource
   - lockResource
@@ -156,12 +158,14 @@ reference:
   - unloadHistory
   - unloadMetaData
   - unloadMetaDataDefinitions
+  - unloadParentalDescendant
   - unloadParentStep
   - unlockResource
   - updateFileContent
   - updateHistory
   - updateMetaData
   - updateMetaDataDefinitions
+  - updateParentalDescendant
   - updateParentStep
   - uploadFolder
   - whoami
