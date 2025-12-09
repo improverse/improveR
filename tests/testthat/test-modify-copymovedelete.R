@@ -1,15 +1,20 @@
 
 Sys.setenv(TEST_NAME="modify-copymovedelete")
 
-httptest::with_mock_dir("prepare-modify-copymovedelete",{
+httptest::with_mock_dir("prepare-modify-copymovedelete", {
   test_that("createTestFolder", {
-    Sys.setenv(IMPROVER_TEST_REPLAY="T")
+    Sys.setenv(IMPROVER_TEST_REPLAY = "T")
     improveConnect()
     setEditable(T)
-    expect_false(Sys.getenv("IMPROVER_TOKEN")=="")
+    expect_false(Sys.getenv("IMPROVER_TOKEN") == "")
     TEST_FOLDER <- emptyFolderSetup()
-    assign(x = "TEST_FOLDER",value = TEST_FOLDER,envir = globalenv())
+    assign(x = "TEST_FOLDER", value = TEST_FOLDER, envir = globalenv())
   })
+  #remove
+  print(Sys.getenv("IMPROVER_TEST_REPLAY"))
+  print(Sys.getenv("TEST_FOLDER"))
+  print(Sys.getenv("IMPROVER_STEP"))
+  ##
 })
 
 # Helper function to ensure TEST_FOLDER exists when running tests individually
@@ -38,6 +43,7 @@ httptest::with_mock_dir("modifyNonExisting", {
     expectedMessage2 <- glue::glue(
       "Resource with ID: {FAKE_RES_ID} could not be loaded"
     )
+    expectedMessage3 <- "NO resource was deleted." #mesage was included into improveR::delete when reviewing function committ: af4b521b3345e14a638ab69081abaad389f71fa3
 
     Sys.setenv(improver.logfile = "improver.log")
     improveConnect()
@@ -62,7 +68,9 @@ httptest::with_mock_dir("modifyNonExisting", {
     failed <- delete(id)
     expect_false(failed)
     message <- improveLastLogMessage("WARN")
-    expect_true(message %in% c(expectedMessage1, expectedMessage2))
+    expect_true(
+      message %in% c(expectedMessage1, expectedMessage2, expectedMessage3)
+    )
   })
 })
 
@@ -124,7 +132,7 @@ httptest::with_mock_dir("invalidTargetNamesAndComments", {
   })
 })
 
-httptest::with_mock_dir("noOverwrite", {
+# httptest::with_mock_dir("noOverwrite", {
   test_that("no overwrite|ics1139", {
     TEST_FOLDER <- ensureTestFolder()
     expectedMessage <- "{TEST_FOLDER}/tbOverwritten already exists, cannot {func}"
@@ -181,7 +189,7 @@ httptest::with_mock_dir("noOverwrite", {
     deleted <- delete(moveFile)
     expect_true(length(deleted) == 0 || !deleted)
   })
-})
+# })
 
 modifyToTarget <- function(s,t) {
   expectedMessage <- "{t$nodeType} is not an allowed target type for {s$nodeType}"
@@ -309,6 +317,9 @@ httptest::with_mock_dir("deleteLinksAfterDeletion", {
   })
 })
 
+
+
+
 # test_that("cannot delete step with runStatus other than INITIAL or FINISHED", {
 #   TEST_FOLDER <- ensureTestFolder()
 #   Sys.setenv(improver.logfile = "improver.log")
@@ -368,4 +379,5 @@ httptest::with_mock_dir("deleteLinksAfterDeletion", {
 tryCatch({
   file.rename(".improve.json","improve.json")
 },error=print)
+
 

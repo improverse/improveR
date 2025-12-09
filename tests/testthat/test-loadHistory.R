@@ -43,6 +43,7 @@ test_that("loadParentalDescendants correctly identifies descendants", {
 
   # Create steps
   step1Tree1Folder1 <- createStep(treeIdent = tree1Folder1) #parental location
+
   # Create file to be copied and checked for
   file <- createFile(targetIdent = step1Tree1Folder1, fileName = "file")
 
@@ -63,7 +64,7 @@ test_that("loadParentalDescendants correctly identifies descendants", {
   parentalDescendantHistory <- loadParentalDescendant(
     ident = file$resourceId
   )$data[[1]]$path %>%
-    stringr::str_remove(., "[/\\\\]+$")    
+    stringr::str_remove(., "[/\\\\]+$")
 
   #collect descendants
   descendants <- c(
@@ -72,7 +73,6 @@ test_that("loadParentalDescendants correctly identifies descendants", {
     step1Tree1Folder2$path
   )
 
- expect_equal(length(descendants),length(parentalDescendantHistory))
- expect_true(all(parentalDescendantHistory %in% descendants))
-  
+  expect_equal(length(descendants), length(parentalDescendantHistory))
+  expect_true(all(parentalDescendantHistory %in% descendants))
 })

@@ -150,7 +150,7 @@ actualLoadHistory <- function(resource) {
 #' loadParentalDescendant("my-resource-name", from = "/path/to/repo")
 #' }
 #'
-#' @seealso updateParentalDescendant(), unloadParentalDescendant(), loadResource()
+#' @seealso [updateParentalDescendant()], [unloadParentalDescendant()], [loadResource()]
 #' @export
 loadParentalDescendant <- function(ident, from = pwd()) {
   return(
@@ -166,7 +166,7 @@ loadParentalDescendant <- function(ident, from = pwd()) {
 #' Remove cached parental/descendant information for a resource identified by \code{ident}.
 #'
 #' @inheritParams common_ident
-#' @seealso updateParentalDescendant(), loadParentalDescendant(), loadResource()
+#' @seealso [updateParentalDescendant()], [loadParentalDescendant()], [loadResource()]
 #' @details
 #' This function loads the resource corresponding to \code{ident} (via \code{loadResource})
 #' and then removes any stored parental/descendant data for that resource from the
@@ -177,7 +177,9 @@ loadParentalDescendant <- function(ident, from = pwd()) {
 #'
 #' @return Invisibly returns \code{NULL}.
 #' @examples
+#' \dontrun{
 #' unloadParentalDescendant(my_ident)
+#' }
 #'
 #' @export
 unloadParentalDescendant <- function(ident) {
@@ -201,7 +203,7 @@ unloadParentalDescendant <- function(ident) {
 #' The function is invoked for its side effect.
 #'
 #' @return Invisibly returns \code{NULL}.
-#' @seealso loadParentalDescendant(), unloadParentalDescendant(), loadResource()
+#' @seealso [loadParentalDescendant()], [unloadParentalDescendant()], [loadResource()]
 #' @examples
 #' unloadParentalDescendant(my_ident)
 #'
