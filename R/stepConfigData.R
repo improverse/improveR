@@ -28,7 +28,21 @@ loadRunservers <- function() {
 }
 
 #' loads runserver by label
+#' 
+#' `loadRunserver()` loads a runserver by its label and returns a dataframe with pertaining details.
+#' 
 #' @param label the label of the runserver
+#'
+#' @returns A dataframe with the following columns:
+#'   - `id` (character)
+#'   - `url` (character)
+#'   - `hostname` (character)
+#'   - `label` (character)
+#'   - `local` (logical)
+#'   - `deleted` (logical)
+#'   - `generic` (logical)
+#'   - `reproducible` (logical)
+#'   - `sshPort` (integer)
 #' @references ics1226
 #' @export
 loadRunserver <- function(label) {
