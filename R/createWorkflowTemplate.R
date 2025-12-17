@@ -13,9 +13,45 @@ testEnv <- function() {
 #'
 #' Extracts all steps, relationships, parameters, and files from the workflow
 #' and builds a reusable workflow template environment.
-#' @param workflow The workflow environment to template
-#' @param addParental if T the created stepTemplates have the steps from the workflow as parents (default: FALSE)
-#' @return An environment representing the workflow template
+#'
+#' @param workflow The workflow environment to template. If NULL (default),
+#'   creates an empty workflow template.
+#' @param addParental If TRUE, the created stepTemplates have the steps from
+#'   the workflow as parents (default: FALSE).
+#' @returns An environment representing the workflow template with the following methods:
+#'   \describe{
+#'     \item{addStepTemplate(stepTemplate, name=NULL)}{Adds a step template to the workflow template.}
+#'     \item{createExecutionPlan()}{Creates a data.frame describing the execution plan for the workflow.}
+#'     \item{df()}{Returns a data.frame with metadata for all steps in the template.}
+#'     \item{executePlan(executionPlan)}{Executes a given execution plan data.frame.}
+#'     \item{listParameters()}{Returns a data frame of all defined parameters.}
+#'     \item{parameterizeStep(paramName, stepPattern, property, target=NULL, required=TRUE, defaultValue=NULL)}{
+#'       Registers a parameter to modify steps before realisation.
+#'       \describe{
+#'         \item{paramName}{Name of the parameter.}
+#'         \item{stepPattern}{Pattern to match steps. Three matching modes are supported:
+#'           \itemize{
+#'             \item \code{"*"} matches all steps in the workflow template.
+#'             \item Prefix pattern ending with \code{*} (e.g., \code{"analysisTree1/*"}) matches
+#'               all steps whose fullName starts with the prefix.
+#'             \item Exact match (e.g., \code{"import data"}) first tries to match the step's
+#'               fullName, then falls back to matching the step's description.
+#'           }
+#'         }
+#'         \item{property}{The property to parameterize: "remoteFile", "localFile", "treeIdent", "gridArgument.<name>", "description", "rationale", or "stepName".}
+#'         \item{target}{(Optional) Target within the property, e.g., the path of a remote file.}
+#'         \item{required}{(Optional) Whether this parameter must be set before realization (default: TRUE).}
+#'         \item{defaultValue}{(Optional) Default value if not set.}
+#'       }
+#'     }
+#'     \item{realise()}{Executes the plan, applying parameters and creating the workflow steps.}
+#'     \item{setParameter(paramName, value)}{Sets a value for a defined parameter.}
+#'     \item{setWorkflowTreeIdent(treeIdent, from=pwd())}{Sets the identifier for the workflow tree.}
+#'     \item{setWorkflowTreeName(treeName)}{Sets the name for the workflow tree.}
+#'     \item{setWorkflowTreeRootFolder(rootFolder)}{Sets the root folder path for the workflow tree.}
+#'     \item{toJSON(filepath, pretty=TRUE)}{Saves the template definition to a JSON file.}
+#'     \item{validateParameters()}{Checks if all required parameters are set, throwing an error if not.}
+#'   }
 #' @export
 createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
   env <- new.env(parent = emptyenv())
@@ -581,20 +617,20 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       if (!is.na(startStep$usage)) {
         dependenciess <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
         if (length(dependenciess) > 0) {
-          for (dependencies in dependenciess) {
-            dependenciesHandle <- plan[plan$fullName == dependencies, ]
+          for (dependentStepName in dependenciess) {
+            dependenciesHandle <- plan[plan$fullName == dependentStepName, ]
             if (
               nrow(dependenciesHandle) == 1 &&
                 "dependencies" %in% names(dependenciesHandle)
             ) {
-              dependencies <- strsplit(
+              stepDependencies <- strsplit(
                 dependenciesHandle$dependencies,
                 ",",
                 fixed = TRUE
               )[[1]]
-              if (all(dependencies %in% startSteps$fullName)) {
+              if (all(stepDependencies %in% startSteps$fullName)) {
                 startSteps <- plyr::rbind.fill(startSteps, dependenciesHandle)
-                plan <- plan[plan$fullName != dependencies, ]
+                plan <- plan[plan$fullName != dependentStepName, ]
               }
             }
           }

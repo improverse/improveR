@@ -762,6 +762,8 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         #processes<-plyr::rbind.fill(processes,processDf)
       }
     } else {
+      #browser()
+      print(processName)
       usedTool <- env$getToolForProcess(processName)
       parameters <- usedTool$parameters[[1]]
       commandLine <- parameters[parameters$name == "Tool Arguments", ]$value
@@ -771,11 +773,21 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
   }
 
   env$getToolForProcess <- function(processName) {
-    process <- dplyr::filter(env$stepDf$processes[[1]], .data$name == processName)
+    process <- dplyr::filter(
+      env$stepDf$processes[[1]],
+      .data$name == processName
+    ) #rs source for fullToolName; "R_.2 rbatch runserver"
+    resetToolInstances() #added
     toolInstances <- getToolInstances()
-    fullToolName <- paste(process$toolLabel, process$toolInstance, process$runserverLabel)
+
+    #browser()
+    fullToolName <- paste(
+      process$toolLabel,
+      process$toolInstance,
+      process$runserverLabel
+    )
     toolNames <- ls(envir = toolInstances)
-    toolNames <- toolNames[grepl(pattern = fullToolName, x = toolNames)]
+    toolNames <- toolNames[grepl(pattern = fullToolName, x = toolNames)] #no match! R_4.2 rbatch runserver"; defined in .Renviron
     if (length(toolNames) != 1) {
       log_error(fullToolName, "not unique or existing")
       stop("tool error")
