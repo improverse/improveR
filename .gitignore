@@ -3,3 +3,9 @@ inst/doc
 /Meta/
 **/.quarto/
 CLAUDE.md
+
+# Environment files with credentials and user-specific settings
+.Renviron
+
+# Claude Code workspace - local helper files, not part of package
+.claude_workspace/
