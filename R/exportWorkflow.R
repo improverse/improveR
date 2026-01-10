@@ -248,7 +248,7 @@ exportWorkflow <- function(workflow, workflowName, targetFolder = ".") {
     return(data.frame(taskDir = taskDir, handle = exportTask$handle))
   })
 
-  #seperate in inputs, outside links, outputs
+  #separate in inputs, outside links, outputs
 
   if (nrow(taskDirs) > 0) {
     for (iT in 1:nrow(taskDirs)) {
