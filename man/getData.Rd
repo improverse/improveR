@@ -2,8 +2,7 @@
 % Please edit documentation in R/getData.R
 \name{getData}
 \alias{getData}
-\title{gets a data table and retrieves the caption and description by the resource ID or entity ID
-.xls and .xlsx files assumed to be excel, .rds as RDS, .sas7bdat as SAS all others as CSV}
+\title{Get Data Table from improve Repository}
 \usage{
 getData(
   ident,
@@ -16,24 +15,117 @@ getData(
 )
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the picture}
+\item{ident}{Path, resource ID, entity ID, or entity version ID of the data
+file. Accepts relative paths (starting with \verb{./} or \verb{../}), absolute paths
+(starting with \code{/}), UUIDs, or improve identifiers. See \code{\link[=loadResource]{loadResource()}} for
+full details on identifier formats}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}, which
+is the step that initiated the R session (set via \code{IMPROVER_STEP} environment
+variable)}
 
-\item{addAsLink}{creates a link in inventory if TRUE, warn improveClean has to be run at the end}
+\item{addAsLink}{Logical. If \code{TRUE} (default), creates a link in the inventory
+for provenance tracking. Use \code{improveClean()} at workflow end to clean up
+links. Set to \code{FALSE} for one-off loads without provenance tracking}
 
-\item{caption}{by default entityID and lastmodified are the caption, here alternative text can be provided}
+\item{caption}{Custom caption text. If empty string (default), uses
+"Source (Entity version ID): \if{html}{\out{<entityVersionId>}}, Last modified on: \if{html}{\out{<timestamp>}}"}
 
-\item{description}{by default filename is the caption, here alternative text can be provided}
+\item{description}{Custom description text. If empty string (default), uses
+the filename}
 
-\item{parser}{a custom parser can be handed over as argument parser=... . It needs to take a local path as first argument}
+\item{parser}{Optional custom parsing function that takes a local file path as
+first argument and returns a data frame. Overrides automatic format detection}
 
-\item{...}{pass over arguments for the read function}
+\item{...}{Additional arguments passed to the underlying read function:
+\code{readxl::read_excel()}, \code{readRDS()}, \code{haven::read_sas()}, or \code{utils::read.csv()}}
+}
+\value{
+A single-row data frame (descriptor) with the following columns, or
+\code{NULL} if the resource cannot be found:
+
+\describe{
+\item{caption}{Character. Caption text for display/reporting}
+\item{path}{Character. Local file path (normalized with forward slashes)}
+\item{entityId}{Character. The improve entity ID of the resource}
+\item{name}{Character. Original filename from the repository}
+\item{description}{Character. Description text for the resource}
+\item{resource}{List column containing the full resource metadata data frame
+from the improve server (includes fields like \code{resourceId}, \code{entityVersionId},
+\code{nodeType}, \code{lastModifiedOn}, etc.). Access via \code{result$resource[[1]]}}
+\item{data}{List column containing the parsed data frame. Access the actual
+data via \code{result$data[[1]]}}
+\item{dataType}{Character. File type detected: "Excel", "RDS", "SAS", "CSV",
+or "Custom parser"}
+}
+
+If \code{ident} matches multiple resources, returns a data frame with multiple rows
+(one per resource).
 }
 \description{
-gets a data table and retrieves the caption and description by the resource ID or entity ID
-.xls and .xlsx files assumed to be excel, .rds as RDS, .sas7bdat as SAS all others as CSV
+Retrieves a data table from the improve repository and loads it into R with
+metadata including caption and description. Automatically detects file format
+and uses appropriate reader (.xls/.xlsx as Excel, .rds as RDS, .sas7bdat as SAS,
+others as CSV).
+}
+\details{
+File format detection is case-insensitive and based on file extension:
+\itemize{
+\item \code{.xls}, \code{.xlsx}: Excel via \code{readxl::read_excel()}
+\item \code{.rds}: R Data Serialization via \code{readRDS()}
+\item \code{.sas7bdat}: SAS via \code{haven::read_sas()}
+\item All others: CSV via \code{utils::read.csv()} (note: \code{stringsAsFactors}
+behavior depends on R version)
+}
+
+The returned descriptor integrates with improve's provenance tracking when
+\code{addAsLink = TRUE}. The file is downloaded to a local \verb{data/} subdirectory
+in the current workspace.
+}
+\examples{
+\dontrun{
+# Load CSV data from current step
+data_desc <- getData("analysis_data.csv")
+df <- data_desc$data[[1]]
+
+# Check what was loaded
+data_desc$name       # Original filename
+data_desc$entityId   # improve entity ID
+data_desc$dataType   # "CSV"
+
+# Access full resource metadata
+resource_info <- data_desc$resource[[1]]
+resource_info$lastModifiedOn
+
+# Load Excel file with custom caption
+excel_desc <- getData(
+  "results/summary.xlsx",
+  caption = "Study Results Summary"
+)
+
+# Load without provenance tracking (one-off use)
+temp_data <- getData("temp_file.csv", addAsLink = FALSE)
+
+# Use custom parser for special format
+custom_desc <- getData(
+  "special_format.txt",
+  parser = function(path) read.delim(path, sep = "|")
+)
+
+# Handle case when resource not found
+result <- getData("nonexistent.csv")
+if (is.null(result)) {
+  message("Resource not found")
+}
+}
+
 }
 \references{
 ics1141
+}
+\seealso{
+\code{\link{getTextString}} for loading text files,
+\code{\link{getGraphics}} for loading image files,
+\code{\link{getR}} for loading R objects,
+\code{\link{loadResource}} for loading resource metadata without file content
 }

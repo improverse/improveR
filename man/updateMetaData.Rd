@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadMetadata.R
 \name{updateMetaData}
 \alias{updateMetaData}
-\title{updateMetaData}
+\title{Update Meta Data}
 \usage{
 updateMetaData(ident)
 }
@@ -10,7 +10,7 @@ updateMetaData(ident)
 \item{ident}{id}
 }
 \description{
-updateMetaData
+Update Meta Data
 }
 \references{
 ics1096

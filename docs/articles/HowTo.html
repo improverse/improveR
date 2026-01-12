@@ -137,7 +137,7 @@
 <p>See <a href="../reference/createFolder.html">reference</a>. See <a href="../articles/workingWithSteps.html#specify-destination">article</a>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/createFolder.html">createFolder</a></span><span class="op">(</span>folderName<span class="op">=</span><span class="st">"NameOfNewFolder"</span>, targetIdent<span class="op">=</span><span class="st">"improve-tutorial/"</span><span class="op">)</span> </span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/createFolder.html">createFolder</a></span><span class="op">(</span>folderName<span class="op">=</span><span class="st">"NameOfNewFolder"</span>, targetIdent<span class="op">=</span><span class="st">"/improve-tutorial/"</span><span class="op">)</span> </span></code></pre></div>
 </div>
 </section><section class="section level2"><h2 id="create-an-external-link">create an external Link<a class="anchor" aria-label="anchor" href="#create-an-external-link"></a>
 </h2>
@@ -161,7 +161,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stepEnv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStep.html">getStep</a></span><span class="op">(</span><span class="st">"/improve-tutorial/Reporting/Step 1"</span><span class="op">)</span> <span class="co">#get environment of step to which the workflow leads</span></span>
-<span><span class="va">stepEnv</span><span class="op">$</span><span class="va">lineage</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span>treeDepth<span class="op">=</span><span class="op">-</span><span class="fl">1</span>, stepDepth<span class="op">=</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="co">#get the full lineage with -1</span></span>
+<span><span class="va">stepEnv</span><span class="op">$</span><span class="va">dependencies</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span>treeDepth<span class="op">=</span><span class="op">-</span><span class="fl">1</span>, stepDepth<span class="op">=</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="co">#get the full dependencies with -1</span></span>
 <span><span class="fu"><a href="../reference/exportWorkflow.html">exportWorkflow</a></span><span class="op">(</span><span class="va">envATReportingStep1</span><span class="op">$</span><span class="va">workflow</span>, <span class="st">"WFReportingSTep1"</span><span class="op">)</span> <span class="co">#export the workflow binding of stepEnv via exportWorfklow</span></span></code></pre></div>
 </div>
 </section><section class="section level2"><h2 id="get-all-steps-of-an-analysis-tree">get all steps of an analysis tree<a class="anchor" aria-label="anchor" href="#get-all-steps-of-an-analysis-tree"></a>
@@ -197,25 +197,25 @@
 </h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dfChild</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadChildSteps.html">loadChildSteps</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"improve-tutorial/Modeling/Step 1"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">dfChild</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadChildSteps.html">loadChildSteps</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"/improve-tutorial/Modeling/Step 1"</span><span class="op">)</span></span>
 <span><span class="va">dfChild</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">path</span>, <span class="va">resourceId</span><span class="op">)</span></span>
 <span><span class="co">##                                path                       resourceId</span></span>
-<span><span class="co">## 1 /improve-tutorial/Modeling/Step 7 ED49CA61567D4F8AB3207C5451AFBA8F</span></span>
-<span><span class="co">## 2 /improve-tutorial/Modeling/Step 6 9C3323B91A244AAABABFEDE65287891E</span></span>
-<span><span class="co">## 3 /improve-tutorial/Modeling/Step 8 0C1B181FCC7F441C97AB5986618CBD62</span></span>
-<span><span class="co">## 4   /improve-tutorial/Review/Step 1 CCC0F17214854EE3977CE373B2C9E13E</span></span></code></pre></div>
+<span><span class="co">## 1 /improve-tutorial/Modeling/Step 6 9C3323B91A244AAABABFEDE65287891E</span></span>
+<span><span class="co">## 2 /improve-tutorial/Modeling/Step 7 ED49CA61567D4F8AB3207C5451AFBA8F</span></span>
+<span><span class="co">## 3   /improve-tutorial/Review/Step 1 CCC0F17214854EE3977CE373B2C9E13E</span></span>
+<span><span class="co">## 4 /improve-tutorial/Modeling/Step 8 0C1B181FCC7F441C97AB5986618CBD62</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h3 id="version-2-getstep">Version 2: getStep()<a class="anchor" aria-label="anchor" href="#version-2-getstep"></a>
 </h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">envStep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStep.html">getStep</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"improve-tutorial/Modeling/Step 1"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">envStep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStep.html">getStep</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"/improve-tutorial/Modeling/Step 1"</span><span class="op">)</span></span>
 <span><span class="va">envStep</span><span class="op">$</span><span class="va">children</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">## 2025-10-29 10:32:50.337115 INFO::adding  Step 7 ST-54672 to children</span></span>
-<span><span class="co">## 2025-10-29 10:32:52.622488 INFO::adding  Step 6 ST-54651 to children</span></span>
-<span><span class="co">## 2025-10-29 10:32:54.891651 INFO::adding  Step 8 ST-54675 to children</span></span>
-<span><span class="co">## 2025-10-29 10:32:57.313737 INFO::adding  Step 1 ST-65316 to children</span></span>
+<span><span class="co">## 2025-12-16 12:11:39.821987 INFO::adding  Step 6 ST-54651 to children</span></span>
+<span><span class="co">## 2025-12-16 12:11:43.279528 INFO::adding  Step 7 ST-54672 to children</span></span>
+<span><span class="co">## 2025-12-16 12:11:46.442701 INFO::adding  Step 1 ST-65316 to children</span></span>
+<span><span class="co">## 2025-12-16 12:11:49.673778 INFO::adding  Step 8 ST-54675 to children</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/ls.html" class="external-link">ls</a></span><span class="op">(</span><span class="va">envStep</span><span class="op">$</span><span class="va">children</span><span class="op">)</span></span>
 <span><span class="co">## [1] "load"                  "Modeling/Step 6/54651" "Modeling/Step 7/54672" "Modeling/Step 8/54675" "Review/Step 1/65316"</span></span></code></pre></div>
 </div>
@@ -226,12 +226,12 @@
 <code class="sourceCode R"><span><span class="va">envATReportingStep1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStep.html">getStep</a></span><span class="op">(</span><span class="st">"/improve-tutorial/Reporting/Step 1"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># get the workflow and show details on Step 'Modeling/Step 10'</span></span>
-<span><span class="va">envATReportingStep1</span><span class="op">$</span><span class="va">lineage</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span>treeDepth<span class="op">=</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">envATReportingStep1</span><span class="op">$</span><span class="va">dependencies</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span>treeDepth<span class="op">=</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#show all steps which form part of the workflow</span></span>
 <span><span class="va">envATReportingStep1</span><span class="op">$</span><span class="va">workflow</span><span class="op">$</span><span class="fu">df</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>Note that before calling <code>lineage$load()</code>, the <code><a href="https://rdrr.io/r/stats/Fdist.html" class="external-link">df()</a></code> in the <code>workflow</code> binding will only return the step itself, i.e., <code>Reporting/Step 1</code>.</p>
+<p>Note that before calling <code>dependencies$load()</code>, the <code><a href="https://rdrr.io/r/stats/Fdist.html" class="external-link">df()</a></code> in the <code>workflow</code> binding will only return the step itself, i.e., <code>Reporting/Step 1</code>.</p>
 </section><section class="section level2"><h2 id="get-the-elements-aka-resources-of-a-steps-inventory">get the elements aka resources of a step’s inventory<a class="anchor" aria-label="anchor" href="#get-the-elements-aka-resources-of-a-steps-inventory"></a>
 </h2>
 <div class="cell">
@@ -293,30 +293,37 @@
 <div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stepTemplateEnv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createStepTemplateEnv.html">createStepTemplateEnv</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section class="section level2"><h2 id="delete-a-resource-">delete a resource.<a class="anchor" aria-label="anchor" href="#delete-a-resource-"></a>
+</section><section class="section level2"><h2 id="delete-a-resource">delete a resource<a class="anchor" aria-label="anchor" href="#delete-a-resource"></a>
 </h2>
 <p>See <a href="../reference/delete.html">reference</a>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Get steps inside the analysis tree</span></span>
-<span><span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadChildResources.html">loadChildResources</a></span><span class="op">(</span><span class="st">"improve-tutorial/yourTree"</span><span class="op">)</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> </span>
+<span><span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadChildResources.html">loadChildResources</a></span><span class="op">(</span><span class="st">"/improve-tutorial/yourTree"</span><span class="op">)</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> </span>
 <span><span class="va">steps</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">select</span><span class="op">(</span><span class="va">nodeType</span>, <span class="va">name</span>, <span class="va">path</span>, <span class="va">entityId</span><span class="op">)</span></span>
 <span><span class="co">##   nodeType   name                              path                                        entityId</span></span>
-<span><span class="co">## 1     Step Step 1 /improve-tutorial/yourTree/Step 1 envhost1.hc.scintecodev.internal-5310:ST-116605</span></span>
+<span><span class="co">## 1     Step Step 1 /improve-tutorial/yourTree/Step 1 envhost1.hc.scintecodev.internal-5310:ST-123507</span></span>
 <span></span>
 <span><span class="co">#Delete the steps via their entityId, or equivalent ident</span></span>
 <span><span class="fu"><a href="../reference/delete.html">delete</a></span><span class="op">(</span>res<span class="op">=</span><span class="va">steps</span><span class="op">$</span><span class="va">entityId</span><span class="op">)</span></span>
 <span><span class="co">## [1] TRUE</span></span>
 <span></span>
 <span><span class="co">#Loading child resources of tree again confirms that step(s) were removed</span></span>
-<span><span class="fu"><a href="../reference/loadChildResources.html">loadChildResources</a></span><span class="op">(</span><span class="st">"improve-tutorial/yourTree"</span><span class="op">)</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="fu"><a href="../reference/loadChildResources.html">loadChildResources</a></span><span class="op">(</span><span class="st">"/improve-tutorial/yourTree"</span><span class="op">)</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co">## data frame with 0 columns and 0 rows</span></span></code></pre></div>
+</div>
+</section><section class="section level2"><h2 id="terminate-the-execution-of-a-step">terminate the execution of a step<a class="anchor" aria-label="anchor" href="#terminate-the-execution-of-a-step"></a>
+</h2>
+<p>See <a href="../reference/terminateStepResource.html">reference</a>. See <a href="../articles/workingWithSteps.html">article</a>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/terminateStepResource.html">terminateStepResource</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"/improve-tutorial/Modeling/Step 9"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="section level2"><h2 id="trigger-the-execution-of-a-step">trigger the execution of a step<a class="anchor" aria-label="anchor" href="#trigger-the-execution-of-a-step"></a>
 </h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/runStepResource.html">runStepResource</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"improve-tutorial/Modeling/Step 9"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/runStepResource.html">runStepResource</a></span><span class="op">(</span>ident<span class="op">=</span><span class="st">"/improve-tutorial/Modeling/Step 9"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/reviewEntries.R
 \name{deleteReviewEntry}
 \alias{deleteReviewEntry}
-\title{deletes all review entries from a review}
+\title{Deletes All Review Entries From A Review}
 \usage{
 deleteReviewEntry(reviewId)
 }
@@ -10,7 +10,7 @@ deleteReviewEntry(reviewId)
 \item{reviewId}{id (UUID) of the review}
 }
 \description{
-deletes all review entries from a review
+Deletes All Review Entries From A Review
 }
 \references{
 ics365

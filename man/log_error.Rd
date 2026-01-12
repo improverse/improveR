@@ -2,7 +2,7 @@
 % Please edit documentation in R/loggers.R
 \name{log_error}
 \alias{log_error}
-\title{log_error}
+\title{Log_error}
 \usage{
 log_error(...)
 }
@@ -10,5 +10,5 @@ log_error(...)
 \item{...}{combines all items to one log message}
 }
 \description{
-log_error
+Log_error
 }

@@ -59,8 +59,8 @@ fn_connect <- function() {
   Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
   improveR::clearConnectionData()
-  improveRtestsupport::improveConnect() #new
-  #  improveConnect()
+  # improveRtestsupport::improveConnect() #new
+   improveConnect()
 
   setEditable(TRUE)
   print(paste("IMPROVER_REPO_URL:",Sys.getenv("IMPROVER_REPO_URL")))

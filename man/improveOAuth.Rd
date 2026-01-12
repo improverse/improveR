@@ -2,7 +2,7 @@
 % Please edit documentation in R/oauthLogin.R
 \name{improveOAuth}
 \alias{improveOAuth}
-\title{improveOAuth}
+\title{Improve OAuth}
 \usage{
 improveOAuth(
   repo,

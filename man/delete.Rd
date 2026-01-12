@@ -2,24 +2,64 @@
 % Please edit documentation in R/change.R
 \name{delete}
 \alias{delete}
-\title{Delete Resource(s)
-\code{delete()} takes takes the ident of one or multiple resources and
-deletes them. Resouces can be, e.g., folders, analysis trees, steps,
-or files. Deletion will be prevented if any step within the resource(s)
-has a runStatus other than "INITIAL" or "FINISHED".}
+\title{Delete Resources Permanently}
 \usage{
 delete(res)
 }
 \arguments{
-\item{res}{the resource(s) to be deleted}
+\item{res}{Identifier(s) of resource(s) to delete. Can be a single resource or multiple
+resources. Accepts paths, resource ids, entity ids, or a data frame of resources.}
+}
+\value{
+Logical \code{TRUE} if deletion succeeded, \code{FALSE} if it failed (e.g.,
+resource doesn't exist, step has incompatible runStatus).
 }
 \description{
-Delete Resource(s)
-\code{delete()} takes takes the ident of one or multiple resources and
-deletes them. Resouces can be, e.g., folders, analysis trees, steps,
-or files. Deletion will be prevented if any step within the resource(s)
-has a runStatus other than "INITIAL" or "FINISHED".
+Permanently removes one or more resources from the repository. Resources can be folders,
+analysis trees, workflows, steps, files, or links. For safety, deletion is prevented
+if any workflow step within the resource(s) has an active run status.
+}
+\details{
+\strong{Safety constraints:} Deletion is blocked if any workflow step within the target
+resource(s) has a runStatus other than "INITIAL" or "FINISHED". This prevents accidental
+deletion of:
+\itemize{
+\item Running steps (\code{runStatus = "RUNNING"})
+\item Failed steps that may need investigation (\code{runStatus = "FAILED"})
+\item Steps in other intermediate states
+}
+
+For files and links, deletion proceeds immediately as they don't have run states.
+
+\strong{Important notes:}
+\itemize{
+\item Deletion is \strong{permanent} - deleted resources cannot be recovered
+\item Parent folder caches are automatically cleared after deletion
+\item Path caches are invalidated for the deleted resource and any linked files
+\item Repository must be in editable mode (automatically checked)
+}
+}
+\examples{
+\dontrun{
+# Delete a single file
+delete("/Data/temp_file.csv")
+
+# Delete multiple resources
+delete(c("/Temp/file1.csv", "/Temp/file2.csv"))
+
+# Delete a folder and all contents (if step runStatus allows)
+delete("/Projects/Old_Analysis")
+
+# Delete using a data frame of resources
+temp_files <- query("name='temp_*'")
+delete(temp_files)
+}
+
 }
 \references{
 ics1139
+}
+\seealso{
+\code{\link{copy}} to duplicate resources before deletion,
+\code{\link{move}} to relocate resources instead of deleting
 }

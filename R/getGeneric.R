@@ -1,13 +1,13 @@
-#' gets a file object
+#' Get a File Object
 #'
-#' @param ident path, resource or entity ID of the file
+#' @param ident Path, resource, or entity ID of the file.
 #'
-#' @param addAsLink creates a link in inventory if TRUE, warn improveClean has to be run at the end
-#' @param from used for relative paths, by default pwd is used, which is initiated with the step that started improveR
-#' @param caption by default entityID and lastmodified are the caption, here alternative text can be provided
-#' @param description by default filename is the caption, here alternative text can be provided
-#' @param folderName by default data the subfolder in the workspace where the file is created
-#' @param addIdToName by default T prepend the entity ID of the name to avoid collissions
+#' @param addAsLink Creates a link in the inventory if TRUE; improveClean must be run at the end.
+#' @param from Used for relative paths. By default, pwd is used (initiated with the step that started improveR).
+#' @param caption By default, entity ID and last modified are the caption; alternative text can be provided here.
+#' @param description By default, the filename is the description; alternative text can be provided here.
+#' @param folderName By default, `data` is the subfolder in the workspace where the file is created.
+#' @param addIdToName By default, T prepends the entity ID to the name to avoid collisions.
 #' @references ics1141
 #' @export
 getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",folderName = "data",addIdToName = T) {
@@ -16,13 +16,13 @@ getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",fo
   )
 }
 
-#' gets a file objectas local copy
+#' Get a Local Copy of a File
 #'
-#' @param ident path, resource or entity ID of the file
+#' @param ident Path, resource, or entity ID of the file.
 #'
-#' @param from used for relative paths, by default pwd is used, which is initiated with the step that started improveR
-#' @param caption by default entityID and lastmodified are the caption, here alternative text can be provided
-#' @param description by default filename is the caption, here alternative text can be provided
+#' @param from Used for relative paths. By default, pwd is used (initiated with the step that started improveR).
+#' @param caption By default, entity ID and last modified are the caption; alternative text can be provided here.
+#' @param description By default, the filename is the description; alternative text can be provided here.
 #' @references ics1141
 #' @export
 getCopy <- function(ident,from=pwd(),caption="",description="") {
@@ -31,13 +31,13 @@ getCopy <- function(ident,from=pwd(),caption="",description="") {
   )
 }
 
-#' retrieves a list of files from within a folder
+#' Retrieve a List of Files from a Folder
 #'
-#' @param ident path, resource or entity ID of the folder, only one folder at a time
+#' @param ident Path, resource, or entity ID of the folder (one folder at a time).
 #'
-#' @param from used for relative paths, by default pwd is used, which is initiated with the step that started improveR
-#' @param filePattern filter applied to the file name, example: *.r
-#' @param recurse if folders within this folder are also parsed, default FALSE
+#' @param from Used for relative paths. By default, pwd is used (initiated with the step that started improveR).
+#' @param filePattern Filter applied to the file name (example: `*.r`).
+#' @param recurse If TRUE, nested folders are also parsed. Defaults to FALSE.
 #' @references ics1141
 #' @export
 #' @importFrom rlang .data
@@ -103,7 +103,7 @@ getFilesFromFolder <- function(ident, from=pwd(),filePattern="", recurse=F) {
 #' @param addAsLink creates a link in inventory if TRUE, warn improveClean has to be run at the end
 #' @param addIdToName adds the entity ID to the filename, enity version ID if a specific version is retrieved
 #' @param from used for relative paths, by default pwd is used, which is initiated with the step that started improveR
-#' @param caption by default entityID and lastmodified are the caption, here alternative text can be provided
+#' @param caption by default entityID and lastModified are the caption, here alternative text can be provided
 #' @param description by default filename is the caption, here alternative text can be provided
 #' @param folderName where to store the file
 #' @param func the processing function for this type
@@ -148,7 +148,7 @@ getAbstract <- function(ident,from=pwd(),addAsLink=TRUE,addIdToName = TRUE,capti
 #'
 #' @param resourceDesc resource descriptor of the picture
 #'
-#' @param caption by default entityID and lastmodified are the caption, here alternative text can be provided
+#' @param caption by default entityID and lastModified are the caption, here alternative text can be provided
 #' @param description by default filename is the caption, here alternative text can be provided
 #' @noRd
 #'
@@ -164,7 +164,7 @@ getDesc <- function(resourceDesc,caption="",description="") {
 #' @param resource resource to be described
 #' @param localPath path to the file locally
 #'
-#' @param caption by default entityID and lastmodified are the caption, here alternative text can be provided
+#' @param caption by default entityID and lastModified are the caption, here alternative text can be provided
 #' @param description by default filename is the caption, here alternative text can be provided
 #' @noRd
 #'
@@ -203,7 +203,7 @@ buildCaption <- function(resource) {
 }
 
 
-#' resets the step by deleting all the downloaded data, if you are using relative pathes it makes sense to do this at the beginning of the step
+#' resets the step by deleting all the downloaded data, if you are using relative paths it makes sense to do this at the beginning of the step
 #' it also deletes all the links that were currently created
 #' @noRd
 #'

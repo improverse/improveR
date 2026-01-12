@@ -2,16 +2,25 @@
 % Please edit documentation in R/loadChildSteps.R
 \name{updateChildSteps}
 \alias{updateChildSteps}
-\title{updateChildSteps}
+\title{Update Child Steps from Server}
 \usage{
 updateChildSteps(ident)
 }
 \arguments{
-\item{ident}{id}
+\item{ident}{The resource identifier - can be a resource ID, entity ID,
+entity version ID, or path.}
+}
+\value{
+A data frame with updated child steps data. See \code{\link{loadChildSteps}}
+for details on the return structure.
 }
 \description{
-updateChildSteps
+Clears cached child steps data and reloads fresh data from the server.
 }
 \references{
 ics1205
+}
+\seealso{
+\code{\link{loadChildSteps}} for return structure details,
+\code{\link{unloadChildSteps}} to only clear cache
 }

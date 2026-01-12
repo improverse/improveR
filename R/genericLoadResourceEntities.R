@@ -1,6 +1,6 @@
 
 #TODO improve wording
-#' strip
+#' Strip
 #' @description strip removes the information data frame around subentities like meta data, history, children, or audittrail.
 #' @param data a data frame with a nested data frame in $data
 #' @export

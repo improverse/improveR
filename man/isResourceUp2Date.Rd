@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResource.R
 \name{isResourceUp2Date}
 \alias{isResourceUp2Date}
-\title{isResourceUp2Date}
+\title{Is Resource Up2 Date}
 \usage{
 isResourceUp2Date(ident, from = pwd())
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResourceRelations.R
 \name{updateResourceRelations}
 \alias{updateResourceRelations}
-\title{reloads the resource relations}
+\title{Reloads the Resource Relations}
 \usage{
 updateResourceRelations(resourceId)
 }
@@ -10,7 +10,7 @@ updateResourceRelations(resourceId)
 \item{resourceId}{id (UUID) of the resource}
 }
 \description{
-reloads the resource relations
+Reloads the Resource Relations
 }
 \references{
 ics1044

@@ -56,7 +56,7 @@ setLogContext <- function(context) {
   logEnv$context <- context
 }
 
-#' log_debug
+#' Log_debug
 #' @param ... combines all items to one log message
 #' @export
 log_debug <- function(...) {
@@ -69,7 +69,7 @@ log_debug <- function(...) {
 
 }
 
-#' log_info
+#' Log_info
 #' @param ... combines all items to one log message
 #' @export
 log_info <- function(...) {
@@ -81,7 +81,7 @@ log_info <- function(...) {
   }
 }
 
-#' log_warn
+#' Log_warn
 #' @param ... combines all items to one log message
 #' @export
 log_warn <- function(...) {
@@ -93,7 +93,7 @@ log_warn <- function(...) {
   }
 }
 
-#' log_error
+#' Log_error
 #' @param ... combines all items to one log message
 #' @export
 log_error <- function(...) {

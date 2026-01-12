@@ -5,7 +5,7 @@ magrittr::`%>%`
 
 
 
-#' improveOAuth
+#' Improve OAuth
 #'
 #' @description improveOAuth is used to connect to the repository via oauth.
 #' @param repo the repository URL in this form https://<url>:<port>/<repositoryPath> the api part (/api/v1) is added automatically

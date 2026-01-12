@@ -2,19 +2,37 @@
 % Please edit documentation in R/getWorkflow.R
 \name{getWorkflow}
 \alias{getWorkflow}
-\title{getWorkflow
-reads a tree and creates stepEnvs for all steps}
+\title{Load Workflow Environment}
 \usage{
 getWorkflow(ident, from = pwd(), includeSelf = F)
 }
 \arguments{
-\item{ident}{the ident of the step}
+\item{ident}{Identifier of the tree or container resource.}
 
-\item{from}{if relative path, default the starting step}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}.}
 
-\item{includeSelf}{by defaults does not include the step the script is run with.}
+\item{includeSelf}{Logical. If \code{TRUE}, includes the step identified by \code{pwd()}
+if it falls within the loaded tree. Defaults to \code{FALSE} to prevent
+self-referential issues during execution.}
+}
+\value{
+A workflow environment containing all loaded steps. See \code{\link{createWorkflow}}
+for details on the workflow environment structure and available methods.
 }
 \description{
-getWorkflow
-reads a tree and creates stepEnvs for all steps
+Loads a complete workflow environment by reading a tree structure (e.g., an Analysis Tree)
+and initializing step environments for all contained steps.
+}
+\examples{
+\dontrun{
+# Load workflow from an analysis tree
+wf <- getWorkflow("/Projects/Analysis/Tree1")
+
+# List all steps in the loaded workflow
+wf$df()
+}
+
+}
+\seealso{
+\code{\link{createWorkflow}}, \code{\link{getStep}}
 }

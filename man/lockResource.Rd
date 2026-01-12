@@ -2,18 +2,77 @@
 % Please edit documentation in R/lockUnlock.R
 \name{lockResource}
 \alias{lockResource}
-\title{lockResource}
+\title{Lock Resource for Exclusive Editing}
 \usage{
 lockResource(ident, from = pwd())
 }
 \arguments{
-\item{ident}{id of resource to be locked}
+\item{ident}{Resource identifier (entityId, resourceId, or path). See \code{\link{common_ident}}
+for supported identifier formats.}
 
-\item{from}{pwd for relative pathes}
+\item{from}{Base path for resolving relative paths. Defaults to current working directory
+from \code{\link{pwd}}.}
+}
+\value{
+Logical value:
+\describe{
+\item{TRUE}{Resource successfully locked by current user}
+\item{FALSE}{Lock failed - resource already locked by another user or server error}
+}
 }
 \description{
-lockResource
+Locks a resource on the improve server to prevent concurrent modifications by other users.
+This ensures data integrity during editing operations and prevents conflicts in collaborative
+pharmaceutical workflows.
+}
+\details{
+\strong{Lock Behavior:}
+\itemize{
+\item Only one user can hold a lock on a resource at a time
+\item Lock prevents other users from editing until released with \code{\link{unlockResource}}
+\item Lock is automatically released when session ends or times out
+\item Requires editable session mode (see \code{\link{setEditable}})
+}
+
+\strong{Lock Status:}
+If the resource is already locked, a warning message indicates which user holds the lock.
+You must wait for them to unlock or contact an administrator for lock override.
+
+\strong{Best Practice:}
+Always unlock resources when finished editing to avoid blocking collaborators.
+Use \code{try()} or \code{on.exit()} to ensure unlocking even if errors occur.
+}
+\examples{
+\dontrun{
+# Connect and enable editing
+improveConnect()
+setEditable(TRUE)
+
+# Lock a resource before editing
+if (lockResource("MyAnalysis/data.csv")) {
+  # Perform editing operations
+  # ...
+
+  # Always unlock when done
+  unlockResource("MyAnalysis/data.csv")
+} else {
+  message("Resource is locked by another user")
+}
+
+# Safe pattern with automatic unlock
+locked <- lockResource("MyAnalysis/results")
+if (locked) {
+  on.exit(unlockResource("MyAnalysis/results"))
+  # Edit operations here
+}
+}
+
 }
 \references{
 ics1139
+}
+\seealso{
+\code{\link{unlockResource}} to release lock,
+\code{\link{setEditable}} to enable write operations,
+\code{\link{updateResource}} for refreshing resource state
 }

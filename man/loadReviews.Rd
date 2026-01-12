@@ -2,14 +2,14 @@
 % Please edit documentation in R/loadREview.R
 \name{loadReviews}
 \alias{loadReviews}
-\title{loads all registered reviews
+\title{Loads All Registered Reviews
 it uses caching
 the result is returned as a data frame}
 \usage{
 loadReviews()
 }
 \description{
-loads all registered reviews
+Loads All Registered Reviews
 it uses caching
 the result is returned as a data frame
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResourceRelations.R
 \name{loadResourceRelations}
 \alias{loadResourceRelations}
-\title{loads all registered resource relations
+\title{Loads All Registered Resource Relations
 it uses caching
 the results are returned as a data frame or a list of data frames
 the dates are also converted to posix dates via convertImproveTimestampToPosix
@@ -14,7 +14,7 @@ loadResourceRelations(resourceId)
 \item{resourceId}{id (UUID) of the resource}
 }
 \description{
-loads all registered resource relations
+Loads All Registered Resource Relations
 it uses caching
 the results are returned as a data frame or a list of data frames
 the dates are also converted to posix dates via convertImproveTimestampToPosix

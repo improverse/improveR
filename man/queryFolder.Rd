@@ -2,21 +2,76 @@
 % Please edit documentation in R/query.R
 \name{queryFolder}
 \alias{queryFolder}
-\title{performs this query against the elastic search within one folder}
+\title{Search Resources Within a Folder Using Elasticsearch Query}
 \usage{
 queryFolder(queryString, fetchSize = 100, fetchOffset = 0, ident, from = pwd())
 }
 \arguments{
-\item{queryString}{query with the same grammar as in the UI}
+\item{queryString}{Character. Search query using improve's query grammar. The query is
+automatically combined with a path restriction to limit results to the specified folder.
+Use the same syntax as in \code{\link{query}}.}
 
-\item{fetchSize}{maximum number of returned results}
+\item{fetchSize}{Numeric. Maximum number of results to return. Defaults to 100.}
 
-\item{fetchOffset}{offset of the results, enables paging}
+\item{fetchOffset}{Numeric. Number of results to skip before returning matches.
+Defaults to 0. Use with \code{fetchSize} for pagination.}
 
-\item{ident}{path or id of a resource to start search from}
+\item{ident}{Identifier of the folder to search within. Can be a path, resource id,
+or entity id. Only resources in this folder or its subfolders will be returned.}
 
-\item{from}{root for a relative path per default pwd}
+\item{from}{Starting point for relative path resolution. Defaults to current working
+directory from \code{pwd()}. Only used if \code{ident} is a relative path.}
+}
+\value{
+A data frame containing the matched resources within the folder hierarchy,
+or \code{NULL} if no resources match, the query contains errors, the folder doesn't
+exist, or multiple folders are provided (only one folder allowed).
 }
 \description{
-performs this query against the elastic search within one folder
+Executes a search query limited to resources within a specific folder and its descendants.
+This is a convenience wrapper around \code{\link{query}} that automatically restricts
+the search scope to a folder hierarchy, using the same query syntax as the improve web UI.
+}
+\details{
+The function loads the specified folder, constructs a path-based filter, and combines
+it with your query string. The resulting query searches for resources where the path
+equals the folder path or starts with the folder path followed by \code{/*}.
+
+This is particularly useful for:
+\itemize{
+\item Searching within a specific project or workflow folder
+\item Finding resources in a folder hierarchy without knowing exact paths
+\item Limiting search scope to improve performance and relevance
+}
+
+The function will log a warning and return \code{NULL} if multiple folders are
+provided in \code{ident}, as only single-folder searches are supported.
+}
+\examples{
+\dontrun{
+# Find all CSV files in a modeling folder
+queryFolder(
+  ident = "/Modeling/PopPK",
+  queryString = "name='*.csv'"
+)
+
+# Find finished steps in a workflow
+queryFolder(
+  ident = "/Workflows/Analysis",
+  queryString = "nodeType='Step' AND runStatus='FINISHED'"
+)
+
+# Search with pagination
+queryFolder(
+  ident = "/Data",
+  queryString = "nodeType='File'",
+  fetchSize = 20,
+  fetchOffset = 0
+)
+}
+
+}
+\seealso{
+\code{\link{query}} for repository-wide searches,
+\code{\link{loadChildResources}} to list immediate children of a folder
 }

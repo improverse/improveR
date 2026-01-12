@@ -2,7 +2,7 @@
 % Please edit documentation in R/metadata.R
 \name{deleteMetaDate}
 \alias{deleteMetaDate}
-\title{deletes metadata from a resource}
+\title{Deletes Metadata From A Resource}
 \usage{
 deleteMetaDate(ident, descriptorName)
 }
@@ -12,7 +12,7 @@ deleteMetaDate(ident, descriptorName)
 \item{descriptorName}{this descriptorName has to exist, check in preferences}
 }
 \description{
-deletes metadata from a resource
+Deletes Metadata From A Resource
 }
 \references{
 ics1137

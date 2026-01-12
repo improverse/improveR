@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadMetaDataDefinitions.R
 \name{loadMetaDataDefinition}
 \alias{loadMetaDataDefinition}
-\title{loads one meta data definitions by name for a scope, the default scope is "Improve Client"}
+\title{Loads One Meta Data Definitions By Name For A Scope, The Default Scope Is "Improve Client"}
 \usage{
 loadMetaDataDefinition(name, scope = "Improve Client")
 }
@@ -12,7 +12,7 @@ loadMetaDataDefinition(name, scope = "Improve Client")
 \item{scope}{the metadata scope}
 }
 \description{
-loads one meta data definitions by name for a scope, the default scope is "Improve Client"
+Loads One Meta Data Definitions By Name For A Scope, The Default Scope Is "Improve Client"
 }
 \references{
 ics1137

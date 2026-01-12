@@ -17,7 +17,7 @@ validateReviewState <- function(reviewId) {
   return(TRUE)
 }
 
-#' creates a comment for a review
+#' Creates a Comment for a Review
 #' @param reviewId id (UUID) of the review
 #' @param resourceId id (UUID) of the resource
 #' @param comment comment

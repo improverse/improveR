@@ -1,0 +1,198 @@
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Downloading GitHub repo ropensci/visdat@HEAD
+Installing 10 packages: utf8, pillar, magrittr, tibble, vroom, stringr, purrr, S7, forcats, ggplot2
+Installing packages into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/utf8_1.2.6.tar.gz'
+Content type 'binary/octet-stream' length 151756 bytes (148 KB)
+==================================================
+downloaded 148 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/pillar_1.11.1.tar.gz'
+Content type 'binary/octet-stream' length 660070 bytes (644 KB)
+==================================================
+downloaded 644 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/magrittr_2.0.4.tar.gz'
+Content type 'binary/octet-stream' length 221663 bytes (216 KB)
+==================================================
+downloaded 216 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/tibble_3.3.0.tar.gz'
+Content type 'binary/octet-stream' length 680326 bytes (664 KB)
+==================================================
+downloaded 664 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/vroom_1.6.6.tar.gz'
+Content type 'binary/octet-stream' length 960423 bytes (937 KB)
+==================================================
+downloaded 937 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/stringr_1.5.2.tar.gz'
+Content type 'binary/octet-stream' length 310969 bytes (303 KB)
+==================================================
+downloaded 303 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/purrr_1.1.0.tar.gz'
+Content type 'binary/octet-stream' length 554488 bytes (541 KB)
+==================================================
+downloaded 541 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/S7_0.2.0.tar.gz'
+Content type 'binary/octet-stream' length 324071 bytes (316 KB)
+==================================================
+downloaded 316 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/forcats_1.0.1.tar.gz'
+Content type 'binary/octet-stream' length 422518 bytes (412 KB)
+==================================================
+downloaded 412 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/ggplot2_4.0.0.tar.gz'
+Content type 'binary/octet-stream' length 5925859 bytes (5.7 MB)
+==================================================
+downloaded 5.7 MB
+
+* installing *binary* package ‘utf8’ ...
+* DONE (utf8)
+* installing *binary* package ‘magrittr’ ...
+* DONE (magrittr)
+* installing *binary* package ‘S7’ ...
+* DONE (S7)
+* installing *binary* package ‘pillar’ ...
+* DONE (pillar)
+* installing *binary* package ‘stringr’ ...
+* DONE (stringr)
+* installing *binary* package ‘purrr’ ...
+* DONE (purrr)
+* installing *binary* package ‘ggplot2’ ...
+* DONE (ggplot2)
+* installing *binary* package ‘tibble’ ...
+* DONE (tibble)
+* installing *binary* package ‘vroom’ ...
+* DONE (vroom)
+* installing *binary* package ‘forcats’ ...
+* DONE (forcats)
+
+The downloaded source packages are in
+	‘/tmp/RtmpZiirX3/downloaded_packages’
+Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+* installing *source* package ‘visdat’ ...
+** using staged installation
+** R
+** data
+*** moving datasets to lazyload DB
+** inst
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+*** copying figures
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded from temporary location
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (visdat)
+Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+also installing the dependencies ‘norm’, ‘viridis’, ‘UpSetR’
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/norm_1.0-11.1.tar.gz'
+Content type 'binary/octet-stream' length 86929 bytes (84 KB)
+==================================================
+downloaded 84 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/viridis_0.6.5.tar.gz'
+Content type 'binary/octet-stream' length 3011703 bytes (2.9 MB)
+==================================================
+downloaded 2.9 MB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/UpSetR_1.4.0.tar.gz'
+Content type 'binary/octet-stream' length 4297379 bytes (4.1 MB)
+==================================================
+downloaded 4.1 MB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/naniar_1.1.0.tar.gz'
+Content type 'binary/octet-stream' length 2749849 bytes (2.6 MB)
+==================================================
+downloaded 2.6 MB
+
+* installing *binary* package ‘norm’ ...
+* DONE (norm)
+* installing *binary* package ‘viridis’ ...
+* DONE (viridis)
+* installing *binary* package ‘UpSetR’ ...
+* DONE (UpSetR)
+* installing *binary* package ‘naniar’ ...
+* DONE (naniar)
+
+The downloaded source packages are in
+	‘/tmp/RtmpZiirX3/downloaded_packages’
+Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+also installing the dependencies ‘tippy’, ‘webshot’
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/tippy_0.1.0.tar.gz'
+Content type 'binary/octet-stream' length 45992 bytes (44 KB)
+==================================================
+downloaded 44 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/webshot_0.5.5.tar.gz'
+Content type 'binary/octet-stream' length 206664 bytes (201 KB)
+==================================================
+downloaded 201 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/reactablefmtr_2.0.0.tar.gz'
+Content type 'binary/octet-stream' length 407309 bytes (397 KB)
+==================================================
+downloaded 397 KB
+
+* installing *binary* package ‘tippy’ ...
+* DONE (tippy)
+* installing *binary* package ‘webshot’ ...
+* DONE (webshot)
+* installing *binary* package ‘reactablefmtr’ ...
+* DONE (reactablefmtr)
+
+The downloaded source packages are in
+	‘/tmp/RtmpZiirX3/downloaded_packages’
+Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/htmlwidgets_1.6.4.tar.gz'
+Content type 'binary/octet-stream' length 815027 bytes (795 KB)
+==================================================
+downloaded 795 KB
+
+* installing *binary* package ‘htmlwidgets’ ...
+* DONE (htmlwidgets)
+
+The downloaded source packages are in
+	‘/tmp/RtmpZiirX3/downloaded_packages’
+
+Attaching package: ‘reactablefmtr’
+
+The following object is masked from ‘package:ggplot2’:
+
+    margin
+
+ℹ Using "','" as decimal and "'.'" as grouping mark. Use `read_delim()` for more control.
+Rows: 2107 Columns: 12
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ";"
+chr  (1): sex
+dbl (11): id, subject, time, conc, rate, amt, age, ht, wt, bsa, lbm
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+Saving 7 x 7 in image
+Saving 7 x 7 in image

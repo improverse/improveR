@@ -2,10 +2,7 @@
 % Please edit documentation in R/change.R
 \name{copy}
 \alias{copy}
-\title{copies resources
-multiple sources can be copied at once
-if multiple sources are copied target needs to be a container and targetName empty
-if only one source is copied, a new name can be specified, this can be done via a path or via targetName}
+\title{Copy Resources to Target Location}
 \usage{
 copy(
   sources,
@@ -16,22 +13,88 @@ copy(
 )
 }
 \arguments{
-\item{sources}{the files to be copied}
+\item{sources}{Identifier(s) of resource(s) to copy. Can be a single resource or multiple
+resources. Accepts paths, resource ids, entity ids, or a data frame of resources.}
 
-\item{target}{the target folder}
+\item{target}{Identifier of the target folder or file location. Can be a path, resource id,
+or entity id. If copying multiple sources, must be a container (folder).}
 
-\item{targetName}{name for the copied file}
+\item{targetName}{Character. Optional new name for the copied resource. Only used when
+copying a single source. Ignored when copying multiple sources. Defaults to empty string
+(uses original name).}
 
-\item{overwrite}{flag if a file already existing at the target location should be overwritten if existing. If flag is false and file exists NULL is returned}
+\item{overwrite}{Logical. If \code{TRUE} and a resource with the same name exists at the
+target location, it is deleted and replaced. If \code{FALSE} (default) and a name
+conflict exists, returns \code{NULL} with a warning.}
 
-\item{comment}{comment for the commit, defaults to "modified by improveRW"}
+\item{comment}{Character. Commit message for the copy operation. Defaults to
+"modified by improveRW".}
+}
+\value{
+The copied resource(s) as a data frame, or \code{NULL} if the operation fails
+(e.g., source doesn't exist, target doesn't exist, name conflict with overwrite=FALSE,
+invalid target type for the source type).
 }
 \description{
-copies resources
-multiple sources can be copied at once
-if multiple sources are copied target needs to be a container and targetName empty
-if only one source is copied, a new name can be specified, this can be done via a path or via targetName
+Duplicates one or more resources to a target folder, creating independent copies with
+their own version history. Unlike \code{\link{createLink}}, copies are fully independent
+and changes to the original do not affect the copy.
+}
+\details{
+The function supports both single and batch copying:
+\itemize{
+\item \strong{Single copy:} When copying one resource, you can optionally specify a new
+name via \code{targetName}
+\item \strong{Batch copy:} When copying multiple resources, all are copied to the target
+folder with their original names (\code{targetName} must be empty)
+}
+
+The copy operation validates:
+\itemize{
+\item Source and target resources exist
+\item Target accepts the source type (e.g., can't copy a workflow into a file)
+\item No naming conflicts (unless \code{overwrite=TRUE})
+\item Repository is in editable mode (automatically checked)
+}
+
+After copying, parent folder caches are automatically cleared to ensure fresh data
+on subsequent queries.
+}
+\examples{
+\dontrun{
+# Copy a single file to a folder
+copy(
+  sources = "/Data/baseline.csv",
+  target = "/Modeling/PopPK"
+)
+
+# Copy with a new name
+copy(
+  sources = "/Data/baseline.csv",
+  target = "/Modeling/PopPK",
+  targetName = "input_data.csv"
+)
+
+# Copy multiple files at once
+copy(
+  sources = c("/Data/file1.csv", "/Data/file2.csv"),
+  target = "/Analysis"
+)
+
+# Overwrite existing file
+copy(
+  sources = "/Data/new_baseline.csv",
+  target = "/Modeling/baseline.csv",
+  overwrite = TRUE
+)
+}
+
 }
 \references{
 ics1139
+}
+\seealso{
+\code{\link{move}} to relocate resources instead of copying,
+\code{\link{createLink}} to create lightweight references instead of full copies,
+\code{\link{delete}} to remove resources
 }

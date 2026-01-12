@@ -2,7 +2,7 @@
 % Please edit documentation in R/improveConnect.R
 \name{clearConnectionData}
 \alias{clearConnectionData}
-\title{clearConnectionData}
+\title{Clear Connection Data}
 \usage{
 clearConnectionData(includeRepoData = F)
 }

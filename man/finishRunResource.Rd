@@ -2,7 +2,7 @@
 % Please edit documentation in R/runStep.R
 \name{finishRunResource}
 \alias{finishRunResource}
-\title{finishRunResource}
+\title{Wait for Step Execution to Finish}
 \usage{
 finishRunResource(
   ident,
@@ -12,17 +12,47 @@ finishRunResource(
 )
 }
 \arguments{
-\item{ident}{the ident to the step}
+\item{ident}{A step identifier. Can be the step's path, resource (version) id,
+full entity (version) id, or short entity (version) id.}
 
-\item{from}{root for relative pahtes}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}.}
 
-\item{runserverName}{if this is set, the step only counts as finished if it was finished with this runserver (needs to be combined with tool), overridden by settings in stephandle}
+\item{runserverName}{Optional runserver name. When set, completion is only
+acknowledged if the step finished on this runserver (must be paired with
+\code{runserverToolName}).}
 
-\item{runserverToolName}{if this is set, the step only counts as finished if it was finished with this tool (needs to be combined with runserver), overridden by settings in stephandle}
+\item{runserverToolName}{Optional tool name. When set, completion is only
+acknowledged if the step finished with this tool (must be paired with
+\code{runserverName}).}
+}
+\value{
+The step identifier, returned invisibly after the run completes.
 }
 \description{
-finishRunResource
+Blocks until a running step finishes on the improve server. Optionally constrains
+completion to a specific runserver and tool combination.
+}
+\details{
+The function polls the step status every 5 seconds until the run status is
+\code{FINISHED}. If \code{runserverName} and \code{runserverToolName} are
+provided, the function checks the most recent main process run and only returns
+when the finished run matches the specified runserver tool.
+
+This is typically used after \code{\link{runStepResource}} when orchestrating
+sequential workflows.
+}
+\examples{
+\dontrun{
+# Run a step and wait for completion
+runStepResource(ident = "/improve-tutorial/Modeling/Step 1")
+finishRunResource(ident = "/improve-tutorial/Modeling/Step 1")
+}
+
 }
 \references{
 ics1140
+}
+\seealso{
+\code{\link{runStepResource}} to start a step,
+\code{\link{terminateStepResource}} to stop a running step
 }

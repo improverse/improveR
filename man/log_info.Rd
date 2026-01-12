@@ -2,7 +2,7 @@
 % Please edit documentation in R/loggers.R
 \name{log_info}
 \alias{log_info}
-\title{log_info}
+\title{Log_info}
 \usage{
 log_info(...)
 }
@@ -10,5 +10,5 @@ log_info(...)
 \item{...}{combines all items to one log message}
 }
 \description{
-log_info
+Log_info
 }

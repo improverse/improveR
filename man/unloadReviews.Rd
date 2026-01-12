@@ -2,12 +2,12 @@
 % Please edit documentation in R/loadREview.R
 \name{unloadReviews}
 \alias{unloadReviews}
-\title{unloads all reviews}
+\title{Unloads All Reviews}
 \usage{
 unloadReviews()
 }
 \description{
-unloads all reviews
+Unloads All Reviews
 }
 \references{
 ics348

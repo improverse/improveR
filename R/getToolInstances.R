@@ -6,8 +6,37 @@
 
 toolInstanceCache <- new.env()
 
-#' resetToolInstances
-#' clears the cache for toolInstances and reloads everything from the server
+#' Reset Tool Instance Cache
+#'
+#' Clears the cached tool instance configuration data, forcing \code{\link{getToolInstances}}
+#' to reload fresh tool definitions from the server on the next call. Use this when tool
+#' configurations, runservers, or grid parameters have been updated on the improve platform.
+#'
+#' @return Invisible \code{NULL}. Called for its side effect of clearing the cache.
+#'
+#' @details
+#' Tool instances define how workflow steps execute, including which software to use
+#' (R, NONMEM, Monolix), execution parameters, and grid computing configurations.
+#' These definitions are cached for performance after the first \code{getToolInstances()}
+#' call. When administrators update tool configurations on the server, call
+#' \code{resetToolInstances()} to ensure your R session uses the latest definitions.
+#'
+#' The function removes all objects from the internal tool instance cache environment,
+#' so the next call to \code{getToolInstances()} will fetch fresh data from the server.
+#'
+#' @seealso
+#' \code{\link{getToolInstances}} to retrieve tool instance configurations,
+#' \code{\link{getMainProcess}} to access the tool instance for a specific step
+#'
+#' @examples
+#' \dontrun{
+#' # After tool configuration changes on server
+#' resetToolInstances()
+#'
+#' # Next call will fetch fresh data
+#' tools <- getToolInstances()
+#' }
+#'
 #' @export
 resetToolInstances <- function() {
   rm(list=ls(envir = toolInstanceCache),envir = toolInstanceCache)
@@ -101,6 +130,7 @@ getToolInstances <- function() {
     runservers <- loadRunservers()
     runservers <- dplyr::filter(runservers,!.data$local)
     runserverTools <- byNotEmptyAsDf(runservers,function(runserver) {
+      # browser()
       runServerTools <- loadToolsForRunserver(runserver$id)
       runServerTools <- byNotEmptyAsDf(runServerTools,function(runserverTool) {
         #####parameters

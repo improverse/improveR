@@ -2,25 +2,47 @@
 % Please edit documentation in R/users.R
 \name{effectiveRights}
 \alias{effectiveRights}
-\title{returns effective rights for a user on a specific resource}
+\title{Get Effective User Rights for Resource}
 \usage{
 effectiveRights(ident, from = pwd(), memberId = NULL)
 }
 \arguments{
-\item{ident}{Ident of the requested resource resourceId, entityId or path}
+\item{ident}{Identifier of the resource to check permissions for. Can be a
+path, resource ID, or entity ID.}
 
-\item{from}{root for a relativePath}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}.}
 
-\item{memberId}{The ID of the user/member to check permissions for. If NULL, uses the current authenticated user.}
+\item{memberId}{Character. The ID of the user/member to check permissions for.
+If \code{NULL} (default), checks permissions for the currently authenticated user.}
 }
 \value{
-A list containing the effective rights/permissions for the user on the resource
+A list containing the effective rights:
+\itemize{
+\item \code{read} - Logical. Permission to view/download the resource.
+\item \code{modify} - Logical. Permission to update (for files) or upload
+(for folders).
+\item \code{delete} - Logical. Permission to delete the resource.
+\item \code{admin} - Logical. Full administrative rights.
+}
+Returns \code{NULL} if the resource or user cannot be found.
 }
 \description{
-Gets the effective permissions for a user on a specific resource.
-The response includes read and modify permissions which map to:
-\itemize{
-\item read: retrieve file operations
-\item modify: update file (if resource is a file) or upload file (if resource is a folder)
+Determines the effective permissions (rights) for a specific user on a given
+resource, taking into account group memberships and inherited permissions.
 }
+\examples{
+\dontrun{
+# Check my rights on a folder
+my_rights <- effectiveRights("/Projects/Analysis")
+if (my_rights$modify) {
+  message("I can write to this folder")
+}
+
+# Check rights for another user
+user_id <- users()[1, "id"]
+their_rights <- effectiveRights("/Projects/Analysis", memberId = user_id)
+}
+}
+\seealso{
+\code{\link{users}}, \code{\link{whoami}}
 }

@@ -2,11 +2,13 @@
 % Please edit documentation in R/loadResource.R
 \name{loadResource}
 \alias{loadResource}
-\title{loadResource}
+\title{Load Resource}
 \usage{
 loadResource(ident, from = pwd())
 }
 \arguments{
+\item{ident}{id}
+
 \item{from}{Path working directory.}
 }
 \value{
@@ -46,7 +48,7 @@ pwd shows the current “path working directory”. The improveR client is inspi
 by a command line interface. The default start position within the improve repository
 is the step that started an R instance with improveR.This starting point is set
 via the IMPROVER_STEP environment variable. If this information was not
-provided the root element is pwd. pwd  is used if you use relative pathes to
+provided the root element is pwd. pwd  is used if you use relative paths to
 access an element.
 }
 }

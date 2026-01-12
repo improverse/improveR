@@ -2,7 +2,7 @@
 % Please edit documentation in R/resourceRelations.R
 \name{deleteResourceRelation}
 \alias{deleteResourceRelation}
-\title{deletes a resource relation}
+\title{Deletes a Resource Relation}
 \usage{
 deleteResourceRelation(resourceId, relationId)
 }
@@ -12,7 +12,7 @@ deleteResourceRelation(resourceId, relationId)
 \item{relationId}{id (UUID) of the relation}
 }
 \description{
-deletes a resource relation
+Deletes a Resource Relation
 }
 \references{
 ics1044

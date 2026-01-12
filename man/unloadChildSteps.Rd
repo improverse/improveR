@@ -2,16 +2,24 @@
 % Please edit documentation in R/loadChildSteps.R
 \name{unloadChildSteps}
 \alias{unloadChildSteps}
-\title{unloadChildSteps}
+\title{Unload Child Steps from Cache}
 \usage{
 unloadChildSteps(ident)
 }
 \arguments{
-\item{ident}{id}
+\item{ident}{The resource identifier - can be a resource ID, entity ID,
+entity version ID, or path.}
+}
+\value{
+Invisibly returns NULL. Called for side effect of clearing cache.
 }
 \description{
-unloadChildSteps
+Removes child steps data from the cache for the specified resource.
 }
 \references{
 ics1205
+}
+\seealso{
+\code{\link{loadChildSteps}} to load child steps,
+\code{\link{updateChildSteps}} to refresh from server
 }

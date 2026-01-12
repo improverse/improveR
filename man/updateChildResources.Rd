@@ -2,17 +2,25 @@
 % Please edit documentation in R/loadChildResources.R
 \name{updateChildResources}
 \alias{updateChildResources}
-\title{updateChildResources}
+\title{Update Child Resources from Server}
 \usage{
 updateChildResources(ident)
 }
+\arguments{
+\item{ident}{The resource identifier - can be a resource ID, entity ID,
+entity version ID, or path.}
+}
+\value{
+A list with updated child resources data. See \code{\link{loadChildResources}}
+for details on the return structure.
+}
 \description{
-Updates a child resource by removing it from the cache and subsequently loading
-it from the server.
+Clears cached child resources data and reloads fresh data from the server.
 }
 \references{
 ics1085
 }
 \seealso{
-\code{\link[=loadChildResources]{loadChildResources()}}, \code{\link[=unloadChildResources]{unloadChildResources()}}
+\code{\link{loadChildResources}} for return structure details,
+\code{\link{unloadChildResources}} to only clear cache
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadHistory.R
 \name{loadHistory}
 \alias{loadHistory}
-\title{loads the history  by the resourceId,  entity ID or entity version ID
+\title{Loads the History by the ResourceId, Entity ID or Entity Version ID
 it uses caching
 the results are returned as a data frame or a list of data frames
 the dates are also converted to posix dates via convertImproveTimestampToPosix
@@ -14,6 +14,39 @@ loadHistory(ident, from = pwd())
 \item{ident}{the resource id or the entity id of the resource}
 
 \item{from}{used if a relative path is used}
+}
+\value{
+A dataframe with the following columns:
+\itemize{
+\item type (character)
+\item resourceId (character)
+\item entityId (character)
+\item entityVersionId (character)
+\item path (character)
+\item name (character)
+\item data (list)
+}
+
+The 'data' column contains a nested dataframe with:
+\itemize{
+\item data/resourceId (character)
+\item data/resourceVersionId (character)
+\item data/nodeType (character)
+\item data/name (character)
+\item data/deleted (logical)
+\item data/entityId (character)
+\item data/entityVersionId (character)
+\item data/revisionId (character)
+\item data/lastModifiedOn (numeric)
+\item data/lastModifiedByName (character)
+\item data/fileSize (integer)
+\item data/hasChildren (logical)
+\item data/hasChildrenIncludingFiles (logical)
+\item data/path (character)
+\item data/outdatedLink (logical)
+\item data/workingFile (logical)
+\item data/lastModifiedOnDate (POSIXct)
+}
 }
 \description{
 arguments:

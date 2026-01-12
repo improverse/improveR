@@ -1,18 +1,30 @@
-#' Create Folder(s)
+#' Create Folder in improve Repository
 #'
-#' `createFolder()` creates one or multiple folder(s) in the repository and returns the resource object(s).
-#' @param targetIdent Ident(s) of location where new folder(s) should be located
-#' @param folderName Name(s) of new folder(s)
-#' @param comment defaults to "Created by improveR"
+#' Creates one or multiple folders in the repository at the specified location.
+#'
+#' @param targetIdent Identifier(s) of the parent location where the new folder(s)
+#'   should be created. Can be a path, resource ID, or entity ID.
+#' @param folderName Character. Name(s) of the new folder(s).
+#' @param comment Character. Comment for the creation audit entry. Defaults to
+#'   "Created by improveR".
+#'
+#' @returns A list containing the resource object(s) of the created folder(s).
+#'   Each resource object contains metadata like `resourceId`, `entityId`, `path`, etc.
+#'   Returns `NULL` on failure.
+#'
 #' @references ics1101
+#' @seealso \code{\link{createFile}}, \code{\link{createAnalysisTree}}
+#'
 #' @examples
 #' \dontrun{
 #' # Create a folder in the repository root
 #' createFolder(targetIdent = "/", folderName = "folderInRoot")
 #'
 #' # Create a folder inside an existing folder by path
-#' createFolder(targetIdent = "/improve-tutorial/", folderName = "folderInImproveTutorial")
-#'
+#' createFolder(
+#'   targetIdent = "/improve-tutorial/",
+#'   folderName = "folderInImproveTutorial"
+#' )
 #' }
 #' @export
 createFolder <- function(
@@ -23,14 +35,25 @@ createFolder <- function(
   return(createGeneric(targetIdent, folderName, "Folder", comment = comment))
 }
 
-#' Create a File
+#' Create File in improve Repository
 #'
-#' The function `createFile()` generates a file in the repository and returns the resource object.
-#' @param targetIdent one or many target folders, as resource, id or path
-#' @param fileName Name of the file to be created.
-#' @param localPath path to a local file for initial file contents
-#' @param comment defaults to "Created by improveR"
+#' Creates a file resource in the repository, optionally uploading content from a
+#' local file.
+#'
+#' @param targetIdent Identifier(s) of the parent folder(s) where the file should
+#'   be created. Can be a path, resource ID, or entity ID.
+#' @param fileName Character. Name of the file to be created. If empty and
+#'   `localPath` is provided, the basename of `localPath` is used.
+#' @param localPath Character. Path to a local file whose content will be uploaded.
+#'   If empty, an empty file resource is created (metadata only).
+#' @param comment Character. Comment for the creation audit entry. Defaults to
+#'   "Created by improveR".
+#'
+#' @returns A list containing the resource object(s) of the created file(s).
+#'   Returns `NULL` on failure.
+#'
 #' @references ics1102
+#' @seealso \code{\link{createFolder}}, \code{\link{updateFileContent}}
 #' @export
 createFile <- function(
   targetIdent,
@@ -77,12 +100,22 @@ createFile <- function(
   return(fileRes)
 }
 
-#' Create an Analysis Tree
-#' Creates an analysis tree in a specified folder and assigns it a specified name.
-#' @param targetIdent ident of the folder where the analysis tree is to be created in.
-#' @param treeName name of the newly created analysis tree
-#' @param comment defaults to "Created by improveR"
+#' Create Analysis Tree in improve Repository
+#'
+#' Creates an Analysis Tree, which is a specialized folder structure for organizing
+#' pharmaceutical analysis workflows.
+#'
+#' @param targetIdent Identifier of the parent folder where the analysis tree
+#'   should be created.
+#' @param treeName Character. Name of the new analysis tree.
+#' @param comment Character. Comment for the creation audit entry. Defaults to
+#'   "Created by improveR".
+#'
+#' @returns A list containing the resource object of the created analysis tree.
+#'   Returns `NULL` on failure.
+#'
 #' @references ics1103
+#' @seealso \code{\link{createFolder}}, \code{\link{createWorkflow}}
 #' @export
 createAnalysisTree <- function(
   targetIdent,
@@ -97,15 +130,22 @@ createAnalysisTree <- function(
   ))
 }
 
-#' Create an External Link
+#' Create External Link in improve Repository
 #'
-#' An externa link is a link pointing to a resource outside of the respository.
-#' The function createExternalLink() establishes such a link within a folder, analysis tree, or step.
-#' @param targetIdent ident of a folder, analysis tree, or step where the external link should be created
-#' @param linkName Name of the link
-#' @param url url pointing at the the external resource, e.g., a database.
-#' @param comment defaults to Created by improveR
+#' Creates a link resource pointing to an external URL (outside the repository),
+#' such as a database, website, or external documentation system.
+#'
+#' @param targetIdent Identifier of the parent folder, analysis tree, or step
+#'   where the link should be created.
+#' @param linkName Character. Name of the link resource.
+#' @param url Character. The destination URL (e.g., "https://example.com" or "db://server").
+#' @param comment Character. Comment for the creation audit entry. Defaults to
+#'   "Created by improveR".
+#'
+#' @returns A list containing the resource object of the created external link.
+#'
 #' @references ics1104
+#' @seealso \code{\link{createFile}}
 #' @export
 createExternalLink <- function(
   targetIdent,

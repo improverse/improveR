@@ -19,7 +19,7 @@ showHTML(
 
 \item{addAsLink}{creates a link in inventory if TRUE, warn improveClean has to be run at the end}
 
-\item{caption}{by default entityID and lastmodified are the caption, here alternative text can be provided}
+\item{caption}{by default entityID and lastModified are the caption, here alternative text can be provided}
 
 \item{includeCaption}{display the caption}
 }

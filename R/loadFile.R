@@ -25,7 +25,7 @@ fileResourceVersionCacheList <- list(
   fileResourceEntityIdCache="entityVersionId"
 )
 
-#' loadFile
+#' Load File
 #' @description Loads a file by its resourceId, entity ID, or entity version ID.
 #' Uses caching. The results are returned as a data frame or a list of data frames.
 #' The dates are converted to POSIX dates with the convertImproveTimestampToPosix function.

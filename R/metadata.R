@@ -48,7 +48,7 @@ singleAddMetaDate <- function(ident,descriptorName, value,scope = "Improve Clien
   return(addBulkMetaDate(ident,entryList,scope=scope))
 }
 
-#' adds metadata value to a resource, always adds, never updates
+#' Adds Metadata Value To A Resource, Always Adds, Never Updates
 #' @param ident the resource id of the resource this metadata value is attached to
 #' @param descriptorName this descriptorName has to exist, check in preferences
 #' @param value the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist
@@ -84,7 +84,7 @@ singleAddBulkMetaDate <- function(ident,descriptorNameValueList, scope="Improve 
   return(metadata)
 }
 
-#' adds metadata value to a resource, always adds, never updates
+#' Adds Metadata Value To A Resource, Always Adds, Never Updates
 #' @param ident the resource id of the resource this metadata value is attached to
 #' @param descriptorNameValueList a list of lists, containing descriptorName and value: this descriptorName has to exist, check in preferences, the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist
 #' @param scope the scope for metadata, default "Improve Client"
@@ -114,7 +114,7 @@ singleDeleteMetaDate <- function(ident,descriptorName) {
   return(metadata)
 }
 
-#' deletes metadata from a resource
+#' Deletes Metadata From A Resource
 #' @param ident the resource id of the resource this metadata value is attached to
 #' @param descriptorName this descriptorName has to exist, check in preferences
 #' @references ics1137
@@ -160,7 +160,7 @@ singleUpdateMetaDate <- function(ident,descriptorName, value) {
   return(metadata)
 }
 
-#' updates metadata value to a resource
+#' Updates Metadata Value To A Resource
 #' @param ident the resource this metadata value is attached to
 #' @param descriptorName name of the metadate
 #' @param value the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist
@@ -199,7 +199,7 @@ singleUpdateMetaDateById <- function(ident,metadataId, value) {
   return(metadata)
 }
 
-#' updates metadata value to a resource
+#' Updates Metadata Value To A Resource
 #' @param ident the resource this metadata value is attached to
 #' @param metadataId the meta data update
 #' @param value the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist

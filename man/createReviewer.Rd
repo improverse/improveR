@@ -2,7 +2,7 @@
 % Please edit documentation in R/reviewers.R
 \name{createReviewer}
 \alias{createReviewer}
-\title{adds a user as reviewer to a review}
+\title{Adds a User as Reviewer to a Review}
 \usage{
 createReviewer(reviewId, userId, username)
 }
@@ -14,7 +14,7 @@ createReviewer(reviewId, userId, username)
 \item{username}{name of the user}
 }
 \description{
-adds a user as reviewer to a review
+Adds a User as Reviewer to a Review
 }
 \references{
 ics368

@@ -2,20 +2,42 @@
 % Please edit documentation in R/getR.R
 \name{sourceR}
 \alias{sourceR}
-\title{sources R objects}
+\title{Source R Scripts from improve Repository}
 \usage{
 sourceR(ident, from = pwd(), addAsLink = TRUE)
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the R object}
+\item{ident}{Path, resource ID, or entity ID of the R script.}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}.}
 
-\item{addAsLink}{creates a link in inventory if TRUE, warn improveClean has to be run at the end}
+\item{addAsLink}{Logical. If \code{TRUE}, creates a link in the inventory for
+provenance tracking. Use \code{improveClean()} at workflow end to clean up links.}
+}
+\value{
+Invisibly returns \code{NULL}. Scripts are sourced for their side effects.
 }
 \description{
-sources R objects
+Downloads and sources R scripts stored in the improve repository. If the target
+is a folder or list of resources, the function recursively sources each script.
+}
+\details{
+This function wraps \code{\link{getR}} to download the script, then calls
+\code{source()} on the local file path. When multiple resources are returned,
+each is sourced in sequence. Sourcing executes code in the current session, so
+ensure the script content is trusted and compatible with your environment.
+}
+\examples{
+\dontrun{
+# Source a single script
+sourceR("analysis/prepare_data.R")
+}
+
 }
 \references{
 ics1141
+}
+\seealso{
+\code{\link{getR}} to download scripts or RDS metadata,
+\code{\link{improveInit}} for module initialization
 }

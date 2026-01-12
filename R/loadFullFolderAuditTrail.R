@@ -1,7 +1,7 @@
-#' retrieves recursive audit trail for a specific folder
+#' Retrieve Recursive Audit Trail For A Specific Folder
 #'
 #' @param ident the folder the audit trail is retrieved for
-#' @param from startpoint for relative pathes, per default: pwd is used
+#' @param from startpoint for relative paths, per default: pwd is used
 #' @param includeReadAccess if TRUE also read access entries of the audit trail are shown
 #' @importFrom rlang .data
 #' @importFrom magrittr %>%

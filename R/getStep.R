@@ -6,10 +6,17 @@
 
 
 
-#' getStepTemplate
-#' reads a step and its processes and generates a new handle
-#' @param ident the ident of the step
+#' Create Step Template
+#'
+#' Reads a step and its processes to generate a new step template environment.
+#' This template can be used to create new instances of the step with a fresh handle.
+#'
+#' @param ident Identifier of the source step to use as a template.
+#'
+#' @returns A new step environment containing the template configuration.
+#'
 #' @references ics1213
+#' @seealso \code{\link{getStep}}, \code{\link{createStepTemplateEnv}}
 #' @export
 getStepTemplate <- function(ident) {
   transforStepToTemplate(getStep(ident))

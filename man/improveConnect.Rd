@@ -2,7 +2,7 @@
 % Please edit documentation in R/improveConnect.R
 \name{improveConnect}
 \alias{improveConnect}
-\title{improveConnect}
+\title{Improve Connect}
 \usage{
 improveConnect(
   logLevel = "INFO",
@@ -25,6 +25,17 @@ Default is FALSE.}
 
 \item{persistentCaching}{If TRUE, caches are persisted to and reloaded from \code{.improver.cache}
 file. Default is FALSE.}
+}
+\value{
+Invisibly returns \code{NULL}. Called for its side effects:
+\itemize{
+\item Establishes authenticated connection to the improve repository
+\item Sets internal configuration
+\item Initializes logging with specified verbosity level
+\item Optionally loads persistent cache from \code{.improver.cache}
+}
+After successful connection, use \code{\link{pwd}} to verify the current
+working step and \code{\link{whoami}} to confirm the authenticated user.
 }
 \description{
 improveConnect establishes a connection to the improve repository using one of two authentication methods:
@@ -90,6 +101,32 @@ The file has to be located in the working directory and contain the following de
 }
 }
 }
+\examples{
+\dontrun{
+# Basic connection using environment variables
+# (Set IMPROVER_REPO_URL and IMPROVER_STEP in .Renviron)
+improveConnect()
+
+# Verify connection
+whoami()
+pwd()
+
+# Connection with debug logging for troubleshooting
+improveConnect(logLevel = "DEBUG")
+
+# Development connection with self-signed certificates
+improveConnect(secure = FALSE)
+
+# Enable write operations after connecting
+improveConnect()
+setEditable(TRUE)
+}
+
+}
 \seealso{
-\code{\link[=improveConnected]{improveConnected()}}, \code{\link[=improveDisconnect]{improveDisconnect()}}
+\code{\link{improveConnected}} to check if connected,
+\code{\link{improveDisconnect}} to close connection,
+\code{\link{setEditable}} to enable write operations,
+\code{\link{whoami}} to get current user,
+\code{\link{pwd}} to get current step
 }

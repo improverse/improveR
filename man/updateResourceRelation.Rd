@@ -2,7 +2,7 @@
 % Please edit documentation in R/resourceRelations.R
 \name{updateResourceRelation}
 \alias{updateResourceRelation}
-\title{updates a resource relation}
+\title{Updates a Resource Relation}
 \usage{
 updateResourceRelation(
   resourceId,
@@ -21,7 +21,7 @@ updateResourceRelation(
 \item{newDescription}{description of the resource relation}
 }
 \description{
-updates a resource relation
+Updates a Resource Relation
 }
 \references{
 ics1044

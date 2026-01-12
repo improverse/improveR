@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadREview.R
 \name{unloadReviewComments}
 \alias{unloadReviewComments}
-\title{unloads the review comments for a review}
+\title{Unloads the Review Comments for a Review}
 \usage{
 unloadReviewComments(resourceId)
 }
@@ -10,7 +10,7 @@ unloadReviewComments(resourceId)
 \item{resourceId}{id (UUID) of the resource}
 }
 \description{
-unloads the review comments for a review
+Unloads the Review Comments for a Review
 }
 \references{
 ics1208

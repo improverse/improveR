@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadparentStep.R
 \name{unloadParentStep}
 \alias{unloadParentStep}
-\title{unloadParentStep}
+\title{Unload Parent Step}
 \usage{
 unloadParentStep(ident, from = pwd())
 }
@@ -12,7 +12,7 @@ unloadParentStep(ident, from = pwd())
 \item{from}{path working directory, default is the calling step}
 }
 \description{
-unloadParentStep
+Unload Parent Step
 }
 \references{
 ics1209

@@ -2,19 +2,41 @@
 % Please edit documentation in R/getR.R
 \name{improveInit}
 \alias{improveInit}
-\title{initialises modules, also automatically connects}
+\title{Initialize R Modules from improve Repository}
 \usage{
-improveInit(ident, from = pwd(), logLevel = "INFO", secure = T)
+improveInit(ident, from = pwd(), logLevel = "INFO", secure = TRUE)
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the R object}
+\item{ident}{Path, resource ID, or entity ID of the module definition script.}
 
-\item{from}{used for relative paths, by default from is used, which is initiated with the step that started improveR}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}.}
 
-\item{logLevel}{logLevel for improve connect}
+\item{logLevel}{Log level passed to \code{\link{improveConnect}}.}
 
-\item{secure}{if certificates should be checked}
+\item{secure}{Logical. If \code{TRUE}, validates certificates when connecting.}
+}
+\value{
+An environment returned by the module's \code{<module>.init} function,
+or \code{NULL} if initialization fails.
 }
 \description{
-initialises modules, also automatically connects
+Connects to improve, sources a module definition script, and runs its init
+function to return a module environment.
+}
+\details{
+The function expects a module definition file with a name pattern like
+\code{myModule.R}. After sourcing it, \code{improveInit()} looks for a function
+named \code{myModule.init} and calls it with the module root path. The root
+path is resolved from the parent directory of the module script.
+}
+\examples{
+\dontrun{
+# Initialize a module and capture its environment
+module_env <- improveInit("modules/myModule.R")
+}
+
+}
+\seealso{
+\code{\link{sourceR}} to source scripts without initialization,
+\code{\link{improveConnect}} to connect explicitly
 }

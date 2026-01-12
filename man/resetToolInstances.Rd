@@ -2,12 +2,39 @@
 % Please edit documentation in R/getToolInstances.R
 \name{resetToolInstances}
 \alias{resetToolInstances}
-\title{resetToolInstances
-clears the cache for toolInstances and reloads everything from the server}
+\title{Reset Tool Instance Cache}
 \usage{
 resetToolInstances()
 }
+\value{
+Invisible \code{NULL}. Called for its side effect of clearing the cache.
+}
 \description{
-resetToolInstances
-clears the cache for toolInstances and reloads everything from the server
+Clears the cached tool instance configuration data, forcing \code{\link{getToolInstances}}
+to reload fresh tool definitions from the server on the next call. Use this when tool
+configurations, runservers, or grid parameters have been updated on the improve platform.
+}
+\details{
+Tool instances define how workflow steps execute, including which software to use
+(R, NONMEM, Monolix), execution parameters, and grid computing configurations.
+These definitions are cached for performance after the first \code{getToolInstances()}
+call. When administrators update tool configurations on the server, call
+\code{resetToolInstances()} to ensure your R session uses the latest definitions.
+
+The function removes all objects from the internal tool instance cache environment,
+so the next call to \code{getToolInstances()} will fetch fresh data from the server.
+}
+\examples{
+\dontrun{
+# After tool configuration changes on server
+resetToolInstances()
+
+# Next call will fetch fresh data
+tools <- getToolInstances()
+}
+
+}
+\seealso{
+\code{\link{getToolInstances}} to retrieve tool instance configurations,
+\code{\link{getMainProcess}} to access the tool instance for a specific step
 }

@@ -35,7 +35,7 @@ actualLoadReviews <- function(...) {
   return(reviewsDf)
 }
 
-#' loads all registered reviews
+#' Loads All Registered Reviews
 #' it uses caching
 #' the result is returned as a data frame
 #' @references ics348
@@ -45,7 +45,7 @@ loadReviews <- function() {
   return(reviews)
 }
 
-#' unloads all reviews
+#' Unloads All Reviews
 #' @references ics348
 #' @export
 unloadReviews <- function() {
@@ -53,7 +53,7 @@ unloadReviews <- function() {
   removeFromCache(defaultKeyReviews, "", reviewsCacheList)
 }
 
-#' reloads the reviews
+#' Reloads the Reviews
 #' @references ics348
 #' @export
 updateReviews <- function() {
@@ -66,9 +66,9 @@ reviewersCacheList <- list(
   reviewrsCache = "resourceId"
 )
 
-#' getReviewers
+#' Get Reviewers
 #' @param ident id
-#' @param from defaults to pwd, used to resolve relative pathes
+#' @param from defaults to pwd, used to resolve relative paths
 #' @references ics1208
 #' @export
 getReviewers <- function(ident,from=pwd()) {
@@ -89,7 +89,7 @@ getReviewers <- function(ident,from=pwd()) {
   return(df)
 }
 
-#' loads all the reviewers for a review
+#' Loads All The Reviewers For A Review
 #' it uses caching
 #' the result is returned as a data frame
 #' @param resourceId id (UUID) of the resource
@@ -100,7 +100,7 @@ loadReviewers <- function(resourceId) {
   return(reviewReviewers)
 }
 
-#' unloads the reviewers for a review
+#' Unloads the Reviewers for a Review
 #' @param resourceId id (UUID) of the resource
 #' @references ics1208
 #' @export
@@ -109,7 +109,7 @@ unloadReviewers <- function(resourceId) {
   removeFromCache(resourceId, "", reviewersCacheList)
 }
 
-#' reloads the reviewers for a review
+#' Reloads the Reviewers for a Review
 #' @param resourceId id (UUID) of the resource
 #' @references ics1208
 #' @export
@@ -123,9 +123,9 @@ reviewEntriesCacheList <- list(
   reviewEntriesCache = "resourceId"
 )
 
-#' getReviewEntries
+#' Get Review Entries
 #' @param ident id
-#' @param from defaults to pwd, used to resolve relative pathes
+#' @param from defaults to pwd, used to resolve relative paths
 #' @references ics1208
 #' @export
 getReviewEntries <- function(ident,from=pwd()) {
@@ -149,7 +149,7 @@ getReviewEntries <- function(ident,from=pwd()) {
   return(df)
 }
 
-#' loads all the review entries for a review
+#' Loads All The Review Entries For A Review
 #' it uses caching
 #' the result is returned as a data frame
 #' @param resourceId id (UUID) of the resource
@@ -160,7 +160,7 @@ loadReviewEntries <- function(resourceId) {
   return(reviewerEntries)
 }
 
-#' unloads the review entries for a review
+#' Unloads the Review Entries for a Review
 #' @param resourceId id (UUID) of the resource
 #' @references ics1208
 #' @export
@@ -169,7 +169,7 @@ unloadReviewEntries <- function(resourceId) {
   removeFromCache(resourceId, "", reviewEntriesCacheList)
 }
 
-#' reloads the review entries for a review
+#' Reloads the Review Entries for a Review
 #' @param resourceId id (UUID) of the resource
 #' @references ics1208
 #' @export
@@ -183,9 +183,9 @@ reviewCommentsCacheList <- list(
   reviewCommentsCache = "resourceId"
 )
 
-#' getReviewComments
+#' Get Review Comments
 #' @param ident id
-#' @param from defaults to pwd, used to resolve relative pathes
+#' @param from defaults to pwd, used to resolve relative paths
 #' @references ics1208
 #' @export
 getReviewComments <- function(ident,from=pwd()) {
@@ -204,7 +204,7 @@ getReviewComments <- function(ident,from=pwd()) {
   return(df)
 }
 
-#' loads all the review comments for a review
+#' Loads All The Review Comments For A Review
 #' it uses caching
 #' the result is returned as a data frame
 #' @param resourceId id (UUID) of the resource
@@ -215,7 +215,7 @@ loadReviewComments <- function(resourceId) {
   return(reviewComments)
 }
 
-#' unloads the review comments for a review
+#' Unloads the Review Comments for a Review
 #' @param resourceId id (UUID) of the resource
 #' @references ics1208
 #' @export
@@ -224,7 +224,7 @@ unloadReviewComments <- function(resourceId) {
   removeFromCache(resourceId, "", reviewCommentsCacheList)
 }
 
-#' reloads the review comments for a review
+#' Reloads the Review Comments for a Review
 #' @param resourceId id (UUID) of the resource
 #' @references ics1208
 #' @export
@@ -238,10 +238,10 @@ reviewEntryCommentsCacheList <- list(
   reviewEntryCommentsCache = "resourceId, entryId" # missing "double key"
 )
 
-#' getReviewEtnryComments
+#' Get Review Etnry Comments
 #' @param resourceId id (UUID) of the resource
 #' @param entryId id (UUID) of the review entry
-#' @param from defaults to pwd, used to resolve relative pathes
+#' @param from defaults to pwd, used to resolve relative paths
 #' @references ics1543
 #' @export
 getReviewEntryComments <- function(resourceId, entryId, from=pwd()) {
@@ -260,7 +260,7 @@ getReviewEntryComments <- function(resourceId, entryId, from=pwd()) {
   return(df)
 }
 
-#' loads all the comments for a review entry
+#' Loads All The Comments For A Review Entry
 #' it uses caching
 #' the result is returned as a data frame
 #' @param resourceId id (UUID) of the resource
@@ -273,7 +273,7 @@ loadReviewEntryComments <- function(resourceId, entryId) {
   return(reviewEntryComments)
 }
 
-#' unloads the comments for a review entry
+#' Unloads the Comments for a Review Entry
 #' @param resourceId id (UUID) of the resource
 #' @param entryId id (UUID) of the review entry
 #' @references ics1543
@@ -283,7 +283,7 @@ unloadReviewEntryComments <- function(resourceId, entryId) {
   # removeFromCache(key, "", reviewEntryCommentsCacheList)
 }
 
-#' reloads the comments for a review entry
+#' Reloads the Comments for a Review Entry
 #' @param resourceId id (UUID) of the resource
 #' @param entryId id (UUID) of the review entry
 #' @references ics1543

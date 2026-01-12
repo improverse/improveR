@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadREview.R
 \name{updateReviewers}
 \alias{updateReviewers}
-\title{reloads the reviewers for a review}
+\title{Reloads the Reviewers for a Review}
 \usage{
 updateReviewers(resourceId)
 }
@@ -10,7 +10,7 @@ updateReviewers(resourceId)
 \item{resourceId}{id (UUID) of the resource}
 }
 \description{
-reloads the reviewers for a review
+Reloads the Reviewers for a Review
 }
 \references{
 ics1208

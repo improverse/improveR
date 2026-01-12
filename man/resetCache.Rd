@@ -2,7 +2,7 @@
 % Please edit documentation in R/getFromCache.R
 \name{resetCache}
 \alias{resetCache}
-\title{resetCache}
+\title{Reset Cache}
 \usage{
 resetCache()
 }

@@ -92,7 +92,7 @@ validateDuplicateReviewer <- function(reviewId, userId, username) {
   return(TRUE)
 }
 
-#' adds a user as reviewer to a review
+#' Adds a User as Reviewer to a Review
 #' @param reviewId id (UUID) of the review
 #' @param userId id (UUID) of the user
 #' @param username name of the user
@@ -114,7 +114,7 @@ createReviewer <- function(reviewId, userId, username) {
   return(result)
 }
 
-#' removes a reviewer from a review
+#' Removes a Reviewer from a Review
 #' @param reviewId id (UUID) of the review
 #' @param reviewerId id (UUID) of the reviewer
 #' @references ics369

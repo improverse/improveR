@@ -15,7 +15,7 @@ createStepEnv(stepDf = NULL, workflow = NULL)
 An environment representing the step with the following components:
 \describe{
 \item{stepDf}{Data frame containing the step configuration and metadata}
-\item{children, parent, usage, lineage}{Nested environments with lazy-loading for step relationships}
+\item{children, parent, usage, dependencies}{Nested environments with lazy-loading for step relationships}
 \item{getStepInventory()}{Method to retrieve step inventory}
 \item{getStepResource()}{Method to get the step resource object}
 \item{getStepState()}{Method to get the step's execution state}

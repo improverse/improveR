@@ -2,20 +2,78 @@
 % Please edit documentation in R/query.R
 \name{query}
 \alias{query}
-\title{performs this query against the elastic search}
+\title{Search Resources Using Elasticsearch Query}
 \usage{
 query(query, fetchSize = 100, fetchOffset = 0)
 }
 \arguments{
-\item{query}{query with the same grammar as in the UI}
+\item{query}{Character. Search query using improve's query grammar. Examples:
+\itemize{
+\item \code{"name='analysis'"} - exact name match
+\item \code{"name='*analysis*'"} - name contains "analysis"
+\item \code{"nodeType='Step' AND runStatus='FINISHED'"} - combined criteria
+\item \code{"description='*population*'"} - search in description field
+}}
 
-\item{fetchSize}{maximum number of returned results}
+\item{fetchSize}{Numeric. Maximum number of results to return. Defaults to 100.
+Use for pagination or limiting large result sets.}
 
-\item{fetchOffset}{offset of the results, enables paging}
+\item{fetchOffset}{Numeric. Number of results to skip before returning matches.
+Defaults to 0. Use with \code{fetchSize} to implement pagination.}
+}
+\value{
+A data frame containing the matched resources with their metadata, or
+\code{NULL} if no resources match the query or if the query contains errors.
+The data frame includes standard resource fields like \code{resourceId}, \code{entityId},
+\code{name}, \code{path}, \code{nodeType}, and any additional fields returned by the
+search (depending on the query).
 }
 \description{
-performs this query against the elastic search
+Executes a search query against the improve platform's Elasticsearch index to find
+resources matching the specified criteria. Uses the same query syntax as the improve
+web UI search interface, supporting field-based searches, wildcards, and logical operators.
+}
+\details{
+The function submits the query to the improve platform's Elasticsearch backend,
+which indexes resource metadata for fast searching. Search results include the
+\code{resourceId} for each match, which is then used to load full resource details.
+
+Query syntax supports:
+\itemize{
+\item Field searches: \code{fieldName='value'}
+\item Wildcards: \code{fieldName='*partial*'}
+\item Logical operators: \code{AND}, \code{OR}
+\item Date fields: use ISO format for date comparisons
+\item Path-based searches: \code{path='/Some/Folder/*'}
+}
+
+If the query contains errors, a warning is logged with the error message from the
+server, and \code{NULL} is returned.
+
+For searches within a specific folder hierarchy, use \code{\link{queryFolder}} which
+automatically restricts results to a folder and its descendants.
+}
+\examples{
+\dontrun{
+# Find all finished steps
+query("nodeType='Step' AND runStatus='FINISHED'")
+
+# Search for resources by name pattern
+query("name='*baseline*'")
+
+# Paginate through large result sets
+page1 <- query("nodeType='File'", fetchSize = 50, fetchOffset = 0)
+page2 <- query("nodeType='File'", fetchSize = 50, fetchOffset = 50)
+
+# Find resources in a specific path
+query("path='/Modeling/PopPK/*'")
+}
+
 }
 \references{
 ics1143
+}
+\seealso{
+\code{\link{queryFolder}} for folder-scoped searches,
+\code{\link{loadResource}} to load resources by known identifiers
 }

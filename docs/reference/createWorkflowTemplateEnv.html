@@ -67,18 +67,127 @@ and builds a reusable workflow template environment.</p>
 
 
 <dl><dt id="arg-workflow">workflow<a class="anchor" aria-label="anchor" href="#arg-workflow"></a></dt>
-<dd><p>The workflow environment to template</p></dd>
+<dd><p>The workflow environment to template. If NULL (default),
+creates an empty workflow template.</p></dd>
 
 
 <dt id="arg-addparental">addParental<a class="anchor" aria-label="anchor" href="#arg-addparental"></a></dt>
-<dd><p>if T the created stepTemplates have the steps from the workflow as parents (default: FALSE)</p></dd>
+<dd><p>If TRUE, the created stepTemplates have the steps from
+the workflow as parents (default: FALSE).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An environment representing the workflow template</p>
-    </div>
+    <p>An environment representing the workflow template with the following methods:</p><dl><dt>addStepTemplate(stepTemplate, name=NULL)</dt>
+<dd><p>Adds a step template to the workflow template.</p></dd>
 
+<dt>createExecutionPlan()</dt>
+<dd><p>Creates a data.frame describing the execution plan for the workflow.</p></dd>
+
+<dt>df()</dt>
+<dd><p>Returns a data.frame with metadata for all steps in the template.</p></dd>
+
+<dt>executePlan(executionPlan)</dt>
+<dd><p>Executes a given execution plan data.frame.</p></dd>
+
+<dt>listParameters()</dt>
+<dd><p>Returns a data frame of all defined parameters.</p></dd>
+
+<dt>parameterizeStep(paramName, stepPattern, property, target=NULL, required=TRUE, defaultValue=NULL)</dt>
+<dd><p>Registers a parameter to modify steps before realisation.</p><dl><dt>paramName</dt>
+<dd><p>Name of the parameter.</p></dd>
+
+<dt>stepPattern</dt>
+<dd><p>Pattern to match steps. Three matching modes are supported:</p><ul><li><p><code>"*"</code> matches all steps in the workflow template.</p></li>
+<li><p>Prefix pattern ending with <code>*</code> (e.g., <code>"analysisTree1/*"</code>) matches
+all steps whose fullName starts with the prefix.</p></li>
+<li><p>Exact match (e.g., <code>"import data"</code>) first tries to match the step's
+fullName, then falls back to matching the step's description.</p></li>
+</ul></dd>
+
+<dt>property</dt>
+<dd><p>The property to parameterize: "remoteFile", "localFile", "treeIdent", "gridArgument.<name>", "description", "rationale", or "stepName".</name></p></dd>
+
+<dt>target</dt>
+<dd><p>(Optional) Target within the property, e.g., the path of a remote file.</p></dd>
+
+<dt>required</dt>
+<dd><p>(Optional) Whether this parameter must be set before realization (default: TRUE).</p></dd>
+
+<dt>defaultValue</dt>
+<dd><p>(Optional) Default value if not set.</p></dd>
+
+
+</dl></dd>
+
+<dt>realise()</dt>
+<dd><p>Executes the plan, applying parameters and creating the workflow steps.</p></dd>
+
+<dt>setParameter(paramName, value)</dt>
+<dd><p>Sets a value for a defined parameter.</p></dd>
+
+<dt>setWorkflowTreeIdent(treeIdent, from=pwd())</dt>
+<dd><p>Sets the ident of the location/analysis tree where the workflow template should be created, i.e., realised. If not defined, the new
+workflow will be located in the same location(s) where the step(s) of the template workflow are located.</p></dd>
+
+<dt>setWorkflowTreeName(treeName)</dt>
+<dd><p>Sets the name of the location/analysis tree where the workflow template should be created, i.e., realised. If not defined, the new
+workflow will be located in the same location(s) where the step(s) of the template workflow are located.</p></dd>
+
+<dt>setWorkflowTreeRootFolder(rootFolder)</dt>
+<dd><p>Sets the root folder path for the workflow tree where the template is realised to.</p></dd>
+
+<dt>toJSON(filepath, pretty=TRUE)</dt>
+<dd><p>Saves the template definition to a JSON file.</p></dd>
+
+<dt>validateParameters()</dt>
+<dd><p>Checks if all required parameters are set, throwing an error if not.</p></dd>
+
+
+</dl></div>
+
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Get a step and load its dependencies</span></span></span>
+<span class="r-in"><span><span class="va">step</span> <span class="op">&lt;-</span> <span class="fu"><a href="getStep.html">getStep</a></span><span class="op">(</span><span class="st">"/myProject/workflow/analysisTree/Step 1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">step</span><span class="op">$</span><span class="va">dependencies</span><span class="op">$</span><span class="fu">load</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Create a workflow template from the step's workflow</span></span></span>
+<span class="r-in"><span><span class="va">workflowTemplate</span> <span class="op">&lt;-</span> <span class="fu">createWorkflowTemplateEnv</span><span class="op">(</span><span class="va">step</span><span class="op">$</span><span class="va">workflow</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># View the steps in the template</span></span></span>
+<span class="r-in"><span><span class="va">workflowTemplate</span><span class="op">$</span><span class="fu">df</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Define a parameter to modify the description of a specific step</span></span></span>
+<span class="r-in"><span><span class="va">workflowTemplate</span><span class="op">$</span><span class="fu">parameterizeStep</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  stepPattern <span class="op">=</span> <span class="st">"import data"</span>, <span class="co">#pattern that matches the name or the description of the step which the paramter should target</span></span></span>
+<span class="r-in"><span>  paramName <span class="op">=</span> <span class="st">"inputDescription"</span>, <span class="co">#name of the parameter to which a value will be asigned to</span></span></span>
+<span class="r-in"><span>  property <span class="op">=</span> <span class="st">"description"</span> <span class="co">#the property of the targeted step which will be modified by the parameter</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Define a parameter that applies to all steps</span></span></span>
+<span class="r-in"><span><span class="va">workflowTemplate</span><span class="op">$</span><span class="fu">parameterizeStep</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  stepPattern <span class="op">=</span> <span class="st">"*"</span>, </span></span>
+<span class="r-in"><span>  paramName <span class="op">=</span> <span class="st">"allStepsRationale"</span>,</span></span>
+<span class="r-in"><span>  property <span class="op">=</span> <span class="st">"rationale"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set the parameter values</span></span></span>
+<span class="r-in"><span><span class="va">workflowTemplate</span><span class="op">$</span><span class="fu">setParameter</span><span class="op">(</span><span class="st">"inputDescription"</span>, <span class="st">"Load input dataset"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">workflowTemplate</span><span class="op">$</span><span class="fu">setParameter</span><span class="op">(</span><span class="st">"allStepsRationale"</span>, <span class="st">"Automated workflow execution"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Review parameters before realisation</span></span></span>
+<span class="r-in"><span><span class="va">workflowTemplate</span><span class="op">$</span><span class="fu">listParameters</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Optionally set a new target tree for the realised workflow</span></span></span>
+<span class="r-in"><span><span class="va">workflowTemplate</span><span class="op">$</span><span class="fu">setWorkflowTreeName</span><span class="op">(</span><span class="st">"newAnalysisTree"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Realise the template (creates actual steps)</span></span></span>
+<span class="r-in"><span><span class="va">realisedWorkflow</span> <span class="op">&lt;-</span> <span class="va">workflowTemplate</span><span class="op">$</span><span class="fu">realise</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

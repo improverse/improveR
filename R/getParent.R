@@ -1,4 +1,4 @@
-#' returns the parent of anything resolved by getCorrectId
+#' Returns the Parent of Anything Resolved by GetCorrectId
 #' @param identifier, ID or resource
 #' @references ics1088
 #' @export

@@ -46,12 +46,53 @@ testEnv <- function() {
 #'     }
 #'     \item{realise()}{Executes the plan, applying parameters and creating the workflow steps.}
 #'     \item{setParameter(paramName, value)}{Sets a value for a defined parameter.}
-#'     \item{setWorkflowTreeIdent(treeIdent, from=pwd())}{Sets the identifier for the workflow tree.}
-#'     \item{setWorkflowTreeName(treeName)}{Sets the name for the workflow tree.}
-#'     \item{setWorkflowTreeRootFolder(rootFolder)}{Sets the root folder path for the workflow tree.}
+#'     \item{setWorkflowTreeIdent(treeIdent, from=pwd())}{Sets the ident of the location/analysis tree where the workflow template should be created, i.e., realised. If not defined, the new
+#' workflow will be located in the same location(s) where the step(s) of the template workflow are located.}
+#'     \item{setWorkflowTreeName(treeName)}{Sets the name of the location/analysis tree where the workflow template should be created, i.e., realised. If not defined, the new
+#' workflow will be located in the same location(s) where the step(s) of the template workflow are located.}
+#'     \item{setWorkflowTreeRootFolder(rootFolder)}{Sets the root folder path for the workflow tree where the template is realised to.}
 #'     \item{toJSON(filepath, pretty=TRUE)}{Saves the template definition to a JSON file.}
 #'     \item{validateParameters()}{Checks if all required parameters are set, throwing an error if not.}
 #'   }
+#' @examples
+#' \dontrun{
+#' # Get a step and load its dependencies
+#' step <- getStep("/myProject/workflow/analysisTree/Step 1")
+#' step$dependencies$load()
+#'
+#' # Create a workflow template from the step's workflow
+#' workflowTemplate <- createWorkflowTemplateEnv(step$workflow)
+#'
+#' # View the steps in the template
+#' workflowTemplate$df()
+#'
+#' # Define a parameter to modify the description of a specific step
+#' workflowTemplate$parameterizeStep(
+#'   stepPattern = "import data", #pattern that matches the name or the description of the step which the paramter should target
+#'   paramName = "inputDescription", #name of the parameter to which a value will be asigned to
+#'   property = "description" #the property of the targeted step which will be modified by the parameter
+#' )
+#'
+#' # Define a parameter that applies to all steps
+#' workflowTemplate$parameterizeStep(
+#'   stepPattern = "*", 
+#'   paramName = "allStepsRationale",
+#'   property = "rationale"
+#' )
+#'
+#' # Set the parameter values
+#' workflowTemplate$setParameter("inputDescription", "Load input dataset")
+#' workflowTemplate$setParameter("allStepsRationale", "Automated workflow execution")
+#'
+#' # Review parameters before realisation
+#' workflowTemplate$listParameters()
+#'
+#' # Optionally set a new target tree for the realised workflow
+#' workflowTemplate$setWorkflowTreeName("newAnalysisTree")
+#'
+#' # Realise the template (creates actual steps)
+#' realisedWorkflow <- workflowTemplate$realise()
+#' }
 #' @export
 createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
   env <- new.env(parent = emptyenv())

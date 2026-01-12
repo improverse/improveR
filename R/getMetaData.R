@@ -1,4 +1,4 @@
-#' loads the metadata of a given resource and writes it as string values into a list
+#' Loads the Metadata of a Given Resource and Writes It as String Values Into a List
 #'
 #' @param ident path, resource or entity ID of the picture
 #' @param from used for relative paths, by default pwd is used, which is initiated with the step that started improveR
@@ -39,7 +39,7 @@ getMetaDataMap <- function(ident,from=pwd()) {
   return(as.list(env))
 }
 
-#' gets a metadata data frame
+#' Gets a Metadata Data Frame
 #'
 #' @param ident path, resource or entity ID of the picture
 #' @param from used for relative paths, by default pwd is used, which is initiated with the step that started improveR

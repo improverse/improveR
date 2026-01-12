@@ -2,25 +2,28 @@
 % Please edit documentation in R/createWorkflow.R
 \name{createWorkflow}
 \alias{createWorkflow}
-\title{Create a new workflow object}
+\title{Create New Workflow Environment}
 \usage{
 createWorkflow()
 }
 \value{
-An environment representing the workflow, with public methods as described.
+An R environment with class "workflow" containing the public methods
+listed in Details.
 }
 \description{
-This function constructs a new workflow environment for managing and executing steps.
-The returned object exposes only the public API for workflow operations.
+Constructs a new workflow environment for managing, analyzing, and executing
+workflow steps. The returned object encapsulates the workflow state and exposes
+a public API for operations.
 }
 \details{
-The workflow object provides methods to:
+The returned workflow environment contains the following methods:
 \itemize{
-\item List all steps as a data frame (\code{df})
-\item Find changed and outdated files (\code{changedAndOutdatedFiles})
-\item Create a re-execution plan for outdated steps (\code{createReexecutionPlan})
-\item Rerun all changed and outdated steps (\code{rerunChangedAndOutdated})
-\item Execute a given execution plan (\code{executePlan})
+\item \code{df()}: Returns a data frame of all steps in the workflow
+\item \code{changedAndOutdatedFiles(tree)}: Finds files that have changed or are outdated
+\item \code{createReexecutionPlan()}: Generates a plan to rerun only outdated steps
+\item \code{rerunChangedAndOutdated()}: Executes the re-execution plan
+\item \code{rerunAll()}: Reruns all steps regardless of status
+\item \code{executePlan(plan)}: Executes a specific plan object
 }
 Internal state and helper functions are encapsulated and not exposed.
 }

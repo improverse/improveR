@@ -2,18 +2,23 @@
 % Please edit documentation in R/getStep.R
 \name{getStepTemplate}
 \alias{getStepTemplate}
-\title{getStepTemplate
-reads a step and its processes and generates a new handle}
+\title{Create Step Template}
 \usage{
 getStepTemplate(ident)
 }
 \arguments{
-\item{ident}{the ident of the step}
+\item{ident}{Identifier of the source step to use as a template.}
+}
+\value{
+A new step environment containing the template configuration.
 }
 \description{
-getStepTemplate
-reads a step and its processes and generates a new handle
+Reads a step and its processes to generate a new step template environment.
+This template can be used to create new instances of the step with a fresh handle.
 }
 \references{
 ics1213
+}
+\seealso{
+\code{\link{getStep}}, \code{\link{createStepTemplateEnv}}
 }

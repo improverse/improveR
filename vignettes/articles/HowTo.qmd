@@ -54,7 +54,8 @@ fn_connect <- function() {
   Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
   clearConnectionData()
-  improveRtestsupport::improveConnect()
+  #improveRtestsupport::improveConnect()
+  improveR::improveConnect()
 
   setEditable(TRUE)
   print(Sys.getenv("IMPROVER_REPO_URL"))
@@ -200,6 +201,24 @@ envStep$children$load()
 ls(envStep$children)
 ```
 
+# get all available tools
+
+See [reference](../reference/getToolInstances.html).
+
+```{r}
+#| code-fold: false
+#| eval: false
+
+envTools<-getToolInstances()
+ls(envTools)
+
+# [1] "Nonmem 7.4 7.4 runserver"                                                                 
+# [2] "Nonmem 7.4 7.4 slurm runserver"                                                           
+# [3] "Nonmem nm4robot_desktop-pmalkg2_cflandorfer nmLsf_desktop-pmalkg2_cflandorfer runserver"  
+# [4] "Nonmem nm4robot_desktop-pmalkg2_cflandorfer nmSlurm_desktop-pmalkg2_cflandorfer runserver"
+# [5] "R R4.2 R4.2 runserver"        
+
+```
 
 # get the workflow leading to a step
 ```{r}
@@ -289,6 +308,8 @@ step$workflow$rerunChangedAndOutdated()
 # create a step template
 
 ```{r}
+#| eval: false
+#| code-fold: false
 stepTemplateEnv <- createStepTemplateEnv()
 ```
 

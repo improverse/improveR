@@ -13,7 +13,7 @@ resourceVersionCacheList <- list(
   )
 
 
-#' loadResource
+#' Load Resource
 #' @description Loads one or multiple resources.
 #' @inheritParams common_ident
 #' @param from Path working directory.
@@ -43,7 +43,7 @@ resourceVersionCacheList <- list(
 #'by a command line interface. The default start position within the improve repository
 #'is the step that started an R instance with improveR.This starting point is set
 #'via the IMPROVER_STEP environment variable. If this information was not
-#'provided the root element is pwd. pwd  is used if you use relative pathes to
+#'provided the root element is pwd. pwd  is used if you use relative paths to
 #'access an element.
 #' @examples
 #' \dontrun{
@@ -79,7 +79,7 @@ loadResource <- function(ident, from = pwd()) {
   if (grepl("/", ident, fixed = T) | grepl("\\", ident, fixed = T)) {
 
     ident <- normalisePath(ident, startPath = from)
-    logging::logdebug("path recognised")
+    logging::logdebug("path recognized")
     logging::logdebug(ident)
     res <- getFromCache(ident, loadResourceByPathGeneric, resourceCacheList)
   }
@@ -115,7 +115,7 @@ internalLoadResourceVersionFromServer <- function(identifier) {
   return(loadResourceVersionFromServer(entityVersionId = identifier,invalidatesReproducibility = F))
 }
 
-#' unloadResource
+#' Unload Resource
 #' @description Unloads a resource.
 #' @param ident id
 #' @param from pwd for relative path
@@ -132,7 +132,7 @@ unloadResource <- function(ident,from=pwd()) {
   }
 }
 
-#' updateResource
+#' Update Resource
 #' @description Updates a resource.
 #' @param ident id
 #' @param from pwd for relative path
@@ -148,7 +148,7 @@ updateResource <- function(ident,from=pwd()) {
   return(res)
 }
 
-#' isResourceUp2Date
+#' Is Resource Up2 Date
 #' @description Checks if resource is up to date. 
 #' @param ident id
 #' @param from pwd for relative path

@@ -27,7 +27,7 @@ actualLoadMetaDataDefinitions <- function(scope="Improve Client"){
   return(definitions)
 }
 
-#' loads all meta data definitions for a scope, the default scope is "Improve Client"
+#' Loads All Meta Data Definitions For A Scope, The Default Scope Is "Improve Client"
 #' @param scope the metadata scope
 #' @references ics1137
 #' @export
@@ -37,7 +37,7 @@ loadMetaDataDefinitions <- function(scope="Improve Client") {
 }
 
 
-#' unloadMetaDataDefinitions
+#' Unload Meta Data Definitions
 #' @param scope the metadata scope
 #' @references ics1137
 #' @export
@@ -46,7 +46,7 @@ unloadMetaDataDefinitions <- function(scope="Improve Client") {
   removeFromCache(scope,"",metadataDefinitionsCacheList)
 }
 
-#' updateMetaDataDefinitions
+#' Update Meta Data Definitions
 #' @param scope the metadata scope
 #' @references ics1137
 #' @export
@@ -56,7 +56,7 @@ updateMetaDataDefinitions <- function(scope="Improve Client") {
   return(res)
 }
 
-#' loads one meta data definitions by name for a scope, the default scope is "Improve Client"
+#' Loads One Meta Data Definitions By Name For A Scope, The Default Scope Is "Improve Client"
 #' @param scope the metadata scope
 #' @param name, name of the meta data definition
 #' @references ics1137
@@ -67,7 +67,7 @@ loadMetaDataDefinition<- function(name,scope="Improve Client") {
   return(definition)
 }
 
-#' loads one meta data definition picklist values by name for a scope, the default scope is "Improve Client"
+#' Loads One Meta Data Definition Picklist Values By Name For A Scope, The Default Scope Is "Improve Client"
 #' @param scope the metadata scope
 #' @param name, name of the meta data definition
 #' @references ics1137

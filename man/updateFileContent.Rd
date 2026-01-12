@@ -2,23 +2,23 @@
 % Please edit documentation in R/change.R
 \name{updateFileContent}
 \alias{updateFileContent}
-\title{updates file content,
-prerequisite, must be a file
-multiple files can be updated at once}
+\title{Update File Content
+Prerequisite: must be a file.
+Multiple files can be updated at once.}
 \usage{
 updateFileContent(ident, localPath, comment = "modified by improveRW")
 }
 \arguments{
-\item{ident}{the resources to be updated}
+\item{ident}{Resource(s) to be updated.}
 
-\item{localPath}{the path to the file with the new fileContent}
+\item{localPath}{Path to the file with the new content.}
 
-\item{comment}{comment for the commit, defaults to "modified by improveRW"}
+\item{comment}{Commit comment. Defaults to "modified by improveRW".}
 }
 \description{
-updates file content,
-prerequisite, must be a file
-multiple files can be updated at once
+Update File Content
+Prerequisite: must be a file.
+Multiple files can be updated at once.
 }
 \references{
 ics1210

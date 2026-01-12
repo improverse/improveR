@@ -2,7 +2,7 @@
 % Please edit documentation in R/getGraphics.R
 \name{getGraphics}
 \alias{getGraphics}
-\title{gets a graphics object}
+\title{Get Graphics File from improve Repository}
 \usage{
 getGraphics(
   ident,
@@ -13,19 +13,78 @@ getGraphics(
 )
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the picture}
+\item{ident}{Path, resource ID, or entity ID of the graphics file. Can be a
+relative path (from current step), absolute path, or improve identifier}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}
+(current step location)}
 
-\item{addAsLink}{creates a link in inventory if TRUE, warn improveClean has to be run at the end}
+\item{addAsLink}{Logical. If \code{TRUE}, creates a link in the inventory for
+provenance tracking. Use \code{improveClean()} at workflow end to clean up
+links}
 
-\item{caption}{by default entityID and lastmodified are the caption, here alternative text can be provided}
+\item{caption}{Custom caption text. If empty, defaults to entityID and
+lastModified timestamp}
 
-\item{description}{by default filename is the caption, here alternative text can be provided}
+\item{description}{Custom description text. If empty, defaults to filename}
+}
+\value{
+A data frame with the following columns:
+\describe{
+\item{caption}{Character. Source information including entity version ID
+and last modified timestamp}
+\item{path}{Character. Local file system path to the downloaded graphics
+file}
+\item{entityId}{Character. Entity identifier on improve server}
+\item{name}{Character. Filename of the graphics file}
+\item{description}{Character. Description text (defaults to filename)}
+\item{resource}{List. Complete resource metadata from improve server
+(29 fields)}
+}
 }
 \description{
-gets a graphics object
+Retrieves graphics files (images, plots, figures) from the improve repository
+and returns metadata including the local file path. The graphics file is
+downloaded and cached locally for use in reports, visualizations, or further
+processing.
+}
+\details{
+Graphics files are cached locally in the \code{graphics/} subdirectory of the
+current working directory. The file is downloaded but not loaded into R - use
+the returned \code{path} with appropriate display functions.
+
+Common workflows:
+\itemize{
+\item For RMarkdown: Use \code{showGraphics()} to generate markdown syntax
+\item For knitr chunks: Use \code{includeGraphics()} with knitr integration
+\item For custom display: Use the \code{path} column with graphics functions
+\item For metadata only: Access \code{entityId}, \code{name}, etc.
+}
+}
+\examples{
+\dontrun{
+# Get graphics file metadata
+plot_info <- getGraphics("results/efficacy_plot.png")
+plot_path <- plot_info$path
+
+# Display in RMarkdown using helper function
+showGraphics("results/efficacy_plot.png")
+
+# Display in knitr chunk
+includeGraphics("results/efficacy_plot.png")
+
+# Custom display with base R
+img_info <- getGraphics("figures/diagram.png")
+# Use img_info$path with your preferred display method
+}
+
 }
 \references{
 ics1141
+}
+\seealso{
+\code{\link{showGraphics}} for RMarkdown display,
+\code{\link{includeGraphics}} for knitr integration,
+\code{\link{getData}} for loading data tables,
+\code{\link{getR}} for R scripts
 }

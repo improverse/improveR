@@ -2,16 +2,28 @@
 % Please edit documentation in R/loadAuditTrail.R
 \name{unloadAuditTrail}
 \alias{unloadAuditTrail}
-\title{unloadAuditTrail}
+\title{Unload Audit Trail from Cache}
 \usage{
 unloadAuditTrail(ident)
 }
 \arguments{
-\item{ident}{id}
+\item{ident}{The resource identifier - can be a resource ID, entity ID,
+entity version ID, or path.}
+}
+\value{
+Invisibly returns NULL. Called for side effect of clearing cache.
 }
 \description{
-unloadAuditTrail
+Removes audit trail data from the cache for the specified resource.
+}
+\details{
+Use this function when you need to ensure fresh audit trail data is loaded
+from the server on the next \code{\link{loadAuditTrail}} call.
 }
 \references{
 ics1097
+}
+\seealso{
+\code{\link{loadAuditTrail}} to load audit trail,
+\code{\link{updateAuditTrail}} to refresh from server
 }

@@ -38,7 +38,7 @@ The import process includes the following steps:
 \item Uploads external link files to the repository
 \item Applies optional link mappings from \code{<workflowName>LinkMapping.json}
 \item Applies optional tool mappings from \code{<workflowName>ToolMapping.json}
-\item Creates steps in dependency order
+\item Creates steps in dependencies order
 \item Uploads input and output files for each step
 }
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/getParent.R
 \name{getParent}
 \alias{getParent}
-\title{returns the parent of anything resolved by getCorrectId}
+\title{Returns the Parent of Anything Resolved by GetCorrectId}
 \usage{
 getParent(identifier)
 }
@@ -10,7 +10,7 @@ getParent(identifier)
 \item{identifier, }{ID or resource}
 }
 \description{
-returns the parent of anything resolved by getCorrectId
+Returns the Parent of Anything Resolved by GetCorrectId
 }
 \references{
 ics1088

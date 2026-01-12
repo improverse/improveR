@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadReferences.R
 \name{unloadReferences}
 \alias{unloadReferences}
-\title{unloadReferences}
+\title{Unload References}
 \usage{
 unloadReferences(ident)
 }
@@ -10,7 +10,7 @@ unloadReferences(ident)
 \item{ident}{id}
 }
 \description{
-unloadReferences
+Unload References
 }
 \references{
 ics1206

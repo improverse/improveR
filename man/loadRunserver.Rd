@@ -2,15 +2,29 @@
 % Please edit documentation in R/stepConfigData.R
 \name{loadRunserver}
 \alias{loadRunserver}
-\title{loads runserver by label}
+\title{Loads Runserver By Label}
 \usage{
 loadRunserver(label)
 }
 \arguments{
 \item{label}{the label of the runserver}
 }
+\value{
+A dataframe with the following columns:
+\itemize{
+\item \code{id} (character)
+\item \code{url} (character)
+\item \code{hostname} (character)
+\item \code{label} (character)
+\item \code{local} (logical)
+\item \code{deleted} (logical)
+\item \code{generic} (logical)
+\item \code{reproducible} (logical)
+\item \code{sshPort} (integer)
+}
+}
 \description{
-loads runserver by label
+\code{loadRunserver()} loads a runserver by its label and returns a dataframe with pertaining details.
 }
 \references{
 ics1226

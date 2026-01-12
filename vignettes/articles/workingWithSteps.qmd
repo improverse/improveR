@@ -52,12 +52,14 @@ options(width=10000) #make results window wide; horizontal scrollbar
 
 fn_connect <- function() {
   Sys.setenv(
-    IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
+    # IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
+    IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:6110/repository"
     
   )
   Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
   improveR::clearConnectionData()
+  # improveR::improveConnect()
   improveRtestsupport::improveConnect()
 
   setEditable(TRUE)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/create.R
 \name{createExternalLink}
 \alias{createExternalLink}
-\title{Create an External Link}
+\title{Create External Link in improve Repository}
 \usage{
 createExternalLink(
   targetIdent,
@@ -12,18 +12,26 @@ createExternalLink(
 )
 }
 \arguments{
-\item{targetIdent}{ident of a folder, analysis tree, or step where the external link should be created}
+\item{targetIdent}{Identifier of the parent folder, analysis tree, or step
+where the link should be created.}
 
-\item{linkName}{Name of the link}
+\item{linkName}{Character. Name of the link resource.}
 
-\item{url}{url pointing at the the external resource, e.g., a database.}
+\item{url}{Character. The destination URL (e.g., "https://example.com" or "db://server").}
 
-\item{comment}{defaults to Created by improveR}
+\item{comment}{Character. Comment for the creation audit entry. Defaults to
+"Created by improveR".}
+}
+\value{
+A list containing the resource object of the created external link.
 }
 \description{
-An externa link is a link pointing to a resource outside of the respository.
-The function createExternalLink() establishes such a link within a folder, analysis tree, or step.
+Creates a link resource pointing to an external URL (outside the repository),
+such as a database, website, or external documentation system.
 }
 \references{
 ics1104
+}
+\seealso{
+\code{\link{createFile}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/create.R
 \name{createFile}
 \alias{createFile}
-\title{Create a File}
+\title{Create File in improve Repository}
 \usage{
 createFile(
   targetIdent,
@@ -12,17 +12,29 @@ createFile(
 )
 }
 \arguments{
-\item{targetIdent}{one or many target folders, as resource, id or path}
+\item{targetIdent}{Identifier(s) of the parent folder(s) where the file should
+be created. Can be a path, resource ID, or entity ID.}
 
-\item{fileName}{Name of the file to be created.}
+\item{fileName}{Character. Name of the file to be created. If empty and
+\code{localPath} is provided, the basename of \code{localPath} is used.}
 
-\item{localPath}{path to a local file for initial file contents}
+\item{localPath}{Character. Path to a local file whose content will be uploaded.
+If empty, an empty file resource is created (metadata only).}
 
-\item{comment}{defaults to "Created by improveR"}
+\item{comment}{Character. Comment for the creation audit entry. Defaults to
+"Created by improveR".}
+}
+\value{
+A list containing the resource object(s) of the created file(s).
+Returns \code{NULL} on failure.
 }
 \description{
-The function \code{createFile()} generates a file in the repository and returns the resource object.
+Creates a file resource in the repository, optionally uploading content from a
+local file.
 }
 \references{
 ics1102
+}
+\seealso{
+\code{\link{createFolder}}, \code{\link{updateFileContent}}
 }

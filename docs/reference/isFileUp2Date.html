@@ -63,10 +63,30 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-from">from<a class="anchor" aria-label="anchor" href="#arg-from"></a></dt>
+<dl><dt id="arg-ident">ident<a class="anchor" aria-label="anchor" href="#arg-ident"></a></dt>
+<dd><p>id</p></dd>
+
+
+<dt id="arg-from">from<a class="anchor" aria-label="anchor" href="#arg-from"></a></dt>
 <dd><p>Used if a relative path is used.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="details-ident">Details ident<a class="anchor" aria-label="anchor" href="#details-ident"></a></h2>
+
+
+<p>There are multiple ways to describe the ident of a resource:</p>
+<p>Absolute idents:</p><ul><li><p>resourceId: a UUID</p></li>
+<li><p>Data frame: uses the resourceId value of the data frame</p></li>
+<li><p>entityId: pointer to the latest version of a resource. Short and long entityIds are accepted'</p></li>
+<li><p>entityVersionId: pointer to a specific version of a resource. Short and long entityIds are accepted'</p></li>
+<li><p>path: the full path to a resource, always starting with /.</p></li>
+</ul><p>Relative idents:</p><ul><li><p>All relative idents are path based, they always have to start with ./ or ../'</p></li>
+<li><p>Relative path without pwd: always starts from the return value of pwd()'</p></li>
+<li><p>Relative path and pwd as second argument: starts the relative path from the
+absolute ident that was handed over as second argument. Sometimes still called
+“from” but will be updated to pwd.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>ics1099</p>

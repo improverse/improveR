@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadREview.R
 \name{updateReviewComments}
 \alias{updateReviewComments}
-\title{reloads the review comments for a review}
+\title{Reloads the Review Comments for a Review}
 \usage{
 updateReviewComments(resourceId)
 }
@@ -10,7 +10,7 @@ updateReviewComments(resourceId)
 \item{resourceId}{id (UUID) of the resource}
 }
 \description{
-reloads the review comments for a review
+Reloads the Review Comments for a Review
 }
 \references{
 ics1208

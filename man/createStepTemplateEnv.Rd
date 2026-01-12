@@ -15,7 +15,7 @@ path, resource ID, or entity ID. If not provided initially, can be set later usi
 a template. Typically obtained from \code{getStep(ident)$stepDf}.}
 
 \item{workflow}{Optional. Workflow environment this template belongs to. Used for
-workflow-level operations and dependency tracking.}
+workflow-level operations and dependencies tracking.}
 }
 \value{
 An environment representing the step template with the following components:

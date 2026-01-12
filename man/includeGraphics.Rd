@@ -2,7 +2,7 @@
 % Please edit documentation in R/getGraphics.R
 \name{includeGraphics}
 \alias{includeGraphics}
-\title{Includes a picture in rMarkdown, with knitr::includeGraphics, used within a code block, only for a single image}
+\title{Include Graphics in Knitr Chunk}
 \usage{
 includeGraphics(
   ident,
@@ -16,25 +16,42 @@ includeGraphics(
 )
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the picture}
+\item{ident}{Path, resource ID, or entity ID of the graphics file. Can be a
+relative path (from current step), absolute path, or improve identifier}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}
+(current step location)}
 
-\item{addAsLink}{creates a link in inventory if TRUE, warn improveClean has to be run at the end}
+\item{addAsLink}{Logical. If \code{TRUE}, creates a link in the inventory for
+provenance tracking. Use \code{improveClean()} at workflow end to clean up
+links}
 
-\item{caption}{by default entityID and lastmodified are the caption, here alternative text can be provided}
+\item{caption}{Custom caption text. If empty, defaults to entityID and
+lastModified timestamp}
 
-\item{description}{by default filename is the caption, here alternative text can be provided}
+\item{description}{Custom description text. If empty, defaults to filename}
 
-\item{includeCaption}{display the caption}
+\item{includeCaption}{Logical. If \code{TRUE} (default), sets the chunk option
+\code{fig.cap} to the caption text}
 
-\item{includeDescription}{display the description}
+\item{includeDescription}{Logical. If \code{TRUE} (default), prints the
+description text below the image}
 
-\item{...}{additional options for knitr::includeGraphics}
+\item{...}{Additional arguments passed to \code{knitr::include_graphics}}
+}
+\value{
+The result of \code{knitr::include_graphics}, which renders the image
+in the RMarkdown output.
 }
 \description{
-Includes a picture in rMarkdown, with knitr::includeGraphics, used within a code block, only for a single image
+wrapper around \code{knitr::include_graphics} that automatically handles
+file retrieval from improve, caching, and metadata display. Best used within
+RMarkdown code chunks.
 }
 \references{
 ics1141
+}
+\seealso{
+\code{\link{getGraphics}} for underlying retrieval function,
+\code{\link{showGraphics}} for raw Markdown syntax generation
 }

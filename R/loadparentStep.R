@@ -12,7 +12,7 @@ createParentStepCacheList <- function(name) {
 parentStepCacheList <- createParentStepCacheList("parentStep")
 
 
-#' loads the parent step of one step, not applicable to multiple steps
+#' Loads the Parent Step of One Step, Not Applicable to Multiple Steps
 #'
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
@@ -31,7 +31,7 @@ loadParentStep <- function(ident, from=pwd()) {
   return(NULL)
 }
 
-#' unloadParentStep
+#' Unload Parent Step
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
 #' @references ics1209
@@ -43,7 +43,7 @@ unloadParentStep <- function(ident, from=pwd()) {
   }
 }
 
-#' updateParentStep reloads the runservers from the repository
+#' UpdateParentStep Reloads The Runservers From The Repository
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
 #' @references ics1209

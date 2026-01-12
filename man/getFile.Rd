@@ -2,7 +2,7 @@
 % Please edit documentation in R/getGeneric.R
 \name{getFile}
 \alias{getFile}
-\title{gets a file object}
+\title{Get a File Object}
 \usage{
 getFile(
   ident,
@@ -15,22 +15,22 @@ getFile(
 )
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the file}
+\item{ident}{Path, resource, or entity ID of the file.}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Used for relative paths. By default, pwd is used (initiated with the step that started improveR).}
 
-\item{addAsLink}{creates a link in inventory if TRUE, warn improveClean has to be run at the end}
+\item{addAsLink}{Creates a link in the inventory if TRUE; improveClean must be run at the end.}
 
-\item{caption}{by default entityID and lastmodified are the caption, here alternative text can be provided}
+\item{caption}{By default, entity ID and last modified are the caption; alternative text can be provided here.}
 
-\item{description}{by default filename is the caption, here alternative text can be provided}
+\item{description}{By default, the filename is the description; alternative text can be provided here.}
 
-\item{folderName}{by default data the subfolder in the workspace where the file is created}
+\item{folderName}{By default, \code{data} is the subfolder in the workspace where the file is created.}
 
-\item{addIdToName}{by default T prepend the entity ID of the name to avoid collissions}
+\item{addIdToName}{By default, T prepends the entity ID to the name to avoid collisions.}
 }
 \description{
-gets a file object
+Get a File Object
 }
 \references{
 ics1141

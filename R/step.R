@@ -59,7 +59,7 @@ createStep <- function(treeIdent,parentStepIdent=NULL,toolId=NULL) {
 #' @param position the position in the process list
 #' @param parentProcessId only to use when processType equals sub
 #' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
-#' @param toolDeletePatterns files that wont get checked in
+#' @param toolDeletePatterns files that won't get checked in
 #' @param toolStreamablePatterns file that can be streamed to monitor the step
 #' @noRd
 #'
@@ -131,10 +131,43 @@ setProcessVariablesList <- function(stepId, processId,processVariables) {
 }
 
 
-#' getProcessFileVariables
+#' Get Process File Variables
 #'
-#' @param ident id of the step the variables refer to
-#' @param processId id of the process the variables refer to
+#' Retrieves file variable definitions for a specific process within a step.
+#'
+#' @param ident A step identifier. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param processId Identifier of the process (main or sub-process) whose variables
+#'   should be returned. Use \code{\link{loadProcessesForStep}} to discover process ids.
+#'
+#' @returns A data frame with one row per process file variable. Columns include:
+#'   \describe{
+#'     \item{id}{Character. Variable identifier on the server.}
+#'     \item{position}{Integer. Position ordering in the process variable list.}
+#'     \item{name}{Character. Variable name.}
+#'     \item{variableType}{Character. Typically \code{fileRef} or \code{filePath}.}
+#'     \item{valueResourceId}{Character. Resource id when \code{variableType} is \code{fileRef}.}
+#'     \item{processId}{Character. Process identifier that owns the variable.}
+#'   }
+#'   Additional columns may be returned depending on server version.
+#'
+#' @details
+#' Process file variables connect a step process to its file inputs. Variables of
+#' type \code{fileRef} point to improve resources, while \code{filePath} variables
+#' reference literal paths for the runserver.
+#'
+#' @seealso \code{\link{loadProcessesForStep}} to list available processes,
+#'   \code{\link{createProcessFileVariable}} to create variables
+#'
+#' @examples
+#' \dontrun{
+#' processes <- loadProcessesForStep("/improve-tutorial/Modeling/Step 1")
+#' main_process <- processes[processes$processType == "main", ]$id[1]
+#' variables <- getProcessFileVariables(
+#'   ident = "/improve-tutorial/Modeling/Step 1",
+#'   processId = main_process
+#' )
+#' }
 #'
 #' @export
 getProcessFileVariables <- function(ident, processId) {
@@ -292,7 +325,7 @@ attachStep <- function(ident, parent, from = pwd()) {
 #' @param position the position in the process list
 #' @param parentProcessId only to use when processType equals sub
 #' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
-#' @param toolDeletePatterns files that wont get checked in
+#' @param toolDeletePatterns files that won't get checked in
 #' @param toolStreamablePatterns file that can be streamed to monitor the step
 #' @noRd
 #'

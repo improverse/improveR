@@ -2,7 +2,7 @@
 % Please edit documentation in R/improveConnect.R
 \name{improveDisconnect}
 \alias{improveDisconnect}
-\title{improveDisconnect}
+\title{Improve Disconnect}
 \usage{
 improveDisconnect(env = cacheEnv)
 }

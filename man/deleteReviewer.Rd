@@ -2,7 +2,7 @@
 % Please edit documentation in R/reviewers.R
 \name{deleteReviewer}
 \alias{deleteReviewer}
-\title{removes a reviewer from a review}
+\title{Removes a Reviewer from a Review}
 \usage{
 deleteReviewer(reviewId, reviewerId)
 }
@@ -12,7 +12,7 @@ deleteReviewer(reviewId, reviewerId)
 \item{reviewerId}{id (UUID) of the reviewer}
 }
 \description{
-removes a reviewer from a review
+Removes a Reviewer from a Review
 }
 \references{
 ics369

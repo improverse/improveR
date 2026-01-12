@@ -99,15 +99,83 @@ singleMove <- function(source,target,targetName=NULL,overwrite=F,comment) {
   return(res)
 }
 
-#' copies resources
-#' multiple sources can be copied at once
-#' if multiple sources are copied target needs to be a container and targetName empty
-#' if only one source is copied, a new name can be specified, this can be done via a path or via targetName
-#' @param sources the files to be copied
-#' @param target the target folder
-#' @param targetName name for the copied file
-#' @param overwrite flag if a file already existing at the target location should be overwritten if existing. If flag is false and file exists NULL is returned
-#' @param comment comment for the commit, defaults to "modified by improveRW"
+#' Copy Resources to Target Location
+#'
+#' Duplicates one or more resources to a target folder, creating independent copies with
+#' their own version history. Unlike \code{\link{createLink}}, copies are fully independent
+#' and changes to the original do not affect the copy.
+#'
+#' @param sources Identifier(s) of resource(s) to copy. Can be a single resource or multiple
+#'   resources. Accepts paths, resource ids, entity ids, or a data frame of resources.
+#' @param target Identifier of the target folder or file location. Can be a path, resource id,
+#'   or entity id. If copying multiple sources, must be a container (folder).
+#' @param targetName Character. Optional new name for the copied resource. Only used when
+#'   copying a single source. Ignored when copying multiple sources. Defaults to empty string
+#'   (uses original name).
+#' @param overwrite Logical. If \code{TRUE} and a resource with the same name exists at the
+#'   target location, it is deleted and replaced. If \code{FALSE} (default) and a name
+#'   conflict exists, returns \code{NULL} with a warning.
+#' @param comment Character. Commit message for the copy operation. Defaults to
+#'   "modified by improveRW".
+#'
+#' @return The copied resource(s) as a data frame, or \code{NULL} if the operation fails
+#'   (e.g., source doesn't exist, target doesn't exist, name conflict with overwrite=FALSE,
+#'   invalid target type for the source type).
+#'
+#' @details
+#' The function supports both single and batch copying:
+#' \itemize{
+#'   \item \strong{Single copy:} When copying one resource, you can optionally specify a new
+#'     name via \code{targetName}
+#'   \item \strong{Batch copy:} When copying multiple resources, all are copied to the target
+#'     folder with their original names (\code{targetName} must be empty)
+#' }
+#'
+#' The copy operation validates:
+#' \itemize{
+#'   \item Source and target resources exist
+#'   \item Target accepts the source type (e.g., can't copy a workflow into a file)
+#'   \item No naming conflicts (unless \code{overwrite=TRUE})
+#'   \item Repository is in editable mode (automatically checked)
+#' }
+#'
+#' After copying, parent folder caches are automatically cleared to ensure fresh data
+#' on subsequent queries.
+#'
+#' @seealso
+#' \code{\link{move}} to relocate resources instead of copying,
+#' \code{\link{createLink}} to create lightweight references instead of full copies,
+#' \code{\link{delete}} to remove resources
+#'
+#' @examples
+#' \dontrun{
+#' # Copy a single file to a folder
+#' copy(
+#'   sources = "/Data/baseline.csv",
+#'   target = "/Modeling/PopPK"
+#' )
+#'
+#' # Copy with a new name
+#' copy(
+#'   sources = "/Data/baseline.csv",
+#'   target = "/Modeling/PopPK",
+#'   targetName = "input_data.csv"
+#' )
+#'
+#' # Copy multiple files at once
+#' copy(
+#'   sources = c("/Data/file1.csv", "/Data/file2.csv"),
+#'   target = "/Analysis"
+#' )
+#'
+#' # Overwrite existing file
+#' copy(
+#'   sources = "/Data/new_baseline.csv",
+#'   target = "/Modeling/baseline.csv",
+#'   overwrite = TRUE
+#' )
+#' }
+#'
 #' @references ics1139
 #' @export
 copy <- function(sources,target,targetName="",overwrite=F,comment="modified by improveRW") {
@@ -121,15 +189,82 @@ copy <- function(sources,target,targetName="",overwrite=F,comment="modified by i
   )
 }
 
-#' moves resources
-#' multiple sources can be moved at once
-#' if multiple sources are moved target needs to be a container and targetName empty
-#' if only one source is moved, a new name can be specified, this can be done via a path or via targetName
-#' @param sources the files to be moved
-#' @param target the target folder
-#' @param targetName name for the moved file
-#' @param overwrite flag if a file already existing at the target location should be overwritten if existing. If flag is false and file exists NULL is returned
-#' @param comment comment for the commit, defaults to "modified by improveRW"
+#' Move Resources to Target Location
+#'
+#' Relocates one or more resources to a target folder, changing their path while preserving
+#' their version history and metadata. The resource is removed from its current location and
+#' placed in the new location.
+#'
+#' @param sources Identifier(s) of resource(s) to move. Can be a single resource or multiple
+#'   resources. Accepts paths, resource ids, entity ids, or a data frame of resources.
+#' @param target Identifier of the target folder or file location. Can be a path, resource id,
+#'   or entity id. If moving multiple sources, must be a container (folder).
+#' @param targetName Character. Optional new name for the moved resource. Only used when
+#'   moving a single source. Ignored when moving multiple sources. Defaults to empty string
+#'   (uses original name).
+#' @param overwrite Logical. If \code{TRUE} and a resource with the same name exists at the
+#'   target location, it is deleted and replaced. If \code{FALSE} (default) and a name
+#'   conflict exists, returns \code{NULL} with a warning.
+#' @param comment Character. Commit message for the move operation. Defaults to
+#'   "modified by improveRW".
+#'
+#' @return The moved resource(s) as a data frame with updated paths, or \code{NULL} if the
+#'   operation fails (e.g., source doesn't exist, target doesn't exist, name conflict with
+#'   overwrite=FALSE, invalid target type for the source type).
+#'
+#' @details
+#' The function supports both single and batch moving:
+#' \itemize{
+#'   \item \strong{Single move:} When moving one resource, you can optionally specify a new
+#'     name via \code{targetName} (also serves as a rename operation)
+#'   \item \strong{Batch move:} When moving multiple resources, all are moved to the target
+#'     folder with their original names (\code{targetName} must be empty)
+#' }
+#'
+#' The move operation validates:
+#' \itemize{
+#'   \item Source and target resources exist
+#'   \item Target accepts the source type (e.g., can't move a workflow into a file)
+#'   \item No naming conflicts (unless \code{overwrite=TRUE})
+#'   \item Repository is in editable mode (automatically checked)
+#' }
+#'
+#' After moving, path caches for both source and target locations are automatically
+#' invalidated to ensure fresh data on subsequent queries.
+#'
+#' @seealso
+#' \code{\link{copy}} to duplicate resources instead of moving,
+#' \code{\link{delete}} to remove resources,
+#' \code{\link{createLink}} to create references without moving
+#'
+#' @examples
+#' \dontrun{
+#' # Move a file to a different folder
+#' move(
+#'   sources = "/Data/old_location/baseline.csv",
+#'   target = "/Data/current"
+#' )
+#'
+#' # Move and rename in one operation
+#' move(
+#'   sources = "/Data/draft_analysis.R",
+#'   target = "/Analysis",
+#'   targetName = "final_analysis.R"
+#' )
+#'
+#' # Move multiple files at once
+#' move(
+#'   sources = c("/Temp/file1.csv", "/Temp/file2.csv"),
+#'   target = "/Data/Archive"
+#' )
+#'
+#' # Reorganize folder structure
+#' move(
+#'   sources = "/Projects/Old_Structure/Workflows",
+#'   target = "/Projects/New_Structure"
+#' )
+#' }
+#'
 #' @references ics1139
 #' @export
 move <- function(sources,target,targetName="",overwrite=F,comment="modified by improveRW") {
@@ -161,12 +296,58 @@ singleDelete <- function(resId) {
   return(result$status_code==200)
 }
 
-#' Delete Resource(s)
-#' `delete()` takes takes the ident of one or multiple resources and
-#' deletes them. Resouces can be, e.g., folders, analysis trees, steps,
-#' or files. Deletion will be prevented if any step within the resource(s)
-#' has a runStatus other than "INITIAL" or "FINISHED".
-#' @param res the resource(s) to be deleted
+#' Delete Resources Permanently
+#'
+#' Permanently removes one or more resources from the repository. Resources can be folders,
+#' analysis trees, workflows, steps, files, or links. For safety, deletion is prevented
+#' if any workflow step within the resource(s) has an active run status.
+#'
+#' @param res Identifier(s) of resource(s) to delete. Can be a single resource or multiple
+#'   resources. Accepts paths, resource ids, entity ids, or a data frame of resources.
+#'
+#' @return Logical \code{TRUE} if deletion succeeded, \code{FALSE} if it failed (e.g.,
+#'   resource doesn't exist, step has incompatible runStatus).
+#'
+#' @details
+#' \strong{Safety constraints:} Deletion is blocked if any workflow step within the target
+#' resource(s) has a runStatus other than "INITIAL" or "FINISHED". This prevents accidental
+#' deletion of:
+#' \itemize{
+#'   \item Running steps (\code{runStatus = "RUNNING"})
+#'   \item Failed steps that may need investigation (\code{runStatus = "FAILED"})
+#'   \item Steps in other intermediate states
+#' }
+#'
+#' For files and links, deletion proceeds immediately as they don't have run states.
+#'
+#' \strong{Important notes:}
+#' \itemize{
+#'   \item Deletion is \strong{permanent} - deleted resources cannot be recovered
+#'   \item Parent folder caches are automatically cleared after deletion
+#'   \item Path caches are invalidated for the deleted resource and any linked files
+#'   \item Repository must be in editable mode (automatically checked)
+#' }
+#'
+#' @seealso
+#' \code{\link{copy}} to duplicate resources before deletion,
+#' \code{\link{move}} to relocate resources instead of deleting
+#'
+#' @examples
+#' \dontrun{
+#' # Delete a single file
+#' delete("/Data/temp_file.csv")
+#'
+#' # Delete multiple resources
+#' delete(c("/Temp/file1.csv", "/Temp/file2.csv"))
+#'
+#' # Delete a folder and all contents (if step runStatus allows)
+#' delete("/Projects/Old_Analysis")
+#'
+#' # Delete using a data frame of resources
+#' temp_files <- query("name='temp_*'")
+#' delete(temp_files)
+#' }
+#'
 #' @references ics1139
 #' @export
 delete <- function(res) {
@@ -217,12 +398,12 @@ singleUpdateFileContent <- function(ident,localPath,comment) {
   return(resource)
 }
 
-#' updates file content,
-#' prerequisite, must be a file
-#' multiple files can be updated at once
-#' @param ident the resources to be updated
-#' @param localPath the path to the file with the new fileContent
-#' @param comment comment for the commit, defaults to "modified by improveRW"
+#' Update File Content
+#' Prerequisite: must be a file.
+#' Multiple files can be updated at once.
+#' @param ident Resource(s) to be updated.
+#' @param localPath Path to the file with the new content.
+#' @param comment Commit comment. Defaults to "modified by improveRW".
 #' @references ics1210
 #' @export
 updateFileContent <- function(ident,localPath,comment="modified by improveRW") {
@@ -235,11 +416,11 @@ updateFileContent <- function(ident,localPath,comment="modified by improveRW") {
 }
 
 
-#' uploads a complete folder
-#' prerequisite, must be a folder
-#' @param targetIdent the target resource
-#' @param localFolder the path to the file with the new fileContent
-#' @param comment comment for the commit, defaults to "modified by improveRW"
+#' Upload a Complete Folder
+#' Prerequisite: must be a folder.
+#' @param targetIdent Target resource.
+#' @param localFolder Path to the local folder to upload.
+#' @param comment Commit comment. Defaults to "modified by improveRW".
 #' @references ics1210
 #' @export
 uploadFolder <- function(targetIdent,localFolder,comment="modified by improveRW") {
@@ -501,7 +682,7 @@ collectSteps <- function(
 #'   output may be shown while collecting steps.
 #' @param verbose Optional parameter (default \code{NULL}) forwarded to
 #'   \code{collectSteps()}; controls whether lower-level operations are
-#'   displayed according to the behaviour of \code{collectSteps()}.
+#'   displayed according to the behavior of \code{collectSteps()}.
 #' @param show_no_steps_message Logical, default \code{TRUE}. If \code{TRUE},
 #'   a message is shown when no steps are found in the resource.
 #' @param returnType Character, one of \dQuote{logical} (default) or

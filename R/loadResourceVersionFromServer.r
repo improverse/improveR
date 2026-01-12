@@ -1,4 +1,4 @@
-#' loadResourceVersionFromServer
+#' Load Resource Version From Server
 #' @description Loads a resource version directly from the server by the  entity version ID.
 #' The results are returned as a data frame or a list of data frames.
 #' The dates are also converted to POSIX dates via convertImproveTimestampToPosix.

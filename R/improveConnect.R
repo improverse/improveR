@@ -46,7 +46,7 @@ improveDisconnect <- function(env = cacheEnv) {
   env$editable <- editable
 }
 
-#' clearConnectionData
+#' Clear Connection Data
 #'
 #' @description deletes repoUrl, stepId, and token from the environment variables and calls improveDisconnect
 #' @param includeRepoData includes the repository URL and the selected step in the clear process
@@ -119,8 +119,45 @@ clearConnectionData <- function(includeRepoData=F) {
 #' Default is FALSE.
 #' @param persistentCaching If TRUE, caches are persisted to and reloaded from `.improver.cache`
 #' file. Default is FALSE.
+#'
+#' @returns Invisibly returns `NULL`. Called for its side effects:
+#'   \itemize{
+#'     \item Establishes authenticated connection to the improve repository
+#'     \item Sets internal configuration
+#'     \item Initializes logging with specified verbosity level
+#'     \item Optionally loads persistent cache from `.improver.cache`
+#'   }
+#'   After successful connection, use \code{\link{pwd}} to verify the current
+#'   working step and \code{\link{whoami}} to confirm the authenticated user.
+#'
+#' @examples
+#' \dontrun{
+#' # Basic connection using environment variables
+#' # (Set IMPROVER_REPO_URL and IMPROVER_STEP in .Renviron)
+#' improveConnect()
+#'
+#' # Verify connection
+#' whoami()
+#' pwd()
+#'
+#' # Connection with debug logging for troubleshooting
+#' improveConnect(logLevel = "DEBUG")
+#'
+#' # Development connection with self-signed certificates
+#' improveConnect(secure = FALSE)
+#'
+#' # Enable write operations after connecting
+#' improveConnect()
+#' setEditable(TRUE)
+#' }
+#'
 #' @export
-#' @seealso [improveConnected()], [improveDisconnect()]
+#' @seealso
+#' \code{\link{improveConnected}} to check if connected,
+#' \code{\link{improveDisconnect}} to close connection,
+#' \code{\link{setEditable}} to enable write operations,
+#' \code{\link{whoami}} to get current user,
+#' \code{\link{pwd}} to get current step
 improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = FALSE, persistentCaching = FALSE) {
 
   # Handle security environment variable override
@@ -415,7 +452,7 @@ improveClose <- function() {
   }
 }
 
-#' getLogFile
+#' Get Log File
 #'
 #' @description Returns the path to the current log file, or NULL if logging to file is not enabled.
 #' @return Character string with the log file path, or NULL if no log file is configured
@@ -434,7 +471,7 @@ getLogFile <- function() {
   return(logFile)
 }
 
-#' getRepositoryVersion
+#' Get Repository Version
 #'
 #' @description Returns the version of the connected repository, if available.
 #' @return Character string with the repository version, or NULL if not available
