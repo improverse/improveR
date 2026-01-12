@@ -106,20 +106,20 @@ library(magrittr)
     startStep <- startSteps[s, ]
     dependenciess <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
     if (length(dependenciess) > 0) {
-      for (dependencies in dependenciess) {
-        dependenciesHandle <- plan[plan$fullName == dependencies, ]
+      for (dependentStepName in dependenciess) {
+        dependenciesHandle <- plan[plan$fullName == dependentStepName, ]
         if (
           nrow(dependenciesHandle) == 1 &&
             "dependencies" %in% names(dependenciesHandle)
         ) {
-          dependencies <- strsplit(
+          stepDependencies <- strsplit(
             dependenciesHandle$dependencies,
             ",",
             fixed = TRUE
           )[[1]]
-          if (all(dependencies %in% startSteps$fullName)) {
+          if (all(stepDependencies %in% startSteps$fullName)) {
             startSteps <- plyr::rbind.fill(startSteps, dependenciesHandle)
-            plan <- plan[plan$fullName != dependencies, ]
+            plan <- plan[plan$fullName != dependentStepName, ]
           }
         }
       }
@@ -182,23 +182,27 @@ library(magrittr)
 
 # --- Public Methods (exposed to user) ---
 
-#' Create a new workflow object
+#' Create New Workflow Environment
 #'
-#' This function constructs a new workflow environment for managing and executing steps.
-#' The returned object exposes only the public API for workflow operations.
+#' Constructs a new workflow environment for managing, analyzing, and executing
+#' workflow steps. The returned object encapsulates the workflow state and exposes
+#' a public API for operations.
 #'
 #' @details
-#' The workflow object provides methods to:
+#' The returned workflow environment contains the following methods:
 #' \itemize{
-#'   \item List all steps as a data frame (\code{df})
-#'   \item Find changed and outdated files (\code{changedAndOutdatedFiles})
-#'   \item Create a re-execution plan for outdated steps (\code{createReexecutionPlan})
-#'   \item Rerun all changed and outdated steps (\code{rerunChangedAndOutdated})
-#'   \item Execute a given execution plan (\code{executePlan})
+#'   \item \code{df()}: Returns a data frame of all steps in the workflow
+#'   \item \code{changedAndOutdatedFiles(tree)}: Finds files that have changed or are outdated
+#'   \item \code{createReexecutionPlan()}: Generates a plan to rerun only outdated steps
+#'   \item \code{rerunChangedAndOutdated()}: Executes the re-execution plan
+#'   \item \code{rerunAll()}: Reruns all steps regardless of status
+#'   \item \code{executePlan(plan)}: Executes a specific plan object
 #' }
 #' Internal state and helper functions are encapsulated and not exposed.
 #'
-#' @return An environment representing the workflow, with public methods as described.
+#' @returns An R environment with class "workflow" containing the public methods
+#'   listed in Details.
+#'
 #' @examples
 #' \dontrun{
 #' wf <- createWorkflow()
