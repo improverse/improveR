@@ -27,6 +27,7 @@ format:
 knitr:
     opts_chunk: 
       collapse: true
+      cache: true
       dev: "ragg_png"
 # params:
 #   include_questions: true
@@ -40,6 +41,7 @@ lightbox: true
 
 ```{r}
 #| include: false 
+
 library(improveR)
 library(tidyverse, quietly = T)
 library(tictoc) #time keeping of functions
@@ -51,20 +53,31 @@ fn_connect <- function() {
     IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
     
   )
-  Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
+  Sys.setenv(
+    IMPROVER_STEP = "/improve-tutorial/DataOrder/Step 2"
+    
+  )
+  #Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
   clearConnectionData()
   #improveRtestsupport::improveConnect()
   improveR::improveConnect()
 
   setEditable(TRUE)
-  print(Sys.getenv("IMPROVER_REPO_URL"))
+  
+  print(paste("IMPROVER_REPO_URL:",Sys.getenv("IMPROVER_REPO_URL")))
+  
+  print(paste("IMPROVER_STEP:", Sys.getenv("IMPROVER_STEP")))
+  
+  print(paste("pwd$path:", pwd()$path))
 }
 
 fn_connect()
 
 improveConnected()
 ```
+
+
 
 # Common Tasks
 
@@ -88,6 +101,11 @@ See [reference](../reference/changeStepDescription.html). See [article](../artic
 ```{r}
 #| eval: false
 changeStepDescription(ident=stepIdent, description="new description")
+```
+
+
+```{r}
+knitr::knit_exit()
 ```
 
 # change the rationale of a step
@@ -260,6 +278,7 @@ envStep <- getStep(ident="/improve-tutorial/Modeling/Step 1")
 envStep$stepDf #does not show content of inventory; the inventory contains more than remote files
 ```
 
+
 # remove a step from a workflow
 
 ```{r}
@@ -320,6 +339,7 @@ See [reference](../reference/delete.html).
 ```{r}
 #| include: false
 #| code-summary: "setup analysis tree with only one step; which is deleted below"
+ 
 createAnalysisTree(targetIdent = "/improve-tutorial/", treeName="yourTree")
 improveR:::createStep(treeIdent = "/improve-tutorial/yourTree")
 ```

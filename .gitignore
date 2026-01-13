@@ -2,7 +2,9 @@ inst/doc
 /doc/
 /Meta/
 **/.quarto/
-CLAUDE.md
+
+# Claude Code local instructions - project-specific, not shared
+*.local.md
 
 # Environment files with credentials and user-specific settings
 .Renviron

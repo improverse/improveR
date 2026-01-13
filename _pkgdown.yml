@@ -11,6 +11,7 @@ template:
 exclude:
   - "CLAUDE.md"
   - "AGENTS.md"
+  - "claude.local.md"
 
 toc:
   depth: 4
