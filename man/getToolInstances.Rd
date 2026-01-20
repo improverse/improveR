@@ -2,12 +2,10 @@
 % Please edit documentation in R/getToolInstances.R
 \name{getToolInstances}
 \alias{getToolInstances}
-\title{getToolInstances
-returns an environement with all tool instances. in order to relaod tools from the server use resetToolInstances}
+\title{getToolInstances}
 \usage{
 getToolInstances()
 }
 \description{
-getToolInstances
-returns an environement with all tool instances. in order to relaod tools from the server use resetToolInstances
+Returns an environement with all tool instances. in order to relaod tools from the server use resetToolInstances
 }
