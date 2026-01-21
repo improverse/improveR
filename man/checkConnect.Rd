@@ -2,7 +2,7 @@
 % Please edit documentation in R/improveConnect.R
 \name{checkConnect}
 \alias{checkConnect}
-\title{checkConnect}
+\title{Check Connect}
 \usage{
 checkConnect()
 }

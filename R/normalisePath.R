@@ -1,9 +1,9 @@
 #' normalisePath
-#' @description normalisePath converts any path to an absolute path, and eleminates all .. and .
+#' @description normalisePath converts any path to an absolute path, and eliminates all .. and .
 #' If a relative path is given, it needs an absolute path as startPath to resolve.
 #' If by too many .. the path navigates beyond the root, NULL is returned.
 #' @param path the path to normalise
-#' @param startPath Starting point for relative pathes, defaults to /
+#' @param startPath Starting point for relative paths, defaults to /
 #' @references ics1089
 #' @examples \dontrun{
 #' normalisePath(path = "./../lmer/../lmer", startPath = "/0demo/lmer") # /0demo/lmer

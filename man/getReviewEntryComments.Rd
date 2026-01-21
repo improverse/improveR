@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadREview.R
 \name{getReviewEntryComments}
 \alias{getReviewEntryComments}
-\title{getReviewEtnryComments}
+\title{Get Review Etnry Comments}
 \usage{
 getReviewEntryComments(resourceId, entryId, from = pwd())
 }
@@ -11,10 +11,10 @@ getReviewEntryComments(resourceId, entryId, from = pwd())
 
 \item{entryId}{id (UUID) of the review entry}
 
-\item{from}{defaults to pwd, used to resolve relative pathes}
+\item{from}{defaults to pwd, used to resolve relative paths}
 }
 \description{
-getReviewEtnryComments
+Get Review Etnry Comments
 }
 \references{
 ics1543

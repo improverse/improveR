@@ -2,20 +2,40 @@
 % Please edit documentation in R/prepareStep.R
 \name{changeStepRationale}
 \alias{changeStepRationale}
-\title{changes the step rationale}
+\title{Change Step Rationale}
 \usage{
 changeStepRationale(ident, from = pwd(), rationale)
 }
 \arguments{
-\item{ident}{ident of the step}
+\item{ident}{Identifier of the step. Can be the step's path, resource (version) id,
+full entity (version) id, or short entity (version) id.}
 
-\item{from}{from if a relative path is used}
+\item{from}{Root directory for resolving relative paths. Default is \code{pwd()}.}
 
-\item{rationale}{new step rationale}
+\item{rationale}{New step rationale text.}
+}
+\value{
+The updated step resource, returned invisibly after cache refresh.
 }
 \description{
-changes the step rationale
+Modifies the rationale field of an existing step, allowing users to update
+the reasoning and justification for why analytical steps were created and
+included in the workflow.
+}
+\examples{
+\dontrun{
+# Update step rationale
+changeStepRationale(
+  ident = "/improve-tutorial/Modeling/Step 1",
+  rationale = "Investigate linear relationship between variables"
+)
+}
+
 }
 \references{
 ics1217
+}
+\seealso{
+\code{\link{changeStepDescription}} for updating step description,
+\code{\link{getStep}} for retrieving step information
 }

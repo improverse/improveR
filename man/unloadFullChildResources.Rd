@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadFullChildResources.R
 \name{unloadFullChildResources}
 \alias{unloadFullChildResources}
-\title{unloadFullChildResources}
+\title{Unload Full Child Resources}
 \usage{
 unloadFullChildResources(ident)
 }
@@ -10,7 +10,7 @@ unloadFullChildResources(ident)
 \item{ident}{id}
 }
 \description{
-unloadFullChildResources
+Unload Full Child Resources
 }
 \references{
 ics1085

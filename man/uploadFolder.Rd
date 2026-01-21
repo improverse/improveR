@@ -2,21 +2,21 @@
 % Please edit documentation in R/change.R
 \name{uploadFolder}
 \alias{uploadFolder}
-\title{uploads a complete folder
-prerequisite, must be a folder}
+\title{Upload a Complete Folder
+Prerequisite: must be a folder.}
 \usage{
 uploadFolder(targetIdent, localFolder, comment = "modified by improveRW")
 }
 \arguments{
-\item{targetIdent}{the target resource}
+\item{targetIdent}{Target resource.}
 
-\item{localFolder}{the path to the file with the new fileContent}
+\item{localFolder}{Path to the local folder to upload.}
 
-\item{comment}{comment for the commit, defaults to "modified by improveRW"}
+\item{comment}{Commit comment. Defaults to "modified by improveRW".}
 }
 \description{
-uploads a complete folder
-prerequisite, must be a folder
+Upload a Complete Folder
+Prerequisite: must be a folder.
 }
 \references{
 ics1210

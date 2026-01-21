@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadREview.R
 \name{unloadReviewEntries}
 \alias{unloadReviewEntries}
-\title{unloads the review entries for a review}
+\title{Unloads the Review Entries for a Review}
 \usage{
 unloadReviewEntries(resourceId)
 }
@@ -10,7 +10,7 @@ unloadReviewEntries(resourceId)
 \item{resourceId}{id (UUID) of the resource}
 }
 \description{
-unloads the review entries for a review
+Unloads the Review Entries for a Review
 }
 \references{
 ics1208

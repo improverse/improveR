@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadREview.R
 \name{loadReviewComments}
 \alias{loadReviewComments}
-\title{loads all the review comments for a review
+\title{Loads All The Review Comments For A Review
 it uses caching
 the result is returned as a data frame}
 \usage{
@@ -12,7 +12,7 @@ loadReviewComments(resourceId)
 \item{resourceId}{id (UUID) of the resource}
 }
 \description{
-loads all the review comments for a review
+Loads All The Review Comments For A Review
 it uses caching
 the result is returned as a data frame
 }

@@ -23,6 +23,9 @@ library(improveR)
 
 This guide will walk you through installing the improveR package from the improve repository.
 
+If you 
+
+
 ## Step 1: Configure R Repository
 
 First, we need to add the improve repository as a secondary repository source:
@@ -130,6 +133,30 @@ if (Sys.getenv("IMPROVER_REPO_URL") != "" && Sys.getenv("IMPROVER_STEP") != "") 
   cat("Please configure IMPROVER_REPO_URL and IMPROVER_STEP before testing connection\n")
 }
 ```
+
+## Installation with Docker
+
+If you prefer to use Docker the code below returns a Docker image which provides a reproducible, self-contained environment with R 4.4.0 and the improveR packages ready to use.
+
+```{r eval=FALSE}
+FROM r-base:4.4.0
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    && rm -rf /var/lib/apt/lists/*
+# Install improveR following instructions from improverse.net
+RUN R -e "options(repos = c(getOption('repos'), improve = 'https://r.scinteco.com/4.4.0/')); \
+    install.packages('improveR'); \
+    install.packages('improveRcontributions'); \
+    library(improveR)"
+# Set working directory
+WORKDIR /app
+# Default command to start R
+CMD ["R"]
+```
+
 
 ## Troubleshooting
 

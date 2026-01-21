@@ -6,10 +6,17 @@
 
 
 
-#' getStepTemplate
-#' reads a step and its processes and generates a new handle
-#' @param ident the ident of the step
+#' Create Step Template
+#'
+#' Reads a step and its processes to generate a new step template environment.
+#' This template can be used to create new instances of the step with a fresh handle.
+#'
+#' @param ident Identifier of the source step to use as a template.
+#'
+#' @returns A new step environment containing the template configuration.
+#'
 #' @references ics1213
+#' @seealso \code{\link{getStep}}, \code{\link{createStepTemplateEnv}}
 #' @export
 getStepTemplate <- function(ident) {
   transforStepToTemplate(getStep(ident))
@@ -45,10 +52,59 @@ createStepName <- function(step) {
   fullStepName <- paste(treeName,stepName,id,sep = "/")
 }
 
-#' getStep
-#' reads a step and its processes and generates a new handle
-#' @param ident the ident of the step
-#' @param workflow the step should be added to
+#' Get Step Environment
+#'
+#' Returns a detailed environment object containing a step's properties, relationships
+#' with other steps, and methods for working with the step. This environment provides
+#' the foundational interface for complex workflow operations, dependencies tracking, and
+#' analytical pipeline execution.
+#'
+#' @param ident Step identifier. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param workflow Optional workflow environment to add the step to. If not provided,
+#'   a new workflow is created.
+#'
+#' @return An environment representing the step with the following components:
+#'   \describe{
+#'     \item{stepDf}{Data frame containing step metadata and configuration}
+#'     \item{children, parent, usage, dependencies}{Nested environments with lazy-loading for step relationships}
+#'     \item{workflow}{Workflow environment for orchestration and dependencies tracking}
+#'     \item{getStepInventory()}{Method to retrieve the step's file inventory}
+#'     \item{getStepResource()}{Method to get the step resource object}
+#'     \item{getStepState()}{Method to get the step's execution state}
+#'     \item{getStepWithoutCache()}{Method to get fresh step data from server}
+#'     \item{retrieveMainProcess()}{Method to get the main process configuration}
+#'     \item{createTemplate()}{Method to create a template from this step}
+#'   }
+#'
+#' @details
+#' The function loads step information from the server, creates a workflow environment
+#' for tracking dependencies, and builds a comprehensive step environment. Navigation
+#' through the returned environment is facilitated by R's \code{$} operator and supports
+#' autocompletion in RStudio, Positron, and VS Code with radian.
+#'
+#' @seealso
+#' \code{\link{createStepEnv}} for the underlying environment builder,
+#' \code{\link{createStepTemplateEnv}} for creating new steps,
+#' \code{\link{loadChildSteps}} and \code{\link{loadParentStep}} for navigation,
+#' \code{\link{runStepResource}} and \code{\link{finishRunResource}} for execution
+#'
+#' @examples
+#' \dontrun{
+#' # Get a step environment
+#' step <- getStep("/improve-tutorial/Modeling/Step 1")
+#'
+#' # Access step metadata
+#' step$stepDf
+#'
+#' # Load and navigate to children
+#' step$children$load()
+#' ls(step$children)
+#'
+#' # Get step inventory
+#' inventory <- step$getStepInventory()
+#' }
+#'
 #' @references ics1213
 #' @export
 getStep <- function(ident,workflow=NULL) {
@@ -264,7 +320,7 @@ getStepDf <- function(ident) {
     if (("revisionFromTime" %in% names(files))) {
       files <- loadResource(files)
     }
-    files <- files[files$lastModifiedOn<processes$startedAt,]
+    files <- files[files$lastModifiedOn<=processes$startedAt,]
   }
   inventory <- plyr::rbind.fill(links,files)
   #TODO nodeTypes

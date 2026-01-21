@@ -2,7 +2,7 @@
 % Please edit documentation in R/reviews.R
 \name{createReview}
 \alias{createReview}
-\title{creates a new review}
+\title{Creates a New Review}
 \usage{
 createReview(
   name,
@@ -30,7 +30,7 @@ createReview(
 \item{dueDate}{format: yyyy-mm-dd}
 }
 \description{
-creates a new review
+Creates a New Review
 }
 \references{
 ics1527

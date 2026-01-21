@@ -6,9 +6,35 @@
 \usage{
 updateHistory(ident)
 }
+\arguments{
+\item{ident}{id}
+}
 \description{
 updateHistory
 }
+\section{Details ident}{
+
+There are multiple ways to describe the ident of a resource:
+
+Absolute idents:
+\itemize{
+\item resourceId: a UUID
+\item Data frame: uses the resourceId value of the data frame
+\item entityId: pointer to the latest version of a resource. Short and long entityIds are accepted'
+\item entityVersionId: pointer to a specific version of a resource. Short and long entityIds are accepted'
+\item path: the full path to a resource, always starting with /.
+}
+
+Relative idents:
+\itemize{
+\item All relative idents are path based, they always have to start with ./ or ../'
+\item Relative path without pwd: always starts from the return value of pwd()'
+\item Relative path and pwd as second argument: starts the relative path from the
+absolute ident that was handed over as second argument. Sometimes still called
+“from” but will be updated to pwd.
+}
+}
+
 \references{
 ics1094
 }

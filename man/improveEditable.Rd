@@ -2,13 +2,50 @@
 % Please edit documentation in R/editable.R
 \name{improveEditable}
 \alias{improveEditable}
-\title{improveEditable}
+\title{Verify Write Mode is Enabled (Guard Function)}
 \usage{
 improveEditable()
 }
+\value{
+Invisibly returns \code{TRUE} if both conditions are met. Throws an error
+with a descriptive message if:
+\itemize{
+\item Not connected to the repository (calls \code{\link{improveConnected}})
+\item Connected but write mode is not enabled
+}
+}
 \description{
-improveEditable checks if improveConnect was called and if the editable flag was set
+Checks that the session is both connected to the improve repository AND
+has write mode enabled. Stops with an error if either condition is not met.
+Use this as a guard at the start of functions that modify repository content.
+}
+\details{
+This function serves as a guard clause for write operations. It ensures that:
+\enumerate{
+\item \code{\link{improveConnect}} has been called successfully
+\item \code{\link{setEditable}(TRUE)} has been called to enable write mode
+}
+
+Package functions that modify repository content should call this function
+at their start to fail fast with a clear error message rather than failing
+later with an ambiguous API error.
+}
+\examples{
+\dontrun{
+# This function is typically used inside other functions:
+my_write_function <- function(path, data) {
+  improveEditable()  # Guard: stops if not connected or not editable
+  # ... perform write operations ...
+}
+
+# Direct usage to check write capability:
+improveConnect()
+setEditable(TRUE)
+improveEditable()  # Passes silently
+}
+
 }
 \seealso{
-\code{\link[=improveConnected]{improveConnected()}}
+\code{\link{setEditable}} to enable write mode,
+\code{\link{improveConnected}} to check connection only
 }

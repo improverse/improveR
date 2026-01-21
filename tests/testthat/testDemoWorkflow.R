@@ -1,6 +1,6 @@
 
 #resetCache()
-#fullDemoWorkflow <- getFullLineage("envhost1.hc.scintecodev.internal-5310:ST-69749") %>%
+#fullDemoWorkflow <- getFullDependencies("envhost1.hc.scintecodev.internal-5310:ST-69749") %>%
 #  makeStepsRelative() %>%
 #  detachWorkflowFromResources() %>%
 #  detachWorkflowFromTrees() %>%

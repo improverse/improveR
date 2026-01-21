@@ -2,27 +2,36 @@
 % Please edit documentation in R/create.R
 \name{createExternalLink}
 \alias{createExternalLink}
-\title{creates an external link in the repository and returns the resource object}
+\title{Create External Link in improve Repository}
 \usage{
 createExternalLink(
   targetIdent,
   linkName = "",
   url,
-  comment = "Created by improveRW"
+  comment = "Created by improveR"
 )
 }
 \arguments{
-\item{targetIdent}{one or many target folders, as resource, id or path}
+\item{targetIdent}{Identifier of the parent folder, analysis tree, or step
+where the link should be created.}
 
-\item{linkName}{one or many linkNames}
+\item{linkName}{Character. Name of the link resource.}
 
-\item{url}{url for the external link}
+\item{url}{Character. The destination URL (e.g., "https://example.com" or "db://server").}
 
-\item{comment}{defaults to Created by improveRW}
+\item{comment}{Character. Comment for the creation audit entry. Defaults to
+"Created by improveR".}
+}
+\value{
+A list containing the resource object of the created external link.
 }
 \description{
-creates an external link in the repository and returns the resource object
+Creates a link resource pointing to an external URL (outside the repository),
+such as a database, website, or external documentation system.
 }
 \references{
 ics1104
+}
+\seealso{
+\code{\link{createFile}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadMetaDataDefinitions.R
 \name{updateMetaDataDefinitions}
 \alias{updateMetaDataDefinitions}
-\title{updateMetaDataDefinitions}
+\title{Update Meta Data Definitions}
 \usage{
 updateMetaDataDefinitions(scope = "Improve Client")
 }
@@ -10,7 +10,7 @@ updateMetaDataDefinitions(scope = "Improve Client")
 \item{scope}{the metadata scope}
 }
 \description{
-updateMetaDataDefinitions
+Update Meta Data Definitions
 }
 \references{
 ics1137

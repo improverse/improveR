@@ -2,16 +2,43 @@
 % Please edit documentation in R/runStep.R
 \name{runStepResource}
 \alias{runStepResource}
-\title{runStepResource}
+\title{Run a Step Resource}
 \usage{
 runStepResource(ident)
 }
 \arguments{
-\item{ident}{check if a step with the same configuration already exists in the tree}
+\item{ident}{A step identifier. Can be the step's path, resource (version) id,
+full entity (version) id, or short entity (version) id.}
+}
+\value{
+The step identifier, returned invisibly.
 }
 \description{
-runStepResource
+Initiates the execution of a step on the server. This function triggers asynchronous
+step execution, meaning the step's code and processes begin running on the improve
+platform without blocking your R session. Control returns immediately, allowing you
+to continue working or chain additional commands while the step runs in the background.
+}
+\details{
+The function performs a quick validation to ensure the repository is in an editable
+state, confirms the step exists, and then sends a command to the server to begin
+execution. The actual step execution happens asynchronously on the server, managed
+by the improve platform's execution infrastructure.
+
+This function is commonly used in workflow orchestration scenarios where multiple
+steps need to be executed sequentially or in parallel. For sequential workflows,
+combine with \code{\link{finishRunResource}} to wait for completion before proceeding.
+}
+\examples{
+\dontrun{
+# Execute a single step
+runStepResource(ident = "/improve-tutorial/Modeling/Step 1")
+}
+
 }
 \references{
 ics1140
+}
+\seealso{
+\code{\link{finishRunResource}} to wait for step completion
 }

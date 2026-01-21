@@ -12,7 +12,7 @@ createParentStepCacheList <- function(name) {
 parentStepCacheList <- createParentStepCacheList("parentStep")
 
 
-#' loads the parent step of one step, not applicable to multiple steps
+#' Loads the Parent Step of One Step, Not Applicable to Multiple Steps
 #'
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
@@ -31,7 +31,7 @@ loadParentStep <- function(ident, from=pwd()) {
   return(NULL)
 }
 
-#' unloadParentStep
+#' Unload Parent Step
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
 #' @references ics1209
@@ -43,7 +43,7 @@ unloadParentStep <- function(ident, from=pwd()) {
   }
 }
 
-#' updateParentStep reloads the runservers from the repository
+#' UpdateParentStep Reloads The Runservers From The Repository
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
 #' @references ics1209
@@ -67,11 +67,42 @@ actualLoadParentStep <- function(ident,from=pwd()) {
     return(NULL)
   }
 
-  result <- authenticatedREST('resources/{stepId}/parentStep',
-                              urlParams = list(stepId=step$resourceId
-                              ),
-                              restType = "GET")
-  parent <- httr::content(result)
+  result <- tryCatch({
+    authenticatedREST('resources/{stepId}/parentStep',
+                      urlParams = list(stepId=step$resourceId),
+                      restType = "GET")
+  }, error = function(e) {
+    log_warn("Failed to load parent step for ", step$entityId, " (", step$name, "): ", e$message)
+    return(NULL)
+  })
+
+  if (is.null(result)) {
+    return(NULL)
+  }
+
+  # Check if result is a valid HTTP response
+  if (!inherits(result, "response")) {
+    log_warn("Invalid response when loading parent step for ", step$entityId, " (", step$name, ")")
+    return(NULL)
+  }
+
+  # Check HTTP status - parent might be deleted
+  if (httr::status_code(result) >= 400) {
+    log_warn("Parent step not found (possibly deleted) for ", step$entityId, " (", step$name, "): HTTP ", httr::status_code(result))
+    return(NULL)
+  }
+
+  parent <- tryCatch({
+    httr::content(result)
+  }, error = function(e) {
+    log_warn("Failed to parse parent step response for ", step$entityId, " (", step$name, "): ", e$message)
+    return(NULL)
+  })
+
+  if (is.null(parent)) {
+    return(NULL)
+  }
+
   if (is.list(parent) && ("resourceId" %in% names(parent))) {
     parent <- loadResource(parent$resourceId)
     parent$childStep <- step$resourceId

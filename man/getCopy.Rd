@@ -2,21 +2,21 @@
 % Please edit documentation in R/getGeneric.R
 \name{getCopy}
 \alias{getCopy}
-\title{gets a file objectas local copy}
+\title{Get a Local Copy of a File}
 \usage{
 getCopy(ident, from = pwd(), caption = "", description = "")
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the file}
+\item{ident}{Path, resource, or entity ID of the file.}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Used for relative paths. By default, pwd is used (initiated with the step that started improveR).}
 
-\item{caption}{by default entityID and lastmodified are the caption, here alternative text can be provided}
+\item{caption}{By default, entity ID and last modified are the caption; alternative text can be provided here.}
 
-\item{description}{by default filename is the caption, here alternative text can be provided}
+\item{description}{By default, the filename is the description; alternative text can be provided here.}
 }
 \description{
-gets a file objectas local copy
+Get a Local Copy of a File
 }
 \references{
 ics1141

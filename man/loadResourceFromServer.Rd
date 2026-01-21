@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResourceFromServer.r
 \name{loadResourceFromServer}
 \alias{loadResourceFromServer}
-\title{loadResourceFromServer}
+\title{Load Resource From Server}
 \usage{
 loadResourceFromServer(resourceId, invalidatesReproducibility = T)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/reviewEntries.R
 \name{createReviewEntry}
 \alias{createReviewEntry}
-\title{creates review entries for a review}
+\title{Creates Review Entries For A Review}
 \usage{
 createReviewEntry(reviewId, resourceIds)
 }
@@ -12,7 +12,7 @@ createReviewEntry(reviewId, resourceIds)
 \item{resourceIds}{vector of resourceIds}
 }
 \description{
-creates review entries for a review
+Creates Review Entries For A Review
 }
 \references{
 ics1541

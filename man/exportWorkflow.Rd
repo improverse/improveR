@@ -20,7 +20,7 @@ Defaults to current directory (".").}
 Character. Path to the created zip file.
 }
 \description{
-This function exports a workflow to a zip file that can be imported into another repository.
+The \code{exportWorkflow()} function exports a workflow to a zip file that can be imported into another repository.
 It preserves workflow structure, step dependencies, file relationships, and includes all
 necessary files for reconstruction in a different environment.
 }
@@ -84,10 +84,6 @@ The function also creates template mapping files alongside the zip:
 
 \examples{
 \dontrun{
-# Create and export a workflow
-wf <- createWorkflow()
-# ... add steps to workflow ...
-
 # Export to current directory
 exportWorkflow(wf, "myWorkflow")
 # Creates: myWorkflow.zip, myWorkflowLinkMapping.json, myWorkflowToolMapping.json

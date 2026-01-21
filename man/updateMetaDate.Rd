@@ -2,7 +2,7 @@
 % Please edit documentation in R/metadata.R
 \name{updateMetaDate}
 \alias{updateMetaDate}
-\title{updates metadata value to a resource}
+\title{Updates Metadata Value To A Resource}
 \usage{
 updateMetaDate(ident, descriptorName, value)
 }
@@ -14,7 +14,7 @@ updateMetaDate(ident, descriptorName, value)
 \item{value}{the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist}
 }
 \description{
-updates metadata value to a resource
+Updates Metadata Value To A Resource
 }
 \references{
 ics1137

@@ -2,12 +2,12 @@
 % Please edit documentation in R/loadREview.R
 \name{updateReviews}
 \alias{updateReviews}
-\title{reloads the reviews}
+\title{Reloads the Reviews}
 \usage{
 updateReviews()
 }
 \description{
-reloads the reviews
+Reloads the Reviews
 }
 \references{
 ics348

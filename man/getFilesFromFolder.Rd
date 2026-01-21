@@ -2,21 +2,21 @@
 % Please edit documentation in R/getGeneric.R
 \name{getFilesFromFolder}
 \alias{getFilesFromFolder}
-\title{retrieves a list of files from within a folder}
+\title{Retrieve a List of Files from a Folder}
 \usage{
 getFilesFromFolder(ident, from = pwd(), filePattern = "", recurse = F)
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the folder, only one folder at a time}
+\item{ident}{Path, resource, or entity ID of the folder (one folder at a time).}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Used for relative paths. By default, pwd is used (initiated with the step that started improveR).}
 
-\item{filePattern}{filter applied to the file name, example: *.r}
+\item{filePattern}{Filter applied to the file name (example: \verb{*.r}).}
 
-\item{recurse}{if folders within this folder are also parsed, default FALSE}
+\item{recurse}{If TRUE, nested folders are also parsed. Defaults to FALSE.}
 }
 \description{
-retrieves a list of files from within a folder
+Retrieve a List of Files from a Folder
 }
 \references{
 ics1141

@@ -2,7 +2,7 @@
 % Please edit documentation in R/resourceRelations.R
 \name{createResourceRelation}
 \alias{createResourceRelation}
-\title{creates a new resource relation}
+\title{Creates a New Resource Relation}
 \usage{
 createResourceRelation(
   resourceId,
@@ -21,7 +21,7 @@ createResourceRelation(
 \item{description}{description of the resource relation}
 }
 \description{
-creates a new resource relation
+Creates a New Resource Relation
 }
 \references{
 ics1044

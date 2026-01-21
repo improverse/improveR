@@ -2,17 +2,17 @@
 % Please edit documentation in R/loadREview.R
 \name{getReviewComments}
 \alias{getReviewComments}
-\title{getReviewComments}
+\title{Get Review Comments}
 \usage{
 getReviewComments(ident, from = pwd())
 }
 \arguments{
 \item{ident}{id}
 
-\item{from}{defaults to pwd, used to resolve relative pathes}
+\item{from}{defaults to pwd, used to resolve relative paths}
 }
 \description{
-getReviewComments
+Get Review Comments
 }
 \references{
 ics1208

@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadMetaDataDefinitions.R
 \name{unloadMetaDataDefinitions}
 \alias{unloadMetaDataDefinitions}
-\title{unloadMetaDataDefinitions}
+\title{Unload Meta Data Definitions}
 \usage{
 unloadMetaDataDefinitions(scope = "Improve Client")
 }
@@ -10,7 +10,7 @@ unloadMetaDataDefinitions(scope = "Improve Client")
 \item{scope}{the metadata scope}
 }
 \description{
-unloadMetaDataDefinitions
+Unload Meta Data Definitions
 }
 \references{
 ics1137

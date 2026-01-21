@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResource.R
 \name{updateResource}
 \alias{updateResource}
-\title{updateResource}
+\title{Update Resource}
 \usage{
 updateResource(ident, from = pwd())
 }

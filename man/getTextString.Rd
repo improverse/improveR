@@ -2,7 +2,7 @@
 % Please edit documentation in R/getData.R
 \name{getTextString}
 \alias{getTextString}
-\title{gets a text file as chracter string and retrieves the caption and description by the resource ID or entity ID}
+\title{Get Text File as Character String}
 \usage{
 getTextString(
   ident,
@@ -14,21 +14,65 @@ getTextString(
 )
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the picture}
+\item{ident}{Path, resource ID, or entity ID of the text file. Can be a relative
+path (from current step), absolute path, or improve identifier}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()} (current
+step location)}
 
-\item{addAsLink}{creates a link in inventory if TRUE, warn improveClean has to be run at the end}
+\item{addAsLink}{Logical. If \code{TRUE}, creates a link in the inventory for
+provenance tracking. Use \code{improveClean()} at workflow end to clean up links}
 
-\item{caption}{by default entityID and lastmodified are the caption, here alternative text can be provided}
+\item{caption}{Custom caption text. If empty, defaults to entityID and lastModified
+timestamp}
 
-\item{description}{by default filename is the caption, here alternative text can be provided}
+\item{description}{Custom description text. If empty, defaults to filename}
 
-\item{...}{pass over arguments for the read function}
+\item{...}{Additional arguments passed to \code{readLines()}}
+}
+\value{
+A list object (descriptor) with the following components:
+\itemize{
+\item \code{data}: Character string containing the complete file contents with lines
+collapsed using newline (\verb{\\n}) separators
+\item \code{dataType}: Character string set to "Text"
+\item \code{path}: Character string with local file path
+\item \code{caption}: Character string with caption text
+\item \code{description}: Character string with description text
+\item Additional metadata fields from the resource descriptor
+}
 }
 \description{
-gets a text file as chracter string and retrieves the caption and description by the resource ID or entity ID
+Retrieves a text file from the improve repository and loads it as a character
+string with metadata including caption and description. All lines are collapsed
+into a single string with newline separators.
+}
+\details{
+The function reads all lines from the text file using \code{readLines()} and collapses
+them into a single character string. The returned descriptor integrates with
+improve's provenance tracking when \code{addAsLink = TRUE}. Access the text content
+via \code{result$data}.
+}
+\examples{
+\dontrun{
+# Load text file from current step
+text_desc <- getTextString("report_text.txt")
+content <- text_desc$data  # Extract text string
+
+# Load file with custom metadata
+script_desc <- getTextString(
+  "scripts/analysis.R",
+  caption = "Main Analysis Script",
+  description = "Primary statistical analysis code"
+)
+}
+
 }
 \references{
 ics1141
+}
+\seealso{
+\code{\link{getData}} for loading data tables,
+\code{\link{getR}} for loading R objects,
+\code{\link{getHTML}} for loading HTML files
 }

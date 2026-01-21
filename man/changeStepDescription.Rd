@@ -2,20 +2,39 @@
 % Please edit documentation in R/prepareStep.R
 \name{changeStepDescription}
 \alias{changeStepDescription}
-\title{changes the step description}
+\title{Change Step Description}
 \usage{
 changeStepDescription(ident, from = pwd(), description)
 }
 \arguments{
-\item{ident}{ident of the step}
+\item{ident}{Identifier of the step. Can be the step's path, resource (version) id,
+full entity (version) id, or short entity (version) id.}
 
-\item{from}{from if a relative path is used}
+\item{from}{Root directory for resolving relative paths. Default is \code{pwd()}.}
 
-\item{description}{new step desciption}
+\item{description}{New step description text.}
+}
+\value{
+The updated step resource, returned invisibly after cache refresh.
 }
 \description{
-changes the step description
+Modifies the description field of an existing step, allowing users to update
+documentation and clarify the purpose of analytical steps as analyses evolve.
+}
+\examples{
+\dontrun{
+# Update step description
+changeStepDescription(
+  ident = "/improve-tutorial/Modeling/Step 1",
+  description = "Initial exploratory analysis"
+)
+}
+
 }
 \references{
 ics1217
+}
+\seealso{
+\code{\link{changeStepRationale}} for updating step rationale,
+\code{\link{getStep}} for retrieving step information
 }

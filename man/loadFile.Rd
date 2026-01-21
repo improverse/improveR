@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadFile.R
 \name{loadFile}
 \alias{loadFile}
-\title{loadFile}
+\title{Load File}
 \usage{
 loadFile(
   ident,

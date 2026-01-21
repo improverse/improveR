@@ -1,0 +1,11 @@
+# A tibble: 3 × 5
+  term        estimate std.error statistic p.value
+  <chr>          <dbl>     <dbl>     <dbl>   <dbl>
+1 (Intercept)  1503.      637.       2.36   0.0216
+2 wt             17.7       7.38     2.39   0.0197
+3 age            -5.11      5.14    -0.996  0.323 
+# Indices of model performance
+
+AIC    |   AICc |    BIC |    R2 | R2 (adj.) |    RMSE |   Sigma
+----------------------------------------------------------------
+1067.9 | 1068.6 | 1076.6 | 0.109 |     0.080 | 840.603 | 860.700

@@ -2,7 +2,7 @@
 % Please edit documentation in R/loggers.R
 \name{log_debug}
 \alias{log_debug}
-\title{log_debug}
+\title{Log_debug}
 \usage{
 log_debug(...)
 }
@@ -10,5 +10,5 @@ log_debug(...)
 \item{...}{combines all items to one log message}
 }
 \description{
-log_debug
+Log_debug
 }

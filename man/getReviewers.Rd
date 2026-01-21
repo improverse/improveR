@@ -2,17 +2,17 @@
 % Please edit documentation in R/loadREview.R
 \name{getReviewers}
 \alias{getReviewers}
-\title{getReviewers}
+\title{Get Reviewers}
 \usage{
 getReviewers(ident, from = pwd())
 }
 \arguments{
 \item{ident}{id}
 
-\item{from}{defaults to pwd, used to resolve relative pathes}
+\item{from}{defaults to pwd, used to resolve relative paths}
 }
 \description{
-getReviewers
+Get Reviewers
 }
 \references{
 ics1208

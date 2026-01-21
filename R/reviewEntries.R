@@ -1,4 +1,4 @@
-#' creates review entries for a review
+#' Creates Review Entries For A Review
 #' @param reviewId id (UUID) of the review
 #' @param resourceIds vector of resourceIds
 #' @references ics1541
@@ -18,7 +18,7 @@ createReviewEntry <- function(reviewId, resourceIds) {
   return(result)
 }
 
-#' deletes all review entries from a review
+#' Deletes All Review Entries From A Review
 #' @param reviewId id (UUID) of the review
 #' @references ics365
 #' @export

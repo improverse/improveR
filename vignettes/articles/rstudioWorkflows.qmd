@@ -371,7 +371,7 @@ The completed workflow demonstrates:
 - **Step Dependencies**: Step 2 consumes output from Step 1
 - **Validated Execution**: All steps executed in controlled environments
 - **Reproducibility**: Complete execution history and versioned inputs
-- **Traceability**: Clear lineage from raw data through cleaning to visualization
+- **Traceability**: Clear dependencies from raw data through cleaning to visualization
 
 # Workflow Architecture
 
@@ -440,10 +440,10 @@ Each step maintains an isolated workspace with explicit input/output separation.
 - Document rationale explaining scientific or analytical justification
 - Include comments within scripts for implementation details
 
-**Dependency Management:**
+**Dependencies Management:**
 
 - Explicitly declare all input dependencies
-- Use consumer steps with links to establish clear data lineage
+- Use consumer steps with links to establish clear data dependencies
 - Avoid implicit dependencies on global state or external resources
 
 ### Development Workflow

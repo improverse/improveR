@@ -97,6 +97,11 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
   } else if (result$status_code==401){
     return(NULL)
     log_error("Invalid or out of date token") # TODO wording ok, could be also invalid user/password combi; not only token; e.g. "Invalid authentication credentials (token, username/password)."
+    return(NULL)
+  } else if (result$status_code == 417) {
+    # print(result$status_code)
+    log_error("Resource could not be run")
+    return(NULL)
   } else {
     logging::logdebug(result)
     if (!ignoreFail) { #if ignoreFail is false, function stops

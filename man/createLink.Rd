@@ -2,22 +2,80 @@
 % Please edit documentation in R/links.R
 \name{createLink}
 \alias{createLink}
-\title{createLink
-creates a link to a resource, currently always the latest version of the resource is used}
+\title{Create Link to Resource}
 \usage{
 createLink(linkContainer, links, linkName = "")
 }
 \arguments{
-\item{linkContainer}{where to create the link}
+\item{linkContainer}{Identifier of the folder or workflow where the link will be created.
+Can be a path, resource id, or entity id.}
 
-\item{links}{to which resource to link}
+\item{links}{Identifier(s) of the resource(s) to link to. Can be a single resource or
+multiple resources. Can be a path, resource id, or entity id.}
 
-\item{linkName}{name for the link, if this is not given the name of the linked resource is used. Can only be used if only one resource is linked}
+\item{linkName}{Character. Optional name for the created link. If not provided (empty string),
+the link uses the name of the target resource. Only applicable when creating a single link;
+ignored when creating multiple links.}
+}
+\value{
+The created link resource as a data frame (single link), or a list of link resources
+(multiple links). Returns \code{NULL} if the operation fails (e.g., target doesn't exist,
+link already exists, invalid node type for link creation).
 }
 \description{
-createLink
-creates a link to a resource, currently always the latest version of the resource is used
+Creates a symbolic link to an existing resource within a container (folder or workflow).
+Links provide lightweight references to resources without duplicating content, enabling
+resource reuse across workflows while maintaining a single source of truth. Changes to
+the linked resource are automatically reflected wherever the link is used.
+}
+\details{
+Links differ from copies in that they reference the target resource rather than duplicating it.
+The link always points to the latest version of the target resource. This is useful for:
+\itemize{
+\item Sharing datasets across multiple workflow steps
+\item Referencing common templates or configuration files
+\item Organizing resources without duplication
+}
+
+The function performs validation to ensure:
+\itemize{
+\item Both target container and link source exist
+\item Target container accepts links (not all node types support links)
+\item No naming conflicts exist in the target container
+\item Repository is in editable mode (automatically checked via \code{improveEditable()})
+}
+
+After creating links, related caches are automatically cleared to ensure fresh data
+on subsequent queries.
+}
+\examples{
+\dontrun{
+# Create a link to a dataset in a workflow step
+createLink(
+  linkContainer = "/Workflows/Analysis/Step 1",
+  links = "/Data/master_dataset.csv"
+)
+
+# Create link with custom name
+createLink(
+  linkContainer = "/Workflows/Analysis/Step 2",
+  links = "/Data/master_dataset.csv",
+  linkName = "input_data"
+)
+
+# Create multiple links at once
+createLink(
+  linkContainer = "/Workflows/Modeling",
+  links = c("/Data/dataset1.csv", "/Data/dataset2.csv")
+)
+}
+
 }
 \references{
 ics1138
+}
+\seealso{
+\code{\link{copy}} for duplicating resources instead of linking,
+\code{\link{createExternalLink}} for creating external URL references,
+\code{\link{loadReferences}} to view all references from a resource
 }

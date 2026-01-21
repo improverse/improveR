@@ -2,7 +2,7 @@
 % Please edit documentation in R/reviewEntryComments.R
 \name{createReviewEntryComment}
 \alias{createReviewEntryComment}
-\title{creates a comment for a review entry}
+\title{Creates a Comment for a Review Entry}
 \usage{
 createReviewEntryComment(reviewId, entryId, comment)
 }
@@ -14,7 +14,7 @@ createReviewEntryComment(reviewId, entryId, comment)
 \item{comment}{comment}
 }
 \description{
-creates a comment for a review entry
+Creates a Comment for a Review Entry
 }
 \references{
 ics1544

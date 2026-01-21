@@ -2,7 +2,7 @@
 % Please edit documentation in R/improveConnect.R
 \name{getRepositoryVersion}
 \alias{getRepositoryVersion}
-\title{getRepositoryVersion}
+\title{Get Repository Version}
 \usage{
 getRepositoryVersion()
 }

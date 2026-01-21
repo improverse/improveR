@@ -1,0 +1,47 @@
+ℹ Using "','" as decimal and "'.'" as grouping mark. Use `read_delim()` for more control.
+Rows: 2107 Columns: 12
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ";"
+chr  (1): Sex
+dbl (11): ID, Subject, Time, conc, Rate, Amt, Age, Ht, Wt, BSA, LBM
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+also installing the dependency ‘snakecase’
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/snakecase_0.11.1.tar.gz'
+Content type 'binary/octet-stream' length 161573 bytes (157 KB)
+==================================================
+downloaded 157 KB
+
+trying URL 'https://p3m.dev/cran/__linux__/noble/latest/src/contrib/janitor_2.2.1.tar.gz'
+Content type 'binary/octet-stream' length 288172 bytes (281 KB)
+==================================================
+downloaded 281 KB
+
+* installing *binary* package ‘snakecase’ ...
+* DONE (snakecase)
+* installing *binary* package ‘janitor’ ...
+* DONE (janitor)
+
+The downloaded source packages are in
+	‘/tmp/Rtmp1QODuQ/downloaded_packages’
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+Attaching package: ‘janitor’
+
+The following objects are masked from ‘package:stats’:
+
+    chisq.test, fisher.test
+

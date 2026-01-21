@@ -2,24 +2,79 @@
 % Please edit documentation in R/getR.R
 \name{getR}
 \alias{getR}
-\title{gets a R object}
+\title{Get R Script or RDS Object from improve Repository}
 \usage{
 getR(ident, from = pwd(), addAsLink = TRUE, caption = "", description = "")
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the R object}
+\item{ident}{Path, resource ID, or entity ID of the R file. Can be a relative
+path (from current step), absolute path, or improve identifier}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()} (current
+step location)}
 
-\item{addAsLink}{creates a link in inventory if TRUE, warn improveClean has to be run at the end}
+\item{addAsLink}{Logical. If \code{TRUE}, creates a link in the inventory for
+provenance tracking. Use \code{improveClean()} at workflow end to clean up links}
 
-\item{caption}{by default entityID and lastmodified are the caption, here alternative text can be provided}
+\item{caption}{Custom caption text. If empty, defaults to entityID and lastModified
+timestamp}
 
-\item{description}{by default filename is the caption, here alternative text can be provided}
+\item{description}{Custom description text. If empty, defaults to filename}
+}
+\value{
+A data frame with the following columns:
+\describe{
+\item{caption}{Character. Source information including entity version ID and
+last modified timestamp}
+\item{path}{Character. Local file system path to the downloaded R file. Use this
+with \code{source()} or \code{readRDS()}}
+\item{entityId}{Character. Entity identifier on improve server}
+\item{name}{Character. Filename of the R script or RDS object}
+\item{description}{Character. Description text (defaults to filename)}
+\item{resource}{List. Complete resource metadata from improve server (29 fields)}
+}
 }
 \description{
-gets a R object
+Retrieves an R script (.R) or R data object (.rds) from the improve repository
+and returns metadata including the local file path. The file is downloaded but
+not loaded into memory - use \code{sourceR()} to execute scripts or \code{readRDS()}
+on the returned path to load RDS objects.
+}
+\details{
+Unlike \code{getData()} which loads data into memory, \code{getR()} only downloads
+the R file and returns its metadata. The file is cached locally at the path specified
+in the \code{path} column.
+
+Common workflows:
+\itemize{
+\item For R scripts: Use \code{sourceR()} to execute, or \code{source(result$path)}
+\item For RDS objects: Use \code{readRDS(result$path)} to load the object
+\item For metadata only: Access \code{result$entityId}, \code{result$name}, etc.
+}
+}
+\examples{
+\dontrun{
+# Get R script metadata
+script_info <- getR("analysis/prepare_data.R")
+script_path <- script_info$path
+
+# Load and execute the script
+source(script_path)
+
+# Or use sourceR() helper (automatically sources)
+sourceR("analysis/prepare_data.R")
+
+# Get RDS object
+model_info <- getR("models/final_model.rds")
+model <- readRDS(model_info$path)
+}
+
 }
 \references{
 ics1141
+}
+\seealso{
+\code{\link{sourceR}} for executing R scripts directly,
+\code{\link{getData}} for loading data tables,
+\code{\link{improveInit}} for initializing R modules
 }

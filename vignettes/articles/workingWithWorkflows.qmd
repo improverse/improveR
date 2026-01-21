@@ -5,7 +5,7 @@ format:
     theme: none
     minimal: true
     toc: true
-    toc-depth: 4
+    toc-depth: 2
     toc-title: Contents
     toc-location: left
     #toc-collapsed: false
@@ -16,9 +16,9 @@ format:
     # message: false
     # warning: false
     # highlight-style: nord
-    # output-file: 
+    # output-file:
     embed-resources: true
-    # theme: 
+    # theme:
     #   light: [materia, style.scss]
     #   dark: slate
     fontsize: 16px
@@ -49,7 +49,6 @@ lightbox: true
 library(improveR)
 #packageVersion("improveR")
 library(tidyverse, quietly = T)
-library(tictoc) #time keeping of functions
 options(width=10000) #make results window wide; horizontal scrollbar
 
 fn_connect <- function() {
@@ -59,12 +58,14 @@ fn_connect <- function() {
   )
   Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
-  clearConnectionData()
-  improveRtestsupport::improveConnect() #new
-  #  improveConnect()
+  improveR::clearConnectionData()
+  # improveRtestsupport::improveConnect() #new
+   improveConnect()
 
   setEditable(TRUE)
-  print(Sys.getenv("IMPROVER_REPO_URL"))
+  print(paste("IMPROVER_REPO_URL:",Sys.getenv("IMPROVER_REPO_URL")))
+  print(paste("IMPROVER_STEP:", Sys.getenv("IMPROVER_STEP")))
+  print(paste("pwd$path:", pwd()$path))
 }
 
 fn_connect()
@@ -85,17 +86,15 @@ This article provides an overview of {improveR}'s most relevant functions for wo
 ![](img/dmgFolderComplete1.png)
 :::
 
-
 The graph above depicts improve's Data Manipulation Graph (DMG) for
 the entire folder. Step `Reporting/Step 1` (ST-62516) in the Analysis Tree 'Reporting' is its final step
 in the overall workflow.
 
-
 # Retrieving an existing workflow
 
-If one is interested in obtaining the workflow leading to a specific step, the function `getStep()` is key. The function takes the ident^[An ident can be an entityId, entityVersionId, a resourceId or a resource's dataframe containing an entityId", or a path.] of the step of interest as an argument and returns an environment containing all the elements describing the step. From this environment, the workflow leading to the step can be extracted via the **lineage** binding.  The lineage of a step are all upstream steps creating output which is directly or indirectly used by the step of interest.
+If one is interested in obtaining the workflow leading to a specific step, the function `getStep()` is key. The function takes the ident^[An ident can be an entityId, entityVersionId, a resourceId or a resource's dataframe containing an entityId", or a path.] of the step of interest as an argument and returns an environment containing all the elements describing the step. From this environment, the workflow leading to the step can be extracted via the **dependencies** binding.  The dependencies of a step are all upstream steps creating output which is directly or indirectly used by the step of interest.
 
-The parameters `treeDepth` and `stepDepth` limit the upstream reach of the call, i.e. they define a cut-off point for the retrieved lineage of the step in question. Once loaded, the workflow can be accessed via the `workflow` binding.
+The parameters `treeDepth` and `stepDepth` limit the upstream reach of the call, i.e. they define a cut-off point for the retrieved dependencies of the step in question. Once loaded, the workflow can be accessed via the `workflow` binding.
 
 
 ::: {#fig-folder layout-ncol=1 fig-cap="Improve client - Lack of arrows to the right indicates absence of usage"}
@@ -119,8 +118,8 @@ In the example below, let's request the full workflow leading to step `/improve-
 # get step environment
 envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
 
-# load the steps lineage with desired depth
-envATReportingStep1$lineage$load(treeDepth=-1)
+# load the steps dependencies with desired depth
+envATReportingStep1$dependencies$load(treeDepth=-1)
 
 # show steps constituting the workflow with df()
 envATReportingStep1$workflow$df() %>% select(fullName)
@@ -152,8 +151,8 @@ envATEDAStep18$usage$load(treeDepth=-1)
 ls(envATEDAStep18$usage)
 ```
 
-The result above reveals that step `EDA/Step 18` has no usage, i.e. there are no other steps which would depend on any file produced by it. The `load()` function remains the sole element even after calling it. This result is in line with the earlier finding, that `EDA/Step 18` is no element of the workflow or lineage leading to `Reporting/Step 1`. Would `EDA/Step 18` be
-within the lineage of `Reporting/Step 1`, the latter would also have to be within the usage of
+The result above reveals that step `EDA/Step 18` has no usage, i.e. there are no other steps which would depend on any file produced by it. The `load()` function remains the sole element even after calling it. This result is in line with the earlier finding, that `EDA/Step 18` is no element of the workflow or dependencies leading to `Reporting/Step 1`. Would `EDA/Step 18` be
+within the dependencies of `Reporting/Step 1`, the latter would also have to be within the usage of
 the former.
 
 ## stepDepth
@@ -168,8 +167,8 @@ However, rather than delimiting its reach by analysis trees, it sets the workflo
 # get step environment 
 envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
 
-# load lineage with desired depth
-envATReportingStep1$lineage$load(stepDepth=1)
+# load dependencies with desired depth
+envATReportingStep1$dependencies$load(stepDepth=1)
 
 # extract workflow
 envATReportingStep1$workflow$df() %>% 
@@ -236,7 +235,7 @@ In the example below, step `Modeling/Step 10` will be removed.
 envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
 
 # get the workflow and show details on Step 'Modeling/Step 10'
-envATReportingStep1$lineage$load(treeDepth=-1)
+envATReportingStep1$dependencies$load(treeDepth=-1)
 
 # show step 10 in the workflow
 envATReportingStep1$workflow$df() %>%
@@ -289,7 +288,7 @@ To demonstrate this, the following steps are implemented below:
 
 #get workflow 
 envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
-envATReportingStep1$lineage$load(treeDepth=-1, stepDepth=-1)
+envATReportingStep1$dependencies$load(treeDepth=-1, stepDepth=-1)
 
 #get changed and outdated files
 changedAndOutdatedFiles <- envATReportingStep1$workflow$changedAndOutdatedFiles()
@@ -316,7 +315,7 @@ to which the link is direct to. However, since the link is outdated the returned
 #| include: false
 
 envATEDAStep18 <- getStep("/improve-tutorial/EDA/Step 18")
-envATEDAStep18$lineage$load(treeDepth=-1)
+envATEDAStep18$dependencies$load(treeDepth=-1)
 
 #steps forming part of the workflow
 envATEDAStep18$workflow$df() %>%
@@ -338,7 +337,7 @@ envATEDAStep18$workflow$changedAndOutdatedFiles()
 #| include: false
 
 envATDAOStep6 <- getStep("/improve-tutorial/DataOrder/Step 6")
-envATDAOStep6$lineage$load(treeDepth=1, stepDepth=-1)
+envATDAOStep6$dependencies$load(treeDepth=1, stepDepth=-1)
 envATDAOStep6workflow <- envATDAOStep6$workflow$df()
 envATDAOStep6workflow %>% select(fullName, description)
 
@@ -377,6 +376,197 @@ changedAndOutdatedFiles %>%
 envATDAOStep6$workflow$rerunChangedAndOutdated() #does not work
 ```
 
+# Exporting and Importing Workflows
+
+## Exporting
+
+*Calling exportWorkflow()*
+
+To export an already existing workflow, the following steps have to be taken:
+
+1. Get the step environment of the step to which the workflow leads.
+2. Load its dependencies (or usage) and define its scope using `treeDepth` and `stepDepth`. The workflow becomes available in the `workflow` binding.
+3. Call `exportWorkflow()` on the `workflow` element and assign a name to the export file.
+
+```{r}
+#| code-summary: "Export workflow"
+
+# Get step environment
+stepEnv <- getStep("/improve-tutorial/Reporting/Step 1")
+# Load workflow
+stepEnv$dependencies$load(treeDepth=-1, stepDepth=-1)
+
+# Export workflow
+exportWorkflow(stepEnv$workflow, "workflowReportingStep1")
+```
+
+The `exportWorkflow()` function creates a portable, self-contained archive of a workflow.
+This ensures portability across different improve repositories and installations while maintaining regulatory compliance and data dependencies tracking.
+Unlike the [`toJSON()`](#exporting-a-workflow-template) method which saves only the workflow structure and parameter definitions to a single JSON, `exportWorkflow()` produces all files needed to reconstruct and run the workflow in a new environment.
+
+**Files created by exportWorkflow()**
+
+More specifically, executing `exportWorkflow()` creates
+
+1) `<workflowName>.zip`: e.g., 'workflowReportingStep1' 
+2) `<workflowName>LinkMapping.json`: Configures how external resource references should be mapped
+3) `<workflowName>ToolMapping.json`: Configures how computational tool configurations should be mapped when importing into a target environment with different servers, tools, or resources
+
+Peeking into *content of the extracted .zip file*, we can see that it contains 
+
+- several folders with hashed names
+- `workflow.json`
+- `internalLinks.json`
+- `links` folder
+
+<details>
+<summary>Content of zip file</summary>
+<div>
+Each of the *folders with a hashed name* represents one specific step of the exported workflow. Each of them contains
+subfolders with the files that are inputs to or outputs from the step's execution.
+
+<details>
+<summary>Show structure of zip file content</summary>
+```{r}
+#| echo: false
+#| code-summary: "Content of zip-file"
+#| code-fold: false
+library(fs)
+unzip("workflowReportingStep1.zip")
+fs::dir_tree("workflowReportingStep1")
+```
+
+The *`workflow.json`* file is the core metadata file that contains complete      
+definitions for every step in the workflow. It serves as the blueprint       
+for reconstructing the entire workflow structure in a new environment.   
+Each element in the JSON array represents one workflow step.
+Unlike `internalLinks.json` which only tracks step-to-step connections, 
+`workflow.json` contains the complete specification of each individual step 
+including all its configuration, tool settings, and external file
+references. Together with the step folders (containing actual files) and 
+internalLinks.json (defining dependencies), it provides everything needed 
+to fully reconstruct and execute the workflow.
+
+<details>
+<summary>Show content of workflow.json</summary>
+```{r}
+#| code-summary: "Content of workflow.json"
+#| code-fold: false
+#| echo: false
+workflow <- jsonlite::read_json("workflowReportingStep1/workflow.json")
+length(workflow)
+listviewer::jsonedit(workflow)
+```
+</details>
+
+The file *`internalLinks.json`* captures step-to-step dependencies within the workflow. Each element of the JSON file describes the link of one specific resource (e.g., a file) from a specific source step to a specific target step. 
+
+<details>
+<summary>Show content of internalLinks.json</summary>
+```{r}
+#| code-summary: "Show link description inside internalLinks.json"
+#| code-fold: true
+#| echo: false
+
+internalLinks <- jsonlite::read_json("workflowReportingStep1/internalLinks.json")
+listviewer::jsonedit(internalLinks)
+```
+</details>
+
+The unpacked zip file also contains a `links` folder. This folder stores external file dependencies that are referenced      
+by workflow steps but originate from outside the workflow itself (i.e., they are not outputs from other workflow steps).
+Since there are no external resources imported in the presented workflow, this folder is empty.
+</div>
+</details>
+
+To sum up, `exportWorkflow()` creates a complete, self-contained archive of the requested workflow, which can be easily transferred to another repository.
+
+## Importing
+
+The `importWorkflow()` function reconstructs a complete workflow from an exported zip archive into a target repository folder, recreating all steps, dependencies, and file relationships in the new environment.
+
+**What it processes:**
+
+- **Workflow structure**: Reads `workflow.json` to reconstruct all step definitions with their complete metadata and configuration
+- **Step dependencies**: Processes `internalLinks.json` to restore step-to-step connections and execution order
+- **External files**: Uploads files from the `links/` folder to the target repository or maps them to existing resources
+- **Step files**: Recreates each step with its `inputFiles/` and `outputFiles/` in the correct repository location
+- **Parent relationships**: Restores hierarchical step relationships when present
+
+**Environment adaptation:**
+
+The function uses optional mapping files to adapt the workflow to the target environment:
+
+- `<workflowName>LinkMapping.json`: Maps external file references to resources that already exist in the target repository, avoiding duplicate uploads
+- `<workflowName>ToolMapping.json`: Remaps computational tool configurations (servers, tool versions, instances) to match what is available in the target environment
+
+These mappings are validated before import begins, and the import will abort if any mapped resources or tools cannot be found.
+
+**Import process:**
+
+The function systematically recreates the workflow by processing steps in dependencies order, ensuring that any step's dependencies are created before the step itself. Each step is uploaded with its complete file inventory and execution history, maintaining data dependencies and regulatory compliance in the target repository.
+
+```{r}
+#| include: false
+
+knitr::knit_exit()
+```
+
+### Example
+
+The example below imports the above exported workflow into a newly created folder.
+
+```{r}
+improveR::importWorkflow()
+```
+
+```{r}
+#| code-summary: "Import workflow"
+
+createFolder(targetIdent = "/improve-tutorial/", folderName = "newWorkflowFolder")
+
+importWorkflow(workflowFile="workflowReportingStep1.zip", importRepoFolder="/improve-tutorial/newWorkflowFolder")
+```
+
+
+
+
+
+```{r}
+#| include: false
+#| code-summary: "Clean up files created by import"
+delete("/improve-tutorial/newWorkflow")
+delete("/improve-tutorial/newWorkflow/Step 46")
+
+delete("/improve-tutorial/FolderForImportedWorkflow") #deleting folder works; deleting steps works
+
+```
+
+
+```{r}
+newWorkflow <- loadFullChildResources("/improve-tutorial/newWorkflow")
+newWorkflow$data[[1]]
+```
+
+
+
+## Difference to exporting and importing workflow templates
+
+
+
+
+```{r}
+#| include: false
+#| code-summary: "Set the home directory to status ante; remove files created by calling exportWorkflow"
+fs::file_delete(c("workflowReportingStep1.zip", "workflowReportingStep1", "workflowReportingStep1ToolMapping.json"))
+```
+
+```{r}
+knitr::knit_exit()
+```
+
+
+
 # Workflow templates
 
 Working with workflows in {improveR} is not limited to the creation and (re)execution of workflows, but
@@ -385,12 +575,12 @@ also allows for using already existing workflows as a template which can then be
 ```{r}
 #| code-summary: "Create a template based on an existing workflow"
 
-envATReportingStep1 <- getStep("improve-tutorial/Reporting/Step 1")
-envATReportingStep1$lineage$load(treeDepth=-1)
+envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
+envATReportingStep1$dependencies$load(treeDepth=-1)
 workflowDf <- envATReportingStep1$workflow$df()
 
-fullLineageWFTemplate <- envATReportingStep1$workflow$createTemplate()
-fullLineageWFTemplate
+fullDependenciesWFTemplate <- envATReportingStep1$workflow$createTemplate()
+fullDependenciesWFTemplate
 ```
 
 ```{r}
@@ -399,9 +589,9 @@ fullLineageWFTemplate
 #| include: false
 
 #Alternatively, a workflow template can also be created with `createWorkflowTemplateEnv()`.
-fullLineageWFTemplate2 <- improveR::createWorkflowTemplateEnv(envATReportingStep1)
-fullLineageWFTemplate2$workflow$df()
-identical(fullLineageWFTemplate2, fullLineageWFTemplate)
+fullDependenciesWFTemplate2 <- improveR::createWorkflowTemplateEnv(envATReportingStep1)
+fullDependenciesWFTemplate2$workflow$df()
+identical(fullDependenciesWFTemplate2, fullDependenciesWFTemplate)
 
 ```
 
@@ -416,7 +606,7 @@ relevant step. The IDE's autocompletion expedites this process.
 
 ```{r}
 #| code-summary: "Get details on step inside the created workflow template"
-fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf
+fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf
 ```
 
 ::: {#fig-folder layout-ncol=1 fig-cap="Improve client - DMG across all steps, grouped by analysis trees"}
@@ -430,13 +620,13 @@ Below an example, where a step's description inside of the workflow template is 
 #| eval: true
 
 # show original description of step
-fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$description
+fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$description
 
 # change description
-fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$setStepDescription(description="Description in new workflow template")
+fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`$setStepDescription(description="Description in new workflow template")
 
 # show new description
-fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$description
+fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$description
 
 ```
 
@@ -449,12 +639,12 @@ Similarly, a tree name for the workflow template can be defined. The pertaining 
 #| code-summary: "Set attributes for template workflow"
 
 #Workflow root folder
-fullLineageWFTemplate$setWorkflowTreeRootFolder("newTreeRootFolder") 
-fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$treePath
+fullDependenciesWFTemplate$setWorkflowTreeRootFolder("newTreeRootFolder") 
+fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$treePath
 
 #Workflow tree name
-fullLineageWFTemplate$setWorkflowTreeName("newTreeName")
-fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$treeName
+fullDependenciesWFTemplate$setWorkflowTreeName("newTreeName")
+fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`$stepDf$treeName
 ```
 
 Overall, there is a comprehensive set of additional functions within the `stepTemplates` binding of
@@ -467,19 +657,19 @@ the workflow template to add, change, get, remove, or set the various properties
 #| echo: false
 
 # add functions
-str_subset(ls(fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^add")) %>% str_c(., collapse=", ")
+str_subset(ls(fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^add")) %>% str_c(., collapse=", ")
 
 # change functions
-str_subset(ls(fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^change")) %>% str_c(., collapse=", ")
+str_subset(ls(fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^change")) %>% str_c(., collapse=", ")
 
 # get functions
-str_subset(ls(fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^get")) %>% str_c(., collapse=", ")
+str_subset(ls(fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^get")) %>% str_c(., collapse=", ")
 
 # remove functions
-str_subset(ls(fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^remove")) %>% str_c(., collapse=", ")
+str_subset(ls(fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^remove")) %>% str_c(., collapse=", ")
 
 # set functions
-str_subset(ls(fullLineageWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^set")) %>% str_c(., collapse=", ")
+str_subset(ls(fullDependenciesWFTemplate$stepTemplates$`Reporting/Step 1/62516`), regex("^set")) %>% str_c(., collapse=", ")
 ```
 
 
@@ -499,20 +689,21 @@ Below an example which
 #| code-summary: "Realize workflow template"
 
 # get the workflow
-envATDOStep6 <- getStep("improve-tutorial/DataOrder/Step 6")
-envATDOStep6$lineage$load(treeDepth=-1)
+envATDOStep6 <- getStep("/improve-tutorial/DataOrder/Step 6")
+envATDOStep6$dependencies$load(treeDepth=-1)
 workflowDf <- envATDOStep6$workflow$df()
 
 # create the template
-fullLineageWFTemplate <- envATDOStep6$workflow$createTemplate()
+fullDependenciesWFTemplate <- envATDOStep6$workflow$createTemplate()
 
 # define the folder/path and the tree of where the template should be realized
 pathFolder <- loadResource("/improve-tutorial")$path
-fullLineageWFTemplate$setWorkflowTreeRootFolder(pathFolder) 
-fullLineageWFTemplate$setWorkflowTreeName("newWorkflow")
+fullDependenciesWFTemplate$setWorkflowTreeRootFolder(pathFolder) 
+fullDependenciesWFTemplate$setWorkflowTreeName("newWorkflow")
 
 # realize the template
-fullLineageWFTemplate$realise()
+fullDependenciesWFTemplate$realise()
+
 ```
 
 After the code's execution the elements of the new workflow appear in the newly created analysis tree.
@@ -532,12 +723,22 @@ content of two inventories shows that they are equal when it comes to the files'
 ```{r}
 #| code-summary: "Steps are identical"
 
-dataNewWorkflowStep3 <- loadChildResources("improve-tutorial/newWorkflow/Step 3")$data[[1]]
+dataNewWorkflowStep3 <- loadChildResources("/improve-tutorial/newWorkflow/Step 3")$data[[1]]
 nrow(dataNewWorkflowStep3)
-dataOrderStep3 <- loadChildResources("improve-tutorial/DataOrder/Step 3")$data[[1]]
+dataOrderStep3 <- loadChildResources("/improve-tutorial/DataOrder/Step 3")$data[[1]]
 nrow(dataOrderStep3)
 
 setequal(dataNewWorkflowStep3$name, dataOrderStep3$name)
+```
+
+```{r}
+#| code-summary: "Clean up files"
+#| include: false
+
+improveR::delete("/improve-tutorial/newWorkflow/")
+improveR::delete("/improve-tutorial/newWorkflow/Step 5") #step deletion works;
+
+improveR::delete("envhost1.hc.scintecodev.internal-5310:AT-111611")
 ```
 
 ## Exporting a workflow template
@@ -546,14 +747,152 @@ To export a workflow into a file the function binding `toJSON` can be called.
 
 ```{r}
 #| code-summary: "Export workflow to json"
-fullLineageWFTemplate$toJSON("fullLineageWF.json")
+
+fullDependenciesWFTemplate$toJSON("fullDependenciesWF.json")
+
 ```
+
+Below the json file's structure.
 
 ```{r}
 #| echo: false
-fullLineageWFJson <- jsonlite::read_json("fullLineageWF.json")
-listviewer::jsonedit(fullLineageWFJson)
+fullDependenciesWFJson <- jsonlite::read_json("fullDependenciesWF.json")
+listviewer::jsonedit(fullDependenciesWFJson)
 ```
+
+## Import a workflow template
+
+When it comes to importing a previously exported workflow template, {improveR}'s `workflowTemplateFromJSON()` does the job.
+
+```{r}
+#| code-summary: "Import workflow template"
+fullDependenciesWFImported <- workflowTemplateFromJSON(
+  filepath = "fullDependenciesWF.json"
+)
+```
+
+### Is the imported workflow identical to its source 
+
+Note that the content and structure of this new object is not identical to the previously exported
+workflow. 
+
+```{r}
+#| eval: false
+#| include: false
+#| #CHECK WHY IS THE IMPORTED WORKFLOW NOT IDENTICAL TO THE SOURCE OF THE EXPORT; CLARIFY THE DIFFERENCES
+identical(fullDependenciesWFImported, fullDependenciesWFTemplate)
+# fullDependenciesWFImported$realise()
+library(waldo)
+envDiff <- waldo::compare(fullDependenciesWFTemplate, fullDependenciesWFImported)
+```
+
+### Specify destination 
+
+This workflow template is again transformed into an actual workflow by calling the `realise()` function of the template's
+environment. To specify the location (folder, analysis tree) of the new workflow, the template's setter functions are used.
+Beware that the function calls will fail, unless the desired location already exists.
+
+```{r}
+#| code-summary: "Set folder and analysis tree where workflow template should be 'realised' to"
+
+fullDependenciesWFImported$setWorkflowTreeRootFolder("/improve-tutorial/FolderForImportedWorkflow/")
+
+fullDependenciesWFImported$setWorkflowTreeName("DataOrder2")
+```
+ 
+```{r}
+#| code-summary: "Realising workflow template fails due to non-existing destination"
+#| error: true
+fullDependenciesWFImported$realise()
+```
+
+```{r}
+#| code-summary: "Create new folder and analysis tree and realise workflow template again"
+
+# create destination folder and analysis tree
+createFolder(folderName="FolderForImportedWorkflow", targetIdent="/improve-tutorial/") 
+createAnalysisTree(targetIdent="/improve-tutorial/FolderForImportedWorkflow", treeName="DataOrder2")
+
+# realising teplates succeeds now
+fullDependenciesWFImported$realise()
+```
+
+Now, with the specified destination created the reaslisation of the workflow works.
+The DMG in the client reveals the correct worklfow relations of the steps.
+Note that the newly realised workflow features a continuous numbering of the steps, and hence
+may differ from the 'original', i.e., the exported workflow. This behavior is on purpose and
+intends to offer a clean slate as to the steps' names. 
+
+::: {#fig-importWorkflow layout-ncol=2 fig-cap="Improve client - imported workflow templated realised to new folder 'improve-tutorial2' and new analysis tree 'DataOrder2'"}
+
+![](img/importWorkflowNewFolderNewAT.png)
+
+![](img/importWorkflowNewFolderNewATDMG.png)
+
+:::
+
+
+```{r}
+#| include: false
+#| code-summary: "Set folder and analysis tree for workflow template import/realisation to status ante"
+
+delete("/improve-tutorial/FolderForImportedWorkflow")
+
+```
+
+```{r}
+knitr::knit_exit()
+```
+
+
+### danger of duplication
+
+Note that the imported workflow has to be assigned to a variable/name.
+
+If no alternative destination is specified, calling `realise()` re-creates the workflow
+in the same folder and analysis trees from where its export was created. (Without any
+changed parameters, this will lead to a duplication of steps within original analysis trees).
+
+```{r}
+#| code-summary: "Realise imported workflow into original analysis tree(s)"
+
+fullDependenciesWFImported <- workflowTemplateFromJSON(
+  filepath = "fullDependenciesWF.json"
+)
+
+#get content of analysis tree 'DataOrder' before imported workflow is realised
+dfStepsPresent <- loadChildResources("/improve-tutorial/DataOrder")$data[[1]] %>%
+  select(path, entityId, createdAtDate) %>%
+  arrange(desc(createdAtDate))
+dfStepsPresent
+
+#realise imported workflow
+fullDependenciesWFImported$realise()
+
+#get content of analysis tree 'DataOrder' after imported workflow is realised
+dfStepsAfterImport <- loadChildResources("/improve-tutorial/DataOrder")$data[[
+  1
+]] %>%
+  select(path, entityId, createdAtDate) %>%
+  arrange(desc(createdAtDate))
+dfStepsAfterImport
+
+```
+
+```{r}
+#| include: false
+#| code-summary: "Remove steps which were added to AT Dataorder by realising the workflow"
+
+#delete those steps in the analysis tree DataOrder which were not present before the realisation
+#of the imported workflow; resets the analysis tree to the status ante;
+newSteps <- dfStepsAfterImport %>%
+    filter(!(entityId %in% dfStepsPresent$entityId)) %>%
+    pull(entityId)
+delete(newSteps)
+```
+
+
+
 
 
 ```{r}
@@ -562,7 +901,7 @@ knitr::knit_exit()
 ```
 
 
- lineage$load() - like arrow in dmg
+ dependencies$load() - like arrow in dmg
 
 
 # create workflow template from scratch
@@ -589,14 +928,14 @@ so run recovery is possible.
 The result of realise -> a workflow
 
 ```{r}
-fullLineageTemplate$setWorkflowTreeRootFolder(fullLineageFolder$path)  
+fullDependenciesTemplate$setWorkflowTreeRootFolder(fullDependenciesFolder$path)  
 ```
 
 # parameters
 reusable workflows (still changing)  
 
 ```{r}
-fullLineageTemplate$addParameter(name=“dataset”,function=changeStepRemote  
+fullDependenciesTemplate$addParameter(name=“dataset”,function=changeStepRemote  
 File,args=list(name=“dataset.csv”,newIdent=StringParameter))  
 
 ```
@@ -903,7 +1242,7 @@ workflowATModeling$executePlan()
 <summary>Show details</summary>
 <div>
 
-`rerunAll` re-executes all steps in the workflow from scratch in the correct dependency order.
+`rerunAll` re-executes all steps in the workflow from scratch in the correct dependencies order.
  This is useful when you want to rebuild an entire workflow cleanly, ensuring all outputs are fresh and up-to-date.   
 
 ```{r}
@@ -952,19 +1291,19 @@ knitr::knit_exit()
 ```{r}
 u <- getStep("/improve-tutorial/Modeling/Step 1")
 listviewer::jsonedit(list(u))
-ls(u$lineage)
-u$lineage$load()
-ls(u$lineage)
-listviewer::jsonedit(as.list((u$lineage)))
-listviewer::jsonedit(as.list((u$lineage$`EDA/Step 5/54047`)))
-listviewer::jsonedit(as.list((u$lineage$`EDA/Step 5/54047`$workflow)))
+ls(u$dependencies)
+u$dependencies$load()
+ls(u$dependencies)
+listviewer::jsonedit(as.list((u$dependencies)))
+listviewer::jsonedit(as.list((u$dependencies$`EDA/Step 5/54047`)))
+listviewer::jsonedit(as.list((u$dependencies$`EDA/Step 5/54047`$workflow)))
 ```
 
 
 ```{r}
 u <- getStep("/improve-tutorial/Modeling/Step 1")
-u$lineage$load(treeDepth=-1)
-ls(u$lineage)
+u$dependencies$load(treeDepth=-1)
+ls(u$dependencies)
 library(lobstr)
 lobstr::tree(u)
 
@@ -1103,22 +1442,22 @@ knitr::knit_exit()
 
 
 
-# getFullLineage()
+# getFullDependencies()
 
-`getFullLineage` returns a *workflow handle* for the lineage of a step,
+`getFullDependencies` returns a *workflow handle* for the dependencies of a step,
 i.e. the sequence of steps and their resources preceding the target
-step. The lineage comprises all steps leading to the step ("to the
+step. The dependencies comprises all steps leading to the step ("to the
 left", including branches) and can span across multiple analysis trees.
 The argument `depth` controls the depth of the recursion, i.e. how many
 trees preceding the step's own tree should be included. The default -1
-includes all branches. Depending on the complexity of the lineage, the
+includes all branches. Depending on the complexity of the dependencies, the
 query may take up to a few minutes to execute.
 
-The 'directional' counterpart to `getFullLineage` is `getFullUsage` (see
-@sec-getfullusage) which returns the lineage **starting** from the step in
+The 'directional' counterpart to `getFullDependencies` is `getFullUsage` (see
+@sec-getfullusage) which returns the dependencies **starting** from the step in
 question. For details see below
 
-To demonstrate the use of `getFullLineage`, let's get the lineage of
+To demonstrate the use of `getFullDependencies`, let's get the dependencies of
 *repo 5310 \> improve-tutorial \> Reporting \> Step 1* with the short
 entity Id `envhost1.hc.scintecodev.internal-5310:ST-62516`.
 
@@ -1130,7 +1469,7 @@ entity Id `envhost1.hc.scintecodev.internal-5310:ST-62516`.
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516"
 
 tic()
-workflowHandleTargetStep <- getFullLineage(ident=identTargetStep, depth = -1)
+workflowHandleTargetStep <- getFullDependencies(ident=identTargetStep, depth = -1)
 toc()
 
 class(workflowHandleTargetStep)
@@ -1138,7 +1477,7 @@ workflowHandleTargetStep
 ```
 
 The workflow handle `workflowHandleTargetStep` is a character vector of
-length `r length(workflowHandleTargetStep)`. It is a unique identifier for the complete lineage up to and including the target step. This handle can be
+length `r length(workflowHandleTargetStep)`. It is a unique identifier for the complete dependencies up to and including the target step. This handle can be
 used with other `improveR` functions to retrieve, manipulate, and execute
 the workflow.
 
@@ -1156,7 +1495,7 @@ constitute the workflow.
 **Important**: Currently, `retrieveWorkflow` returns only the elements
 to the left of the target step if the links connecting the individual steps are not outdated. If the
 links are outdated, the workflow is incomplete and only contains the
-steps with an up-to-date lineage to the target step. See below for an
+steps with an up-to-date dependencies to the target step. See below for an
 example of an incomplete workflow.
 
 ```{r}
@@ -1179,7 +1518,7 @@ nrow(workflowTargetStep)
 workflowTargetStep
 ```
 
-*direct path*: `getFullLineage()` > `retrieveWorkflow()` only returns
+*direct path*: `getFullDependencies()` > `retrieveWorkflow()` only returns
 those steps which are required to reach the target step. Leaves are not
 included in the workflow. #CHECK 
 
@@ -1251,7 +1590,7 @@ select(description, entityId, contains("tree"))
 
 ### step related details
 
-There are three additional details on each step within the lineage of
+There are three additional details on each step within the dependencies of
 the target step:
 
 `description`: description, i.e. the name of the step, as provided under
@@ -1352,7 +1691,7 @@ select(name, asLink)
 
 # getFullUsage() {#sec-getfullusage}
 
-`getFullUsage()` is the 'directional' counterpart to `getFullLineage()`.
+`getFullUsage()` is the 'directional' counterpart to `getFullDependencies()`.
 The function returns a workflowHandle (an alphanumeric string) for the
 usage workflow of a step, which may cover multiple trees. In other
 words, it captures all steps which are directly or indirectly to the
@@ -1369,7 +1708,7 @@ getFullUsage <- function(ident,from=pwd(),workflowEnv=NULL,depth=-1) {
     workflowEnv <- new.env() #env is created
     userCall <- T
   }
-  targetStep <- loadResource(ident,from) #@HACKLM why is it called targetStep? It's a point of departure and not a destination (as in getFullLineage()); maybe sourceStep or dependencyStep?
+  targetStep <- loadResource(ident,from) #@HACKLM why is it called targetStep? It's a point of departure and not a destination (as in getFullDependencies()); maybe sourceStep or dependenciesStep?
     if (nrow(targetStep)==1) {     
     workflowHandle <- workflowEnv[[targetStep$parentId]]  #checks if targetStep$parentId is already in the workflowEnv
     if (is.null(workflowHandle)) { #if targetSTep$parentId is not in the workflowEnv, it creates a new handle
@@ -1448,26 +1787,26 @@ added to the data frame: `dependenicies` and `usage`.
 #| cache: true
  
 #@HACKLM minor question on wording/consisteny: plural vs singular:
-# "usage" and "dependency" vs "usages" and "dependencies".
+# "usage" and "dependencies" vs "usages" and "dependencies".
 
 ```
 
 
 `dependencies` contains the handle id(s) of one or more steps on which the
-step in question depends on. Generally, the dependency is due to linkage to files created by the
+step in question depends on. Generally, the dependencies is due to linkage to files created by the
 steps featured under `dependencies`. In other words, steps in
-`dependencies` are `to the left` in the lineage of the respective step;
+`dependencies` are `to the left` in the dependencies of the respective step;
 they are 'upstream' in the data analysis workflow.
 
 `usage` features those steps which use the output created by the step in
-question. In other words, these steps are 'to the right' in the lineage
+question. In other words, these steps are 'to the right' in the dependencies
 of the respective step; they are 'downstream' in the data analysis
 workfow.
 
 Steps which are at the end of a workflow (leaves) do not feature usage
 steps. Root steps do not feature dependencies.
 
-By linking each step's own handle with the handles of its dependency and
+By linking each step's own handle with the handles of its dependencies and
 usage steps, it becomes possible to represent the complete workflow.
 
 ```{r}
@@ -1477,20 +1816,20 @@ usage steps, it becomes possible to represent the complete workflow.
 print(identTargetStep)
 
 tic()
-workflowLineage <- getFullLineage(ident=identTargetStep) %>%
+workflowDependencies <- getFullDependencies(ident=identTargetStep) %>%
 improveR::makeStepsRelative() %>% 
 improveR::retrieveWorkflow()
 tic() 
 
-class(workflowLineage) 
-names(workflowLineage)
-glimpse(workflowLineage)
+class(workflowDependencies) 
+names(workflowDependencies)
+glimpse(workflowDependencies)
 ```
 
 ```{r}
 #| code-summary: "relative relations by dependencies and usage (scroll right to see full table)"
 #| cache: true
-workflowLineage %>%
+workflowDependencies %>%
 select(handle, entityId, description, dependencies, usage)
 ```
 
@@ -1731,7 +2070,7 @@ detachWorkflowFromResources <- function(workflowHandle) {
 #Get names of workflow data frame to demonstrate function's consequence
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
 #get workflow elements; df has entityId column
-workflowHandle_demoDetach <- improveR::getFullLineage(identTargetStep) 
+workflowHandle_demoDetach <- improveR::getFullDependencies(identTargetStep) 
 
 workflowResourceAttached <- workflowHandle_demoDetach %>%
 improveR::retrieveWorkflow()
@@ -1775,7 +2114,7 @@ still follow the original grouping into different trees.
 #| cache: true
 
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
-workflowHandle_demoDetach <- improveR::getFullLineage(identTargetStep) 
+workflowHandle_demoDetach <- improveR::getFullDependencies(identTargetStep) 
 
 workflowTreeAttached <- workflowHandle_demoDetach %>%
 improveR::retrieveWorkflow()
@@ -1865,7 +2204,7 @@ application of the function
 
 #get workflow handle
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
-workflowHandle <- improveR::getFullLineage(identTargetStep) 
+workflowHandle <- improveR::getFullDependencies(identTargetStep) 
 workflowElements <- workflowHandle %>% retrieveWorkflow()  #data frame with steps of the workflow
 #check treeIdent of workflow elements
 workflowElements %>%
@@ -1920,7 +2259,7 @@ setWorkflowTreeRootFolder <- function(workflowHandle,rootFolder) {
 
 #get workflow handle
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
-workflowHandle <- improveR::getFullLineage(identTargetStep) 
+workflowHandle <- improveR::getFullDependencies(identTargetStep) 
 workflowElements <- workflowHandle %>% retrieveWorkflow() 
 #data frame with steps of the workflow
 #check treeIdent of workflow elements
@@ -1971,7 +2310,7 @@ setWorkflowTreeName <- function(workflowHandle,treeName) {
 
 #get workflow handle
 identTargetStep <- "envhost1.hc.scintecodev.internal-5310:ST-62516" #Step 1 of AT Reporting
-workflowHandle <- improveR::getFullLineage(identTargetStep) 
+workflowHandle <- improveR::getFullDependencies(identTargetStep) 
 workflowElements <- workflowHandle %>% retrieveWorkflow()  #data frame with steps of the workflow
 #check treeIdent of workflow elements
 workflowElements %>%

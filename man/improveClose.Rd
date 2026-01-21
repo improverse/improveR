@@ -2,7 +2,7 @@
 % Please edit documentation in R/improveConnect.R
 \name{improveClose}
 \alias{improveClose}
-\title{improveClose}
+\title{Improve Close}
 \usage{
 improveClose()
 }

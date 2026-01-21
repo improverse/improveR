@@ -323,6 +323,14 @@ dataSourceLink <- createExternalLink(
 cat("\nCreated external link:", dataSourceLink$path, "\n")
 ```
 
+::: {#fig-createExternalLink layout-ncol=1 .no-margin .left-caption}
+
+![Improve Client: An external link is shows in the inventory folder of, e.g., a step. The entity (version) id features
+the abbreviation 'EL'](articles/img/createExternalLink.png)
+
+:::
+
+
 ## 6. Exploring Resource Properties
 
 Every resource in improve has standard properties that help track and manage it.

@@ -130,9 +130,9 @@
   invisible(TRUE)
 }
 
-#' Import a Workflow from a Zip File into a Repository Folder
+#' Import a Workflow from a zip File into a Repository Folder
 #'
-#' This function imports a workflow from a specified zip file into a given repository folder.
+#' The `importWorkflow()` function imports a workflow from a specified zip file into a given repository folder.
 #' It reconstructs the workflow structure, maintains step dependencies, handles file links,
 #' and applies optional tool and link mappings for environment portability.
 #'
@@ -157,7 +157,7 @@
 #'   \item Uploads external link files to the repository
 #'   \item Applies optional link mappings from \code{<workflowName>LinkMapping.json}
 #'   \item Applies optional tool mappings from \code{<workflowName>ToolMapping.json}
-#'   \item Creates steps in dependency order
+#'   \item Creates steps in dependencies order
 #'   \item Uploads input and output files for each step
 #' }
 #'
@@ -272,9 +272,9 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
           if (!(link$targetStep %in% ls(sourceStep$usage))) {
             sourceStep$usage[[link$targetStep]] <- targetStep
           }
-          # Establish lineage relationship (target depends on source)
-          if (!(link$sourceStep %in% ls(targetStep$lineage))) {
-            targetStep$lineage[[link$sourceStep]] <- sourceStep
+          # Establish dependencies relationship (target depends on source)
+          if (!(link$sourceStep %in% ls(targetStep$dependencies))) {
+            targetStep$dependencies[[link$sourceStep]] <- sourceStep
           }
         }
       }
@@ -311,7 +311,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
   if (file.exists(linkMappingPath)) {
     importMapping <-jsonlite::read_json(linkMappingPath,simplifyVector = T)
     x<-byNotEmpty(importMapping,function(linkMap){
-      if (is.character(linkMap$ident) && linkMap$ident!="") {
+      if (is.character(linkMap$ident) && !is.na(linkMap$ident) && linkMap$ident!="") {
         linkMapping[[linkMap$key]]<-linkMap$ident
       }
     })
@@ -323,7 +323,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       if (is.null(linkMapping[[providedLinks[i]]])) {
         linkName <- providedLinks[i]
         importLine <- importMapping[importMapping$key==providedLinks[i],]
-        if (nrow(importLine) >0 && is.character(importLine$name) && !grepl(pattern = ",",x = importLine$name,fixed = T)) {
+        if (nrow(importLine) >0 && is.character(importLine$name) && !is.na(importLine$name) && !grepl(pattern = ",",x = importLine$name,fixed = T)) {
           linkName <- importLine$name
         }
         if (startsWith(linkName,"./")) {
@@ -410,21 +410,22 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     template <- workflowTemplate$stepTemplates[[nextItem]]
 
 
-    if ("lineage" %in% names(nextData) && !is.na(nextData$lineage)) {
-      dependencies <- unique(strsplit(nextData$lineage,",")[[1]])
+    if ("dependencies" %in% names(nextData) && !is.na(nextData$dependencies)) {
+      dependencies <- unique(strsplit(nextData$dependencies, ",")[[1]])
       for (j in 1:length(dependencies)) {
-        dependency <- dependencies[j]
-        if (dependency %in% executionList) {
+        dependencies <- dependencies[j]
+        if (dependencies %in% executionList) {
           logging::loginfo("waiting to finish")
-          #finishRun(dependency)
-          executionList <- executionList[executionList!=dependency]
+          #finishRun(dependencies)
+          executionList <- executionList[executionList != dependencies]
         }
       }
     }
     #create step, add links
     #remove inputfiles
-    remoteFiles <- template$stepDf$remoteFiles[[1]]
-    remoteFiles <- remoteFiles[remoteFiles$asLink,]
+    # Save original remoteFiles before filtering (needed for variable binding later)
+    originalRemoteFiles <- template$stepDf$remoteFiles[[1]]
+    remoteFiles <- originalRemoteFiles[originalRemoteFiles$asLink,]
     template$stepDf$remoteFiles[[1]]<- remoteFiles
     template$realise(run=F)
     
@@ -463,7 +464,91 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       }
     }
     pushCli(stepInputFolderPath)
-    #TODO map variables
+
+    # Bind variables for uploaded input files
+    # Use the ORIGINAL remoteFiles (before filtering), not the filtered version
+    allRemoteFiles <- originalRemoteFiles
+    variableFiles <- allRemoteFiles[!allRemoteFiles$asLink & !is.na(allRemoteFiles$variableName) & allRemoteFiles$variableName != "",]
+
+    if (!is.null(variableFiles) && nrow(variableFiles) > 0) {
+
+      # Reload step to get updated file list after push
+      nextStep <- loadResource(template$stepDf$entityId)
+      stepProcesses <- loadProcessesForStep(nextStep$resourceId)
+
+      for (i in 1:nrow(variableFiles)) {
+        varFile <- variableFiles[i,]
+
+        tryCatch({
+          # Find the process for this variable
+          variableProcess <- stepProcesses[stepProcesses$name == varFile$variableProcess,]
+          if (nrow(variableProcess) == 0) {
+            warning(paste("Process not found:", varFile$variableProcess, "for variable:", varFile$variableName))
+            next
+          }
+          processId <- as.character(variableProcess$id)
+
+          # Find the uploaded file by name in the step's inventory
+          fileName <- varFile$name
+          if (startsWith(fileName, "./")) {
+            fileName <- substr(fileName, 3, nchar(fileName))
+          }
+
+          stepInventoryResult <- getStepResourceInventory(nextStep, recurse = FALSE, update = TRUE)
+          stepInventory <- stepInventoryResult$data[[1]]
+          uploadedFile <- stepInventory[stepInventory$name == fileName,]
+
+          if (is.null(uploadedFile) || nrow(uploadedFile) == 0) {
+            warning(paste("Uploaded file not found in inventory:", fileName, "for variable:", varFile$variableName))
+            next
+          }
+
+          fileResourceId <- uploadedFile$resourceId[1]
+
+          # Create or get the process variable
+          variables <- getProcessFileVariables(nextStep, processId)
+          variableId <- as.character(variables[variables$name == varFile$variableName,]$id)
+
+          if (length(variableId) == 0) {
+            # Create new variable
+            position <- 1
+            if (!is.null(variables) && nrow(variables) > 0) {
+              position <- max(variables$position) + 1
+            }
+            variable <- createProcessFileVariable(
+              ident = nextStep$resourceId,
+              processId = processId,
+              name = varFile$variableName,
+              variableType = "fileRef",
+              position = position
+            )
+            variableId <- variable[[1]][1]
+          }
+
+          # Bind the variable to the file
+          result <- authenticatedREST(
+            "/resources/{resourceId}/processes/{processId}/variables/{variableId}",
+            urlParams = list(
+              resourceId = nextStep$resourceId,
+              processId = processId,
+              variableId = variableId
+            ),
+            data = list(
+              type = "processVariable",
+              id = variableId,
+              name = varFile$variableName,
+              position = 1,
+              valueResourceId = fileResourceId,
+              variableType = "fileRef"
+            ),
+            restType = "PUT"
+          )
+
+        }, error = function(e) {
+          warning(paste("Failed to bind variable", varFile$variableName, "for file", varFile$name, ":", e$message))
+        })
+      }
+    }
 
     # push output files
     #push run

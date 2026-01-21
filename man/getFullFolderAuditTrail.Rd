@@ -2,17 +2,17 @@
 % Please edit documentation in R/loadFullFolderAuditTrail.R
 \name{getFullFolderAuditTrail}
 \alias{getFullFolderAuditTrail}
-\title{retrieves recursive audit trail for a specific folder}
+\title{Retrieves Recursive Audit Trail For A Specific Folder}
 \usage{
 getFullFolderAuditTrail(ident, from = pwd(), includeReadAccess = FALSE)
 }
 \arguments{
 \item{ident}{the folder the audit trail is retrieved for}
 
-\item{from}{startpoint for relative pathes, per default: pwd is used}
+\item{from}{startpoint for relative paths, per default: pwd is used}
 
 \item{includeReadAccess}{if TRUE also read access entries of the audit trail are shown}
 }
 \description{
-retrieves recursive audit trail for a specific folder
+Retrieves Recursive Audit Trail For A Specific Folder
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/genericLoadResourceEntities.R
 \name{strip}
 \alias{strip}
-\title{strip}
+\title{Strip}
 \usage{
 strip(data)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResource.R
 \name{unloadResource}
 \alias{unloadResource}
-\title{unloadResource}
+\title{Unload Resource}
 \usage{
 unloadResource(ident, from = pwd())
 }

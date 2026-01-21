@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResourceRelations.R
 \name{loadRelationTypes}
 \alias{loadRelationTypes}
-\title{loads all registered relation types}
+\title{Loads All Registered Relation Types}
 \usage{
 loadRelationTypes(conn)
 }
@@ -10,5 +10,5 @@ loadRelationTypes(conn)
 \item{conn}{database connection}
 }
 \description{
-loads all registered relation types
+Loads All Registered Relation Types
 }

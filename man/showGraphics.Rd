@@ -2,7 +2,7 @@
 % Please edit documentation in R/getGraphics.R
 \name{showGraphics}
 \alias{showGraphics}
-\title{Includes a picture in rMarkdown, creates a string that has to be outputted}
+\title{Generate Markdown Syntax for Graphics}
 \usage{
 showGraphics(
   ident,
@@ -15,23 +15,41 @@ showGraphics(
 )
 }
 \arguments{
-\item{ident}{path, resource or entity ID of the picture}
+\item{ident}{Path, resource ID, or entity ID of the graphics file. Can be a
+relative path (from current step), absolute path, or improve identifier}
 
-\item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
+\item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}
+(current step location)}
 
-\item{addAsLink}{creates a link in inventory if TRUE, warn improveClean has to be run at the end}
+\item{addAsLink}{Logical. If \code{TRUE}, creates a link in the inventory for
+provenance tracking. Use \code{improveClean()} at workflow end to clean up
+links}
 
-\item{caption}{by default entityID and lastmodified are the caption, here alternative text can be provided}
+\item{caption}{Custom caption text. If empty, defaults to entityID and
+lastModified timestamp. To suppress caption, set \code{includeCaption = FALSE}}
 
-\item{description}{by default filename is the caption, here alternative text can be provided}
+\item{description}{Custom description text. If empty, defaults to filename.
+To suppress description, set \code{includeDescription = FALSE}}
 
-\item{includeCaption}{display the caption}
+\item{includeCaption}{Logical. If \code{TRUE} (default), includes the caption
+in the generated Markdown}
 
-\item{includeDescription}{display the description}
+\item{includeDescription}{Logical. If \code{TRUE} (default), includes the
+description in the generated Markdown (as title text)}
+}
+\value{
+A character string containing the formatted Markdown syntax:
+\code{![caption](path 'description')}
+Returns empty string if file not found.
 }
 \description{
-Includes a picture in rMarkdown, creates a string that has to be outputted
+Creates the Markdown syntax required to display a graphics file in an
+RMarkdown document. Can optionally include caption and description text.
 }
 \references{
 ics1141
+}
+\seealso{
+\code{\link{getGraphics}} for underlying retrieval function,
+\code{\link{includeGraphics}} for Knitr integration
 }

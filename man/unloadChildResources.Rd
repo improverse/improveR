@@ -2,13 +2,24 @@
 % Please edit documentation in R/loadChildResources.R
 \name{unloadChildResources}
 \alias{unloadChildResources}
-\title{unloadChildResources}
+\title{Unload Child Resources from Cache}
 \usage{
 unloadChildResources(ident)
 }
+\arguments{
+\item{ident}{The resource identifier - can be a resource ID, entity ID,
+entity version ID, or path.}
+}
+\value{
+Invisibly returns NULL. Called for side effect of clearing cache.
+}
 \description{
-Removes a resource from the cache.
+Removes child resources data from the cache for the specified resource.
 }
 \references{
-ics1085 # QUESTION # @HACKLM ics documents are not customer/r-package user facing; could all be removed -correct?
+ics1085
+}
+\seealso{
+\code{\link{loadChildResources}} to load child resources,
+\code{\link{updateChildResources}} to refresh from server
 }

@@ -27,8 +27,22 @@ loadRunservers <- function() {
   return(runservers)
 }
 
-#' loads runserver by label
+#' Loads Runserver By Label
+#' 
+#' `loadRunserver()` loads a runserver by its label and returns a dataframe with pertaining details.
+#' 
 #' @param label the label of the runserver
+#'
+#' @returns A dataframe with the following columns:
+#'   - `id` (character)
+#'   - `url` (character)
+#'   - `hostname` (character)
+#'   - `label` (character)
+#'   - `local` (logical)
+#'   - `deleted` (logical)
+#'   - `generic` (logical)
+#'   - `reproducible` (logical)
+#'   - `sshPort` (integer)
 #' @references ics1226
 #' @export
 loadRunserver <- function(label) {
@@ -71,8 +85,13 @@ runserverToolsCacheList <- list(
 #' @references ics1227
 #' @noRd
 loadToolsForRunserver <- function(runserverId) {
-  runserverToos <- getFromCache(runserverId,actualLoadToolsForRunserver,runserverToolsCacheList,NULL)
-  return(runserverToos)
+  runserverTools <- getFromCache(
+    runserverId,
+    actualLoadToolsForRunserver,
+    runserverToolsCacheList,
+    NULL
+  )
+  return(runserverTools)
 }
 
 #' loadToolForRunserver
@@ -82,7 +101,6 @@ loadToolsForRunserver <- function(runserverId) {
 #' @param toolInstanceName name of the tool instance, optional, but toolname or toolInstanceName have to be given
 #' @references ics1227
 #' @noRd
-#'
 loadToolForRunserver <- function(runserverId,toolName=NULL,toolInstanceName=NULL) {
   runserverTools <- loadToolsForRunserver(runserverId)
   if (is.null(runserverTools)) {
@@ -117,12 +135,14 @@ loadToolForRunserver <- function(runserverId,toolName=NULL,toolInstanceName=NULL
 }
 
 actualLoadToolsForRunserver <- function(runserverId) {
-  result <- authenticatedREST('configuration/runservers/{runserverId}/tools',
-                                            urlParams = list(runserverId=runserverId
-                                            ),
-                                            restType = "GET")
+  result <- authenticatedREST(
+    'configuration/runservers/{runserverId}/tools',
+    urlParams = list(runserverId = runserverId),
+    restType = "GET"
+  )
+
   if (is.null(result)) {
-    log_warn("no tools found for runserver:",runserverId)
+    log_warn("no tools found for runserver:", runserverId)
     return(NULL)
   }
   tools <- httr::content(result)
@@ -132,10 +152,20 @@ actualLoadToolsForRunserver <- function(runserverId) {
 
   colnames(catTools)[colnames(catTools) == 'id'] <- 'toolId'
   colnames(catTools)[colnames(catTools) == 'name'] <- 'toolName'
-  fullTools <- merge(catTools,toolsDf,by="toolId")
+  
+  #TODO
+  ##remove below
+  catTools %>%
+    dplyr::filter(stringr::str_detect(toolName, stringr::regex("\\bR")))
+  toolsDf %>% dplyr::filter(stringr::str_detect(name, stringr::regex("\\bR"))) #2 R tools present
+  ##remove above
+
+  #browser()
+  fullTools <- merge(catTools, toolsDf, by = "toolId") #6 rows get lost
+
   runservers <- loadRunservers()
   colnames(runservers)[colnames(runservers) == 'id'] <- 'runserverId'
-  fullTools <- merge(runservers,fullTools,by="runserverId")
+  fullTools <- merge(runservers, fullTools, by = "runserverId")
 
   return(fullTools)
 }

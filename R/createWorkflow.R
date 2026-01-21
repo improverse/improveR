@@ -53,8 +53,8 @@ library(magrittr)
         if (!(targetStep %in% ls(sourceStepEnv$usage))) {
           env$steps[[sourceStep]]$usage[[targetStep]]<-targetStepEnv
         }
-        if (!(sourceStep %in% ls(targetStepEnv$lineage))) {
-          env$steps[[targetStep]]$lineage[[sourceStep]]<-sourceStepEnv
+        if (!(sourceStep %in% ls(targetStepEnv$dependencies))) {
+          env$steps[[targetStep]]$dependencies[[sourceStep]] <- sourceStepEnv
         }
       })
     }
@@ -88,31 +88,38 @@ library(magrittr)
 
 .workflow_private$executionOrderInternal <- function(env, plan, startSteps = NULL, counter = 0) {
   counter <- counter + 1
-  if (!"lineage" %in% names(plan)) {
-    plan$lineage <- NA
+  if (!"dependencies" %in% names(plan)) {
+    plan$dependencies <- NA
   }
   if (!"usage" %in% names(plan)) {
     plan$usage <- ""
   }
   if (is.null(startSteps)) {
-    startSteps <- plan[is.na(plan$lineage), ]
-    plan <- plan[!is.na(plan$lineage), ]
+    startSteps <- plan[is.na(plan$dependencies), ]
+    plan <- plan[!is.na(plan$dependencies), ]
   }
   if (is.null(startSteps) || nrow(startSteps) == 0) {
-    logging::logwarn("No step without dependency, no executable order")
+    logging::logwarn("No step without dependencies, no executable order")
     return(NULL)
   }
   for (s in seq_len(nrow(startSteps))) {
     startStep <- startSteps[s, ]
-    lineages <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
-    if (length(lineages) > 0) {
-      for (lineage in lineages) {
-        lineageHandle <- plan[plan$fullName == lineage, ]
-        if (nrow(lineageHandle) == 1 && "lineage" %in% names(lineageHandle)) {
-          dependencies <- strsplit(lineageHandle$lineage, ",", fixed = TRUE)[[1]]
-          if (all(dependencies %in% startSteps$fullName)) {
-            startSteps <- plyr::rbind.fill(startSteps, lineageHandle)
-            plan <- plan[plan$fullName != lineage, ]
+    dependenciess <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
+    if (length(dependenciess) > 0) {
+      for (dependentStepName in dependenciess) {
+        dependenciesHandle <- plan[plan$fullName == dependentStepName, ]
+        if (
+          nrow(dependenciesHandle) == 1 &&
+            "dependencies" %in% names(dependenciesHandle)
+        ) {
+          stepDependencies <- strsplit(
+            dependenciesHandle$dependencies,
+            ",",
+            fixed = TRUE
+          )[[1]]
+          if (all(stepDependencies %in% startSteps$fullName)) {
+            startSteps <- plyr::rbind.fill(startSteps, dependenciesHandle)
+            plan <- plan[plan$fullName != dependentStepName, ]
           }
         }
       }
@@ -175,23 +182,27 @@ library(magrittr)
 
 # --- Public Methods (exposed to user) ---
 
-#' Create a new workflow object
+#' Create New Workflow Environment
 #'
-#' This function constructs a new workflow environment for managing and executing steps.
-#' The returned object exposes only the public API for workflow operations.
+#' Constructs a new workflow environment for managing, analyzing, and executing
+#' workflow steps. The returned object encapsulates the workflow state and exposes
+#' a public API for operations.
 #'
 #' @details
-#' The workflow object provides methods to:
+#' The returned workflow environment contains the following methods:
 #' \itemize{
-#'   \item List all steps as a data frame (\code{df})
-#'   \item Find changed and outdated files (\code{changedAndOutdatedFiles})
-#'   \item Create a re-execution plan for outdated steps (\code{createReexecutionPlan})
-#'   \item Rerun all changed and outdated steps (\code{rerunChangedAndOutdated})
-#'   \item Execute a given execution plan (\code{executePlan})
+#'   \item \code{df()}: Returns a data frame of all steps in the workflow
+#'   \item \code{changedAndOutdatedFiles(tree)}: Finds files that have changed or are outdated
+#'   \item \code{createReexecutionPlan()}: Generates a plan to rerun only outdated steps
+#'   \item \code{rerunChangedAndOutdated()}: Executes the re-execution plan
+#'   \item \code{rerunAll()}: Reruns all steps regardless of status
+#'   \item \code{executePlan(plan)}: Executes a specific plan object
 #' }
 #' Internal state and helper functions are encapsulated and not exposed.
 #'
-#' @return An environment representing the workflow, with public methods as described.
+#' @returns An R environment with class "workflow" containing the public methods
+#'   listed in Details.
+#'
 #' @examples
 #' \dontrun{
 #' wf <- createWorkflow()
@@ -361,9 +372,9 @@ createWorkflow <- function() {
       usedSteps <- env$internalLinks[
         env$internalLinks$targetStep == st$fullName,
       ]$sourceStep
-      st$lineage <- paste(usedSteps, collapse = ",", sep = "/")
-      if (st$lineage == "") {
-        st$lineage <- NA
+      st$dependencies <- paste(usedSteps, collapse = ",", sep = "/")
+      if (st$dependencies == "") {
+        st$dependencies <- NA
       }
       st$usage <- paste(usingSteps, collapse = ",", sep = "/")
       if (st$usage == "") {
@@ -380,7 +391,7 @@ createWorkflow <- function() {
       "sourceName",
       "fullName",
       "toUpdate",
-      "lineage",
+      "dependencies",
       "usage"
     )
     executionPlan$inPlace <- TRUE
@@ -391,23 +402,32 @@ createWorkflow <- function() {
   # @param includeDownstream If TRUE (default), also rerun steps that use the outputs of changed steps
   # @return Invisibly returns NULL
   env$rerunChangedAndOutdated <- function(includeDownstream = TRUE) {
-    plan <- env$createReexecutionPlan(includeDownstream = includeDownstream, includeAllSteps = FALSE)
+    plan <- env$createReexecutionPlan(
+      includeDownstream = includeDownstream,
+      includeAllSteps = FALSE
+    )
     env$executePlan(plan)
     invisible(NULL)
   }
 
-  # Rerun all steps in the workflow in dependency order
+  # Rerun all steps in the workflow in dependencies order
   # @return Invisibly returns NULL
   env$rerunAll <- function() {
-    plan <- env$createReexecutionPlan(includeDownstream = FALSE, includeAllSteps = TRUE)
+    plan <- env$createReexecutionPlan(
+      includeDownstream = FALSE,
+      includeAllSteps = TRUE
+    )
     env$executePlan(plan)
     invisible(NULL)
   }
 
   # Create an execution plan for all steps in the workflow
-  # @return A data.frame describing the execution plan with proper dependency ordering
+  # @return A data.frame describing the execution plan with proper dependencies ordering
   env$createFullExecutionPlan <- function() {
-    return(env$createReexecutionPlan(includeDownstream = FALSE, includeAllSteps = TRUE))
+    return(env$createReexecutionPlan(
+      includeDownstream = FALSE,
+      includeAllSteps = TRUE
+    ))
   }
 
   # Execute a given execution plan
@@ -420,13 +440,15 @@ createWorkflow <- function() {
       nextData <- orderedWorkflow[i, ]
       nextItem <- nextData$fullName
 
-      if ("lineage" %in% names(nextData) && !is.na(nextData$lineage)) {
-        dependencies <- unique(strsplit(nextData$lineage, ",")[[1]])
-        for (dependency in dependencies) {
-          if (dependency %in% executionList) {
+      if (
+        "dependencies" %in% names(nextData) && !is.na(nextData$dependencies)
+      ) {
+        dependencies <- unique(strsplit(nextData$dependencies, ",")[[1]])
+        for (dependencies in dependencies) {
+          if (dependencies %in% executionList) {
             logging::loginfo("waiting to finish")
-            finishRunResource(env$steps[[dependency]]$stepDf$sourceEntityId)
-            executionList <- executionList[executionList != dependency]
+            finishRunResource(env$steps[[dependencies]]$stepDf$sourceEntityId)
+            executionList <- executionList[executionList != dependencies]
           }
         }
       }
@@ -448,17 +470,16 @@ createWorkflow <- function() {
     }
   }
 
-
-  env$removeStep <- function(step) {
+  
+env$removeStep <- function(step) {
     stepEnv <- NULL
     if (is.environment(step)) {
-
       step <- step$stepDf$fullName
     } else if (is.data.frame(step)) {
       step <- step$fullName
     }
     stepEnv <- env$steps[[step]]
-    rm(list=c(step),pos=env$steps)
+    rm(list = c(step), pos = env$steps)
     removeBacklinks <- function(toLink, backLink) {
       affected <- ls(stepEnv[[toLink]])
       affected <- affected[affected != "load"]
@@ -468,10 +489,10 @@ createWorkflow <- function() {
       })
     }
     suppressWarnings({
-      removeBacklinks("children","parent")
-      removeBacklinks("parent","children")
-      removeBacklinks("lineage","usage")
-      removeBacklinks("usage","lineage")
+      removeBacklinks("children", "parent")
+      removeBacklinks("parent", "children")
+      removeBacklinks("dependencies", "usage")
+      removeBacklinks("usage", "dependencies")
     })
     .workflow_private$collectInternalLinks(env)
   }

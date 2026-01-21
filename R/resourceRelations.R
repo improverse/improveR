@@ -51,7 +51,7 @@ validateTargetResourceIdDuplicate <- function(resourceId, targetResourceId) {
   return(TRUE)
 }
 
-#' creates a new resource relation
+#' Creates a New Resource Relation
 #' @param resourceId id (UUID) of the resource
 #' @param targetResourceId id (UUID) of the target resource
 #' @param relationTypeId id (UUID) of the relation type
@@ -77,7 +77,7 @@ createResourceRelation <- function(resourceId, targetResourceId, relationTypeId,
   return(result)
 }
 
-#' updates a resource relation
+#' Updates a Resource Relation
 #' @param resourceId id (UUID) of the resource
 #' @param relationId id (UUID) of the relation
 #' @param newRelationTypeId id (UUID) of the relation type
@@ -106,7 +106,7 @@ updateResourceRelation <- function(resourceId, relationId, newRelationTypeId, ne
   return(result)
 }
 
-#' deletes a resource relation
+#' Deletes a Resource Relation
 #' @param resourceId id (UUID) of the resource
 #' @param relationId id (UUID) of the relation
 #' @references ics1044

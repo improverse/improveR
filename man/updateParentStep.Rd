@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadparentStep.R
 \name{updateParentStep}
 \alias{updateParentStep}
-\title{updateParentStep reloads the runservers from the repository}
+\title{UpdateParentStep Reloads The Runservers From The Repository}
 \usage{
 updateParentStep(ident, from = pwd())
 }
@@ -12,7 +12,7 @@ updateParentStep(ident, from = pwd())
 \item{from}{path working directory, default is the calling step}
 }
 \description{
-updateParentStep reloads the runservers from the repository
+UpdateParentStep Reloads The Runservers From The Repository
 }
 \references{
 ics1209

@@ -2,20 +2,42 @@
 % Please edit documentation in R/create.R
 \name{createFolder}
 \alias{createFolder}
-\title{creates a folder in the repository and returns the resource object}
+\title{Create Folder in improve Repository}
 \usage{
-createFolder(targetIdent, folderName = "", comment = "Created by improveRW")
+createFolder(targetIdent, folderName = "", comment = "Created by improveR")
 }
 \arguments{
-\item{targetIdent}{one or many target folders, as resource, id or path}
+\item{targetIdent}{Identifier(s) of the parent location where the new folder(s)
+should be created. Can be a path, resource ID, or entity ID.}
 
-\item{folderName}{one or many folderNames}
+\item{folderName}{Character. Name(s) of the new folder(s).}
 
-\item{comment}{defaults to Created by improveRW}
+\item{comment}{Character. Comment for the creation audit entry. Defaults to
+"Created by improveR".}
+}
+\value{
+A list containing the resource object(s) of the created folder(s).
+Each resource object contains metadata like \code{resourceId}, \code{entityId}, \code{path}, etc.
+Returns \code{NULL} on failure.
 }
 \description{
-creates a folder in the repository and returns the resource object
+Creates one or multiple folders in the repository at the specified location.
+}
+\examples{
+\dontrun{
+# Create a folder in the repository root
+createFolder(targetIdent = "/", folderName = "folderInRoot")
+
+# Create a folder inside an existing folder by path
+createFolder(
+  targetIdent = "/improve-tutorial/",
+  folderName = "folderInImproveTutorial"
+)
+}
 }
 \references{
 ics1101
+}
+\seealso{
+\code{\link{createFile}}, \code{\link{createAnalysisTree}}
 }

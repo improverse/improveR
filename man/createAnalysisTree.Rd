@@ -2,24 +2,30 @@
 % Please edit documentation in R/create.R
 \name{createAnalysisTree}
 \alias{createAnalysisTree}
-\title{creates a workflow/analysis tree in the repository and returns the resource object}
+\title{Create Analysis Tree in improve Repository}
 \usage{
-createAnalysisTree(
-  targetIdent,
-  treeName = "",
-  comment = "Created by improveRW"
-)
+createAnalysisTree(targetIdent, treeName = "", comment = "Created by improveR")
 }
 \arguments{
-\item{targetIdent}{one or many target folders, as resource, id or path}
+\item{targetIdent}{Identifier of the parent folder where the analysis tree
+should be created.}
 
-\item{treeName}{one or many treeNames}
+\item{treeName}{Character. Name of the new analysis tree.}
 
-\item{comment}{defaults to Created by improveRW}
+\item{comment}{Character. Comment for the creation audit entry. Defaults to
+"Created by improveR".}
+}
+\value{
+A list containing the resource object of the created analysis tree.
+Returns \code{NULL} on failure.
 }
 \description{
-creates a workflow/analysis tree in the repository and returns the resource object
+Creates an Analysis Tree, which is a specialized folder structure for organizing
+pharmaceutical analysis workflows.
 }
 \references{
 ics1103
+}
+\seealso{
+\code{\link{createFolder}}, \code{\link{createWorkflow}}
 }

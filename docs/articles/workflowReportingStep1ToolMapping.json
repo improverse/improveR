@@ -1,0 +1,16 @@
+[
+  {
+    "key": "runserver:::R_4.2:::renv batch:::TRUE",
+    "runserverLabel": "runserver",
+    "toolLabel": "R_4.2",
+    "toolInstance": "renv batch",
+    "gridTool": true
+  },
+  {
+    "key": "runserver:::R_4.2:::rstudio:::TRUE",
+    "runserverLabel": "runserver",
+    "toolLabel": "R_4.2",
+    "toolInstance": "rstudio",
+    "gridTool": true
+  }
+]

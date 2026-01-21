@@ -436,59 +436,59 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   s1t3 <- mockStep(dmgL3, s1t2, "S1T3", "report", dataSet2 = s2t2)
 
 
-  cat("Creating fullLineage folder...\n")
-  fullLineageFolder <- createFolder(TEST_FOLDER,"fullLineage")
-  cat("Created fullLineage folder\n")
+  cat("Creating fullDependencies folder...\n")
+  fullDependenciesFolder <- createFolder(TEST_FOLDER,"fullDependencies")
+  cat("Created fullDependencies folder\n")
 
   cat("Loading last step from dmgL3...\n")
   lastStep <- loadChildResources(dmgL3) %>%strip() %>% getStep()
   cat("Loaded last step\n")
 
-  cat("Loading lineage with stepDepth=-1, treeDepth=-1...\n")
-  lastStep$lineage$load(stepDepth = -1,treeDepth = -1)
-  cat("Loaded lineage\n")
+  cat("Loading dependencies with stepDepth=-1, treeDepth=-1...\n")
+  lastStep$dependencies$load(stepDepth = -1,treeDepth = -1)
+  cat("Loaded dependencies\n")
 
   cat("Creating workflow template...\n")
-  fullLineageTemplate <- lastStep$workflow$createTemplate()
+  fullDependenciesTemplate <- lastStep$workflow$createTemplate()
   cat("Created template\n")
 
   cat("Setting workflow tree root folder...\n")
-  fullLineageTemplate$setWorkflowTreeRootFolder(fullLineageFolder$path)
+  fullDependenciesTemplate$setWorkflowTreeRootFolder(fullDependenciesFolder$path)
   cat("Set root folder\n")
 
   cat("Realising template...\n")
-  lineageResult <- fullLineageTemplate$realise()
+  dependenciesResult <- fullDependenciesTemplate$realise()
   cat("Template realised\n")
 
-  lastStepCheck <- loadChildResources("./DMG L3",fullLineageFolder) %>%strip() %>% getStep()
-  lastStepCheck$lineage$load(stepDepth = -1,treeDepth = -1)
-  fullLineageTemplateCheck <- lastStepCheck$workflow$createTemplate()
+  lastStepCheck <- loadChildResources("./DMG L3",fullDependenciesFolder) %>%strip() %>% getStep()
+  lastStepCheck$dependencies$load(stepDepth = -1,treeDepth = -1)
+  fullDependenciesTemplateCheck <- lastStepCheck$workflow$createTemplate()
 
   #same structure without internal links
-  structuralCompareWorkflow(fullLineageTemplateCheck,fullLineageTemplate,withIdent = F,expectEqual = T)
+  structuralCompareWorkflow(fullDependenciesTemplateCheck,fullDependenciesTemplate,withIdent = F,expectEqual = T)
   #different structure with internal links
-  structuralCompareWorkflow(fullLineageTemplateCheck,fullLineageTemplate,withIdent = T,expectEqual = F)
+  structuralCompareWorkflow(fullDependenciesTemplateCheck,fullDependenciesTemplate,withIdent = T,expectEqual = F)
 
 
 
 
-  expect_equal(nrow(loadChildResources(fullLineageFolder)$data[[1]]),3)
-  expect_equal(nrow(loadChildResources("./DMG L1",fullLineageFolder)$data[[1]]),4)
-  expect_equal(nrow(loadChildResources("./DMG L2",fullLineageFolder)$data[[1]]),2)
-  expect_equal(nrow(loadChildResources("./DMG L3",fullLineageFolder)$data[[1]]),1)
+  expect_equal(nrow(loadChildResources(fullDependenciesFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources("./DMG L1",fullDependenciesFolder)$data[[1]]),4)
+  expect_equal(nrow(loadChildResources("./DMG L2",fullDependenciesFolder)$data[[1]]),2)
+  expect_equal(nrow(loadChildResources("./DMG L3",fullDependenciesFolder)$data[[1]]),1)
 
 
   lastStep <- loadChildResources(dmgL3) %>%strip() %>% getStep()
-  lastStep$lineage$load(stepDepth = -1,treeDepth = 1)
-  fullLineageTemplate <- lastStep$workflow$createTemplate()
-  fullLineageTemplate$setWorkflowTreeRootFolder(fullLineageFolder$path)
-  fullLineageTemplate$setWorkflowTreeName("AllInOne")
-  lineageResult <- fullLineageTemplate$realise()
+  lastStep$dependencies$load(stepDepth = -1,treeDepth = 1)
+  fullDependenciesTemplate <- lastStep$workflow$createTemplate()
+  fullDependenciesTemplate$setWorkflowTreeRootFolder(fullDependenciesFolder$path)
+  fullDependenciesTemplate$setWorkflowTreeName("AllInOne")
+  dependenciesResult <- fullDependenciesTemplate$realise()
 
 
 
-  expect_equal(nrow(loadChildResources(fullLineageFolder)$data[[1]]),4)
-  expect_equal(nrow(loadChildResources("./AllInOne",fullLineageFolder)$data[[1]]),3)
+  expect_equal(nrow(loadChildResources(fullDependenciesFolder)$data[[1]]),4)
+  expect_equal(nrow(loadChildResources("./AllInOne",fullDependenciesFolder)$data[[1]]),3)
 
   fullUsageFolder <- createFolder(TEST_FOLDER,"fullUsage")
 
@@ -521,11 +521,11 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   expect_equal(nrow(loadChildResources("./AllInOne",fullUsageFolder)$data[[1]]),10)
 
 
-   lineageWorkflowStep <- loadChildResources(dmgL3)%>%strip() %>%
+   dependenciesWorkflowStep <- loadChildResources(dmgL3)%>%strip() %>%
      getStep()
-   lineageWorkflowStep$lineage$load(stepDepth = -1,treeDepth = -1)
+   dependenciesWorkflowStep$dependencies$load(stepDepth = -1,treeDepth = -1)
 
-   lineageWorkflowStep$workflow$createTemplate()$realise()
+   dependenciesWorkflowStep$workflow$createTemplate()$realise()
 
    expect_equal(nrow(loadChildResources("./DMG L1",TEST_FOLDER)$data[[1]]),8)
    expect_equal(nrow(loadChildResources("./DMG L2",TEST_FOLDER)$data[[1]]),4)
@@ -535,25 +535,25 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 
   report <- loadChildResources(dmgL3)%>%strip()
   reportStep <- getStep(report[1,])
-  reportStep$lineage$load(stepDepth = -1,treeDepth = -1)
+  reportStep$dependencies$load(stepDepth = -1,treeDepth = -1)
   # exportWorkflow now expects a workflow, not a workflow template
   workflow <- reportStep$workflow
 
   # Export workflow and verify file creation
   cat("\n=== EXPORT/IMPORT TEST ===\n")
-  cat("Exporting workflow to lineageDMG.zip...\n")
-  exportWorkflow(workflow,workflowName = "lineageDMG")
+  cat("Exporting workflow to dependenciesDMG.zip...\n")
+  exportWorkflow(workflow,workflowName = "dependenciesDMG")
 
   # Check export file was created
-  expect_true(file.exists("lineageDMG.zip"),
-              info = "Export file lineageDMG.zip should be created")
-  cat("Export file created: lineageDMG.zip\n")
-  cat("Export file size:", file.info("lineageDMG.zip")$size, "bytes\n")
+  expect_true(file.exists("dependenciesDMG.zip"),
+              info = "Export file dependenciesDMG.zip should be created")
+  cat("Export file created: dependenciesDMG.zip\n")
+  cat("Export file size:", file.info("dependenciesDMG.zip")$size, "bytes\n")
 
   # Check mapping files were created
-  expect_true(file.exists("lineageDMGLinkMapping.json"),
+  expect_true(file.exists("dependenciesDMGLinkMapping.json"),
               info = "Link mapping file should be created")
-  expect_true(file.exists("lineageDMGToolMapping.json"),
+  expect_true(file.exists("dependenciesDMGToolMapping.json"),
               info = "Tool mapping file should be created")
   cat("Mapping files created\n")
 
@@ -562,8 +562,8 @@ test_that("DMG spans multiple trees, linear|ics1140", {
   cat("Creating import folder:", importRepoFolder, "\n")
   createFolder(dirname(importRepoFolder),basename(importRepoFolder))
 
-  cat("Importing workflow from lineageDMG.zip...\n")
-  importWorkflow("lineageDMG.zip",importRepoFolder)
+  cat("Importing workflow from dependenciesDMG.zip...\n")
+  importWorkflow("dependenciesDMG.zip",importRepoFolder)
   cat("Import completed\n")
 
   # Verify import created the expected tree structure
@@ -586,9 +586,9 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 
   # Clean up export files
   cat("Cleaning up export files...\n")
-  if (file.exists("lineageDMG.zip")) unlink("lineageDMG.zip")
-  if (file.exists("lineageDMGLinkMapping.json")) unlink("lineageDMGLinkMapping.json")
-  if (file.exists("lineageDMGToolMapping.json")) unlink("lineageDMGToolMapping.json")
+  if (file.exists("dependenciesDMG.zip")) unlink("dependenciesDMG.zip")
+  if (file.exists("dependenciesDMGLinkMapping.json")) unlink("dependenciesDMGLinkMapping.json")
+  if (file.exists("dependenciesDMGToolMapping.json")) unlink("dependenciesDMGToolMapping.json")
   #externalLinkMapping
 
 
@@ -852,7 +852,7 @@ test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", 
   a <- improveR::updateFileContent(inputFile, "improver.log")
   #TODO without usage needs to be included
   reExecutionPlan <- test4Workflow$createReexecutionPlan()
-  reExecutionPlan <- dplyr::filter(reExecutionPlan,is.na(lineage))
+  reExecutionPlan <- dplyr::filter(reExecutionPlan,is.na(dependencies))
   reExecutionPlan$usage<-""
   test4Workflow$executePlan(reExecutionPlan)
 
@@ -984,6 +984,74 @@ test_that("remoteFile names are loaded correctly|ics1213", {
 })
 
 
+test_that("terminate running step|ics1140", {
+  #TEST_FOLDER <- ensureTestFolder()
+
+  # Create a test tree
+  testTree <- improveR::createAnalysisTree(
+    targetIdent = TEST_FOLDER,
+    treeName = "TerminateStepTest"
+  )
+
+  # Create a step template that will take some time to execute
+  stepEnv <- rBatchStep(testTree)
+  stepEnv$setStepDescription("Long Running Step")
+  stepEnv$setStepRationale("Testing step termination")
+  stepEnv$addStepRemoteFile(
+    paste0(TEST_FOLDER, "/DataManipulation.R"),
+    variableName = "command-file"
+  )
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.Rmd"))
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"))
+
+  # Realize the step WITHOUT running it (run = FALSE)
+  step <- stepEnv$realise(run = FALSE)
+
+  # Get the step resource for reference
+  stepResource <- step$getStepResource()
+
+  # Verify initial state is not RUNNING
+  expect_true(stepResource$runStatus %in% c("INITIAL", "CREATED"))
+
+  # Manually start the step execution
+  runStepResource(stepResource$resourceId)
+
+  # Give the step a moment to start
+  Sys.sleep(2)
+
+  # Update the step resource to get current status
+  stepResource <- improveR::updateResource(stepResource)
+
+  # Verify the step is running (or at least not FINISHED yet)
+  # Note: depending on timing, it might be QUEUED, RUNNING, or already FINISHED
+  # if the step executes very quickly
+  cat("\nStep status before termination:", stepResource$runStatus, "\n")
+
+  # Terminate the step - this is what we're testing
+  result <- terminateStepResource(stepResource$resourceId, verbose = TRUE)
+
+  # Verify termination was successful
+  expect_true(result, info = "terminateStepResource should return TRUE on success")
+
+  # Give the server a moment to process the termination
+  Sys.sleep(2)
+
+  # Update step status after termination
+  stepResource <- improveR::updateResource(stepResource)
+
+  # Verify the step is terminated
+  cat("\nStep status after termination:", stepResource$runStatus, "\n")
+  expect_true(
+    stepResource$runStatus %in% c("TERMINATED", "FAILED", "FINISHED"),
+    info = paste("Step should be terminated or stopped, but was:", stepResource$runStatus)
+  )
+
+  # Optional: Test verbose parameter
+  # Terminating an already terminated step should handle gracefully
+  result2 <- terminateStepResource(stepResource$resourceId, verbose = TRUE)
+  # This might return FALSE since step is already stopped
+  expect_type(result2, "logical")
+})
 
 
 

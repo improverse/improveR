@@ -59,7 +59,7 @@ createStep <- function(treeIdent,parentStepIdent=NULL,toolId=NULL) {
 #' @param position the position in the process list
 #' @param parentProcessId only to use when processType equals sub
 #' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
-#' @param toolDeletePatterns files that wont get checked in
+#' @param toolDeletePatterns files that won't get checked in
 #' @param toolStreamablePatterns file that can be streamed to monitor the step
 #' @noRd
 #'
@@ -131,10 +131,43 @@ setProcessVariablesList <- function(stepId, processId,processVariables) {
 }
 
 
-#' getProcessFileVariables
+#' Get Process File Variables
 #'
-#' @param ident id of the step the variables refer to
-#' @param processId id of the process the variables refer to
+#' Retrieves file variable definitions for a specific process within a step.
+#'
+#' @param ident A step identifier. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param processId Identifier of the process (main or sub-process) whose variables
+#'   should be returned. Use \code{\link{loadProcessesForStep}} to discover process ids.
+#'
+#' @returns A data frame with one row per process file variable. Columns include:
+#'   \describe{
+#'     \item{id}{Character. Variable identifier on the server.}
+#'     \item{position}{Integer. Position ordering in the process variable list.}
+#'     \item{name}{Character. Variable name.}
+#'     \item{variableType}{Character. Typically \code{fileRef} or \code{filePath}.}
+#'     \item{valueResourceId}{Character. Resource id when \code{variableType} is \code{fileRef}.}
+#'     \item{processId}{Character. Process identifier that owns the variable.}
+#'   }
+#'   Additional columns may be returned depending on server version.
+#'
+#' @details
+#' Process file variables connect a step process to its file inputs. Variables of
+#' type \code{fileRef} point to improve resources, while \code{filePath} variables
+#' reference literal paths for the runserver.
+#'
+#' @seealso \code{\link{loadProcessesForStep}} to list available processes,
+#'   \code{\link{createProcessFileVariable}} to create variables
+#'
+#' @examples
+#' \dontrun{
+#' processes <- loadProcessesForStep("/improve-tutorial/Modeling/Step 1")
+#' main_process <- processes[processes$processType == "main", ]$id[1]
+#' variables <- getProcessFileVariables(
+#'   ident = "/improve-tutorial/Modeling/Step 1",
+#'   processId = main_process
+#' )
+#' }
 #'
 #' @export
 getProcessFileVariables <- function(ident, processId) {
@@ -180,10 +213,32 @@ createProcessFileVariable <- function(ident, processId,name,variableType,positio
   return(variablesDf)
 }
 
-#' detaches a step from its parent
+#' Detach Step from Parent
 #'
-#' @param ident ident of the step
-#' @param from from if a relative path is used
+#' Removes the hierarchical relationship between a step and its parent, allowing
+#' users to reorganize workflows, isolate steps, or prepare steps for reassignment
+#' to different parents.
+#'
+#' @param ident Identifier of the step to detach. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param from Root directory for resolving relative paths. Default is \code{pwd()}.
+#'
+#' @return The updated step resource, returned invisibly after cache invalidation.
+#'
+#' @seealso
+#' \code{\link{attachStep}} to create parent-child relationships,
+#' \code{\link{loadParentStep}} and \code{\link{loadChildSteps}} for navigating hierarchies,
+#' \code{\link{getStep}} for retrieving complete step environments
+#'
+#' @examples
+#' \dontrun{
+#' # Detach step from its parent
+#' detachStep(ident = "/improve-tutorial/demoSteps/Step 2")
+#'
+#' # Verify the step no longer has a parent
+#' loadParentStep("/improve-tutorial/demoSteps/Step 2")
+#' }
+#'
 #' @references ics1225
 #' @export
 
@@ -200,27 +255,58 @@ detachStep <- function(ident,  from=pwd()) {
   return(updateResource(ident,from))
 }
 
-#' attaches a step to its parent
-#' @references ics1225
-#' @param ident ident of the step
-#' @param parent ident of the new parent
-#' @param from from if a relative path is used
+#' Attach a Step to a Parent Step
 #'
+#' Establishes a hierarchical parent-child relationship between steps
+#' by attaching a step to another step that serves as its parent.
+#'
+#' @param ident Identifier of the step to attach. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param parent Identifier of the step that will become the parent. Can be the step's path,
+#'   resource (version) id, full entity (version) id, or short entity (version) id.
+#' @param from Root directory for resolving relative paths. Default is \code{pwd()}.
+#'
+#' @return The updated step resource, returned invisibly after cache invalidation.
+#' @seealso
+#' \code{\link{detachStep}} to remove parent-child relationships,
+#' \code{\link{loadParentStep}} and \code{\link{loadChildSteps}} for navigating hierarchies,
+#' \code{\link{getStep}} for retrieving complete step environments
+#'
+#' @examples
+#' \dontrun{
+#' # Attach Step 2 as a child of Step 1
+#' attachStep(
+#'   ident = "/improve-tutorial/demoSteps/Step 2",
+#'   parent = "/improve-tutorial/demoSteps/Step 1"
+#' )
+#' }
+#'
+#' @references ics1225
 #' @export
 
-attachStep <- function(ident,parent,  from=pwd()) {
-  stepEntity <- loadResource(ident,from)
-  stepParentEntity <- loadResource(parent,from)
+attachStep <- function(ident, parent, from = pwd()) {
+  stepEntity <- loadResource(ident, from)
+  stepParentEntity <- loadResource(parent, from)
   tree <- stepEntity$parentId
 
-  result <- authenticatedREST("/resources/{treeId}/steps/{stepId}/attachStepToParent",
-                                            urlParams = list(stepId=stepEntity$resourceId,treeId=tree),
-                                            queryParams = list(parentStepId=stepParentEntity$resourceId),
-                                            restType = "PUT"
+  result <- authenticatedREST(
+    "/resources/{treeId}/steps/{stepId}/attachStepToParent",
+    urlParams = list(stepId = stepEntity$resourceId, treeId = tree),
+    queryParams = list(parentStepId = stepParentEntity$resourceId),
+    restType = "PUT"
   )
-  unloadParentStep(stepEntity,from)
+
+  if (is.null(result)) {
+    logging::logwarn("Step was not attached.")
+  }
+
+  if (stepEntity$resourceId == stepParentEntity$resourceId) {
+    logging::logwarn("Step cannot be attached to itself.")
+  }
+
+  unloadParentStep(stepEntity, from)
   unloadChildSteps(stepParentEntity)
-  return(updateResource(ident,from))
+  return(updateResource(ident, from))
 }
 
 #' createProcess
@@ -239,7 +325,7 @@ attachStep <- function(ident,parent,  from=pwd()) {
 #' @param position the position in the process list
 #' @param parentProcessId only to use when processType equals sub
 #' @param toolBrowserUrl a URL improve uses to automatically open while the step is running
-#' @param toolDeletePatterns files that wont get checked in
+#' @param toolDeletePatterns files that won't get checked in
 #' @param toolStreamablePatterns file that can be streamed to monitor the step
 #' @noRd
 #'

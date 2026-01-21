@@ -2,16 +2,52 @@
 % Please edit documentation in R/editable.R
 \name{setEditable}
 \alias{setEditable}
-\title{setEditable}
+\title{Enable or Disable Repository Write Mode}
 \usage{
 setEditable(editable = T)
 }
 \arguments{
-\item{editable}{if true it is possible to edit contents in the repository}
+\item{editable}{Logical. If \code{TRUE} (default), enables write operations to the
+repository. If \code{FALSE}, restricts the session to read-only operations.}
+}
+\value{
+Invisibly returns \code{NULL}. Called for its side effect of setting
+the editable flag in the session cache.
 }
 \description{
-setEditable sets the editable mode, default true
+Controls whether write operations (create, update, delete) are permitted
+on the improve repository. By default, connections are read-only for safety.
+Call this function with \code{TRUE} to enable modifications.
+}
+\details{
+\strong{Warning:} Enabling write mode allows operations that modify repository
+content, including:
+\itemize{
+\item Creating new resources, steps, and workflows
+\item Updating existing files and metadata
+\item Deleting resources
+}
+
+The editable state persists for the duration of the R session or until
+explicitly changed by calling this function again.
+}
+\examples{
+\dontrun{
+# Connect to improve server (read-only by default)
+improveConnect()
+
+# Enable write operations
+setEditable(TRUE)
+
+# Perform modifications...
+# createFile(...)
+
+# Disable write operations when done
+setEditable(FALSE)
+}
+
 }
 \seealso{
-\code{\link[=improveConnected]{improveConnected()}}
+\code{\link{improveEditable}} to check and enforce write mode,
+\code{\link{improveConnect}} to establish connection
 }

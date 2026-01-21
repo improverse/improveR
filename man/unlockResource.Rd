@@ -2,18 +2,85 @@
 % Please edit documentation in R/lockUnlock.R
 \name{unlockResource}
 \alias{unlockResource}
-\title{unlockResource}
+\title{Unlock Resource to Allow Collaborative Access}
 \usage{
 unlockResource(ident, from = pwd())
 }
 \arguments{
-\item{ident}{id of resource to be locked}
+\item{ident}{Resource identifier (entityId, resourceId, or path). See \code{\link{common_ident}}
+for supported identifier formats.}
 
-\item{from}{pwd for relative pathes}
+\item{from}{Base path for resolving relative paths. Defaults to current working directory
+from \code{\link{pwd}}.}
+}
+\value{
+Logical value:
+\describe{
+\item{TRUE}{Resource successfully unlocked}
+\item{FALSE}{Unlock failed - resource not locked or server error}
+}
 }
 \description{
-unlockResource
+Releases a lock on a resource, allowing other users to edit it. This should be called
+after completing editing operations to restore collaborative access in pharmaceutical
+workflows.
+}
+\details{
+\strong{Unlock Behavior:}
+\itemize{
+\item Only the user who locked the resource (or administrator) can unlock it
+\item Unlocking restores collaborative access for all team members
+\item Requires editable session mode (see \code{\link{setEditable}})
+\item Attempting to unlock an already-unlocked resource returns FALSE with a warning
+}
+
+\strong{Lock Ownership:}
+If you attempt to unlock a resource locked by another user, the operation will fail.
+Contact an administrator for force-unlock if the original user is unavailable.
+
+\strong{Best Practice:}
+Always unlock resources promptly after editing to avoid blocking collaborators.
+Use \code{on.exit()} in functions to ensure unlock happens even if errors occur.
+
+\strong{Warning:}
+Do not force-unlock resources while another user is actively editing, as this may
+cause data conflicts or loss of unsaved changes.
+}
+\examples{
+\dontrun{
+# Basic lock/unlock pattern
+improveConnect()
+setEditable(TRUE)
+
+lockResource("MyAnalysis/data.csv")
+# ... perform edits ...
+unlockResource("MyAnalysis/data.csv")
+
+# Safe pattern with automatic unlock on function exit
+edit_resource <- function(path) {
+  if (!lockResource(path)) {
+    stop("Could not acquire lock")
+  }
+  on.exit(unlockResource(path))
+
+  # Edit operations here - unlock happens automatically
+  # even if an error occurs
+}
+
+# Check unlock status
+if (unlockResource("MyAnalysis/results")) {
+  message("Resource unlocked successfully")
+} else {
+  message("Resource was not locked or unlock failed")
+}
+}
+
 }
 \references{
 ics1139
+}
+\seealso{
+\code{\link{lockResource}} to acquire lock,
+\code{\link{setEditable}} to enable write operations,
+\code{\link{updateResource}} for refreshing resource state
 }

@@ -35,7 +35,7 @@ actualLoadRelationTypes <- function(conn, ...) {
   return(result)
 }
 
-#' loads all registered relation types
+#' Loads All Registered Relation Types
 #' @param conn database connection
 #' @export
 loadRelationTypes <- function(conn) {
@@ -43,7 +43,7 @@ loadRelationTypes <- function(conn) {
   return(relationTypes)
 }
 
-#' unloads all relation types
+#' Unloads All Relation Types
 #' @param conn database connection
 #' @export
 unloadRelationTypes <- function(conn) {
@@ -51,7 +51,7 @@ unloadRelationTypes <- function(conn) {
   removeFromCache(defaultKeyRelationTypes, "", relationTypesCacheList)
 }
 
-#' reloads the relation types
+#' Reloads the Relation Types
 #' @param conn database connection
 #' @export
 updateRelationTypes <- function(conn) {
@@ -92,7 +92,7 @@ actualLoadResourceRelations <- function(resourceId) {
   return(resourceRelationsDf)
 }
 
-#' loads all registered resource relations
+#' Loads All Registered Resource Relations
 #' it uses caching
 #' the results are returned as a data frame or a list of data frames
 #' the dates are also converted to posix dates via convertImproveTimestampToPosix
@@ -105,7 +105,7 @@ loadResourceRelations <- function(resourceId) {
   return(resourceRelations)
 }
 
-#' unloads all resource relations
+#' Unloads All Resource Relations
 #' @param resourceId id (UUID) of the resource
 #' @references ics1044
 #' @export
@@ -114,7 +114,7 @@ unloadResourceRelations <- function(resourceId) {
   removeFromCache(resourceId, "", resourceRelationsCacheList)
 }
 
-#' reloads the resource relations
+#' Reloads the Resource Relations
 #' @param resourceId id (UUID) of the resource
 #' @references ics1044
 #' @export

@@ -2,10 +2,53 @@
 % Please edit documentation in R/getToolInstances.R
 \name{getToolInstances}
 \alias{getToolInstances}
-\title{getToolInstances}
+\title{Get Tool Instances}
 \usage{
 getToolInstances()
 }
+\value{
+An environment where each tool instance is accessible by its full name.
+Each tool instance contains:
+\describe{
+\item{toolId}{Unique identifier for the tool}
+\item{runserverId}{ID of the runserver hosting the tool}
+\item{url}{URL of the tool service}
+\item{parameters}{Data frame of tool parameters and their values}
+\item{gridArguments}{Data frame of grid computing arguments (if applicable)}
+}
+}
 \description{
-Returns an environement with all tool instances. in order to relaod tools from the server use resetToolInstances
+Returns an environment containing all available tool instances with their configurations.
+Tools orchestrate step execution by defining how scripts are run, which external software
+to use (R, NONMEM, Monolix), and how to handle inputs and outputs.
+}
+\details{
+The function checks for cached tool instances first, returning them immediately if
+available. Otherwise, it loads tool configuration data from the server, including
+runservers, tools, parameters, and grid arguments. Results are cached for performance.
+When tool configurations change, call \code{\link{resetToolInstances}} to clear the cache.
+
+Tool instances are referenced in \code{stepDf$processes} within step environments
+created by \code{getStep()}, determining how steps execute.
+}
+\examples{
+\dontrun{
+# Get all tool instances
+tools <- getToolInstances()
+
+# List available tools
+ls(tools)
+
+# Access a specific tool instance
+rTool <- tools$`R R R runserver`
+
+# View tool parameters
+rTool$parameters
+}
+
+}
+\seealso{
+\code{\link{resetToolInstances}} to clear the tool instance cache,
+\code{\link{getMainProcess}} to retrieve the tool instance for a specific step,
+\code{\link{getStep}} for step environments that reference tool instances
 }

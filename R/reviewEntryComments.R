@@ -24,7 +24,7 @@ validateEntry <- function(reviewId, entryId) {
   return(TRUE)
 }
 
-#' creates a comment for a review entry
+#' Creates a Comment for a Review Entry
 #' @param reviewId id (UUID) of the review
 #' @param entryId id (UUID) of the resource
 #' @param comment comment

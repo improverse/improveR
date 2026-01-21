@@ -2,7 +2,7 @@
 % Please edit documentation in R/getMetaData.R
 \name{getMetaDataMap}
 \alias{getMetaDataMap}
-\title{loads the metadata of a given resource and writes it as string values into a list}
+\title{Loads the Metadata of a Given Resource and Writes It as String Values Into a List}
 \usage{
 getMetaDataMap(ident, from = pwd())
 }
@@ -12,5 +12,5 @@ getMetaDataMap(ident, from = pwd())
 \item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
 }
 \description{
-loads the metadata of a given resource and writes it as string values into a list
+Loads the Metadata of a Given Resource and Writes It as String Values Into a List
 }

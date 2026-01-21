@@ -2,18 +2,39 @@
 % Please edit documentation in R/step.R
 \name{detachStep}
 \alias{detachStep}
-\title{detaches a step from its parent}
+\title{Detach Step from Parent}
 \usage{
 detachStep(ident, from = pwd())
 }
 \arguments{
-\item{ident}{ident of the step}
+\item{ident}{Identifier of the step to detach. Can be the step's path, resource (version) id,
+full entity (version) id, or short entity (version) id.}
 
-\item{from}{from if a relative path is used}
+\item{from}{Root directory for resolving relative paths. Default is \code{pwd()}.}
+}
+\value{
+The updated step resource, returned invisibly after cache invalidation.
 }
 \description{
-detaches a step from its parent
+Removes the hierarchical relationship between a step and its parent, allowing
+users to reorganize workflows, isolate steps, or prepare steps for reassignment
+to different parents.
+}
+\examples{
+\dontrun{
+# Detach step from its parent
+detachStep(ident = "/improve-tutorial/demoSteps/Step 2")
+
+# Verify the step no longer has a parent
+loadParentStep("/improve-tutorial/demoSteps/Step 2")
+}
+
 }
 \references{
 ics1225
+}
+\seealso{
+\code{\link{attachStep}} to create parent-child relationships,
+\code{\link{loadParentStep}} and \code{\link{loadChildSteps}} for navigating hierarchies,
+\code{\link{getStep}} for retrieving complete step environments
 }

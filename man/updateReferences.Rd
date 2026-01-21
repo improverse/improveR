@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadReferences.R
 \name{updateReferences}
 \alias{updateReferences}
-\title{updateReferences}
+\title{Update References}
 \usage{
 updateReferences(ident)
 }
@@ -10,7 +10,7 @@ updateReferences(ident)
 \item{ident}{id}
 }
 \description{
-updateReferences
+Update References
 }
 \references{
 ics1206

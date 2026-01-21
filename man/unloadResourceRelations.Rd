@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResourceRelations.R
 \name{unloadResourceRelations}
 \alias{unloadResourceRelations}
-\title{unloads all resource relations}
+\title{Unloads All Resource Relations}
 \usage{
 unloadResourceRelations(resourceId)
 }
@@ -10,7 +10,7 @@ unloadResourceRelations(resourceId)
 \item{resourceId}{id (UUID) of the resource}
 }
 \description{
-unloads all resource relations
+Unloads All Resource Relations
 }
 \references{
 ics1044

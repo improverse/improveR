@@ -13,14 +13,92 @@ testEnv <- function() {
 #'
 #' Extracts all steps, relationships, parameters, and files from the workflow
 #' and builds a reusable workflow template environment.
-#' @param workflow The workflow environment to template
-#' @param addParental if T the created stepTemplates have the steps from the workflow as parents (default: FALSE)
-#' @return An environment representing the workflow template
+#'
+#' @param workflow The workflow environment to template. If NULL (default),
+#'   creates an empty workflow template.
+#' @param addParental If TRUE, the created stepTemplates have the steps from
+#'   the workflow as parents (default: FALSE).
+#' @returns An environment representing the workflow template with the following methods:
+#'   \describe{
+#'     \item{addStepTemplate(stepTemplate, name=NULL)}{Adds a step template to the workflow template.}
+#'     \item{createExecutionPlan()}{Creates a data.frame describing the execution plan for the workflow.}
+#'     \item{df()}{Returns a data.frame with metadata for all steps in the template.}
+#'     \item{executePlan(executionPlan)}{Executes a given execution plan data.frame.}
+#'     \item{listParameters()}{Returns a data frame of all defined parameters.}
+#'     \item{parameterizeStep(paramName, stepPattern, property, target=NULL, required=TRUE, defaultValue=NULL)}{
+#'       Registers a parameter to modify steps before realisation.
+#'       \describe{
+#'         \item{paramName}{Name of the parameter.}
+#'         \item{stepPattern}{Pattern to match steps. Three matching modes are supported:
+#'           \itemize{
+#'             \item \code{"*"} matches all steps in the workflow template.
+#'             \item Prefix pattern ending with \code{*} (e.g., \code{"analysisTree1/*"}) matches
+#'               all steps whose fullName starts with the prefix.
+#'             \item Exact match (e.g., \code{"import data"}) first tries to match the step's
+#'               fullName, then falls back to matching the step's description.
+#'           }
+#'         }
+#'         \item{property}{The property to parameterize: "remoteFile", "localFile", "treeIdent", "gridArgument.<name>", "description", "rationale", or "stepName".}
+#'         \item{target}{(Optional) Target within the property, e.g., the path of a remote file.}
+#'         \item{required}{(Optional) Whether this parameter must be set before realization (default: TRUE).}
+#'         \item{defaultValue}{(Optional) Default value if not set.}
+#'       }
+#'     }
+#'     \item{realise()}{Executes the plan, applying parameters and creating the workflow steps.}
+#'     \item{setParameter(paramName, value)}{Sets a value for a defined parameter.}
+#'     \item{setWorkflowTreeIdent(treeIdent, from=pwd())}{Sets the ident of the location/analysis tree where the workflow template should be created, i.e., realised. If not defined, the new
+#' workflow will be located in the same location(s) where the step(s) of the template workflow are located.}
+#'     \item{setWorkflowTreeName(treeName)}{Sets the name of the location/analysis tree where the workflow template should be created, i.e., realised. If not defined, the new
+#' workflow will be located in the same location(s) where the step(s) of the template workflow are located.}
+#'     \item{setWorkflowTreeRootFolder(rootFolder)}{Sets the root folder path for the workflow tree where the template is realised to.}
+#'     \item{toJSON(filepath, pretty=TRUE)}{Saves the template definition to a JSON file.}
+#'     \item{validateParameters()}{Checks if all required parameters are set, throwing an error if not.}
+#'   }
+#' @examples
+#' \dontrun{
+#' # Get a step and load its dependencies
+#' step <- getStep("/myProject/workflow/analysisTree/Step 1")
+#' step$dependencies$load()
+#'
+#' # Create a workflow template from the step's workflow
+#' workflowTemplate <- createWorkflowTemplateEnv(step$workflow)
+#'
+#' # View the steps in the template
+#' workflowTemplate$df()
+#'
+#' # Define a parameter to modify the description of a specific step
+#' workflowTemplate$parameterizeStep(
+#'   stepPattern = "import data", #pattern that matches the name or the description of the step which the paramter should target
+#'   paramName = "inputDescription", #name of the parameter to which a value will be asigned to
+#'   property = "description" #the property of the targeted step which will be modified by the parameter
+#' )
+#'
+#' # Define a parameter that applies to all steps
+#' workflowTemplate$parameterizeStep(
+#'   stepPattern = "*", 
+#'   paramName = "allStepsRationale",
+#'   property = "rationale"
+#' )
+#'
+#' # Set the parameter values
+#' workflowTemplate$setParameter("inputDescription", "Load input dataset")
+#' workflowTemplate$setParameter("allStepsRationale", "Automated workflow execution")
+#'
+#' # Review parameters before realisation
+#' workflowTemplate$listParameters()
+#'
+#' # Optionally set a new target tree for the realised workflow
+#' workflowTemplate$setWorkflowTreeName("newAnalysisTree")
+#'
+#' # Realise the template (creates actual steps)
+#' realisedWorkflow <- workflowTemplate$realise()
+#' }
 #' @export
 createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
   env <- new.env(parent = emptyenv())
   env$this <- env
   env$workflow <- workflow
+  env$addParental <- addParental
 
   # Initialize parameter registry
   env$parameters <- new.env(parent = emptyenv())
@@ -162,8 +240,8 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       stepDf = stepDf,
       workflow = env
     )
-    stepTemplates[[stepName]]$lineage <- rlang::env_clone(stepEnv$lineage)
-    rm(list=c("load"),pos=stepTemplates[[stepName]]$lineage)
+    stepTemplates[[stepName]]$dependencies <- rlang::env_clone(stepEnv$dependencies)
+    rm(list = c("load"), pos = stepTemplates[[stepName]]$dependencies)
     stepTemplates[[stepName]]$usage <- rlang::env_clone(stepEnv$usage)
     rm(list=c("load"),pos=stepTemplates[[stepName]]$usage)
     stepTemplates[[stepName]]$parent <- rlang::env_clone(stepEnv$parent)
@@ -236,8 +314,10 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       internalLinks <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]
       usingSteps <- env$internalLinks[env$internalLinks$sourceStep == st$fullName, ]$targetStep
       usedSteps <- env$internalLinks[env$internalLinks$targetStep == st$fullName, ]$sourceStep
-      st$lineage <- paste(unique(usedSteps), collapse = ",", sep = "/")
-      if (st$lineage == "") st$lineage <- NA
+      st$dependencies <- paste(unique(usedSteps), collapse = ",", sep = "/")
+      if (st$dependencies == "") {
+        st$dependencies <- NA
+      }
       st$usage <- paste(unique(usingSteps), collapse = ",", sep = "/")
       if (st$usage == "") st$usage <- NA
       st$toUpdate<-NA
@@ -255,7 +335,7 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       "sourceName",
       "fullName",
       "toUpdate",
-      "lineage",
+      "dependencies",
       "usage"
     )
     executionPlan$inPlace <- FALSE
@@ -274,13 +354,13 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       nextData <- orderedWorkflow[i, ]
       nextItem <- nextData$fullName
 
-      if ("lineage" %in% names(nextData) && !is.na(nextData$lineage)) {
-        dependencies <- unique(strsplit(nextData$lineage, ",")[[1]])
-        for (dependency in dependencies) {
-          if (dependency %in% executionList) {
+      if ("dependencies" %in% names(nextData) && !is.na(nextData$dependencies)) {
+        dependencies <- unique(strsplit(nextData$dependencies, ",")[[1]])
+        for (dependencies in dependencies) {
+          if (dependencies %in% executionList) {
             logging::loginfo("waiting to finish")
-            finishRunResource(env$stepTemplates[[dependency]]$stepDf$entityId)
-            executionList <- executionList[executionList != dependency]
+            finishRunResource(env$stepTemplates[[dependencies]]$stepDf$entityId)
+            executionList <- executionList[executionList != dependencies]
           }
         }
       }
@@ -303,6 +383,51 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
         finishRunResource(env$steps[[item]]$stepDf$sourceEntityId)
       }
     }
+
+    # Restore parent relationships after all steps are realised
+    # Only when addParental=FALSE (don't conflict with addParental feature)
+    if (!env$addParental) {
+      workflowDf <- env$df()
+
+      if ("parentIdent" %in% names(workflowDf)) {
+        # Build mapping from original sourceEntityId to fullName
+        # We need to find the original sourceEntityId before realise updated it
+        # The templateEntityId stores the original sourceEntityId
+
+        # Get steps with parentIdent
+        stepsWithParent <- workflowDf[!is.na(workflowDf$parentIdent), ]
+
+        if (nrow(stepsWithParent) > 0) {
+          for (i in seq_len(nrow(stepsWithParent))) {
+            childFullName <- stepsWithParent$fullName[i]
+            parentOriginalId <- stepsWithParent$parentIdent[i]
+
+            # Find parent step by matching templateEntityId (original sourceEntityId)
+            # After realise, templateEntityId holds the original, sourceEntityId holds the new
+            parentRow <- which(workflowDf$templateEntityId == parentOriginalId)
+
+            if (length(parentRow) == 1) {
+              # Get new entityIds from stepTemplates (they have updated sourceEntityId after realise)
+              childNewId <- workflowDf[workflowDf$fullName==childFullName,]$sourceEntityId
+              parentFullName <- workflowDf[parentRow,]$fullName
+              parentNewId <- workflowDf[parentRow,]$sourceEntityId
+
+              if (!is.null(childNewId) && !is.null(parentNewId) &&
+                  !is.na(childNewId) && !is.na(parentNewId)) {
+                tryCatch({
+                  detachStep(childNewId)
+                  attachStep(childNewId, parentNewId)
+                  logging::loginfo(paste("Restored parent relationship:", childNewId,childFullName, "->", parentNewId,parentFullName))
+                }, error = function(e) {
+                  logging::logwarn(paste("Failed to restore parent relationship for", childFullName, ":", e$message))
+                })
+              }
+            }
+          }
+        }
+      }
+    }
+
     return(workflow)
   }
 
@@ -317,9 +442,30 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
   # @param required Whether this parameter must be set before realization
   # @param defaultValue Default value if not set
   env$parameterizeStep <- function(paramName, stepPattern, property, target = NULL, required = TRUE, defaultValue = NULL) {
+    # Validate stepPattern matches exactly one step (unless it's a wildcard pattern)
+    workflowDf <- env$df()
+    matchingSteps <- .workflow_template_private$findMatchingSteps(env, stepPattern, workflowDf)
+
+    if (length(matchingSteps) == 0) {
+      stop("Parameter '", paramName, "': stepPattern '", stepPattern, "' matches no steps. ",
+           "Available descriptions: ", paste(workflowDf$description, collapse = ", "), call. = FALSE)
+    }
+
+    if (length(matchingSteps) > 1 && !grepl("\\*", stepPattern)) {
+      stop("Parameter '", paramName, "': stepPattern '", stepPattern, "' matches multiple steps: ",
+           paste(matchingSteps, collapse = ", "), ". Use a more specific pattern.", call. = FALSE)
+    }
+
+    # Store the resolved fullName for single matches (not wildcards)
+    resolvedPattern <- if (length(matchingSteps) == 1 && !grepl("\\*", stepPattern)) {
+      matchingSteps[1]
+    } else {
+      stepPattern
+    }
+
     paramDef <- list(
       name = paramName,
-      stepPattern = stepPattern,
+      stepPattern = resolvedPattern,
       property = property,
       target = target,
       required = required,
@@ -493,32 +639,39 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
 
   .workflow_template_private$executionOrderInternal <- function(env, plan, startSteps = NULL, counter = 0) {
     counter <- counter + 1
-    if (!"lineage" %in% names(plan)) {
-      plan$lineage <- NA
+    if (!"dependencies" %in% names(plan)) {
+      plan$dependencies <- NA
     }
     if (!"usage" %in% names(plan)) {
       plan$usage <- NA
     }
     if (is.null(startSteps)) {
-      startSteps <- plan[is.na(plan$lineage), ]
-      plan <- plan[!is.na(plan$lineage), ]
+      startSteps <- plan[is.na(plan$dependencies), ]
+      plan <- plan[!is.na(plan$dependencies), ]
     }
     if (is.null(startSteps) || nrow(startSteps) == 0) {
-      logging::logwarn("No step without dependency, no executable order")
+      logging::logwarn("No step without dependencies, no executable order")
       return(NULL)
     }
     for (s in seq_len(nrow(startSteps))) {
       startStep <- startSteps[s, ]
       if (!is.na(startStep$usage)) {
-        lineages <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
-        if (length(lineages) > 0) {
-          for (lineage in lineages) {
-            lineageHandle <- plan[plan$fullName == lineage, ]
-            if (nrow(lineageHandle) == 1 && "lineage" %in% names(lineageHandle)) {
-              dependencies <- strsplit(lineageHandle$lineage, ",", fixed = TRUE)[[1]]
-              if (all(dependencies %in% startSteps$fullName)) {
-                startSteps <- plyr::rbind.fill(startSteps, lineageHandle)
-                plan <- plan[plan$fullName != lineage, ]
+        dependenciess <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
+        if (length(dependenciess) > 0) {
+          for (dependentStepName in dependenciess) {
+            dependenciesHandle <- plan[plan$fullName == dependentStepName, ]
+            if (
+              nrow(dependenciesHandle) == 1 &&
+                "dependencies" %in% names(dependenciesHandle)
+            ) {
+              stepDependencies <- strsplit(
+                dependenciesHandle$dependencies,
+                ",",
+                fixed = TRUE
+              )[[1]]
+              if (all(stepDependencies %in% startSteps$fullName)) {
+                startSteps <- plyr::rbind.fill(startSteps, dependenciesHandle)
+                plan <- plan[plan$fullName != dependentStepName, ]
               }
             }
           }
@@ -573,7 +726,7 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       matchingSteps <- .workflow_template_private$findMatchingSteps(env, paramDef$stepPattern, workflowDf)
 
       if (length(matchingSteps) == 0) {
-        logging::logwarn("Parameter '", paramName, "' matched no steps with pattern '", paramDef$stepPattern, "'")
+        logging::logwarn(paste0("Parameter '", paramName, "' matched no steps with pattern '", paramDef$stepPattern, "'"))
         next
       }
 
@@ -632,8 +785,11 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       matching <- workflowDf[startsWith(workflowDf$fullName, prefix), ]
       return(matching$fullName)
     } else {
-      # Exact description match
-      matching <- workflowDf[workflowDf$description == pattern, ]
+      # Try exact fullName match first, then exact description match
+      matching <- workflowDf[workflowDf$fullName == pattern, ]
+      if (nrow(matching) == 0) {
+        matching <- workflowDf[workflowDf$description == pattern, ]
+      }
       return(matching$fullName)
     }
   }

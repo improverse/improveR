@@ -6,8 +6,37 @@
 
 toolInstanceCache <- new.env()
 
-#' resetToolInstances
-#' clears the cache for toolInstances and reloads everything from the server
+#' Reset Tool Instance Cache
+#'
+#' Clears the cached tool instance configuration data, forcing \code{\link{getToolInstances}}
+#' to reload fresh tool definitions from the server on the next call. Use this when tool
+#' configurations, runservers, or grid parameters have been updated on the improve platform.
+#'
+#' @return Invisible \code{NULL}. Called for its side effect of clearing the cache.
+#'
+#' @details
+#' Tool instances define how workflow steps execute, including which software to use
+#' (R, NONMEM, Monolix), execution parameters, and grid computing configurations.
+#' These definitions are cached for performance after the first \code{getToolInstances()}
+#' call. When administrators update tool configurations on the server, call
+#' \code{resetToolInstances()} to ensure your R session uses the latest definitions.
+#'
+#' The function removes all objects from the internal tool instance cache environment,
+#' so the next call to \code{getToolInstances()} will fetch fresh data from the server.
+#'
+#' @seealso
+#' \code{\link{getToolInstances}} to retrieve tool instance configurations,
+#' \code{\link{getMainProcess}} to access the tool instance for a specific step
+#'
+#' @examples
+#' \dontrun{
+#' # After tool configuration changes on server
+#' resetToolInstances()
+#'
+#' # Next call will fetch fresh data
+#' tools <- getToolInstances()
+#' }
+#'
 #' @export
 resetToolInstances <- function() {
   rm(list=ls(envir = toolInstanceCache),envir = toolInstanceCache)
@@ -43,9 +72,51 @@ getParameterValues <- function() {
 
 
 
-#' getToolInstances
-#' 
-#' Returns an environement with all tool instances. in order to relaod tools from the server use resetToolInstances
+#' Get Tool Instances
+#'
+#' Returns an environment containing all available tool instances with their configurations.
+#' Tools orchestrate step execution by defining how scripts are run, which external software
+#' to use (R, NONMEM, Monolix), and how to handle inputs and outputs.
+#'
+#' @return An environment where each tool instance is accessible by its full name.
+#'   Each tool instance contains:
+#'   \describe{
+#'     \item{toolId}{Unique identifier for the tool}
+#'     \item{runserverId}{ID of the runserver hosting the tool}
+#'     \item{url}{URL of the tool service}
+#'     \item{parameters}{Data frame of tool parameters and their values}
+#'     \item{gridArguments}{Data frame of grid computing arguments (if applicable)}
+#'   }
+#'
+#' @details
+#' The function checks for cached tool instances first, returning them immediately if
+#' available. Otherwise, it loads tool configuration data from the server, including
+#' runservers, tools, parameters, and grid arguments. Results are cached for performance.
+#' When tool configurations change, call \code{\link{resetToolInstances}} to clear the cache.
+#'
+#' Tool instances are referenced in \code{stepDf$processes} within step environments
+#' created by \code{getStep()}, determining how steps execute.
+#'
+#' @seealso
+#' \code{\link{resetToolInstances}} to clear the tool instance cache,
+#' \code{\link{getMainProcess}} to retrieve the tool instance for a specific step,
+#' \code{\link{getStep}} for step environments that reference tool instances
+#'
+#' @examples
+#' \dontrun{
+#' # Get all tool instances
+#' tools <- getToolInstances()
+#'
+#' # List available tools
+#' ls(tools)
+#'
+#' # Access a specific tool instance
+#' rTool <- tools$`R R R runserver`
+#'
+#' # View tool parameters
+#' rTool$parameters
+#' }
+#'
 #' @export
 getToolInstances <- function() {
 
@@ -59,6 +130,7 @@ getToolInstances <- function() {
     runservers <- loadRunservers()
     runservers <- dplyr::filter(runservers,!.data$local)
     runserverTools <- byNotEmptyAsDf(runservers,function(runserver) {
+      # browser()
       runServerTools <- loadToolsForRunserver(runserver$id)
       runServerTools <- byNotEmptyAsDf(runServerTools,function(runserverTool) {
         #####parameters

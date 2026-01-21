@@ -1,21 +1,66 @@
-#' creates a folder in the repository and returns the resource object
-#' @param targetIdent one or many target folders, as resource, id or path
-#' @param folderName one or many folderNames
-#' @param comment defaults to Created by improveRW
+#' Create Folder in improve Repository
+#'
+#' Creates one or multiple folders in the repository at the specified location.
+#'
+#' @param targetIdent Identifier(s) of the parent location where the new folder(s)
+#'   should be created. Can be a path, resource ID, or entity ID.
+#' @param folderName Character. Name(s) of the new folder(s).
+#' @param comment Character. Comment for the creation audit entry. Defaults to
+#'   "Created by improveR".
+#'
+#' @returns A list containing the resource object(s) of the created folder(s).
+#'   Each resource object contains metadata like `resourceId`, `entityId`, `path`, etc.
+#'   Returns `NULL` on failure.
+#'
 #' @references ics1101
+#' @seealso \code{\link{createFile}}, \code{\link{createAnalysisTree}}
+#'
+#' @examples
+#' \dontrun{
+#' # Create a folder in the repository root
+#' createFolder(targetIdent = "/", folderName = "folderInRoot")
+#'
+#' # Create a folder inside an existing folder by path
+#' createFolder(
+#'   targetIdent = "/improve-tutorial/",
+#'   folderName = "folderInImproveTutorial"
+#' )
+#' }
 #' @export
-createFolder <- function(targetIdent,folderName="",comment="Created by improveRW") {
-  return(createGeneric(targetIdent,folderName,"Folder",comment=comment))
+createFolder <- function(
+  targetIdent,
+  folderName = "",
+  comment = "Created by improveR"
+) {
+  return(createGeneric(targetIdent, folderName, "Folder", comment = comment))
 }
 
-#' creates a file in the repository and returns the resource object
-#' @param targetIdent one or many target folders, as resource, id or path
-#' @param fileName one or many fileNames
-#' @param localPath path to a local file for initial file contents
-#' @param comment defaults to Created by improveRW
+#' Create File in improve Repository
+#'
+#' Creates a file resource in the repository, optionally uploading content from a
+#' local file.
+#'
+#' @param targetIdent Identifier(s) of the parent folder(s) where the file should
+#'   be created. Can be a path, resource ID, or entity ID.
+#' @param fileName Character. Name of the file to be created. If empty and
+#'   `localPath` is provided, the basename of `localPath` is used.
+#' @param localPath Character. Path to a local file whose content will be uploaded.
+#'   If empty, an empty file resource is created (metadata only).
+#' @param comment Character. Comment for the creation audit entry. Defaults to
+#'   "Created by improveR".
+#'
+#' @returns A list containing the resource object(s) of the created file(s).
+#'   Returns `NULL` on failure.
+#'
 #' @references ics1102
+#' @seealso \code{\link{createFolder}}, \code{\link{updateFileContent}}
 #' @export
-createFile <- function(targetIdent,fileName="",localPath="",comment="Created by improveRW") {
+createFile <- function(
+  targetIdent,
+  fileName = "",
+  localPath = "",
+  comment = "Created by improveR"
+) {
   improveEditable()
   if (!is.character(fileName)) {
     log_warn("name needs to be of type character")
@@ -55,25 +100,66 @@ createFile <- function(targetIdent,fileName="",localPath="",comment="Created by 
   return(fileRes)
 }
 
-#' creates a workflow/analysis tree in the repository and returns the resource object
-#' @param targetIdent one or many target folders, as resource, id or path
-#' @param treeName one or many treeNames
-#' @param comment defaults to Created by improveRW
+#' Create Analysis Tree in improve Repository
+#'
+#' Creates an Analysis Tree, which is a specialized folder structure for organizing
+#' pharmaceutical analysis workflows.
+#'
+#' @param targetIdent Identifier of the parent folder where the analysis tree
+#'   should be created.
+#' @param treeName Character. Name of the new analysis tree.
+#' @param comment Character. Comment for the creation audit entry. Defaults to
+#'   "Created by improveR".
+#'
+#' @returns A list containing the resource object of the created analysis tree.
+#'   Returns `NULL` on failure.
+#'
 #' @references ics1103
+#' @seealso \code{\link{createFolder}}, \code{\link{createWorkflow}}
 #' @export
-createAnalysisTree <- function(targetIdent,treeName="",comment="Created by improveRW") {
-  return(createGeneric(targetIdent,treeName,"Analysis Tree",comment=comment))
+createAnalysisTree <- function(
+  targetIdent,
+  treeName = "",
+  comment = "Created by improveR"
+) {
+  return(createGeneric(
+    targetIdent,
+    treeName,
+    "Analysis Tree",
+    comment = comment
+  ))
 }
 
-#' creates an external link in the repository and returns the resource object
-#' @param targetIdent one or many target folders, as resource, id or path
-#' @param linkName one or many linkNames
-#' @param url url for the external link
-#' @param comment defaults to Created by improveRW
+#' Create External Link in improve Repository
+#'
+#' Creates a link resource pointing to an external URL (outside the repository),
+#' such as a database, website, or external documentation system.
+#'
+#' @param targetIdent Identifier of the parent folder, analysis tree, or step
+#'   where the link should be created.
+#' @param linkName Character. Name of the link resource.
+#' @param url Character. The destination URL (e.g., "https://example.com" or "db://server").
+#' @param comment Character. Comment for the creation audit entry. Defaults to
+#'   "Created by improveR".
+#'
+#' @returns A list containing the resource object of the created external link.
+#'
 #' @references ics1104
+#' @seealso \code{\link{createFile}}
 #' @export
-createExternalLink <- function(targetIdent,linkName="",url,comment="Created by improveRW") {
-  return(createGeneric(targetIdent,linkName,"ExtLink",url = url,comment=comment))
+createExternalLink <- function(
+  targetIdent,
+  linkName = "",
+  url,
+  comment = "Created by improveR"
+) {
+  return(createGeneric(
+    targetIdent,
+    linkName,
+    "ExtLink",
+    url = url,
+    comment = comment
+  ))
 }
 
 resolveImplicitResourceName <- function(targetIdent,folderName) {

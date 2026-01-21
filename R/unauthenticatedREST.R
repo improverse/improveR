@@ -1,4 +1,4 @@
-#' unauthenticatedREST
+#' Unauthenticated REST
 #'
 #' @description unauthenticatedREST performs REST calls without authentication headers.
 #' This is used for OAuth flows and other endpoints that don't require authentication.

@@ -3,7 +3,7 @@
 referencesResourceCacheList <- createCacheList("references")
 
 
-#' loads the references  by the resourceId,  entity ID or entity version ID
+#' Loads the References by the ResourceId, Entity ID or Entity Version ID
 #' it uses caching
 #' the results are returned as a data frame or a list of data frames
 #' the dates are also converted to posix dates via convertImproveTimestampToPosix
@@ -23,7 +23,7 @@ loadReferences <- function(ident,from=pwd()) {
   )
 }
 
-#' unloadReferences
+#' Unload References
 #' @param ident id
 #' @references ics1206
 #' @export
@@ -33,7 +33,7 @@ unloadReferences <- function(ident) {
   removeFromCache(res$resourceId,"",referencesResourceCacheList)
 }
 
-#' updateReferences
+#' Update References
 #' @param ident id
 #' @references ics1206
 #' @export

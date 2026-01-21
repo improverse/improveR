@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResourceRelations.R
 \name{updateRelationTypes}
 \alias{updateRelationTypes}
-\title{reloads the relation types}
+\title{Reloads the Relation Types}
 \usage{
 updateRelationTypes(conn)
 }
@@ -10,5 +10,5 @@ updateRelationTypes(conn)
 \item{conn}{database connection}
 }
 \description{
-reloads the relation types
+Reloads the Relation Types
 }

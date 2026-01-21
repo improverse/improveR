@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadMetaDataDefinitions.R
 \name{loadMetaDataDefinitionPickList}
 \alias{loadMetaDataDefinitionPickList}
-\title{loads one meta data definition picklist values by name for a scope, the default scope is "Improve Client"}
+\title{Loads One Meta Data Definition Picklist Values By Name For A Scope, The Default Scope Is "Improve Client"}
 \usage{
 loadMetaDataDefinitionPickList(name, scope = "Improve Client")
 }
@@ -12,7 +12,7 @@ loadMetaDataDefinitionPickList(name, scope = "Improve Client")
 \item{scope}{the metadata scope}
 }
 \description{
-loads one meta data definition picklist values by name for a scope, the default scope is "Improve Client"
+Loads One Meta Data Definition Picklist Values By Name For A Scope, The Default Scope Is "Improve Client"
 }
 \references{
 ics1137

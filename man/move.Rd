@@ -2,10 +2,7 @@
 % Please edit documentation in R/change.R
 \name{move}
 \alias{move}
-\title{moves resources
-multiple sources can be moved at once
-if multiple sources are moved target needs to be a container and targetName empty
-if only one source is moved, a new name can be specified, this can be done via a path or via targetName}
+\title{Move Resources to Target Location}
 \usage{
 move(
   sources,
@@ -16,22 +13,87 @@ move(
 )
 }
 \arguments{
-\item{sources}{the files to be moved}
+\item{sources}{Identifier(s) of resource(s) to move. Can be a single resource or multiple
+resources. Accepts paths, resource ids, entity ids, or a data frame of resources.}
 
-\item{target}{the target folder}
+\item{target}{Identifier of the target folder or file location. Can be a path, resource id,
+or entity id. If moving multiple sources, must be a container (folder).}
 
-\item{targetName}{name for the moved file}
+\item{targetName}{Character. Optional new name for the moved resource. Only used when
+moving a single source. Ignored when moving multiple sources. Defaults to empty string
+(uses original name).}
 
-\item{overwrite}{flag if a file already existing at the target location should be overwritten if existing. If flag is false and file exists NULL is returned}
+\item{overwrite}{Logical. If \code{TRUE} and a resource with the same name exists at the
+target location, it is deleted and replaced. If \code{FALSE} (default) and a name
+conflict exists, returns \code{NULL} with a warning.}
 
-\item{comment}{comment for the commit, defaults to "modified by improveRW"}
+\item{comment}{Character. Commit message for the move operation. Defaults to
+"modified by improveRW".}
+}
+\value{
+The moved resource(s) as a data frame with updated paths, or \code{NULL} if the
+operation fails (e.g., source doesn't exist, target doesn't exist, name conflict with
+overwrite=FALSE, invalid target type for the source type).
 }
 \description{
-moves resources
-multiple sources can be moved at once
-if multiple sources are moved target needs to be a container and targetName empty
-if only one source is moved, a new name can be specified, this can be done via a path or via targetName
+Relocates one or more resources to a target folder, changing their path while preserving
+their version history and metadata. The resource is removed from its current location and
+placed in the new location.
+}
+\details{
+The function supports both single and batch moving:
+\itemize{
+\item \strong{Single move:} When moving one resource, you can optionally specify a new
+name via \code{targetName} (also serves as a rename operation)
+\item \strong{Batch move:} When moving multiple resources, all are moved to the target
+folder with their original names (\code{targetName} must be empty)
+}
+
+The move operation validates:
+\itemize{
+\item Source and target resources exist
+\item Target accepts the source type (e.g., can't move a workflow into a file)
+\item No naming conflicts (unless \code{overwrite=TRUE})
+\item Repository is in editable mode (automatically checked)
+}
+
+After moving, path caches for both source and target locations are automatically
+invalidated to ensure fresh data on subsequent queries.
+}
+\examples{
+\dontrun{
+# Move a file to a different folder
+move(
+  sources = "/Data/old_location/baseline.csv",
+  target = "/Data/current"
+)
+
+# Move and rename in one operation
+move(
+  sources = "/Data/draft_analysis.R",
+  target = "/Analysis",
+  targetName = "final_analysis.R"
+)
+
+# Move multiple files at once
+move(
+  sources = c("/Temp/file1.csv", "/Temp/file2.csv"),
+  target = "/Data/Archive"
+)
+
+# Reorganize folder structure
+move(
+  sources = "/Projects/Old_Structure/Workflows",
+  target = "/Projects/New_Structure"
+)
+}
+
 }
 \references{
 ics1139
+}
+\seealso{
+\code{\link{copy}} to duplicate resources instead of moving,
+\code{\link{delete}} to remove resources,
+\code{\link{createLink}} to create references without moving
 }

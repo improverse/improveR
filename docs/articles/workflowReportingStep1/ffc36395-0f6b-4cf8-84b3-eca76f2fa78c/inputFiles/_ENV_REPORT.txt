@@ -1,0 +1,22 @@
+Operating System:\tAmazon Linux 2
+Kernel Version:\t\t5.15.0-136-generic
+/scinteco/envhost1-environments/oq3-5300/deployment/runserver1/storage/runserver_data/data/at.rufus.pales/resources/psinfo.sh: line 22: uptime: command not found
+Uptime:\t\t\t
+Processors:\t\t8
+Physical Memory:\t32088480 KB
+Processor speed [1]:\t2294.576 MHz
+Processor model [1]:\tIntel Xeon Processor (Skylake, IBRS)
+Processor speed [2]:\t2294.576 MHz
+Processor model [2]:\tIntel Xeon Processor (Skylake, IBRS)
+Processor speed [3]:\t2294.576 MHz
+Processor model [3]:\tIntel Xeon Processor (Skylake, IBRS)
+Processor speed [4]:\t2294.576 MHz
+Processor model [4]:\tIntel Xeon Processor (Skylake, IBRS)
+Processor speed [5]:\t2294.576 MHz
+Processor model [5]:\tIntel Xeon Processor (Skylake, IBRS)
+Processor speed [6]:\t2294.576 MHz
+Processor model [6]:\tIntel Xeon Processor (Skylake, IBRS)
+Processor speed [7]:\t2294.576 MHz
+Processor model [7]:\tIntel Xeon Processor (Skylake, IBRS)
+Processor speed [8]:\t2294.576 MHz
+Processor model [8]:\tIntel Xeon Processor (Skylake, IBRS)

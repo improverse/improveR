@@ -561,7 +561,7 @@ Figure 19: Completed two-step workflow with data cleaning and visualization
 <li>
 <strong>Reproducibility</strong>: Complete execution history and versioned inputs</li>
 <li>
-<strong>Traceability</strong>: Clear lineage from raw data through cleaning to visualization</li>
+<strong>Traceability</strong>: Clear dependencies from raw data through cleaning to visualization</li>
 </ul></section></section><section class="section level2" data-number="8"><h2 data-number="8" id="workflow-architecture">
 <span class="header-section-number">8</span> Workflow Architecture<a class="anchor" aria-label="anchor" href="#workflow-architecture"></a>
 </h2>
@@ -632,10 +632,10 @@ Figure 19: Completed two-step workflow with data cleaning and visualization
 <li>Document rationale explaining scientific or analytical justification</li>
 <li>Include comments within scripts for implementation details</li>
 </ul>
-<p><strong>Dependency Management:</strong></p>
+<p><strong>Dependencies Management:</strong></p>
 <ul>
 <li>Explicitly declare all input dependencies</li>
-<li>Use consumer steps with links to establish clear data lineage</li>
+<li>Use consumer steps with links to establish clear data dependencies</li>
 <li>Avoid implicit dependencies on global state or external resources</li>
 </ul></section><section class="level3"><h4 id="development-workflow">Development Workflow<a class="anchor" aria-label="anchor" href="#development-workflow"></a>
 </h4>
@@ -742,11 +742,11 @@ Figure 19: Completed two-step workflow with data cleaning and visualization
 </h3>
 <section class="level3"><h4 id="step-execution-failures">Step Execution Failures<a class="anchor" aria-label="anchor" href="#step-execution-failures"></a>
 </h4>
-<p><strong>Symptom</strong>: Step fails in validated environment but succeeds locally</p>
+<p><strong>Symptom</strong>: Step fails in the validated environment but succeeds locally</p>
 <p><strong>Causes</strong>:</p>
 <ul>
 <li>Missing package dependencies in runserver environment</li>
-<li>Hardcoded paths specific to local machine</li>
+<li>Hard-coded paths specific to local machine</li>
 <li>Reliance on interactive input or user intervention</li>
 <li>Insufficient memory or computational resources</li>
 </ul>
@@ -758,7 +758,7 @@ Figure 19: Completed two-step workflow with data cleaning and visualization
 <li>Ensure non-interactive execution</li>
 </ul></section><section class="level3"><h4 id="file-synchronization-issues">File Synchronization Issues<a class="anchor" aria-label="anchor" href="#file-synchronization-issues"></a>
 </h4>
-<p><strong>Symptom</strong>: Files not appearing in workspace after checkout</p>
+<p><strong>Symptom</strong>: Files do not appear in the workspace after checkout</p>
 <p><strong>Causes</strong>:</p>
 <ul>
 <li>Network connectivity issues</li>
@@ -772,7 +772,7 @@ Figure 19: Completed two-step workflow with data cleaning and visualization
 <li>Verify workspace directory permissions</li>
 </ul></section><section class="level3"><h4 id="output-validation-failures">Output Validation Failures<a class="anchor" aria-label="anchor" href="#output-validation-failures"></a>
 </h4>
-<p><strong>Symptom</strong>: Expected outputs not generated after execution</p>
+<p><strong>Symptom</strong>: Expected outputs are not generated after execution</p>
 <p><strong>Causes</strong>:</p>
 <ul>
 <li>Script errors during execution</li>

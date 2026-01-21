@@ -2,7 +2,7 @@
 % Please edit documentation in R/improveConnect.R
 \name{getLogFile}
 \alias{getLogFile}
-\title{getLogFile}
+\title{Get Log File}
 \usage{
 getLogFile()
 }

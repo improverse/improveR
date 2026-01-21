@@ -2,7 +2,7 @@
 % Please edit documentation in R/loggers.R
 \name{log_warn}
 \alias{log_warn}
-\title{log_warn}
+\title{Log_warn}
 \usage{
 log_warn(...)
 }
@@ -10,5 +10,5 @@ log_warn(...)
 \item{...}{combines all items to one log message}
 }
 \description{
-log_warn
+Log_warn
 }

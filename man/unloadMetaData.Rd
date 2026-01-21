@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadMetadata.R
 \name{unloadMetaData}
 \alias{unloadMetaData}
-\title{unloadMetaData}
+\title{Unload Meta Data}
 \usage{
 unloadMetaData(ident)
 }
@@ -10,7 +10,7 @@ unloadMetaData(ident)
 \item{ident}{id}
 }
 \description{
-unloadMetaData
+Unload Meta Data
 }
 \references{
 ics1096

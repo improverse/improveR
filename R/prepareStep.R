@@ -4,11 +4,31 @@ timing <- function(...) {}
 
 
 
-#' changes the step description
+#' Change Step Description
 #'
-#' @param ident ident of the step
-#' @param from from if a relative path is used
-#' @param description new step desciption
+#' Modifies the description field of an existing step, allowing users to update
+#' documentation and clarify the purpose of analytical steps as analyses evolve.
+#'
+#' @param ident Identifier of the step. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param from Root directory for resolving relative paths. Default is \code{pwd()}.
+#' @param description New step description text.
+#'
+#' @return The updated step resource, returned invisibly after cache refresh.
+#'
+#' @seealso
+#' \code{\link{changeStepRationale}} for updating step rationale,
+#' \code{\link{getStep}} for retrieving step information
+#'
+#' @examples
+#' \dontrun{
+#' # Update step description
+#' changeStepDescription(
+#'   ident = "/improve-tutorial/Modeling/Step 1",
+#'   description = "Initial exploratory analysis"
+#' )
+#' }
+#'
 #' @references ics1217
 #' @export
 
@@ -24,11 +44,32 @@ changeStepDescription <- function(ident, from=pwd(),description) {
   return(updateResource(ident,from))
 }
 
-#' changes the step rationale
+#' Change Step Rationale
 #'
-#' @param ident ident of the step
-#' @param from from if a relative path is used
-#' @param rationale new step rationale
+#' Modifies the rationale field of an existing step, allowing users to update
+#' the reasoning and justification for why analytical steps were created and
+#' included in the workflow.
+#'
+#' @param ident Identifier of the step. Can be the step's path, resource (version) id,
+#'   full entity (version) id, or short entity (version) id.
+#' @param from Root directory for resolving relative paths. Default is \code{pwd()}.
+#' @param rationale New step rationale text.
+#'
+#' @return The updated step resource, returned invisibly after cache refresh.
+#'
+#' @seealso
+#' \code{\link{changeStepDescription}} for updating step description,
+#' \code{\link{getStep}} for retrieving step information
+#'
+#' @examples
+#' \dontrun{
+#' # Update step rationale
+#' changeStepRationale(
+#'   ident = "/improve-tutorial/Modeling/Step 1",
+#'   rationale = "Investigate linear relationship between variables"
+#' )
+#' }
+#'
 #' @references ics1217
 #' @export
 

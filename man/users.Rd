@@ -2,13 +2,39 @@
 % Please edit documentation in R/users.R
 \name{users}
 \alias{users}
-\title{returns a data frame of all users}
+\title{List All Users in improve Repository}
 \usage{
 users()
 }
+\value{
+A data frame containing user information with columns:
+\describe{
+\item{id}{Character. Unique user identifier}
+\item{username}{Character. Username for authentication}
+\item{firstName}{Character. User's first name}
+\item{lastName}{Character. User's last name}
+\item{email}{Character. User's email address}
+\item{active}{Logical. Whether the user account is active}
+\item{createdAt}{POSIXct. Creation timestamp}
+\item{lastModified}{POSIXct. Last modification timestamp}
+}
+Returns \code{NULL} if the user list cannot be retrieved.
+}
 \description{
-returns a data frame of all users
+Retrieves a list of all users registered in the improve repository.
+}
+\examples{
+\dontrun{
+# List all users
+all_users <- users()
+
+# Find a specific user
+admin_user <- all_users[all_users$username == "admin", ]
+}
 }
 \references{
 ics1142
+}
+\seealso{
+\code{\link{whoami}} to get the current user
 }

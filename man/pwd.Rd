@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResourceByPathGeneric.R
 \name{pwd}
 \alias{pwd}
-\title{pwd}
+\title{Pwd}
 \usage{
 pwd()
 }

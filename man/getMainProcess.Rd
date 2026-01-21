@@ -2,16 +2,91 @@
 % Please edit documentation in R/loadProcess.R
 \name{getMainProcess}
 \alias{getMainProcess}
-\title{getMainProcess}
+\title{Get Main Process for a Step}
 \usage{
 getMainProcess(stepIdent)
 }
 \arguments{
-\item{stepIdent}{resourceId of the step}
+\item{stepIdent}{Step identifier. Can be the step's path, resource ID,
+entity ID, or short entity ID.}
+}
+\value{
+A single-row data frame with 28 columns containing process configuration:
+
+\strong{Process Identification:}
+\describe{
+\item{id}{(character) Unique process identifier}
+\item{processType}{(character) Type of process, always "main" for this function}
+\item{position}{(integer) Position in the process list}
+\item{name}{(character) Process name (typically "Main")}
+\item{stepId}{(character) Step ID this process belongs to}
+}
+
+\strong{Runserver Configuration:}
+\describe{
+\item{runserverId}{(character) ID of the runserver}
+\item{runserverLabel}{(character) Label of the runserver}
+\item{runserverUrl}{(character) URL endpoint of the runserver}
+}
+
+\strong{Tool Configuration:}
+\describe{
+\item{toolId}{(character) Tool identifier}
+\item{toolLabel}{(character) Tool label (e.g., "R4.2")}
+\item{toolInstance}{(character) Tool instance name}
+\item{toolArgs}{(character) Tool arguments including environment variables}
+\item{toolStreamablePatterns}{(character) File patterns for streaming (e.g., "\emph{.txt\\r\\n}.out")}
+\item{runserverToolId}{(character) Runserver-specific tool ID}
+\item{gridTool}{(logical) Whether this is a grid computing tool}
+\item{repoTool}{(logical) Whether this is a repository tool}
+\item{main}{(logical) Whether this is the main process}
+}
+
+\strong{Execution Status:}
+\describe{
+\item{runStatus}{(character) Current status (e.g., "FINISHED", "RUNNING")}
+\item{runResult}{(character) Execution result (e.g., "COMPLETED", "FAILED")}
+\item{runId}{(character) Current or last run identifier}
+\item{startedAt}{(character) Start timestamp in milliseconds since epoch}
+\item{stoppedAt}{(character) Stop timestamp in milliseconds since epoch}
+\item{selected}{(logical) Whether this process is selected for execution}
+\item{deleted}{(logical) Whether this process has been deleted}
+}
+
+\strong{Nested Data (list columns):}
+\describe{
+\item{variables}{List of process variables (e.g., command-file references)}
+\item{subProcesses}{List of subprocess configurations}
+\item{gridArguments}{List of grid computing arguments}
+\item{runs}{List of historical run information}
+}
 }
 \description{
-getMainProcess
+Retrieves the main process configuration for a workflow step. The main process
+defines how the step executes, including the tool (R, NONMEM, etc.), runserver,
+and execution parameters.
+}
+\examples{
+\dontrun{
+# Get main process for a step
+mainProcess <- getMainProcess("/my-project/workflow/Step 1")
+
+# Check execution status
+mainProcess$runStatus
+mainProcess$runResult
+
+# Get tool information
+mainProcess$toolLabel
+mainProcess$runserverLabel
+}
+
 }
 \references{
 ics1218
+}
+\seealso{
+\code{\link{getStep}} for retrieving full step environments,
+\code{\link{runStepResource}} for executing steps,
+\code{\link{loadRunserver}} for runserver details,
+\code{\link{getToolInstances}} for available tools
 }

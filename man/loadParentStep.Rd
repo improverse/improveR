@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadparentStep.R
 \name{loadParentStep}
 \alias{loadParentStep}
-\title{loads the parent step of one step, not applicable to multiple steps}
+\title{Loads the Parent Step of One Step, Not Applicable to Multiple Steps}
 \usage{
 loadParentStep(ident, from = pwd())
 }
@@ -15,7 +15,7 @@ loadParentStep(ident, from = pwd())
 parent step as DF
 }
 \description{
-loads the parent step of one step, not applicable to multiple steps
+Loads the Parent Step of One Step, Not Applicable to Multiple Steps
 }
 \references{
 ics1209

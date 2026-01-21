@@ -121,7 +121,7 @@ initialiseCache <- function(cacheList) {
   })
 }
 
-#' resetCache
+#' Reset Cache
 #' @description Empties the entire cache and removes a cacheFile, if it exists.
 #' Sets the step to non-reproducible. The reset cache is similar to
 #' its state after calling improveConnect.

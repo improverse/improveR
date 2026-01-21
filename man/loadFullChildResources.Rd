@@ -4,7 +4,7 @@
 \alias{loadFullChildResources}
 \title{loads all child resources  by the resourceId,  entity ID or entity version ID
 the childResources REST call does not return all the fields, like run status for steps, just the fields all resources have in common, with this function, the full resources are loaded
-it uses caching
+It Uses Caching
 the results are returned as a data frame or a list of data frames
 the dates are also converted to posix dates via convertImproveTimestampToPosix
 resourceId can be a list}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/getMetaData.R
 \name{getMetaData}
 \alias{getMetaData}
-\title{gets a metadata data frame}
+\title{Gets a Metadata Data Frame}
 \usage{
 getMetaData(ident, from = pwd())
 }
@@ -12,7 +12,7 @@ getMetaData(ident, from = pwd())
 \item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
 }
 \description{
-gets a metadata data frame
+Gets a Metadata Data Frame
 }
 \references{
 ics1141

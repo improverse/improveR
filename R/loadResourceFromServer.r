@@ -1,4 +1,4 @@
-#' loadResourceFromServer
+#' Load Resource From Server
 #' @description Loads a resource directly from the server by the resourceId, resourceVersion ID, or entity ID.
 #' The results are returned as a data frame or a list of data frames.
 #' The dates are also converted to POSIX dates via convertImproveTimestampToPosix.

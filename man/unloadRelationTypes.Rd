@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResourceRelations.R
 \name{unloadRelationTypes}
 \alias{unloadRelationTypes}
-\title{unloads all relation types}
+\title{Unloads All Relation Types}
 \usage{
 unloadRelationTypes(conn)
 }
@@ -10,5 +10,5 @@ unloadRelationTypes(conn)
 \item{conn}{database connection}
 }
 \description{
-unloads all relation types
+Unloads All Relation Types
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadResourceVersionFromServer.r
 \name{loadResourceVersionFromServer}
 \alias{loadResourceVersionFromServer}
-\title{loadResourceVersionFromServer}
+\title{Load Resource Version From Server}
 \usage{
 loadResourceVersionFromServer(entityVersionId, invalidatesReproducibility = T)
 }

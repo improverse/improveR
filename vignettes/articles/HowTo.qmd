@@ -3,7 +3,7 @@ title: "How to..."
 format:
   html:
     toc: true
-    toc-depth: 2
+    toc-depth: 1
     toc-title: Contents
     toc-location: right
     code-fold: false
@@ -27,6 +27,7 @@ format:
 knitr:
     opts_chunk: 
       collapse: true
+      cache: true
       dev: "ragg_png"
 # params:
 #   include_questions: true
@@ -40,6 +41,7 @@ lightbox: true
 
 ```{r}
 #| include: false 
+
 library(improveR)
 library(tidyverse, quietly = T)
 library(tictoc) #time keeping of functions
@@ -51,13 +53,23 @@ fn_connect <- function() {
     IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
     
   )
-  Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
+  Sys.setenv(
+    IMPROVER_STEP = "/improve-tutorial/DataOrder/Step 2"
+    
+  )
+  #Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
   clearConnectionData()
-  improveRtestsupport::improveConnect()
+  #improveRtestsupport::improveConnect()
+  improveR::improveConnect()
 
   setEditable(TRUE)
-  print(Sys.getenv("IMPROVER_REPO_URL"))
+  
+  print(paste("IMPROVER_REPO_URL:",Sys.getenv("IMPROVER_REPO_URL")))
+  
+  print(paste("IMPROVER_STEP:", Sys.getenv("IMPROVER_STEP")))
+  
+  print(paste("pwd$path:", pwd()$path))
 }
 
 fn_connect()
@@ -65,13 +77,109 @@ fn_connect()
 improveConnected()
 ```
 
+
+
 # Common Tasks
+
 ## and how to solve them
 
-This guide provides quick examples for common improveR operations.
+This guide provides quick examples for common {improveR} operations.
+
+# attach a step to a parent
+
+See [reference](../reference/attachStep.html). See [article](../articles/workingWithSteps.html#attachstep).
+
+```{r}
+#| eval: false
+attachStep(ident, parent, from = pwd())
+```
+
+# change the description of a step
+
+See [reference](../reference/changeStepDescription.html). See [article](../articles/workingWithSteps.html#changestepdescription).
+
+```{r}
+#| eval: false
+changeStepDescription(ident=stepIdent, description="new description")
+```
+
+
+```{r}
+knitr::knit_exit()
+```
+
+# change the rationale of a step
+
+See [reference](../reference/changeStepRationale.html). See [article](../articles/workingWithSteps.html#changesteprationale).
+
+```{r}
+#| eval: false
+changeStepRationale(ident=stepIdent, description="new description")
+```
+
+# create a step environment
+
+See [reference](../reference/createStepEnv.html). See [article](../articles/workingWithSteps.html#createstepenv).
+```{r}
+#| eval: false
+stepDf <- improveR:::getStepDf(stepIdent)
+workflow <- createWorkflow()
+createStepEnv(stepDf, workflow)
+```
+
+# create an analyis tree
+
+See [reference](../reference/createAnalysisTree.html). See [article](../articles/workingWithSteps.html#realise-step).
+```{r}
+#| eval: false
+createAnalysisTree(targetIdent="/improve-tutorial/", treeName="newTree", comment = "this is a comment")
+```
+
+# create a folder
+
+See [reference](../reference/createFolder.html). See [article](../articles/workingWithSteps.html#specify-destination).
+```{r}
+#| eval: false
+createFolder(folderName="NameOfNewFolder", targetIdent="/improve-tutorial/") 
+```
+
+
+# create an external Link
+
+See [reference](../reference/createExternalLink.html). See [article](../articles/basic-node-types.html#working-with-external-links).
+
+```{r}
+#| eval: false
+createExternalLink(targetIdent="/improve-tutorial/demoSteps/Step 1", linkName="Weblink to scinteco", url="https://www.scinteco.com/", comment="Resource to integrate.")
+
+```
+
+
+# create a step template environment
+
+See [reference](../reference/createStepTemplateEnv.html). See [article](../articles/workingWithSteps.html#createsteptemplateenv).
+```{r}
+#| eval: false
+stepDf <- improveR:::getStepDf(stepIdent)
+workflow <- createWorkflow()
+createStepEnv(stepDf, workflow)
+```
+
+
+# export a workflow
+
+See [reference](../reference/exportWorkflow.html). See [article](../articles/workingWithWorkflows.html#exporting-and-importing-workflows).
+
+```{r}
+#| eval: false
+
+stepEnv <- getStep("/improve-tutorial/Reporting/Step 1") #get environment of step to which the workflow leads
+stepEnv$dependencies$load(treeDepth=-1, stepDepth=-1) #get the full dependencies with -1
+exportWorkflow(envATReportingStep1$workflow, "WFReportingSTep1") #export the workflow binding of stepEnv via exportWorfklow
+```
+
 
 # get all steps of an analysis tree
-
 
 ```{r}
 #| eval: false
@@ -83,7 +191,6 @@ childResourcesATModeling <- improveR::loadChildResources(ident='/improve-tutoria
   select(""name"", ""entityId"", ""path"")
 ```
 
-
 # get all analysis trees within a folder
 
 Get all analysis trees inside the folder 'improve-tutorial'.
@@ -94,26 +201,42 @@ allAnalysisTrees <- improveR::loadChildResources(ident="/improve-tutorial/")
 allAnalysisTrees$data[[1]] %>% select(nodeType, name, path)
 ```
 
-
-
 # get all child steps of a step
 
-Version 1:
+## Version 1: loadChildSteps()
 ```{r}
 #| code-fold: false
-dfChild <- loadChildSteps(ident="improve-tutorial/Modeling/Step 1")
+dfChild <- loadChildSteps(ident="/improve-tutorial/Modeling/Step 1")
 dfChild$data[[1]] %>%
   select(path, resourceId)
 ```
 
-Version 2:
+## Version 2: getStep()
 ```{r}
 #| code-fold: false
-envStep <- getStep(ident="improve-tutorial/Modeling/Step 1")
+envStep <- getStep(ident="/improve-tutorial/Modeling/Step 1")
 envStep$children$load()
 ls(envStep$children)
 ```
 
+# get all available tools
+
+See [reference](../reference/getToolInstances.html).
+
+```{r}
+#| code-fold: false
+#| eval: false
+
+envTools<-getToolInstances()
+ls(envTools)
+
+# [1] "Nonmem 7.4 7.4 runserver"                                                                 
+# [2] "Nonmem 7.4 7.4 slurm runserver"                                                           
+# [3] "Nonmem nm4robot_desktop-pmalkg2_cflandorfer nmLsf_desktop-pmalkg2_cflandorfer runserver"  
+# [4] "Nonmem nm4robot_desktop-pmalkg2_cflandorfer nmSlurm_desktop-pmalkg2_cflandorfer runserver"
+# [5] "R R4.2 R4.2 runserver"        
+
+```
 
 # get the workflow leading to a step
 ```{r}
@@ -122,17 +245,17 @@ ls(envStep$children)
 envATReportingStep1 <- getStep("/improve-tutorial/Reporting/Step 1")
 
 # get the workflow and show details on Step 'Modeling/Step 10'
-envATReportingStep1$lineage$load(treeDepth=-1)
+envATReportingStep1$dependencies$load(treeDepth=-1)
 
 #show all steps which form part of the workflow
 envATReportingStep1$workflow$df()
 ```
 
-Note that before calling `lineage$load()`, the `df()` in the `workflow` binding will only return the step itself, i.e.,
+Note that before calling `dependencies$load()`, the `df()` in the `workflow` binding will only return the step itself, i.e.,
 `Reporting/Step 1`.
 
 
-# ... get the elements aka resources of a step's inventory
+# get the elements aka resources of a step's inventory
 
 ```{r}
 #| code-fold: false
@@ -155,7 +278,8 @@ envStep <- getStep(ident="/improve-tutorial/Modeling/Step 1")
 envStep$stepDf #does not show content of inventory; the inventory contains more than remote files
 ```
 
-# ... remove a step from a workflow
+
+# remove a step from a workflow
 
 ```{r}
 #| eval: false
@@ -164,7 +288,7 @@ envStep$stepDf #does not show content of inventory; the inventory contains more 
 step$workflow$removeStep()
 ```
 
-# ... get the outdated elements of an inventory
+# get the outdated elements of an inventory
 
 ```{r}
 #| eval: false
@@ -187,12 +311,12 @@ x$outdatedLink  #outdatedLink can be FALSE even if there are outdated elements i
 
 ```
 
-* Elaborate on the difference between outdated elements of an inventory and 'changedAndOutdated' in the workflow context.
+<!-- * Elaborate on the difference between outdated elements of an inventory and 'changedAndOutdated' in the workflow context.
 * 'outdatedAndChanged' is different from just 'outdated'. It also includes files that have changed.
 * 'outdatedLink' refers only to outdated links (yellow frame).
-* 'changed' refers to files that are not the same (red frame).
+* 'changed' refers to files that are not the same (red frame). -->
 
-# ... rerun changed and outdated steps within a workflow
+# rerun changed and outdated steps within a workflow
 
 ```{r}
 #| eval: false
@@ -200,37 +324,57 @@ x$outdatedLink  #outdatedLink can be FALSE even if there are outdated elements i
 step$workflow$rerunChangedAndOutdated()
 ```
 
-# ... create a step template
+# create a step template
 
 ```{r}
+#| eval: false
+#| code-fold: false
 stepTemplateEnv <- createStepTemplateEnv()
 ```
 
-# delete a resource (folder, analysis tree, step)
+# delete a resource
+
+See [reference](../reference/delete.html).
 
 ```{r}
 #| include: false
 #| code-summary: "setup analysis tree with only one step; which is deleted below"
-createAnalysisTree(targetIdent = "improve-tutorial/", treeName="yourTree")
-improveR:::createStep(treeIdent = "improve-tutorial/yourTree")
+ 
+createAnalysisTree(targetIdent = "/improve-tutorial/", treeName="yourTree")
+improveR:::createStep(treeIdent = "/improve-tutorial/yourTree")
 ```
 
 ```{r}
 #| code-summary: "Delete step from analysis tree"
 
 #Get steps inside the analysis tree
-steps <- loadChildResources("improve-tutorial/yourTree")$data[[1]] 
+steps <- loadChildResources("/improve-tutorial/yourTree")$data[[1]] 
 steps %>% select(nodeType, name, path, entityId)
 
 #Delete the steps via their entityId, or equivalent ident
 delete(res=steps$entityId)
 
 #Loading child resources of tree again confirms that step(s) were removed
-loadChildResources("improve-tutorial/yourTree")$data[[1]]
+loadChildResources("/improve-tutorial/yourTree")$data[[1]]
 ```
 
 ```{r}
 #| include: false
 #| code-summary: "Reset folder"
-delete(res="improve-tutorial/yourTree")
+delete(res="/improve-tutorial/yourTree")
+```
+
+# terminate the execution of a step
+
+See [reference](../reference/terminateStepResource.html). See [article](../articles/workingWithSteps.html).
+
+```{r}
+#| eval: false
+terminateStepResource(ident="/improve-tutorial/Modeling/Step 9")
+```
+
+# trigger the execution of a step
+```{r}
+#| eval: false
+runStepResource(ident="/improve-tutorial/Modeling/Step 9")
 ```

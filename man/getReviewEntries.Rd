@@ -2,17 +2,17 @@
 % Please edit documentation in R/loadREview.R
 \name{getReviewEntries}
 \alias{getReviewEntries}
-\title{getReviewEntries}
+\title{Get Review Entries}
 \usage{
 getReviewEntries(ident, from = pwd())
 }
 \arguments{
 \item{ident}{id}
 
-\item{from}{defaults to pwd, used to resolve relative pathes}
+\item{from}{defaults to pwd, used to resolve relative paths}
 }
 \description{
-getReviewEntries
+Get Review Entries
 }
 \references{
 ics1208

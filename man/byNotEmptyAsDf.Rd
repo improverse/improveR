@@ -2,17 +2,66 @@
 % Please edit documentation in R/utils.R
 \name{byNotEmptyAsDf}
 \alias{byNotEmptyAsDf}
-\title{byNotEmptyAsDf by that automatically uses the complete dataframe and returns null if an empty or non existing data frame is handed over
-it automatically tries to convert the result list to a data frame again}
+\title{Apply Function Row-Wise and Merge Results to Data Frame}
 \usage{
 byNotEmptyAsDf(df, func)
 }
 \arguments{
-\item{df}{the data frame}
+\item{df}{Data frame to iterate over. If \code{NULL}, not a data frame, or has zero rows,
+the function returns \code{NULL} without attempting iteration.}
 
-\item{func}{the function that is applied to each row of the data frame}
+\item{func}{Function to apply to each row. The function receives one argument: a
+single-row data frame representing the current row. Should return a single-row data frame,
+a named list, or another structure that can be coerced to a data frame row.}
+}
+\value{
+A data frame containing the merged results from all row applications, or \code{NULL}
+if the input data frame is empty, \code{NULL}, or invalid. Rows from individual function
+calls are combined using \code{mergeDataframeList()}.
 }
 \description{
-byNotEmptyAsDf by that automatically uses the complete dataframe and returns null if an empty or non existing data frame is handed over
-it automatically tries to convert the result list to a data frame again
+Applies a function to each row of a data frame and automatically merges the results
+back into a single data frame. This is a convenience wrapper around \code{\link{byNotEmpty}}
+with automatic result consolidation, handling NULL or empty inputs gracefully.
+}
+\details{
+This function combines \code{\link{byNotEmpty}} with automatic data frame consolidation,
+making it ideal for transforming data frames row-by-row when each transformation produces
+a data frame row as output.
+
+Common use cases include:
+\itemize{
+\item Enriching each row with additional data from API calls
+\item Expanding rows that contain nested data structures
+\item Computing row-wise aggregations that return structured results
+}
+
+The function internally uses \code{mergeDataframeList()} to intelligently combine
+heterogeneous row results, handling varying column sets gracefully.
+}
+\examples{
+\dontrun{
+# Transform each resource row
+steps <- loadChildSteps("/Workflow")$data[[1]]
+enriched <- byNotEmptyAsDf(steps, function(row) {
+  data.frame(
+    stepName = row$name,
+    status = row$runStatus,
+    isFinished = row$runStatus == "FINISHED"
+  )
+})
+
+# Expand nested structures
+byNotEmptyAsDf(parentData, function(row) {
+  # Load children for this parent
+  children <- loadChildResources(row$resourceId)$data[[1]]
+  # Return summary
+  data.frame(parent = row$name, childCount = nrow(children))
+})
+}
+
+}
+\seealso{
+\code{\link{byNotEmpty}} for row-wise iteration without automatic merging,
+\code{\link[base]{by}} for the underlying iteration mechanism
 }

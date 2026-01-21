@@ -2,7 +2,7 @@
 % Please edit documentation in R/unauthenticatedREST.R
 \name{unauthenticatedREST}
 \alias{unauthenticatedREST}
-\title{unauthenticatedREST}
+\title{Unauthenticated REST}
 \usage{
 unauthenticatedREST(url, restType = "GET", body = NULL, encode = "json", ...)
 }

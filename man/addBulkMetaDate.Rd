@@ -2,7 +2,7 @@
 % Please edit documentation in R/metadata.R
 \name{addBulkMetaDate}
 \alias{addBulkMetaDate}
-\title{adds metadata value to a resource, always adds, never updates}
+\title{Adds Metadata Value To A Resource, Always Adds, Never Updates}
 \usage{
 addBulkMetaDate(ident, descriptorNameValueList, scope = "Improve Client")
 }
@@ -14,7 +14,7 @@ addBulkMetaDate(ident, descriptorNameValueList, scope = "Improve Client")
 \item{scope}{the scope for metadata, default "Improve Client"}
 }
 \description{
-adds metadata value to a resource, always adds, never updates
+Adds Metadata Value To A Resource, Always Adds, Never Updates
 }
 \references{
 ics1137

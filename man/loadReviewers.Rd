@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadREview.R
 \name{loadReviewers}
 \alias{loadReviewers}
-\title{loads all the reviewers for a review
+\title{Loads All The Reviewers For A Review
 it uses caching
 the result is returned as a data frame}
 \usage{
@@ -12,7 +12,7 @@ loadReviewers(resourceId)
 \item{resourceId}{id (UUID) of the resource}
 }
 \description{
-loads all the reviewers for a review
+Loads All The Reviewers For A Review
 it uses caching
 the result is returned as a data frame
 }

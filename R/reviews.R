@@ -15,7 +15,7 @@ validateResource <- function(resourceId) {
   return(TRUE)
 }
 
-#' creates a new review
+#' Creates a New Review
 #' @param name name of the review
 #' @param parentPath path of the parent
 #' @param comment review comment
