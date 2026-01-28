@@ -2,7 +2,7 @@
 % Please edit documentation in R/improveConnect.R
 \name{improveConnected}
 \alias{improveConnected}
-\title{Improve Connected}
+\title{improveConnected}
 \usage{
 improveConnected(silent = FALSE)
 }

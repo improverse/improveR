@@ -205,7 +205,9 @@ unloadParentalDescendant <- function(ident) {
 #' @return Invisibly returns \code{NULL}.
 #' @seealso [loadParentalDescendant()], [unloadParentalDescendant()], [loadResource()]
 #' @examples
-#' unloadParentalDescendant(my_ident)
+#' \dontrun{
+#' updateParentalDescendant(my_ident)
+#' }
 #'
 #' @export
 updateParentalDescendant <- function(ident) {

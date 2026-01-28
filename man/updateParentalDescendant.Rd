@@ -26,7 +26,9 @@ or reload up-to-date relationship data.
 The function is invoked for its side effect.
 }
 \examples{
-unloadParentalDescendant(my_ident)
+\dontrun{
+updateParentalDescendant(my_ident)
+}
 
 }
 \seealso{

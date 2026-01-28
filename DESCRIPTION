@@ -2,7 +2,7 @@ Package: improveR
 Type: Package
 Title: Package to control the user functions of improve
 Version: 4.3.0
-Authors@R: 
+Authors@R:
   c(person(given = "Michael",
            family = "Hackl",
            role = c("aut", "cre"),
@@ -11,14 +11,15 @@ Authors@R:
   person(given = "Scinteco GmbH",
            role = c("cph", "fnd"),
            email = "office@scinteco.com"))
+Author: Michael Hackl [aut, cre], Scinteco GmbH [cph, fnd]
+Maintainer: Michael Hackl <michael.hackl@scinteco.com>
 Description: Read and write functionality for the improve repository. Workflow control functions are included to manage multiple steps.
 License: GPL-3
 Encoding: UTF-8
 Depends: 
     R (>= 3.5.0) 
-LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     cli,
     dplyr,

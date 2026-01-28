@@ -2,7 +2,7 @@
 % Please edit documentation in R/improveConnect.R
 \name{improveConnect}
 \alias{improveConnect}
-\title{Improve Connect}
+\title{improveConnect}
 \usage{
 improveConnect(
   logLevel = "INFO",

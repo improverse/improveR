@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadFullFolderAuditTrail.R
 \name{getFullFolderAuditTrail}
 \alias{getFullFolderAuditTrail}
-\title{Retrieves Recursive Audit Trail For A Specific Folder}
+\title{Retrieve Recursive Audit Trail For A Specific Folder}
 \usage{
 getFullFolderAuditTrail(ident, from = pwd(), includeReadAccess = FALSE)
 }
@@ -14,5 +14,5 @@ getFullFolderAuditTrail(ident, from = pwd(), includeReadAccess = FALSE)
 \item{includeReadAccess}{if TRUE also read access entries of the audit trail are shown}
 }
 \description{
-Retrieves Recursive Audit Trail For A Specific Folder
+Retrieve Recursive Audit Trail For A Specific Folder
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadFullChildResources.R
 \name{updateFullChildResources}
 \alias{updateFullChildResources}
-\title{Update Full Child Resources}
+\title{updateFullChildResources}
 \usage{
 updateFullChildResources(ident)
 }
@@ -10,7 +10,7 @@ updateFullChildResources(ident)
 \item{ident}{id}
 }
 \description{
-Update Full Child Resources
+updateFullChildResources
 }
 \references{
 ics1085
