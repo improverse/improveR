@@ -28,7 +28,7 @@ cat("=== Galaxy Hub Integration Test ===\n\n")
 # Load libraries
 library(improveR)
 library(improveRtestsupport)
-library(galaxyR)
+library(improVerticles)
 
 # Step 1: Authenticate
 cat("Step 1: Authenticating with improveR...\n")
@@ -44,8 +44,8 @@ cat("  Repo:", Sys.getenv("IMPROVER_REPO_URL"), "\n\n")
 
 # Step 2: Connect to Galaxy Hub
 cat("Step 2: Connecting to Galaxy Hub...\n")
-galaxyR::galaxyConfig(host = "127.0.0.1", port = 1408)
-connected <- galaxyR::galaxyConnect(wait = TRUE, timeout = 5)
+improVerticles::galaxyConfig(host = "127.0.0.1", port = 1408)
+connected <- improVerticles::galaxyConnect(wait = TRUE, timeout = 5)
 if (!connected) {
   stop("Failed to connect to Galaxy Hub. Is it running on port 1408?")
 }
@@ -53,7 +53,7 @@ cat("  Connected to Galaxy Hub\n")
 
 # Step 3: Initialize session
 cat("Step 3: Initializing Galaxy session...\n")
-result <- galaxyR::galaxyInitFromEnv()
+result <- improVerticles::galaxyInitFromEnv()
 if (!isTRUE(result$success)) {
   stop("Failed to init session: ", result$error)
 }
@@ -117,26 +117,26 @@ json <- sprintf(
 # Set up handlers for process events
 process_complete <- FALSE
 
-galaxyR::galaxyOnMessage("processStarted", function(msg) {
+improVerticles::galaxyOnMessage("processStarted", function(msg) {
   cat("  Process started: ", msg$processId, " (PID: ", msg$pid, ")\n", sep = "")
 })
 
-galaxyR::galaxyOnMessage("processOutput", function(msg) {
+improVerticles::galaxyOnMessage("processOutput", function(msg) {
   cat("  [", msg$stream, "] ", msg$data, "\n", sep = "")
 })
 
-galaxyR::galaxyOnMessage("processCompleted", function(msg) {
+improVerticles::galaxyOnMessage("processCompleted", function(msg) {
   cat("\n  Process completed with exit code: ", msg$exitCode, "\n", sep = "")
   process_complete <<- TRUE
 })
 
-galaxyR::galaxyOnMessage("error", function(msg) {
+improVerticles::galaxyOnMessage("error", function(msg) {
   cat("  ERROR: ", msg$message, "\n", sep = "")
   process_complete <<- TRUE
 })
 
 # Send the request
-galaxyR:::.galaxy$ws$send(json)
+improVerticles:::.galaxy$ws$send(json)
 cat("  Request sent, waiting for output...\n\n")
 
 # Wait for process to complete (max 30 seconds)
@@ -151,6 +151,6 @@ if (!process_complete) {
 
 # Cleanup
 unlink(child_script)
-galaxyR::galaxyDisconnect()
+improVerticles::galaxyDisconnect()
 
 cat("\n=== Test Complete ===\n")

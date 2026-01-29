@@ -24,7 +24,7 @@ cat("=== Galaxy Hub Shiny App Test ===\n\n")
 
 library(improveR)
 library(improveRtestsupport)
-library(galaxyR)
+library(improVerticles)
 
 # Step 1: Authenticate
 cat("Step 1: Authenticating...\n")
@@ -39,8 +39,8 @@ cat("  Authenticated as:", Sys.getenv("IMPROVER_USER"), "\n\n")
 
 # Step 2: Connect to Galaxy Hub
 cat("Step 2: Connecting to Galaxy Hub...\n")
-galaxyR::galaxyConfig(host = "127.0.0.1", port = 1408)
-connected <- galaxyR::galaxyConnect(wait = TRUE, timeout = 5)
+improVerticles::galaxyConfig(host = "127.0.0.1", port = 1408)
+connected <- improVerticles::galaxyConnect(wait = TRUE, timeout = 5)
 if (!connected) {
   stop("Failed to connect to Galaxy Hub")
 }
@@ -48,7 +48,7 @@ cat("  Connected\n")
 
 # Step 3: Initialize session
 cat("Step 3: Initializing session...\n")
-result <- galaxyR::galaxyInitFromEnv()
+result <- improVerticles::galaxyInitFromEnv()
 if (!isTRUE(result$success)) {
   stop("Failed to init session: ", result$error)
 }
@@ -74,12 +74,12 @@ json <- sprintf(
 shiny_port <- NULL
 process_id <- NULL
 
-galaxyR::galaxyOnMessage("processStarted", function(msg) {
+improVerticles::galaxyOnMessage("processStarted", function(msg) {
   process_id <<- msg$processId
   cat("  Process started:", msg$processId, "(PID:", msg$pid, ")\n")
 })
 
-galaxyR::galaxyOnMessage("processOutput", function(msg) {
+improVerticles::galaxyOnMessage("processOutput", function(msg) {
   # Look for Shiny's "Listening on" message
   if (grepl("Listening on http://[^:]+:(\\d+)", msg$data)) {
     port_match <- regmatches(msg$data, regexec("Listening on http://[^:]+:(\\d+)", msg$data))
@@ -91,16 +91,16 @@ galaxyR::galaxyOnMessage("processOutput", function(msg) {
   cat("  [", msg$stream, "] ", msg$data, "\n", sep = "")
 })
 
-galaxyR::galaxyOnMessage("processCompleted", function(msg) {
+improVerticles::galaxyOnMessage("processCompleted", function(msg) {
   cat("\n  Process exited with code:", msg$exitCode, "\n")
 })
 
-galaxyR::galaxyOnMessage("error", function(msg) {
+improVerticles::galaxyOnMessage("error", function(msg) {
   cat("  ERROR:", msg$message, "\n")
 })
 
 # Listen for shinyPort message sent directly via WebSocket
-galaxyR::galaxyOnMessage("shinyPort", function(msg) {
+improVerticles::galaxyOnMessage("shinyPort", function(msg) {
   if (!is.null(msg$port)) {
     shiny_port <<- as.integer(msg$port)
     cat("\n  *** SHINY PORT RECEIVED VIA WEBSOCKET:", shiny_port, "***\n\n")
@@ -108,7 +108,7 @@ galaxyR::galaxyOnMessage("shinyPort", function(msg) {
 })
 
 # Send request
-galaxyR:::.galaxy$ws$send(json)
+improVerticles:::.galaxy$ws$send(json)
 cat("  Request sent, waiting for Shiny to start...\n\n")
 
 # Wait for port to be detected (max 30 seconds)
