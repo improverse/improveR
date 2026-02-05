@@ -4,7 +4,7 @@
 \alias{checkConnect}
 \title{checkConnect}
 \usage{
-checkConnect()
+checkConnect(secure = TRUE)
 }
 \value{
 invisible TRUE if connection is valid, otherwise attempts reconnection

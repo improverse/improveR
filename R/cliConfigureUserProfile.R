@@ -6,7 +6,14 @@
 #' @noRd
 configureUserProfile <- function(userProfile = "improveR") {
   apiURL <- getCICOApiURL()
-  command <- glue::glue("userProfile configure -userProfile {userProfile} -apiURL {apiURL}")
+
+  # Add -checkCertificates false when secure=FALSE
+  checkCertificates <- ""
+  if (!is.null(cacheEnv$secure) && cacheEnv$secure == FALSE) {
+    checkCertificates <- " -checkCertificates false"
+  }
+
+  command <- glue::glue("userProfile configure -userProfile {userProfile} -apiURL {apiURL}{checkCertificates}")
   executeCli(command)
   refrToken = Sys.getenv("IMPROVER_REFRESH_TOKEN")
   #command <- glue::glue("userProfile oauth2 devicecode -userProfile {userProfile} -refreshToken {refrToken}")

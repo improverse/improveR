@@ -248,7 +248,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
 
     # If no run token provided, use OAuth authentication
     if (reqToken=="") {
-      improveOAuth(repoUrl,shortEntityId = stepId)
+      improveOAuth(repoUrl, shortEntityId = stepId, secure = secure)
       return()
     }
     workspace <- Sys.getenv("IMPROVER_WORKSPACE")
@@ -346,11 +346,11 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
 #' If the connection is invalid, it clears connection data and attempts to reconnect.
 #' @return invisible TRUE if connection is valid, otherwise attempts reconnection
 #' @export
-checkConnect <- function() {
+checkConnect <- function(secure = TRUE) {
   # First check if we're connected at all
   if (!improveConnected(silent = TRUE)) {
     logging::loginfo("Not connected. Attempting to connect...")
-    improveConnect()
+    improveConnect(secure = secure)
     return(invisible(TRUE))
   }
 
@@ -386,7 +386,7 @@ checkConnect <- function() {
   # If we get here, connection is invalid - clear and reconnect
   logging::loginfo("Connection invalid - clearing connection data and reconnecting")
   clearConnectionData()
-  improveConnect()
+  improveConnect(secure = secure)
   return(invisible(TRUE))
 }
 
