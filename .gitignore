@@ -11,3 +11,7 @@ inst/doc
 
 # Claude Code workspace - local helper files, not part of package
 .claude_workspace/
+
+# Large binary CLI files (should be in improveRcontributions only)
+inst/*.tar
+inst/improve-cli-*
