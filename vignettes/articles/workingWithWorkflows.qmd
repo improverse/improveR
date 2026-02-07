@@ -54,7 +54,11 @@ options(width=10000) #make results window wide; horizontal scrollbar
 fn_connect <- function() {
   Sys.setenv(
     IMPROVER_REPO_URL = "http://envhost1.hc.scintecodev.internal:5310/repository"
-    
+
+  )
+  Sys.setenv(
+    IMPROVER_STEP = "/improve-tutorial/DataOrder/Step 2"
+
   )
   Sys.setenv(IMPROVER_AUTO_AUTH = TRUE)
 
