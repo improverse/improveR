@@ -99,7 +99,7 @@ terminateStepResource <- function(ident, verbose = FALSE) {
 
   if (is.null(stepToTerminate)) {
     logging::logwarn("Step could not be loaded.")
-    return(invisible(NULL))
+    return(invisible(FALSE))
   }
 
   if (!is.null(stepToTerminate) && stepToTerminate$runStatus == "RUNNING") {
@@ -115,7 +115,7 @@ terminateStepResource <- function(ident, verbose = FALSE) {
       Cannot be terminated."
       )
     )
-    return(invisible(NULL))
+    return(invisible(FALSE))
   }
 
   status <- httr::status_code(result)

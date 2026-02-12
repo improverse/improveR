@@ -329,6 +329,16 @@ createWorkflow <- function() {
       }
     }
 
+    if (is.null(allSteps) || nrow(allSteps) == 0) {
+      return(data.frame(
+        description = character(0), rationale = character(0),
+        sourceEntityId = character(0), sourceName = character(0),
+        fullName = character(0), toUpdate = list(),
+        dependencies = character(0), usage = character(0),
+        inPlace = logical(0), stringsAsFactors = FALSE
+      ))
+    }
+
     executionPlan <- byNotEmptyAsDf(allSteps, function(st) {
       outDatedLinks <- NULL
       linkIds <- NULL

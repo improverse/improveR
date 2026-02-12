@@ -2,6 +2,42 @@
 # CODING GUIDELINE: Always use forward slashes for paths on all platforms
 # Use normalizePath(path, winslash = "/") to ensure consistent path separators
 
+# Package-level cache for WSL mount prefix (NULL = not yet detected)
+.wslMountPrefix <- new.env(parent = emptyenv())
+.wslMountPrefix$value <- NULL
+
+#' Convert Windows-style path to WSL absolute path
+#'
+#' @description Detects paths like "C:/..." on Linux/WSL and converts them
+#' to absolute paths using the WSL mount prefix (/mnt/c/ or /c/).
+#' The detected prefix is cached in a package variable.
+#' @param path Character string with path to convert
+#' @return Converted path (or original if not a Windows-style path or not on Linux)
+#' @noRd
+convertWslPath <- function(path) {
+  if (.Platform$OS.type == "windows") return(path)
+  if (!grepl("^[A-Za-z]:/", path)) return(path)
+
+  drive_letter <- tolower(substr(path, 1, 1))
+  rest_of_path <- substring(path, 3) # everything after "C:"
+
+  if (is.null(.wslMountPrefix$value)) {
+    # Detect WSL mount prefix: try /mnt/c/ first, then /c/
+    if (dir.exists(paste0("/mnt/", drive_letter))) {
+      .wslMountPrefix$value <- "/mnt/"
+    } else if (dir.exists(paste0("/", drive_letter))) {
+      .wslMountPrefix$value <- "/"
+    } else {
+      .wslMountPrefix$value <- ""
+    }
+  }
+
+  if (.wslMountPrefix$value == "") return(path)
+
+  converted <- paste0(.wslMountPrefix$value, drive_letter, rest_of_path)
+  return(converted)
+}
+
 #' Get improve directory (internal implementation)
 #'
 #' @param env_var Environment variable name to check first
@@ -15,6 +51,9 @@ getImproveDir <- function(env_var, subdir, windows_base = "LOCALAPPDATA", unix_h
   existing_dir <- Sys.getenv(env_var, "")
 
   if (existing_dir != "") {
+    # On WSL, convert Windows-style paths (e.g. "C:/...") to absolute WSL paths
+    existing_dir <- convertWslPath(existing_dir)
+
     # Environment variable is set - try to use it
     if (dir.exists(existing_dir)) {
       return(existing_dir)  # Already exists, use it
