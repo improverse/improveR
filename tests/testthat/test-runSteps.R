@@ -54,10 +54,14 @@ structuralSelect <- function(wfTemplate,withIdent) {
     } else {
       remoteFiles<- dplyr::select(remoteFiles,filehash,asLink,name,variableName,variableProcess)
     }
+    # Sort by name so comparison is order-independent
+    remoteFiles <- dplyr::arrange(remoteFiles, name)
 
     wfStep$remoteFiles <- list(remoteFiles)
     return(wfStep)
   })
+  # Sort by description so step order is consistent
+  wfTemplate <- dplyr::arrange(wfTemplate, description)
   return(wfTemplate)
 }
 
@@ -72,7 +76,7 @@ structuralCompareWorkflow <- function(wf1,wf2,withIdent,expectEqual) {
     }
     },
     error=function(e) {
-      testthat::expect_false(T,"error compareing workflows")
+      testthat::expect_false(T, paste("error comparing workflows:", conditionMessage(e)))
     }
   )
 

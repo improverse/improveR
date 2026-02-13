@@ -41,6 +41,12 @@ getCorrectId <- function(resolveToId) {
         return(resolveToId)
     } else if (grepl("=", resolveToId, fixed = T)) {
         identifier <- gsub(".*=", "", resolveToId)
+        # Convert hostname-based entity IDs to short format
+        # e.g., "envhost1.example.com-4310:ST-12345" → "hc4310:ST-12345"
+        idParts <- strsplit(identifier, ":")[[1]]
+        if (length(idParts) == 2 && grepl("\\.", idParts[1])) {
+            identifier <- paste0(repoPrefix(), idParts[2])
+        }
         return(identifier)
     } else if (!grepl(":", resolveToId, fixed = T)) {
         return(paste0(repoPrefix(), resolveToId))

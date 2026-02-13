@@ -347,7 +347,15 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
   # @param executionPlan A data.frame as returned by \code{createReexecutionPlan}
   # @return Invisibly returns NULL
   env$executePlan <- function(executionPlan) {
+    if (is.null(executionPlan) || nrow(executionPlan) == 0) {
+      logging::loginfo("No steps to execute")
+      return(invisible(NULL))
+    }
     orderedWorkflow <-  .workflow_template_private$executionOrder(env, executionPlan)
+    if (is.null(orderedWorkflow) || nrow(orderedWorkflow) == 0) {
+      logging::loginfo("No executable order could be determined")
+      return(invisible(NULL))
+    }
     workflow <- NULL
     executionList <- c()
     for (i in seq_len(nrow(orderedWorkflow))) {
@@ -380,7 +388,7 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
     }
     if (length(executionList) > 0) {
       for (item in executionList) {
-        finishRunResource(env$steps[[item]]$stepDf$sourceEntityId)
+        finishRunResource(env$stepTemplates[[item]]$stepDf$entityId)
       }
     }
 
