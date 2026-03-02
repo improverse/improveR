@@ -5,7 +5,7 @@
   # Validate LinkMapping if it exists
   linkMappingPath <- file.path(workflowDir, paste0(workflowName, "LinkMapping.json"))
   if (file.exists(linkMappingPath)) {
-    logging::loginfo(paste("Validating LinkMapping file:", linkMappingPath))
+    log_info(paste("Validating LinkMapping file:", linkMappingPath))
     tryCatch({
       linkMapping <- jsonlite::read_json(linkMappingPath, simplifyVector = TRUE)
       
@@ -33,7 +33,7 @@
                 invalidMappings <- c(invalidMappings, providedIdents$key[i])
                 validationFailed <- TRUE
               } else {
-                logging::loginfo(paste("LinkMapping: Validated resource", ident, "->", resource$name))
+                log_info(paste("LinkMapping: Validated resource", ident, "->", resource$name))
               }
             }, error = function(e) {
               warning(paste("LinkMapping: Invalid ident", ident, "for key:", providedIdents$key[i], "Error:", e$message))
@@ -50,7 +50,7 @@
                    "\nPlease correct the link mapping file and try again."))
       }
       
-      logging::loginfo(paste("LinkMapping validation completed. Found", nrow(linkMapping), "mappings,",
+      log_info(paste("LinkMapping validation completed. Found", nrow(linkMapping), "mappings,",
                            sum(!is.na(linkMapping$ident) & linkMapping$ident != ""), "with idents"))
     }, error = function(e) {
       stop(paste("Failed to parse LinkMapping.json:", e$message))
@@ -60,7 +60,7 @@
   # Validate ToolMapping if it exists
   toolMappingPath <- file.path(workflowDir, paste0(workflowName, "ToolMapping.json"))
   if (file.exists(toolMappingPath)) {
-    logging::loginfo(paste("Validating ToolMapping file:", toolMappingPath))
+    log_info(paste("Validating ToolMapping file:", toolMappingPath))
     tryCatch({
       toolMapping <- jsonlite::read_json(toolMappingPath, simplifyVector = TRUE)
       
@@ -94,7 +94,7 @@
                 invalidMappings <- c(invalidMappings, mapping$key)
                 validationFailed <- TRUE
               } else {
-                logging::loginfo(paste("ToolMapping: Validated", mapping$key, "->", 
+                log_info(paste("ToolMapping: Validated", mapping$key, "->", 
                                      mapping$runserverLabel, mapping$toolLabel, mapping$toolInstance))
               }
             }
@@ -117,10 +117,10 @@
       if (nrow(unmappedTools) > 0) {
         warning(paste("ToolMapping: Found", nrow(unmappedTools), "unmapped tool configurations.",
                      "These will use original settings which may not work in the target environment."))
-        logging::loginfo(paste("Unmapped tools:", paste(unmappedTools$key, collapse = ", ")))
+        log_info(paste("Unmapped tools:", paste(unmappedTools$key, collapse = ", ")))
       }
       
-      logging::loginfo(paste("ToolMapping validation completed. Found", nrow(toolMapping), "mappings,",
+      log_info(paste("ToolMapping validation completed. Found", nrow(toolMapping), "mappings,",
                            nrow(filledMappings), "configured"))
     }, error = function(e) {
       stop(paste("Failed to parse ToolMapping.json:", e$message))
@@ -357,7 +357,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     paste0(workflowName,"ToolMapping.json")
   )
   if (file.exists(toolMappingPath)) {
-    logging::loginfo(paste("Applying tool mappings from", toolMappingPath))
+    log_info(paste("Applying tool mappings from", toolMappingPath))
     toolMapping <- jsonlite::read_json(toolMappingPath, simplifyVector = TRUE)
     
     # Create a mapping lookup
@@ -381,7 +381,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
             # Check if we have a mapping for this tool configuration
             if (!is.null(toolMap[[processKey]])) {
               newMapping <- toolMap[[processKey]]
-              logging::loginfo(paste("Remapping tool for step", stepName, "from", processKey, "to", 
+              log_info(paste("Remapping tool for step", stepName, "from", processKey, "to", 
                                    newMapping$runserverLabel, newMapping$toolLabel, newMapping$toolInstance))
               
               # Update the process with new tool configuration
@@ -397,7 +397,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       }
     }
   } else {
-    logging::loginfo(paste("No tool mapping file found at", toolMappingPath, "- using original tool configurations"))
+    log_info(paste("No tool mapping file found at", toolMappingPath, "- using original tool configurations"))
   }
 
 
@@ -415,7 +415,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
       for (j in 1:length(dependencies)) {
         dependencies <- dependencies[j]
         if (dependencies %in% executionList) {
-          logging::loginfo("waiting to finish")
+          log_info("waiting to finish")
           #finishRun(dependencies)
           executionList <- executionList[executionList != dependencies]
         }
@@ -589,7 +589,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
   
   # Restore parent relationships after all steps are created
   if ("parentFullName" %in% names(importWF) && "newEntityId" %in% names(importWF)) {
-    logging::loginfo("Restoring parent relationships")
+    log_info("Restoring parent relationships")
     
     # Update parent relationships using attachStep
     for (i in seq_len(nrow(importWF))) {
@@ -611,7 +611,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
           if (!is.null(childEntityId) && !is.null(parentEntityId) && !is.na(parentEntityId)) {
             tryCatch({
               attachStep(childEntityId, parentEntityId)
-              logging::loginfo(paste("Restored parent relationship:", importWF$fullName[i], "->", parentFullName))
+              log_info(paste("Restored parent relationship:", importWF$fullName[i], "->", parentFullName))
               
               # TODO: Handle inheritFromParent flag if needed
               # The attachStep function might not handle this flag directly
@@ -631,7 +631,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     rootImportFolder <- dirname(importFolder)
     if (file.exists(rootImportFolder) && startsWith(basename(rootImportFolder), ".import_")) {
       unlink(rootImportFolder, recursive = TRUE, force = TRUE)
-      logging::loginfo(paste("Cleaned up import folder:", rootImportFolder))
+      log_info(paste("Cleaned up import folder:", rootImportFolder))
     }
   }, error = function(e) {
     warning(paste("Failed to clean up import folder:", e$message))

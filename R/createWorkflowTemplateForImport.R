@@ -144,7 +144,7 @@ createWorkflowTemplateForImport <- function(workflow, internalLinksData = NULL) 
       plan <- plan[!is.na(plan$dependencies), ]
     }
     if (is.null(startSteps) || nrow(startSteps) == 0) {
-      logging::logwarn("No step without dependencies, no executable order")
+      log_warn("No step without dependencies, no executable order")
       return(NULL)
     }
     
@@ -179,7 +179,7 @@ createWorkflowTemplateForImport <- function(workflow, internalLinksData = NULL) 
     # Check termination conditions
     if (nrow(plan) == 0 || counter > 500) {
       if (counter > 500) {
-        logging::logwarn("Could not add all steps to execution order, check for cycles")
+        log_warn("Could not add all steps to execution order, check for cycles")
       }
       return(startSteps)
     }

@@ -4,10 +4,12 @@
 \alias{updateResourceRelations}
 \title{Reloads the Resource Relations}
 \usage{
-updateResourceRelations(resourceId)
+updateResourceRelations(ident, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the resource.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
 }
 \description{
 Reloads the Resource Relations

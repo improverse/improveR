@@ -25,13 +25,25 @@ validateEntry <- function(reviewId, entryId) {
 }
 
 #' Creates a Comment for a Review Entry
-#' @param reviewId id (UUID) of the review
-#' @param entryId id (UUID) of the resource
-#' @param comment comment
+#'
+#' Adds a comment to a specific entry within a review.
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param entryId Character. ID (UUID) of the review entry.
+#' @param comment Character. The comment text.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of the entry's current comments, or \code{NULL} on failure.
 #' @references ics1544
 #' @export
-createReviewEntryComment <- function(reviewId, entryId, comment) {
+createReviewEntryComment <- function(ident, entryId, comment, from = pwd()) {
   improveEditable()
+  resource <- loadResource(ident, from)
+  if (is.null(resource)) {
+    log_warn("cannot find review by ident:", ident)
+    return(NULL)
+  }
+  reviewId <- resource$resourceId
 
   if (!validateReview(reviewId) || !validateEntry(reviewId, entryId)) {
     return(NULL)
@@ -40,7 +52,7 @@ createReviewEntryComment <- function(reviewId, entryId, comment) {
   data <- list("comment" = comment)
 
   result <- authenticatedREST("/reviews/{reviewId}/entries/{entryId}/comments", urlParams = list(reviewId = reviewId, entryId = entryId), data = data, restType = "POST")
-  updateReviewEntryComments(reviewId, entryId)
+  entryComments <- updateReviewEntryComments(reviewId, entryId)
 
-  return(result)
+  return(entryComments)
 }

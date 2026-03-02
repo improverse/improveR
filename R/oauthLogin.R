@@ -41,7 +41,7 @@ improveOAuth <- function(repo,shortEntityId="/",logLevel="INFO",secure=T,openBro
   log_info("authenticating with oauth against repository",repo)
   if (!is.character(repo)) {
     log_warn("repo needs to be a valid URL in the form https://<url>:<port>/<repositoryPath>")
-    return(F)
+    return(FALSE)
   }
   authenticationProvider <- NULL
   tryCatch(

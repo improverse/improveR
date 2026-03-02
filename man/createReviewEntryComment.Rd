@@ -4,17 +4,23 @@
 \alias{createReviewEntryComment}
 \title{Creates a Comment for a Review Entry}
 \usage{
-createReviewEntryComment(reviewId, entryId, comment)
+createReviewEntryComment(ident, entryId, comment, from = pwd())
 }
 \arguments{
-\item{reviewId}{id (UUID) of the review}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
 
-\item{entryId}{id (UUID) of the resource}
+\item{entryId}{Character. ID (UUID) of the review entry.}
 
-\item{comment}{comment}
+\item{comment}{Character. The comment text.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of the entry's current comments, or \code{NULL} on failure.
 }
 \description{
-Creates a Comment for a Review Entry
+Adds a comment to a specific entry within a review.
 }
 \references{
 ics1544

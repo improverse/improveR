@@ -4,10 +4,7 @@
 \alias{unloadRelationTypes}
 \title{Unloads All Relation Types}
 \usage{
-unloadRelationTypes(conn)
-}
-\arguments{
-\item{conn}{database connection}
+unloadRelationTypes()
 }
 \description{
 Unloads All Relation Types

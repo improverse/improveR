@@ -1,5 +1,5 @@
 logEnv <- new.env()
-logEnv$redirectToList <- F
+logEnv$redirectToList <- FALSE
 logEnv$logs <- list()
 logEnv$context <- "base"
 
@@ -24,7 +24,7 @@ hasCurrentError <- function() {
 
   currentLogs <- logEnv$logs[[logEnv$context]]
   if (is.null(currentLogs)) {
-    return(F)
+    return(FALSE)
   }
   return(!is.null(currentLogs[["error"]]))
 }

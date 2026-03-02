@@ -174,7 +174,10 @@ getStepDf <- function(ident) {
   restResult <- authenticatedREST(url = "/resources/{resourceId}",
                                   urlParams = list(resourceId = step$resourceId),
                                   queryParams = list(optParams="inventory"))
-
+  if (is.null(restResult)) {
+    log_warn("Failed to load step inventory for:", step$resourceId)
+    return(NULL)
+  }
   restContent <- httr::content(restResult)
 
 
@@ -400,9 +403,9 @@ createRemoteFileDf <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variable
       fileList["filehash"]<- target$fileHash
       fileList["maxVersion"]<-target$revisionId
     } else {
-      logging::logwarn("Only files or resources can be added to an inventory")
-      logging::logwarn(ident)
-      logging::logwarn(stepHandle)
+      log_warn("Only files or resources can be added to an inventory")
+      log_warn(ident)
+      log_warn(stepHandle)
       return(NULL)
     }
   }

@@ -4,15 +4,21 @@
 \alias{createReviewEntry}
 \title{Creates Review Entries For A Review}
 \usage{
-createReviewEntry(reviewId, resourceIds)
+createReviewEntry(ident, resourceIds, from = pwd())
 }
 \arguments{
-\item{reviewId}{id (UUID) of the review}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
 
-\item{resourceIds}{vector of resourceIds}
+\item{resourceIds}{Character vector of resource IDs (UUIDs) to add as review entries.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of the review's current entries, or \code{NULL} on failure.
 }
 \description{
-Creates Review Entries For A Review
+Adds one or more resources as entries to an existing review.
 }
 \references{
 ics1541

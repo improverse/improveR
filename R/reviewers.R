@@ -93,13 +93,23 @@ validateDuplicateReviewer <- function(reviewId, userId, username) {
 }
 
 #' Adds a User as Reviewer to a Review
-#' @param reviewId id (UUID) of the review
-#' @param userId id (UUID) of the user
-#' @param username name of the user
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param userId Character. ID (UUID) of the user to add as reviewer.
+#' @param username Character. Username of the user to add as reviewer.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of the review's current reviewers, or \code{NULL} on failure.
 #' @references ics368
 #' @export
-createReviewer <- function(reviewId, userId, username) {
+createReviewer <- function(ident, userId, username, from = pwd()) {
   improveEditable()
+  resource <- loadResource(ident, from)
+  if (is.null(resource)) {
+    log_warn("cannot find review by ident:", ident)
+    return(NULL)
+  }
+  reviewId <- resource$resourceId
 
   if (!validateReview(reviewId) || !validateUser(userId, username) || !validateDuplicateReviewer(reviewId, userId, username)) {
     return(NULL)
@@ -109,25 +119,39 @@ createReviewer <- function(reviewId, userId, username) {
                "username" = username)
 
   result <- authenticatedREST("/reviews/{reviewId}/reviewers", urlParams = list(reviewId = reviewId), data = data, restType = "POST")
-  updateReviewers(reviewId)
+  reviewers <- updateReviewers(reviewId)
 
-  return(result)
+  return(reviewers)
 }
 
 #' Removes a Reviewer from a Review
-#' @param reviewId id (UUID) of the review
-#' @param reviewerId id (UUID) of the reviewer
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param reviewerId Character. ID (UUID) of the reviewer to remove.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns \code{TRUE} if the reviewer was removed successfully, \code{FALSE} otherwise.
 #' @references ics369
 #' @export
-deleteReviewer <- function(reviewId, reviewerId) {
+deleteReviewer <- function(ident, reviewerId, from = pwd()) {
   improveEditable()
+  resource <- loadResource(ident, from)
+  if (is.null(resource)) {
+    log_warn("cannot find review by ident:", ident)
+    return(FALSE)
+  }
+  reviewId <- resource$resourceId
 
   if (!validateReview(reviewId) || !validateReviewer(reviewId, reviewerId)) {
-    return(NULL)
+    return(FALSE)
   }
 
   result <- authenticatedREST("/reviews/{reviewId}/reviewers/{reviewerId}", urlParams = list(reviewId = reviewId, reviewerId = reviewerId), restType = "DELETE")
   updateReviewers(reviewId)
 
-  return(result)
+  if (!is.null(result)) {
+    return(TRUE)
+  }
+  log_warn("Failed to delete reviewer:", reviewerId, "from review:", reviewId)
+  return(FALSE)
 }

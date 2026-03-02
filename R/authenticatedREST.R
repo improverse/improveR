@@ -3,11 +3,41 @@ REST_FUNCTIONS <- list(POST="httr::POST",
                        PUT="httr::PUT",
                        DELETE="httr::DELETE")
 
+restEnv <- new.env()
+restEnv$lastRestError <- NULL
+
 timing <- function(name) {
-  #logging::loginfo(paste(
+  #log_info(paste(
   #  name,
   #  Sys.time()
   #))
+}
+
+#' Last REST Error
+#'
+#' @description Returns details about the last failed REST call, or NULL if the last call succeeded.
+#' Since improveR is single-threaded, this is safe to use after any REST operation.
+#' @returns A list with \code{status_code}, \code{url}, \code{method}, \code{message},
+#' and \code{timestamp}, or \code{NULL} if the last call was successful.
+#' @export
+lastRestError <- function() {
+  return(restEnv$lastRestError)
+}
+
+#' @noRd
+setLastRestError <- function(status_code, url, method, message) {
+  restEnv$lastRestError <- list(
+    status_code = status_code,
+    url = url,
+    method = method,
+    message = message,
+    timestamp = Sys.time()
+  )
+}
+
+#' @noRd
+clearLastRestError <- function() {
+  restEnv$lastRestError <- NULL
 }
 
 #' authenticatedREST
@@ -21,17 +51,17 @@ timing <- function(name) {
 #' @param restType character, default is GET, possible values are POST,GET,PUT and DELETE
 #' @param contentType is directly set to the header, default is application/json, used to specify the format for data
 #' @param encode is directly set to the header, default is json, should be fine for most rest calls, for file uploads use NULL
-#' @param ignoreFail is by default set to TRUE, if false, an error is thrown if the error code is not between 200 and 300
 #'
 #' In this example the following URL would be constructed:
 #'   baseURL from improveConnect /resources/1B1D3B817F424BA594893A5013DBFEEA?isResourceVersion=true
 #'
-#' the unparsed result is returned from this call
-#' @seealso [improveConnect()]
+#' On success (HTTP 2xx), returns the httr response object.
+#' On failure, returns NULL and stores error details accessible via \code{lastRestError()}.
+#' @seealso [improveConnect()], [lastRestError()]
 #' @references ics1082
 #' @keywords internal
 #' @noRd
-authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",restType="GET",contentType="application/json",encode="json",ignoreFail=T) {
+authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",restType="GET",contentType="application/json",encode="json") {
   timing(url)
   if (is.null(encode)) {
     encode <- c("multipart","form", "json", "raw")
@@ -41,8 +71,8 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     url <- substr(url,2,nchar(url))
   }
   if (!(restType) %in% names(REST_FUNCTIONS)) {
-    logging::logerror("trying to use an undefined REST method")
-    logging::logerror(restType)
+    log_error("trying to use an undefined REST method:", restType)
+    setLastRestError(NA, url, restType, "undefined REST method")
     return(NULL)
   }
   restFunction <- REST_FUNCTIONS[restType][[1]]
@@ -51,12 +81,12 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
 
   url <- replacePlaceHoldersinURL(url,urlParams)
   url <- appendQueryParams(url,queryParams)
-  url <- paste0(conf()$repoUrl,url)
-  logging::logdebug(paste0(restType," connecting to ",url))
+  fullUrl <- paste0(conf()$repoUrl,url)
+  log_debug(restType, "connecting to", fullUrl)
 
   # Display REST calls if environment variable is set
   if (Sys.getenv("IMPROVER_DISPLAY_REST_CALLS", "") != "") {
-    cat(paste0("REST Call: ", restType, " ", url, "\n"))
+    cat(paste0("REST Call: ", restType, " ", fullUrl, "\n"))
     if (!identical(data, "")) {
       # Check if data is binary (raw type or contains file upload)
       if (is.raw(data) || (is.list(data) && any(sapply(data, function(x) inherits(x, "form_file"))))) {
@@ -69,47 +99,44 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
 
   result <- NULL
   if (!is.na(conf()$reqToken) && !is.null(conf()$reqToken)) {
-    logging::logdebug("TokenAuth")
-    if (!grepl("refreshToken",url)) {
-      logging::logdebug("Check refresh Token")
+    log_debug("TokenAuth")
+    if (!grepl("refreshToken",fullUrl)) {
+      log_debug("Check refresh Token")
       refreshToken()
     } else {
-      logging::logdebug("do not refresh, as is token") # TODO wording ambiguous; e.g. "Do not refresh, valid token available."
+      log_debug("Skipping refresh for token endpoint")
     }
 
-    result <- restFunction(url, body = data,
+    result <- restFunction(fullUrl, body = data,
                            httr::add_headers('Authorization' = paste0("Bearer ",conf()$reqToken)),
                                              encode=encode,
                                              'Content-Type' = contentType)
 
 
   } else {
-    logging::logdebug("User Auth")
-    result <- restFunction(url, body = data,
+    log_debug("User Auth")
+    result <- restFunction(fullUrl, body = data,
                            httr::authenticate(conf()$user,conf()$password),
                            encode=encode,
                            'Content-Type' = contentType)
   }
   if ((result$status_code>=200 && result$status_code<300)) {
-    logging::logdebug(paste0(result$status_code," ",url))
+    log_debug(result$status_code, fullUrl)
+    clearLastRestError()
     timing("done")
     return(result)
   } else if (result$status_code==401){
-    return(NULL)
-    log_error("Invalid or out of date token") # TODO wording ok, could be also invalid user/password combi; not only token; e.g. "Invalid authentication credentials (token, username/password)."
+    log_error("Invalid authentication credentials (token or username/password)")
+    setLastRestError(result$status_code, fullUrl, restType, "Invalid authentication credentials")
     return(NULL)
   } else if (result$status_code == 417) {
-    # print(result$status_code)
     log_error("Resource could not be run")
+    setLastRestError(result$status_code, fullUrl, restType, "Resource could not be run")
     return(NULL)
   } else {
-    logging::logdebug(result)
-    if (!ignoreFail) { #if ignoreFail is false, function stops
-      logging::logerror(paste0(result$status_code," error when connecting to ",url))
-      stop("error connecting to REST service")
-    } else {
-      logging::logdebug(paste0(result$status_code," error when connecting to ",url))
-    }
+    log_warn(result$status_code, "error when connecting to", fullUrl)
+    setLastRestError(result$status_code, fullUrl, restType,
+                     paste0("HTTP ", result$status_code, " from ", fullUrl))
     return(NULL)
   }
 }
@@ -119,7 +146,7 @@ replacePlaceHoldersinURL <- function(url,urlParams) {
     for (i in 1:length(urlParams)) {
       urlParamName <- paste0("{",names(urlParams[i]),"}")
       urlParamValue <- as.character(urlParams[i][1])
-      url<-gsub(urlParamName,urlParamValue,url,fixed=T)
+      url<-gsub(urlParamName,urlParamValue,url,fixed=TRUE)
     }
   }
   return(url)

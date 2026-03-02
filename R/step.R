@@ -297,11 +297,11 @@ attachStep <- function(ident, parent, from = pwd()) {
   )
 
   if (is.null(result)) {
-    logging::logwarn("Step was not attached.")
+    log_warn("Step was not attached.")
   }
 
   if (stepEntity$resourceId == stepParentEntity$resourceId) {
-    logging::logwarn("Step cannot be attached to itself.")
+    log_warn("Step cannot be attached to itself.")
   }
 
   unloadParentStep(stepEntity, from)

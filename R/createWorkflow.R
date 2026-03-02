@@ -99,7 +99,7 @@ library(magrittr)
     plan <- plan[!is.na(plan$dependencies), ]
   }
   if (is.null(startSteps) || nrow(startSteps) == 0) {
-    logging::logwarn("No step without dependencies, no executable order")
+    log_warn("No step without dependencies, no executable order")
     return(NULL)
   }
   for (s in seq_len(nrow(startSteps))) {
@@ -127,7 +127,7 @@ library(magrittr)
   }
   if (nrow(plan) == 0 || counter > 500) {
     if (counter > 500) {
-      logging::logwarn("could not add all steps to execution order, check for cycles")
+      log_warn("could not add all steps to execution order, check for cycles")
     }
     return(startSteps)
   }
@@ -445,12 +445,12 @@ createWorkflow <- function() {
   # @return Invisibly returns NULL
   env$executePlan <- function(executionPlan) {
     if (is.null(executionPlan) || nrow(executionPlan) == 0) {
-      logging::loginfo("No steps to execute")
+      log_info("No steps to execute")
       return(invisible(NULL))
     }
     orderedWorkflow <- .workflow_private$executionOrder(env, executionPlan)
     if (is.null(orderedWorkflow) || nrow(orderedWorkflow) == 0) {
-      logging::loginfo("No executable order could be determined")
+      log_info("No executable order could be determined")
       return(invisible(NULL))
     }
     executionList <- c()
@@ -464,7 +464,7 @@ createWorkflow <- function() {
         dependencies <- unique(strsplit(nextData$dependencies, ",")[[1]])
         for (dependencies in dependencies) {
           if (dependencies %in% executionList) {
-            logging::loginfo("waiting to finish")
+            log_info("waiting to finish")
             finishRunResource(env$steps[[dependencies]]$stepDf$sourceEntityId)
             executionList <- executionList[executionList != dependencies]
           }

@@ -4,13 +4,19 @@
 \alias{deleteReviewEntry}
 \title{Deletes All Review Entries From A Review}
 \usage{
-deleteReviewEntry(reviewId)
+deleteReviewEntry(ident, from = pwd())
 }
 \arguments{
-\item{reviewId}{id (UUID) of the review}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+\code{TRUE} if the entries were removed successfully, \code{FALSE} otherwise.
 }
 \description{
-Deletes All Review Entries From A Review
+Removes all entries from an existing review.
 }
 \references{
 ics365

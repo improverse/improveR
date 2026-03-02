@@ -2,23 +2,22 @@
 % Please edit documentation in R/loadResourceRelations.R
 \name{loadResourceRelations}
 \alias{loadResourceRelations}
-\title{Loads All Registered Resource Relations
-it uses caching
-the results are returned as a data frame or a list of data frames
-the dates are also converted to posix dates via convertImproveTimestampToPosix
-ident can be a list}
+\title{Loads All Registered Resource Relations}
 \usage{
-loadResourceRelations(resourceId)
+loadResourceRelations(ident, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the resource. Can be a path, resource ID, entity
+ID, or a data frame row from \code{loadResource()}. When a UUID string is
+passed it is used directly as the resource ID for backward compatibility.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of resource relations, or \code{NULL} if none exist.
 }
 \description{
-Loads All Registered Resource Relations
-it uses caching
-the results are returned as a data frame or a list of data frames
-the dates are also converted to posix dates via convertImproveTimestampToPosix
-ident can be a list
+Retrieves all resource relations for a given resource. Results are cached.
 }
 \references{
 ics1044

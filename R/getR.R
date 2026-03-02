@@ -113,8 +113,8 @@ sourceR <- function(ident,from=pwd(),addAsLink=TRUE) {
   rObject <- getR(ident=ident,from = from,addAsLink = addAsLink)
   if (is.null(rObject$path)) {
     if (length(rObject)==0) {
-      logging::logerror("No R script found")
-      logging::logerror(ident)
+      log_error("No R script found")
+      log_error(ident)
       return()
     }
     for (i in 1:length(rObject)) {

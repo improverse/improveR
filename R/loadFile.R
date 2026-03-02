@@ -159,8 +159,8 @@ updateFile <- function(ident, from = pwd(), filePath = ".",
 isFileUp2Date <- function(ident,from=pwd()) {
   res <- loadResource(ident,from)
   if (res$isVersion) {
-    logging::logwarn("Versions are always up 2 date")
-    logging::logwarn(paste0(ident," is a version ID"))
+    log_warn("Versions are always up 2 date")
+    log_warn(paste0(ident," is a version ID"))
     return(TRUE)
   }
   f <- loadFile(ident,from)
@@ -217,7 +217,7 @@ actualLoadFile <- function(resource,filePath,addIdToName,linkInInventory) {
         resource$revisionId <- resource$targetRevisionId
         resource$resourceId <- resource$targetId
       }
-      logging::logdebug(paste0("download: ",fPath))
+      log_debug(paste0("download: ",fPath))
       f <- file.create(fPath)
       f <- file(fPath, "wb")
       fResult <- authenticatedREST("/revisions/{revisionId}/resources/{resourceId}/content",

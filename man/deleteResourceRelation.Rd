@@ -4,12 +4,18 @@
 \alias{deleteResourceRelation}
 \title{Deletes a Resource Relation}
 \usage{
-deleteResourceRelation(resourceId, relationId)
+deleteResourceRelation(ident, relationId, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the source resource. Can be a path, resource ID,
+entity ID, or a data frame row from \code{loadResource()}.}
 
-\item{relationId}{id (UUID) of the relation}
+\item{relationId}{ID (UUID) of the relation to delete.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+\code{TRUE} if the relation was deleted successfully, \code{FALSE} otherwise.
 }
 \description{
 Deletes a Resource Relation

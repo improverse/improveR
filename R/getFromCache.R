@@ -1,9 +1,9 @@
 removeFromCache <- function(key,argument,cacheList) {
   if (!is.null(key)) {
-    logging::logdebug(paste0("Removing ",key," from Caches"))
+    log_debug(paste0("Removing ",key," from Caches"))
     if (cacheEnv$persistentCaching & cacheEnv$reproducible) {
       cacheEnv$reproducible<-F
-      logging::logwarn("No longer reproducible, as cache was updated during working")
+      log_warn("No longer reproducible, as cache was updated during working")
     }
     res <- getFromCache(key,function(key){},cacheList,"")
     if (!is.null(res)) {
@@ -41,17 +41,17 @@ removeFromCache <- function(key,argument,cacheList) {
 getFromCache <- function(key,func,cacheList,argument,...) {
   improveConnected()
   if (is.character(key)) {
-    logging::logdebug(paste0("Retrieving ",key," from caches"))
+    log_debug(paste0("Retrieving ",key," from caches"))
   } else {
-    logging::logdebug(paste0("Retrieving from caches by function"))
+    log_debug(paste0("Retrieving from caches by function"))
   }
   initialiseCache(cacheList)
   val <- searchInCache(cacheList,key)
   if (!is.null(val)) {
-    logging::logdebug("Found")
+    log_debug("Found")
     return(val)
   } else {
-    logging::logdebug("Get for cache ")
+    log_debug("Get for cache ")
     val <- func(key,...)
     if (!is.null(val)) {
       writeToCache(val,cacheList,argument)

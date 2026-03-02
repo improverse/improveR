@@ -12,7 +12,7 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   improveConnected()
   if (cacheEnv$persistentCaching && cacheEnv$reproducible && invalidatesReproducibility) {
     cacheEnv$reproducible<-F
-    logging::logwarn("No longer reproducible, as repo was accessed directly without cache, use loadResource")
+    log_warn("No longer reproducible, as repo was accessed directly without cache, use loadResource")
   }
 
     if (length(resourceId)>1) {
@@ -25,14 +25,14 @@ loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
         )
     )
   }
-  logging::logdebug(paste0("Loading Resource for ",resourceId))
+  log_debug(paste0("Loading Resource for ",resourceId))
   df<-NULL
   if (as.character(resourceId)!="0") {
     result <- authenticatedREST("/resources/{resourceId}",
                                 list(resourceId=resourceId)
     )
     if (is.null(result)) {
-      logging::logwarn(paste0("Resource with ID: ",resourceId," could not be loaded"))
+      log_warn(paste0("Resource with ID: ",resourceId," could not be loaded"))
       return(NULL)
     }
     cont <- httr::content(result)

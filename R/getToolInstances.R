@@ -48,6 +48,10 @@ getGridValues <- function() {
   } else {
     log_info("load gridValues")
     gridCategoriesResult <- authenticatedREST("/configuration/gridArguments/categories")
+    if (is.null(gridCategoriesResult)) {
+      log_warn("Failed to load grid categories")
+      return(data.frame())
+    }
     gridCategories<-mergeNestedListToDataframe(httr::content(gridCategoriesResult))
 
     gridValues <- byNotEmptyAsDf(gridCategories,function(gridCategory) {
@@ -64,6 +68,10 @@ getParameterValues <- function() {
   } else {
     log_info("load parameterValues")
     parameterResult <- authenticatedREST("/configuration/parameterLov")
+    if (is.null(parameterResult)) {
+      log_warn("Failed to load parameter values")
+      return(data.frame())
+    }
     parameters <- mergeListToDataframe(httr::content(parameterResult))
     assign(x = "parameterValues",value = parameters,envir = toolInstanceCache)
     return(parameters)

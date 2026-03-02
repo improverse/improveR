@@ -51,19 +51,44 @@ validateTargetResourceIdDuplicate <- function(resourceId, targetResourceId) {
   return(TRUE)
 }
 
+#' Resolve an identifier to a resourceId UUID
+#' @param ident Resource identifier — can be a path, entityId, resourceId, or
+#'   a data frame row returned by \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns Character resourceId UUID, or \code{NULL} if the resource cannot be found.
+#' @noRd
+resolveResourceId <- function(ident, from = pwd()) {
+  if (is.data.frame(ident) && "resourceId" %in% names(ident)) {
+    return(ident$resourceId[1])
+  }
+  res <- loadResource(ident, from)
+  if (is.null(res)) return(NULL)
+  return(res$resourceId)
+}
+
 #' Creates a New Resource Relation
-#' @param resourceId id (UUID) of the resource
-#' @param targetResourceId id (UUID) of the target resource
-#' @param relationTypeId id (UUID) of the relation type
-#' @param description description of the resource relation
+#'
+#' Creates a relation between two resources in the repository.
+#'
+#' @param ident Identifier of the source resource. Can be a path, resource ID,
+#'   entity ID, or a data frame row from \code{loadResource()}.
+#' @param targetIdent Identifier of the target resource. Same formats as \code{ident}.
+#' @param relationTypeId ID (UUID) of the relation type. Use \code{loadRelationTypes()}
+#'   to retrieve available types.
+#' @param description Character. Description of the resource relation.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of the resource's current relations, or \code{NULL} on failure.
 #' @references ics1044
 #' @export
-createResourceRelation <- function(resourceId, targetResourceId, relationTypeId, description) {
+createResourceRelation <- function(ident, targetIdent, relationTypeId, description, from = pwd()) {
   improveEditable()
 
+  resourceId <- resolveResourceId(ident, from)
+  targetResourceId <- resolveResourceId(targetIdent, from)
 
   if (!validateParams(list(resourceId, targetResourceId, relationTypeId, description)) || !validateResource(resourceId) || !validateResource(targetResourceId) ||
       !validateRelationType(relationTypeId) || !validateTargetResourceIdDuplicate(resourceId, targetResourceId)) {
+    log_warn("validation failed for creating resource relation between", ident, "and", targetIdent)
     return(NULL)
   }
 
@@ -72,24 +97,30 @@ createResourceRelation <- function(resourceId, targetResourceId, relationTypeId,
                "description" = description)
 
   result <- authenticatedREST("/resources/{resourceId}/relation",  urlParams = list(resourceId = resourceId), data = data, restType = "POST")
-  updateResourceRelations(resourceId)
+  relations <- updateResourceRelations(resourceId)
 
-  return(result)
+  return(relations)
 }
 
 #' Updates a Resource Relation
-#' @param resourceId id (UUID) of the resource
-#' @param relationId id (UUID) of the relation
-#' @param newRelationTypeId id (UUID) of the relation type
-#' @param newDescription description of the resource relation
+#'
+#' @param ident Identifier of the source resource. Can be a path, resource ID,
+#'   entity ID, or a data frame row from \code{loadResource()}.
+#' @param relationId ID (UUID) of the relation to update.
+#' @param newRelationTypeId ID (UUID) of the new relation type.
+#' @param newDescription Character. New description of the resource relation.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of the resource's current relations, or \code{NULL} on failure.
 #' @references ics1044
 #' @export
-updateResourceRelation <- function(resourceId, relationId, newRelationTypeId, newDescription) {
+updateResourceRelation <- function(ident, relationId, newRelationTypeId, newDescription, from = pwd()) {
   improveEditable()
 
+  resourceId <- resolveResourceId(ident, from)
 
   if (!validateParams(list(resourceId, relationId, newRelationTypeId, newDescription)) || !validateResource(resourceId) ||
       !validateResourceRelation(resourceId, relationId) || !validateRelationType(newRelationTypeId)) {
+    log_warn("validation failed for updating resource relation", relationId, "on resource", ident)
     return(NULL)
   }
 
@@ -101,25 +132,36 @@ updateResourceRelation <- function(resourceId, relationId, newRelationTypeId, ne
                "description" = newDescription)
 
   result <- authenticatedREST("/resources/{resourceId}/relation/{relationId}", urlParams = list(resourceId = resourceId, relationId = relationId), data = data, restType = "PUT")
-  updateResourceRelations(resourceId)
+  relations <- updateResourceRelations(resourceId)
 
-  return(result)
+  return(relations)
 }
 
 #' Deletes a Resource Relation
-#' @param resourceId id (UUID) of the resource
-#' @param relationId id (UUID) of the relation
+#'
+#' @param ident Identifier of the source resource. Can be a path, resource ID,
+#'   entity ID, or a data frame row from \code{loadResource()}.
+#' @param relationId ID (UUID) of the relation to delete.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns \code{TRUE} if the relation was deleted successfully, \code{FALSE} otherwise.
 #' @references ics1044
 #' @export
-deleteResourceRelation <- function(resourceId, relationId) {
+deleteResourceRelation <- function(ident, relationId, from = pwd()) {
   improveEditable()
 
+  resourceId <- resolveResourceId(ident, from)
+
   if (!validateParams(list(resourceId, relationId)) || !validateResource(resourceId) || !validateResourceRelation(resourceId, relationId)) {
-    return(NULL)
+    log_warn("validation failed for deleting resource relation", relationId, "on resource", ident)
+    return(FALSE)
   }
 
   result <- authenticatedREST("/resources/{resourceId}/relation/{relationId}", urlParams = list(resourceId = resourceId, relationId = relationId), restType = "DELETE")
   updateResourceRelations(resourceId)
 
-  return(result)
+  if (!is.null(result)) {
+    return(TRUE)
+  }
+  log_warn("Failed to delete resource relation:", relationId)
+  return(FALSE)
 }

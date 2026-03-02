@@ -24,7 +24,7 @@ getUsage <- function(step, env) {
         # Use new REST endpoint
         usageResult <- authenticatedREST("/resources/{resourceId}/usages",
                                         urlParams = list(resourceId = step$resourceId))
-        if (!is.null(usageResult) && usageResult$status_code == 200) {
+        if (!is.null(usageResult)) {
           return(httr::content(usageResult))
         }
         return(list())

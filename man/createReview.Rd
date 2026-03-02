@@ -6,31 +6,39 @@
 \usage{
 createReview(
   name,
-  parentPath,
+  parentIdent,
   comment,
   templateId,
   resourceIds,
   reviewerIds,
-  dueDate
+  dueDate,
+  from = pwd()
 )
 }
 \arguments{
-\item{name}{name of the review}
+\item{name}{Character. Name of the review.}
 
-\item{parentPath}{path of the parent}
+\item{parentIdent}{Identifier of the parent folder. Can be a path, resource ID,
+entity ID, or a data frame row from \code{loadResource()}.}
 
-\item{comment}{review comment}
+\item{comment}{Character. Review comment.}
 
-\item{templateId}{id (UUID) of the template}
+\item{templateId}{Character. ID (UUID) of the review template.}
 
-\item{resourceIds}{vector of resourceIds}
+\item{resourceIds}{Character vector of resource IDs (UUIDs) to include in the review.}
 
-\item{reviewerIds}{vector of reviewerIds}
+\item{reviewerIds}{Character vector of reviewer user IDs (UUIDs).}
 
-\item{dueDate}{format: yyyy-mm-dd}
+\item{dueDate}{Character. Due date in \code{yyyy-mm-dd} format.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame with the created review resource, or \code{NULL} on failure.
 }
 \description{
-Creates a New Review
+Creates a review resource under the specified parent folder, containing
+the given resources and assigned to the given reviewers.
 }
 \references{
 ics1527

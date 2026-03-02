@@ -4,10 +4,7 @@
 \alias{updateRelationTypes}
 \title{Reloads the Relation Types}
 \usage{
-updateRelationTypes(conn)
-}
-\arguments{
-\item{conn}{database connection}
+updateRelationTypes()
 }
 \description{
 Reloads the Relation Types

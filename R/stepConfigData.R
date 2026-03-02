@@ -51,7 +51,7 @@ loadRunserver <- function(label) {
   if (nrow(runserver)==1) {
     return(runserver)
   }
-  logging::logwarn(paste0(
+  log_warn(paste0(
     "No or multiple runservers with this label found: ",label)
   )
   return(NULL)
@@ -107,21 +107,21 @@ loadToolForRunserver <- function(runserverId,toolName=NULL,toolInstanceName=NULL
     return(NULL)
   }
   if (is.null(toolName) && is.null(toolInstanceName)) {
-    logging::logerror("toolName or tool instance name have to be given")
+    log_error("toolName or tool instance name have to be given")
     return(NULL)
   } else if (is.null(toolName)) {
     tool<-runserverTools[runserverTools$name==toolInstanceName,]
     if (nrow(tool)==1) {
       return(tool)
     }
-    logging::logerror(paste0(toolInstanceName," not unique or does not exist"))
+    log_error(paste0(toolInstanceName," not unique or does not exist"))
     return(NULL)
   } else if (is.null(toolInstanceName)) {
     tool<-runserverTools[runserverTools$toolName==toolName,]
     if (nrow(tool)==1) {
       return(tool)
     }
-    logging::logerror(paste0(toolName," not unique or does not exist"))
+    log_error(paste0(toolName," not unique or does not exist"))
     return(NULL)
   } else  {
     runserverTools<-runserverTools[runserverTools$toolName==toolName,]
@@ -129,7 +129,7 @@ loadToolForRunserver <- function(runserverId,toolName=NULL,toolInstanceName=NULL
         if (nrow(tool)==1) {
       return(tool)
     }
-    logging::logerror(paste0(toolInstanceName," and ",toolName," not unique or does not exist"))
+    log_error(paste0(toolInstanceName," and ",toolName," not unique or does not exist"))
     return(NULL)
   }
 }

@@ -227,7 +227,7 @@ actualLoadParentalDescendant <- function(resource) {
   )
 
   if (is.null(result)) {
-    logging::loginfo(paste("No parental descendant found for:", resource$entityId))
+    log_info(paste("No parental descendant found for:", resource$entityId))
     return(NULL)
   }
 

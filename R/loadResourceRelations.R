@@ -6,57 +6,59 @@ relationTypesCacheList <- list(
   relationTypesCache = defaultKeyRelationTypes
 )
 
-#' API request to retrieve all registered relation types
-#' @param conn database connection
-#' @param ... args
+#' Retrieve all registered relation types via REST
 #' @keywords internal
 #' @noRd
-actualLoadRelationTypes <- function(conn, ...) {
-  #result <- DBI::dbGetQuery(conn, "SELECT * FROM RELATION_TYPE_LOV")
-#TODO replace with rest call
-  result <- NULL
-  if (is.null(result) || nrow(result) == 0) {
-    return(NULL)
-  } else if (!all(c("ID", "SYSTEM_LAYER", "NAME", "REVERSE_NAME", "DESCRIPTION") %in% colnames(result))) {
-    log_error("The 'id', 'system_layer', 'name', 'reverseName' or 'description' column does not exist in the 'relationTypes' data frame")
+actualLoadRelationTypes <- function(...) {
+  result <- authenticatedREST("/configuration/relationTypeLov", restType = "GET")
+  if (is.null(result)) {
     return(NULL)
   }
-
-  colnames(result) <- tolower(colnames(result))
-  colnames(result)[colnames(result) == "reverse_name"] <- "reverseName"
-  colnames(result)[colnames(result) == "system_layer"] <- "systemLayerId"
-  result$id <- sapply(result$id, function(blob) {
-    paste(toupper(as.character(unlist(blob))), collapse = "")
-  })
-  result$systemLayerId <- sapply(result$systemLayerId, function(blob) {
-    paste(toupper(as.character(unlist(blob))), collapse = "")
-  })
-
-  return(result)
+  cont <- httr::content(result)
+  if (length(cont) == 0) {
+    return(NULL)
+  }
+  df <- mergeListToDataframe(cont)
+  if (is.null(df) || nrow(df) == 0) {
+    return(NULL)
+  }
+  # Normalise column names to match existing convention
+  if ("reverseName" %in% colnames(df) && !"reverse_name" %in% colnames(df)) {
+    # already camelCase from REST — keep as is
+  }
+  if ("systemLayerId" %in% colnames(df) && !"system_layer" %in% colnames(df)) {
+    # already camelCase from REST — keep as is
+  }
+  return(df)
 }
 
 #' Loads All Registered Relation Types
-#' @param conn database connection
+#'
+#' Retrieves the list of available relation types from the repository server.
+#' Results are cached for performance.
+#'
+#' @returns A data frame of relation types with columns such as \code{id},
+#'   \code{name}, \code{reverseName}, \code{description}, or \code{NULL} if
+#'   no relation types are configured.
+#' @references ics1592
 #' @export
-loadRelationTypes <- function(conn) {
-  relationTypes <- getFromCache(conn, actualLoadRelationTypes, relationTypesCacheList, NULL)
+loadRelationTypes <- function() {
+  relationTypes <- getFromCache("default", actualLoadRelationTypes, relationTypesCacheList, NULL)
   return(relationTypes)
 }
 
 #' Unloads All Relation Types
-#' @param conn database connection
 #' @export
-unloadRelationTypes <- function(conn) {
-  loadRelationTypes(conn)
+unloadRelationTypes <- function() {
+  loadRelationTypes()
   removeFromCache(defaultKeyRelationTypes, "", relationTypesCacheList)
 }
 
 #' Reloads the Relation Types
-#' @param conn database connection
 #' @export
-updateRelationTypes <- function(conn) {
-  unloadRelationTypes(conn)
-  res <- loadRelationTypes(conn)
+updateRelationTypes <- function() {
+  unloadRelationTypes()
+  res <- loadRelationTypes()
   return(res)
 }
 
@@ -93,33 +95,66 @@ actualLoadResourceRelations <- function(resourceId) {
 }
 
 #' Loads All Registered Resource Relations
-#' it uses caching
-#' the results are returned as a data frame or a list of data frames
-#' the dates are also converted to posix dates via convertImproveTimestampToPosix
-#' ident can be a list
-#' @param resourceId id (UUID) of the resource
+#'
+#' Retrieves all resource relations for a given resource. Results are cached.
+#'
+#' @param ident Identifier of the resource. Can be a path, resource ID, entity
+#'   ID, or a data frame row from \code{loadResource()}. When a UUID string is
+#'   passed it is used directly as the resource ID for backward compatibility.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of resource relations, or \code{NULL} if none exist.
 #' @references ics1044
 #' @export
-loadResourceRelations <- function(resourceId) {
+loadResourceRelations <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   resourceRelations <- getFromCache(resourceId, actualLoadResourceRelations, resourceRelationsCacheList, NULL)
   return(resourceRelations)
 }
 
 #' Unloads All Resource Relations
-#' @param resourceId id (UUID) of the resource
+#' @param ident Identifier of the resource.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1044
 #' @export
-unloadResourceRelations <- function(resourceId) {
+unloadResourceRelations <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   loadResourceRelations(resourceId)
   removeFromCache(resourceId, "", resourceRelationsCacheList)
 }
 
 #' Reloads the Resource Relations
-#' @param resourceId id (UUID) of the resource
+#' @param ident Identifier of the resource.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1044
 #' @export
-updateResourceRelations <- function(resourceId) {
+updateResourceRelations <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   unloadResourceRelations(resourceId)
   res <- loadResourceRelations(resourceId)
   return(res)
+}
+
+#' Resolve an identifier to a resourceId UUID (internal helper)
+#'
+#' Handles the common pattern of accepting paths, entity IDs, resource IDs,
+#' or data frame rows and resolving to a UUID string.
+#' @param ident The identifier.
+#' @param from Base path for relative resolution.
+#' @returns Character UUID, or the input unchanged if it already looks like a UUID.
+#' @noRd
+resolveToResourceId <- function(ident, from = pwd()) {
+  if (is.data.frame(ident) && "resourceId" %in% names(ident)) {
+    return(ident$resourceId[1])
+  }
+  # If it looks like a UUID already (32 hex chars), use directly
+  if (is.character(ident) && length(ident) == 1 && grepl("^[A-Fa-f0-9]{32}$", ident)) {
+    return(ident)
+  }
+  # Otherwise resolve via loadResource
+  res <- loadResource(ident, from)
+  if (!is.null(res) && "resourceId" %in% names(res)) {
+    return(res$resourceId[1])
+  }
+  # Last resort: return as-is (may be a UUID that doesn't match the pattern)
+  return(ident)
 }

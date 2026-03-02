@@ -43,10 +43,10 @@ genericLoadResourceSubEntities <- function(ident,func,cacheList,from=pwd(),...) 
 genericLoadFromServer <- function(resource,name,funct,...) {
   improveConnected()
   resource <- loadResource(resource)
-  logging::logdebug(paste0("Loading ",name," Resources for ",resource$entityId))
+  log_debug(paste0("Loading ",name," Resources for ",resource$entityId))
   df <- funct(resource,...)
   if (is.null(df)) {
-    logging::logwarn(paste0(name," resource by ID: ",resource$entityId," could not be loaded"))
+    log_warn(paste0(name," resource by ID: ",resource$entityId," could not be loaded"))
     return(NULL)
   }
   resultFrame <- data.frame(type=name,stringsAsFactors = F)

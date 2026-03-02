@@ -33,8 +33,8 @@ realise_deprecated <- function(env, force = TRUE, run = TRUE,workflow=NULL) {
       prepStep$treeIdent <- treeIdent
       env$stepDf$treeIdent <- treeIdent
     }, error = function(e) {
-      logging::logerror(e)
-      logging::logerror("treeIdent or treePath and treeName need to be specified in order to create the step")
+      log_error(e)
+      log_error("treeIdent or treePath and treeName need to be specified in order to create the step")
       stop("could not create step")
     })
   }
@@ -65,7 +65,7 @@ realise_deprecated <- function(env, force = TRUE, run = TRUE,workflow=NULL) {
 #' @keywords internal
 #' @noRd
 createPreparedStep_deprecated <- function(env, prepStep) {
-  logging::logdebug("createPreparedStep_deprecated")
+  log_debug("createPreparedStep_deprecated")
 
   # Get runserver and tool information from the process configuration
   runserver <- NULL
@@ -74,7 +74,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   # Check if we have process information
   if (!is.null(prepStep$processes) && length(prepStep$processes) > 0) {
     processes <- prepStep$processes[[1]]
-    logging::logdebug(paste0("Found ", nrow(processes), " processes"))
+    log_debug(paste0("Found ", nrow(processes), " processes"))
 
     # Get the main process (or first process)
     mainProcess <- processes[processes$name == "Main", ]
@@ -82,9 +82,9 @@ createPreparedStep_deprecated <- function(env, prepStep) {
       mainProcess <- processes[1, ]
     }
 
-    logging::logdebug(paste0("Main process - runserverLabel: ", mainProcess$runserverLabel))
-    logging::logdebug(paste0("Main process - toolLabel: ", mainProcess$toolLabel))
-    logging::logdebug(paste0("Main process - toolInstance: ", mainProcess$toolInstance))
+    log_debug(paste0("Main process - runserverLabel: ", mainProcess$runserverLabel))
+    log_debug(paste0("Main process - toolLabel: ", mainProcess$toolLabel))
+    log_debug(paste0("Main process - toolInstance: ", mainProcess$toolInstance))
 
     # Extract runserver and tool info from process
     if (!is.null(mainProcess$runserverLabel) && !is.na(mainProcess$runserverLabel) && mainProcess$runserverLabel != "") {
@@ -105,7 +105,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
       }
     }
   } else {
-    logging::logdebug("No processes found in prepStep")
+    log_debug("No processes found in prepStep")
   }
 
   # Fallback to old field names if present
@@ -141,16 +141,16 @@ createPreparedStep_deprecated <- function(env, prepStep) {
     stop("Failed to create step")
   }
 
-  logging::logdebug("created step")
+  log_debug("created step")
 
   # Get main process
   main <- getMainProcess(newStep$resourceId)
   processId <- main$id
 
   # Debug logging
-  logging::logdebug(paste0("Main process found: ", processId))
-  logging::logdebug(paste0("Runserver loaded: ", !is.null(runserver)))
-  logging::logdebug(paste0("Tool loaded: ", !is.null(tool)))
+  log_debug(paste0("Main process found: ", processId))
+  log_debug(paste0("Runserver loaded: ", !is.null(runserver)))
+  log_debug(paste0("Tool loaded: ", !is.null(tool)))
 
   # Set tool arguments if provided
   toolArguments <- NULL
@@ -164,7 +164,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
 
   # Update process variables if we have runserver/tool info
   if (!is.null(runserver) && !is.null(tool)) {
-    logging::logdebug(paste0("Setting process variables with tool: ", tool$name))
+    log_debug(paste0("Setting process variables with tool: ", tool$name))
     setProcessVariables(newStep$resourceId, processId,
                        runserverId = runserver$id,
                        toolId = tool$toolId,
@@ -172,15 +172,15 @@ createPreparedStep_deprecated <- function(env, prepStep) {
                        gridTool = !is.na(tool$gridProvider),
                        toolArguments = toolArguments)
   } else if (!is.null(toolArguments)) {
-    logging::logdebug("Setting only tool arguments")
+    log_debug("Setting only tool arguments")
     # Just update tool arguments
     setProcessVariables(newStep$resourceId, processId,
                        toolArguments = toolArguments)
   } else {
-    logging::logdebug("No runserver/tool info found to set")
+    log_debug("No runserver/tool info found to set")
   }
 
-  logging::logdebug("process variables set")
+  log_debug("process variables set")
 
   # Update processes
   main <- updateProcessesForStep(newStep$resourceId)
@@ -225,7 +225,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
     changeStepRationale_deprecated(newStep, rationale = prepStep$rationale)
   }
 
-  logging::logdebug("step names and descriptions set")
+  log_debug("step names and descriptions set")
 
   # Reload resources to get fresh state
   unloadResource(newStep)
@@ -239,7 +239,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
 
   # Update the step reference after reloading
   if (is.null(newStep)) {
-    logging::logerror("Failed to reload step after modifications")
+    log_error("Failed to reload step after modifications")
     stop("Step reload failed")
   }
 
@@ -256,7 +256,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
     })
   }
 
-  logging::logdebug("remote files set")
+  log_debug("remote files set")
 
   # Local files
   localFiles <- prepStep$localFiles[[1]]
@@ -274,7 +274,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
     })
   }
 
-  logging::logdebug("local files and links set")
+  log_debug("local files and links set")
 
   # Set grid arguments
   gridArguments <- mainProcess$gridArguments[[1]]
@@ -284,7 +284,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
     })
   }
 
-  logging::logdebug("grid arguments set")
+  log_debug("grid arguments set")
 
   # Final reload
   unloadResource(newStep)
@@ -296,7 +296,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   }
   newStep <- loadResource(newStep$resourceId)
 
-  logging::logdebug("reloaded")
+  log_debug("reloaded")
 
   return(newStep)
 }
@@ -380,8 +380,8 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
   if (grepl("/", fileName, fixed = TRUE)) {
     pathParts <- strsplit(fileName, "/", fixed = TRUE)[[1]]
     if (length(pathParts) != 2) {
-      logging::logwarn("maximum folder depth allowed is 1, by filename in realise step")
-      logging::logwarn(fileName)
+      log_warn("maximum folder depth allowed is 1, by filename in realise step")
+      log_warn(fileName)
       return()
     }
     folderName <- pathParts[1]
@@ -397,7 +397,7 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
     }
 
     if (nrow(folder) == 1 && folder$nodeType != "Folder") {
-      logging::logwarn(paste(folderName, "already exists but not as folder"))
+      log_warn(paste(folderName, "already exists but not as folder"))
       return()
     }
 
@@ -408,7 +408,7 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
       createTarget <- createFolder(newStep$resourceId, folderName = folderName)
 
       if (is.null(createTarget)) {
-        logging::logerror(paste0("addFileToStep_deprecated: Failed to create folder '", folderName, "'"))
+        log_error(paste0("addFileToStep_deprecated: Failed to create folder '", folderName, "'"))
         return()
       }
 
@@ -504,7 +504,7 @@ addFileToStep_deprecated <- function(newStep, filePrep, isLocal, env) {
       if (!is.null(filePrep$ident)) {
       newFile <- copy(filePrep$ident, createTarget$resourceId, targetName = fileName)
       if (is.null(newFile)) {
-        logging::logerror(paste0("addFileToStep_deprecated: Failed to copy file '", fileName, "'"))
+        log_error(paste0("addFileToStep_deprecated: Failed to copy file '", fileName, "'"))
       } else {
       }
       }
@@ -553,7 +553,7 @@ addExtLinkToStep_deprecated <- function(newStep, linkPrep) {
   if (grepl("/", fileName, fixed = TRUE)) {
     pathParts <- strsplit(fileName, "/", fixed = TRUE)[[1]]
     if (length(pathParts) != 2) {
-      logging::logwarn("maximum folder depth allowed is 1")
+      log_warn("maximum folder depth allowed is 1")
       return()
     }
     folderName <- pathParts[1]
@@ -563,7 +563,7 @@ addExtLinkToStep_deprecated <- function(newStep, linkPrep) {
     folder <- children[children$name == folderName, ]
 
     if (nrow(folder) == 1 && folder$nodeType != "Folder") {
-      logging::logwarn(paste(folderName, "already exists but not as folder"))
+      log_warn(paste(folderName, "already exists but not as folder"))
       return()
     }
 

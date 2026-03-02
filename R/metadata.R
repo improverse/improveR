@@ -133,7 +133,7 @@ singleUpdateMetaDate <- function(ident,descriptorName, value) {
   metadata <- loadMetaData(ident)$data[[1]]
   metadata <- metadata[metadata$descriptorName==descriptorName,]
   if (nrow(metadata)==0 || nrow(metadata)>1) {
-    logging::logwarn(paste0(
+    log_warn(paste0(
       "0 or more than one meta date found for descriptor ",
       descriptorName,
       " on resource ",

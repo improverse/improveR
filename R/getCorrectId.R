@@ -29,8 +29,8 @@ getCorrectId <- function(resolveToId) {
         if ("resourceId" %in% names(resolveToId)) {
             return(resolveToId$resourceId)
         } else {
-            logging::logerror("no resourceId contained in data frame")
-            logging::logerror(resolveToId)
+            log_error("no resourceId contained in data frame")
+            log_error(resolveToId)
             stop("missing resourceId")
         }
     } else if (startsWith(resolveToId, "/") | startsWith(resolveToId, "./") | startsWith(resolveToId, "\\") | startsWith(resolveToId, ".\\")) {
