@@ -2,18 +2,19 @@
 #' @param reviewId id (UUID) of the review
 #' @noRd
 validateReviewState <- function(reviewId) {
-  reviews <- updateReviews()
-  if (!"reviewStatus" %in% colnames(reviews)) {
-    log_error("The 'reviewStatus' column does not exist in the 'reviews' data frame")
+  resource <- loadResource(reviewId)
+  if (is.null(resource)) {
+    log_error("The review with the id:", reviewId, "does not exist")
     return(FALSE)
   }
-
-  filteredReview <- reviews[!is.na(reviews$id) & reviews$id == reviewId,]
-  if (filteredReview$reviewStatus != "Reviewing") {
-    log_error("The review with the id:", reviewId, "is not in the state 'Reviewing'")
+  if (is.null(resource$reviewStatus)) {
+    log_error("Review", reviewId, "has no reviewStatus field")
     return(FALSE)
   }
-
+  if (resource$reviewStatus != "Reviewing") {
+    log_error("The review with the id:", reviewId, "is not in the state 'Reviewing' (current state:", resource$reviewStatus, ")")
+    return(FALSE)
+  }
   return(TRUE)
 }
 

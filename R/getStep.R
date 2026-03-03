@@ -112,13 +112,12 @@ getStep <- function(ident,workflow=NULL) {
   # Validate input - check if ident is a data frame with multiple rows
   if (is.data.frame(ident)) {
     if (nrow(ident) > 1) {
-      stop("getStep() expects a single step, but received a data frame with ", nrow(ident), " rows. ",
-           "Please select a single row using indexing: getStep(ident[1,]) or getStep(ident[2,])",
-           call. = FALSE)
+      log_warn("getStep() received a data frame with", nrow(ident), "rows, using the first row")
+      ident <- ident[1, ]
     } else if (nrow(ident) == 0) {
-      stop("getStep() received an empty data frame", call. = FALSE)
+      log_warn("getStep() received an empty data frame")
+      return(NULL)
     }
-    # Single row data frame - this is OK, continue
   }
 
   if (!is.null(workflow)) {

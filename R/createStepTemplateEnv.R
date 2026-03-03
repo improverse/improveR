@@ -1076,6 +1076,9 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       # }
     }
     newStep <- .template_private$create()
+    if (is.null(newStep)) {
+      stop("Failed to create step: check authentication and server connection.", call. = FALSE)
+    }
     env$setStepValue("entityId", as.character(newStep$entityId))
     tree <- loadResource(newStep$parentId)
     env$setStepValue("treeIdent", tree$resourceId)

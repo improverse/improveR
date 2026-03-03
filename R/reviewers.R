@@ -2,24 +2,15 @@
 #' @param reviewId id (UUID) of the review whose existence is to be checked
 #' @noRd
 validateReview <- function(reviewId) {
-  reviews <- updateReviews()
-  if (is.null(reviews) || nrow(reviews) == 0) {
-    log_error("No review exists")
-    return(FALSE)
-  } else if (!"id" %in% colnames(reviews)) {
-    log_error("The 'id' column does not exist in the 'reviews' data frame")
-    return(FALSE)
-  }
-
-  filteredReview <- reviews[!is.na(reviews$id) & reviews$id == reviewId,]
-  if (is.null(filteredReview) || nrow(filteredReview) == 0) {
+  resource <- loadResource(reviewId)
+  if (is.null(resource)) {
     log_error("The review with the id:", reviewId, "does not exist")
     return(FALSE)
-  } else if (nrow(filteredReview) > 1) {
-    log_error("Found more than one review with the id:", reviewId)
+  }
+  if (resource$nodeType != "Review") {
+    log_error("Resource", reviewId, "is not a Review (nodeType:", resource$nodeType, ")")
     return(FALSE)
   }
-
   return(TRUE)
 }
 
@@ -82,12 +73,18 @@ validateUser <- function(userId, username) {
 #' @noRd
 validateDuplicateReviewer <- function(reviewId, userId, username) {
   reviewers <- updateReviewers(reviewId)
-  if (!is.null(reviewers) && !all(c("userid", "username") %in% colnames(reviewers))) {
-    log_error("The 'userid' or 'username' column does not exist in the 'reviewers' data frame")
-    return(FALSE)
-  } else if (!is.null(reviewers) && nrow(reviewers) > 0 && any((reviewers$userId == userId) & (reviewers$username == username), na.rm = TRUE)) {
-    log_error("Another reviewer with the id:", userId, "and the username:", username, "already exists for the review with the id:", reviewId)
-    return(FALSE)
+  if (!is.null(reviewers) && nrow(reviewers) > 0) {
+    # Reviewer API returns nested user fields: user.id, user.username
+    userIdCol <- if ("user.id" %in% colnames(reviewers)) "user.id" else if ("userId" %in% colnames(reviewers)) "userId" else NULL
+    usernameCol <- if ("user.username" %in% colnames(reviewers)) "user.username" else if ("username" %in% colnames(reviewers)) "username" else NULL
+    if (is.null(userIdCol) || is.null(usernameCol)) {
+      log_error("Cannot find user ID/username columns in reviewers data frame. Available columns:", paste(colnames(reviewers), collapse=", "))
+      return(FALSE)
+    }
+    if (any((reviewers[[userIdCol]] == userId) & (reviewers[[usernameCol]] == username), na.rm = TRUE)) {
+      log_error("Another reviewer with the id:", userId, "and the username:", username, "already exists for the review with the id:", reviewId)
+      return(FALSE)
+    }
   }
   return(TRUE)
 }
