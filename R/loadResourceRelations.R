@@ -134,27 +134,4 @@ updateResourceRelations <- function(ident, from = pwd()) {
   return(res)
 }
 
-#' Resolve an identifier to a resourceId UUID (internal helper)
-#'
-#' Handles the common pattern of accepting paths, entity IDs, resource IDs,
-#' or data frame rows and resolving to a UUID string.
-#' @param ident The identifier.
-#' @param from Base path for relative resolution.
-#' @returns Character UUID, or the input unchanged if it already looks like a UUID.
-#' @noRd
-resolveToResourceId <- function(ident, from = pwd()) {
-  if (is.data.frame(ident) && "resourceId" %in% names(ident)) {
-    return(ident$resourceId[1])
-  }
-  # If it looks like a UUID already (32 hex chars), use directly
-  if (is.character(ident) && length(ident) == 1 && grepl("^[A-Fa-f0-9]{32}$", ident)) {
-    return(ident)
-  }
-  # Otherwise resolve via loadResource
-  res <- loadResource(ident, from)
-  if (!is.null(res) && "resourceId" %in% names(res)) {
-    return(res$resourceId[1])
-  }
-  # Last resort: return as-is (may be a UUID that doesn't match the pattern)
-  return(ident)
-}
+# resolveToResourceId moved to restHelpers.R

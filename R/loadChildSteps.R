@@ -124,24 +124,15 @@ loadChildStepsFromServer <- function(resource) {
 
 #nest!
 actualLoadChildSteps <- function(resource) {
-  result<-NULL
-  if (as.character(resource$resourceId)!="0") {
-    if (resource$nodeType!="Step") {
-      log_warn("Resource",resource$entityId,"is not a Step, co no child steps possible")
-      return(NULL)
-    }
-    result <- authenticatedREST("/resources/{resourceId}/childSteps",
-                                list(resourceId=resource$resourceId)
-    )
-  } else {
+  if (as.character(resource$resourceId) == "0") {
     log_warn("no child steps possible in root")
     return(NULL)
   }
-  if (is.null(result)) {
+  if (resource$nodeType != "Step") {
+    log_warn("Resource", resource$entityId, "is not a Step, so no child steps possible")
     return(NULL)
   }
-  cont <- httr::content(result)
-  df <- mergeNestedListToDataframe(cont)
-  df<-convertDates(df)
-  return(df)
+  return(restGetAsDf("/resources/{resourceId}/childSteps",
+                     urlParams = list(resourceId = resource$resourceId),
+                     nested = TRUE, dates = TRUE))
 }

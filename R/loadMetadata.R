@@ -49,19 +49,10 @@ loadMetaDataFromServer <- function(resource) {
 }
 
 actualLoadMetaData <- function(resource) {
-  result<-NULL
-  if (as.character(resource$resourceId)!="0") {
-    result <- authenticatedREST("/resources/{resourceId}/metadata",
-                                list(resourceId=resource$resourceId)
-    )
-  } else {
-    result <- data.frame(comment="root has no meta data")
+  if (as.character(resource$resourceId) == "0") {
+    return(data.frame(comment = "root has no meta data"))
   }
-  if (is.null(result)) {
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  df <- mergeListToDataframe(cont)
-  df<-convertDates(df)
-  return(df)
+  return(restGetAsDf("/resources/{resourceId}/metadata",
+                     urlParams = list(resourceId = resource$resourceId),
+                     dates = TRUE))
 }

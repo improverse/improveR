@@ -1016,13 +1016,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     return(env$step)
   }
 
-  env$getStepValue <- function(key) {
-    stepList <- env$stepDf
-    if (key %in% names(stepList)) {
-      return(as.character(stepList[key]))
-    }
-    return(NULL)
-  }
+  env$getStepValue <- .template_private$getStepValue
 
 
   env$realise <- function(force = TRUE, run = TRUE,workflow=NULL) {

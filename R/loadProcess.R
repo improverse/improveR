@@ -36,17 +36,12 @@ loadProcessesForStepById <- function(processId) {
 }
 
 actualLoadProcessesForStep <- function(stepIdent) {
-
-  result <- authenticatedREST('resources/{stepId}/processes',
-                                            urlParams = list(stepId=stepIdent
-                                            ),
-                                            restType = "GET")
-  processes <- httr::content(result)
-  #processes<-plyr::rbind.fill(lapply(processes,function(process) {
-  #  process$subProcesses<-""
-  #  return(as.data.frame(process,stringsAsFactors=F))}))
-  processes <- mergeNestedListToDataframe(processes)
-  processes$stepId <- stepIdent
+  processes <- restGetAsDf("resources/{stepId}/processes",
+                           urlParams = list(stepId = stepIdent),
+                           nested = TRUE)
+  if (!is.null(processes)) {
+    processes$stepId <- stepIdent
+  }
   return(processes)
 }
 
@@ -112,15 +107,10 @@ actualLoadProcessGridArguments <- function(processId) {
   if (is.null(process)) {
     return(NULL)
   }
-  gridArgumentsResponse <- authenticatedREST("/resources/{resourceId}/processes/{processId}/gridArguments",
-                                                           urlParams = list(resourceId=process$stepId,
-                                                                            processId=process$id))
-  gridArgumentsContent <- httr::content(gridArgumentsResponse)
-  dfs <- mergeNestedListToDataframe(gridArgumentsContent)
-  if (is.null(dfs) || nrow(dfs)==0) {
-    #return(data.frame(processId=processId))
-    return(NULL)
-  }
+  dfs <- restGetAsDf("/resources/{resourceId}/processes/{processId}/gridArguments",
+                     urlParams = list(resourceId = process$stepId, processId = process$id),
+                     nested = TRUE)
+  if (is.null(dfs)) return(NULL)
   provider <- processGridProvider(process)
   gridArgumentDefinitions <- loadGridArguments(provider)
   colnames(gridArgumentDefinitions)[colnames(gridArgumentDefinitions) == 'id'] <- 'definitionId'

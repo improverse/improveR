@@ -24,20 +24,11 @@ getResourcePermissions <- function(ident, from = pwd()) {
     log_warn("cannot find resource by ident:", ident)
     return(NULL)
   }
-  result <- authenticatedREST(
-    "/resources/{resourceId}/acl",
-    urlParams = list(resourceId = resource$resourceId))
-
-  if (is.null(result)) {
-    log_warn("getResourcePermissions: failed to retrieve ACL for resource:", resource$resourceId)
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  if (length(cont) == 0) {
+  df <- restGetAsDf("/resources/{resourceId}/acl",
+                     urlParams = list(resourceId = resource$resourceId))
+  if (is.null(df)) {
     log_warn("getResourcePermissions: no ACL entries found for resource:", resource$resourceId)
-    return(NULL)
   }
-  df <- mergeListToDataframe(cont)
   return(df)
 }
 
@@ -66,20 +57,11 @@ effectiveUserPermissions <- function(ident, from = pwd()) {
     log_warn("cannot find resource by ident:", ident)
     return(NULL)
   }
-  result <- authenticatedREST(
-    "/resources/{resourceId}/effectiveUserRights",
-    urlParams = list(resourceId = resource$resourceId))
-
-  if (is.null(result)) {
-    log_warn("effectiveUserPermissions: failed to retrieve effective rights for resource:", resource$resourceId)
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  if (length(cont) == 0) {
+  df <- restGetAsDf("/resources/{resourceId}/effectiveUserRights",
+                     urlParams = list(resourceId = resource$resourceId))
+  if (is.null(df)) {
     log_warn("effectiveUserPermissions: no effective user permissions found for resource:", resource$resourceId)
-    return(NULL)
   }
-  df <- mergeListToDataframe(cont)
   return(df)
 }
 
@@ -98,18 +80,7 @@ effectiveUserPermissions <- function(ident, from = pwd()) {
 #' @export
 loadGroups <- function() {
   improveConnected()
-  result <- authenticatedREST("/groups")
-  if (is.null(result)) {
-    log_warn("loadGroups: failed to retrieve groups from server")
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  if (length(cont) == 0) {
-    log_warn("loadGroups: no groups found on server")
-    return(NULL)
-  }
-  df <- mergeListToDataframe(cont)
-  return(df)
+  return(restGetAsDf("/groups"))
 }
 
 #' Get Group Details
@@ -158,20 +129,8 @@ loadGroup <- function(groupId) {
 #' @export
 loadGroupUsers <- function(groupId) {
   improveConnected()
-  result <- authenticatedREST(
-    "/groups/{groupId}/users",
-    urlParams = list(groupId = groupId))
-  if (is.null(result)) {
-    log_warn("loadGroupUsers: failed to retrieve users for group:", groupId)
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  if (length(cont) == 0) {
-    log_warn("loadGroupUsers: no members found in group:", groupId)
-    return(NULL)
-  }
-  df <- mergeListToDataframe(cont)
-  return(df)
+  return(restGetAsDf("/groups/{groupId}/users",
+                     urlParams = list(groupId = groupId)))
 }
 
 #' Get Users by Role

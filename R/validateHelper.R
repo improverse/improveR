@@ -18,12 +18,7 @@ validateParams <- function(params) {
 #' @noRd
 validateRelationType <- function(relationTypeId, conn = NULL) {
   if (is.null(conn)) {
-    result <- authenticatedREST('configuration/relationTypeLov', restType = "GET")
-    if (is.null(result)) {
-      return(FALSE)
-    }
-    relationTypes <- httr::content(result)
-    relationTypes <- mergeListToDataframe(relationTypes)
+    relationTypes <- restGetAsDf("configuration/relationTypeLov")
   } else {
     relationTypes <- updateRelationTypes(conn)
   }

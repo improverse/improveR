@@ -11,11 +11,7 @@ runserversCacheList <- list(
 
 
 actualLoadRunservers <- function(...) {
-  result <- authenticatedREST('configuration/runservers',
-                                            restType = "GET")
-  servers <- httr::content(result)
-  serversDf <- mergeListToDataframe(servers)
-  return(serversDf)
+  return(restGetAsDf("configuration/runservers"))
 }
 
 

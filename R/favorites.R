@@ -7,17 +7,7 @@
 #' @export
 loadFavorites <- function() {
   improveConnected()
-  result <- authenticatedREST("/favorites", restType = "GET")
-  if (is.null(result)) {
-    log_warn("Failed to load favorites")
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  if (length(cont) == 0) {
-    log_warn("No favorites found")
-    return(NULL)
-  }
-  return(mergeListToDataframe(cont))
+  return(restGetAsDf("/favorites"))
 }
 
 #' Load Favorite Children
@@ -37,19 +27,7 @@ loadFavoriteChildren <- function(parentId = NULL) {
   } else {
     url <- "/favorites/{parentId}/resources"
   }
-  result <- authenticatedREST(url,
-                              urlParams = list(parentId = parentId),
-                              restType = "GET")
-  if (is.null(result)) {
-    log_warn("Failed to load favorite children")
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  if (length(cont) == 0) {
-    log_warn("No favorite children found")
-    return(NULL)
-  }
-  return(mergeListToDataframe(cont))
+  return(restGetAsDf(url, urlParams = list(parentId = parentId)))
 }
 
 #' Add Favorite Link

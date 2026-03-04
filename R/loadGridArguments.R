@@ -16,16 +16,13 @@ loadGridArguments <- function(gridProvider) {
 }
 
 actualLoadGridArguments <- function(gridProvider) {
-  gridArgumentDefinitionsResult <- authenticatedREST("/configuration/gridArguments/{gridProvider}/definitions",
-                                                     urlParams = list(gridProvider=gridProvider))
-  if (is.null(gridArgumentDefinitionsResult)) {
-    log_warn("no gridArguments for provider",gridProvider)
-    return(NULL)
+  df <- restGetAsDf("/configuration/gridArguments/{gridProvider}/definitions",
+                    urlParams = list(gridProvider = gridProvider),
+                    nested = TRUE)
+  if (is.null(df)) {
+    log_warn("no gridArguments for provider", gridProvider)
   }
-  gridArgumentDefinitionsContent <- httr::content(gridArgumentDefinitionsResult)
-  return(
-    mergeNestedListToDataframe(gridArgumentDefinitionsContent)
-  )
+  return(df)
 }
 
 

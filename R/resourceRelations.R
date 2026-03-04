@@ -52,18 +52,17 @@ validateTargetResourceIdDuplicate <- function(resourceId, targetResourceId) {
 }
 
 #' Resolve an identifier to a resourceId UUID
-#' @param ident Resource identifier — can be a path, entityId, resourceId, or
-#'   a data frame row returned by \code{loadResource()}.
-#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
-#' @returns Character resourceId UUID, or \code{NULL} if the resource cannot be found.
+# resolveResourceId: thin wrapper around resolveToResourceId (restHelpers.R)
+# that returns NULL on failure instead of the input unchanged
 #' @noRd
 resolveResourceId <- function(ident, from = pwd()) {
-  if (is.data.frame(ident) && "resourceId" %in% names(ident)) {
-    return(ident$resourceId[1])
+  id <- resolveToResourceId(ident, from)
+  # resolveToResourceId returns ident unchanged on failure; detect that case
+  if (identical(id, ident) && !is.data.frame(ident) &&
+      !(is.character(ident) && grepl("^[A-Fa-f0-9]{32}$", ident))) {
+    return(NULL)
   }
-  res <- loadResource(ident, from)
-  if (is.null(res)) return(NULL)
-  return(res$resourceId)
+  return(id)
 }
 
 #' Creates a New Resource Relation

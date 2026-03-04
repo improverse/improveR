@@ -48,20 +48,11 @@ loadReferencesFromServer <- function(resource) {
 }
 
 actualLoadReferences <- function(resource) {
-  result<-NULL
-  if (as.character(resource$resourceId)!="0") {
-    result <- authenticatedREST("/resources/{resourceId}/references",
-                                list(resourceId=resource$resourceId)
-    )
-  } else {
-    result <- data.frame(comment="root has no references")
+  if (as.character(resource$resourceId) == "0") {
+    return(data.frame(comment = "root has no references"))
   }
-  if (is.null(result)) {
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  df <- mergeListToDataframe(cont)
-  df<-convertDates(df)
-  return(df)
+  return(restGetAsDf("/resources/{resourceId}/references",
+                     urlParams = list(resourceId = resource$resourceId),
+                     dates = TRUE))
 }
 

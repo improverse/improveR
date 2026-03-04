@@ -29,14 +29,7 @@
 users <- function() {
   improveConnected()
 
-  result <- authenticatedREST("/users")
-  if (is.null(result)) {
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  df <- mergeListToDataframe(cont)
-  df<-convertDates(df)
-  return(df)
+  return(restGetAsDf("/users", dates = TRUE))
 }
 
 #' Get Effective User Rights for Resource

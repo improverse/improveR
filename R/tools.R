@@ -8,11 +8,7 @@ toolCategoriesCacheList <- list(
 
 
 actualToolCategories <- function(...) {
-  result <- authenticatedREST('configuration/toolCategories',
-                                            restType = "GET")
-  categories <- httr::content(result)
-  categoriesDf <- mergeListToDataframe(categories)
-  return(categoriesDf)
+  return(restGetAsDf("configuration/toolCategories"))
 }
 
 
@@ -60,21 +56,14 @@ loadToolsForCategory <- function(categoryId) {
 
 
 actualLoadToolsForCategory <- function(categoryId) {
-  result <- authenticatedREST('configuration/toolCategories/{id}/tools',
-                                            urlParams = list(id=categoryId
-                                            ),
-                                            restType = "GET")
-  if (is.null(result)) {
-    log_warn("no tools found for category:",categoryId)
+  toolsDf <- restGetAsDf("configuration/toolCategories/{id}/tools",
+                          urlParams = list(id = categoryId))
+  if (is.null(toolsDf)) {
+    log_warn("no tools found for category:", categoryId)
     return(NULL)
   }
-  tools <- httr::content(result)
-  toolsDf <- mergeListToDataframe(tools)
-  if (nrow(toolsDf)>0) {
-    toolsDf$categoryId<-categoryId
-    return(toolsDf)
-  }
-  return(NULL)
+  toolsDf$categoryId <- categoryId
+  return(toolsDf)
 }
 
 

@@ -78,21 +78,12 @@ loadHistoryFromServer <- function(resource) {
 }
 
 actualLoadHistory <- function(resource) {
-  result<-NULL
-  if (as.character(resource$resourceId)!="0") {
-    result <- authenticatedREST("/resources/{resourceId}/revisionHistory",
-                                list(resourceId=resource$resourceId)
-    )
-  } else {
-    result <- data.frame(comment="root has no history")
+  if (as.character(resource$resourceId) == "0") {
+    return(data.frame(comment = "root has no history"))
   }
-  if (is.null(result)) {
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  df <- mergeListToDataframe(cont)
-  df<-convertDates(df)
-  return(df)
+  return(restGetAsDf("/resources/{resourceId}/revisionHistory",
+                     urlParams = list(resourceId = resource$resourceId),
+                     dates = TRUE))
 }
 
 #' Load the parental/descendant relationships of a resource
