@@ -29,7 +29,8 @@ test_that("improveConnected handles uninitialized state correctly", {
     expect_true(e$message=="not connected")
   })
 
-
+  # Reconnect so subsequent test files are not affected
+  improveConnect()
 })
 
 

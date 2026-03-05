@@ -17,6 +17,18 @@ test_that("loadParentalDescendants correctly identifies descendants", {
   Sys.getenv("TEST_NAME")
   Sys.getenv("TEST_FOLDER")
 
+  # Parental descendants require repository version >= 4.4
+  repoVersion <- getRepositoryVersion()
+  if (!is.null(repoVersion)) {
+    versionParts <- strsplit(repoVersion, "[.-]")[[1]]
+    if (length(versionParts) >= 2) {
+      majorMinor <- as.numeric(paste0(versionParts[1], ".", versionParts[2]))
+      if (majorMinor < 4.4) {
+        skip("Skipping parental descendants test in repository version < 4.4")
+      }
+    }
+  }
+
   #create 2 folder
   Folder1 <- improveR::createFolder(
     targetIdent = TEST_FOLDER,

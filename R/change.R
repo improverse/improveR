@@ -84,7 +84,13 @@ singleChange <- function(source,target,changeFunction,targetName="",overwrite=F,
   unloadChildResources(targetFolderId)
   unloadChildResources(sourceR$parentId)
   copiedRes <- updateResource(sourceR$resourceId)
+  if (is.null(result)) {
+    return(copiedRes)
+  }
   resultId <- httr::content(result)$resourceId
+  if (is.null(resultId)) {
+    return(copiedRes)
+  }
   copiedRes <- loadResource(resultId)
   return(copiedRes)
 }
@@ -746,6 +752,14 @@ checkRunStatus <- function(
       return(TRUE)
     } else {
       return(stepsCollected) # empty data.frame()
+    }
+  }
+
+  if (!"runStatus" %in% names(stepsCollected)) {
+    if (returnType == "logical") {
+      return(TRUE)
+    } else {
+      return(stepsCollected)
     }
   }
 
