@@ -299,13 +299,12 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
   #uploadLinks
   #map outsideLinks
   outsideLinkFolder <- file.path(importFolder,"links",fsep = "/")
-  providedLinks <- dir(outsideLinkFolder)
+  providedLinks <- if (dir.exists(outsideLinkFolder)) dir(outsideLinkFolder) else character(0)
   linkMappingPath <- file.path(
     dirname(normalizePath(workflowFile)),
     paste0(workflowName,"LinkMapping.json")
     )
 
-  #TODO check with ident / version /SHA
   linkMapping <- new.env()
   importMapping <- data.frame()
   if (file.exists(linkMappingPath)) {
@@ -340,16 +339,22 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
 
 
   outsideLinks <- filterOutsideLinks(importWF)
-  mappedIdents <- unlist(
-    lapply(outsideLinks$version,function(v){return(linkMapping[[v]])})
-  )
-  outsideLinks$ident<-mappedIdents
-  x<-byNotEmpty(outsideLinks,function(oL) {
-    #changeStepRemoteFileDf(oL$stepHandle,oL$name,oL)
-    targetStepName <- oL$targetStep
-    targetStep <- workflowTemplate$stepTemplates[[targetStepName]]
-    targetStep$changeStepRemoteFile(oL$name,oL$asLink,oL$name,oL$ident)
-  })
+  if (!is.null(outsideLinks) && nrow(outsideLinks) > 0 &&
+      "version" %in% names(outsideLinks)) {
+    mappedIdents <- vapply(outsideLinks$version, function(v) {
+      if (is.null(v) || is.na(v)) return(NA_character_)
+      val <- linkMapping[[v]]
+      if (is.null(val)) NA_character_ else val
+    }, character(1))
+    outsideLinks$ident <- mappedIdents
+    x <- byNotEmpty(outsideLinks, function(oL) {
+      targetStepName <- oL$targetStep
+      targetStep <- workflowTemplate$stepTemplates[[targetStepName]]
+      if (!is.null(targetStep)) {
+        targetStep$changeStepRemoteFile(oL$name, oL$asLink, oL$name, oL$ident)
+      }
+    })
+  }
 
   # Map tools to target environment
   toolMappingPath <- file.path(
@@ -413,11 +418,11 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     if ("dependencies" %in% names(nextData) && !is.na(nextData$dependencies)) {
       dependencies <- unique(strsplit(nextData$dependencies, ",")[[1]])
       for (j in 1:length(dependencies)) {
-        dependencies <- dependencies[j]
-        if (dependencies %in% executionList) {
+        dep <- dependencies[j]
+        if (dep %in% executionList) {
           log_info("waiting to finish")
-          #finishRun(dependencies)
-          executionList <- executionList[executionList != dependencies]
+          #finishRun(dep)
+          executionList <- executionList[executionList != dep]
         }
       }
     }
@@ -425,8 +430,18 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     #remove inputfiles
     # Save original remoteFiles before filtering (needed for variable binding later)
     originalRemoteFiles <- template$stepDf$remoteFiles[[1]]
-    remoteFiles <- originalRemoteFiles[originalRemoteFiles$asLink,]
-    template$stepDf$remoteFiles[[1]]<- remoteFiles
+    if (!is.null(originalRemoteFiles) && nrow(originalRemoteFiles) > 0 &&
+        "asLink" %in% names(originalRemoteFiles)) {
+      remoteFiles <- originalRemoteFiles[originalRemoteFiles$asLink,]
+      # During import, exclude internal link files (those with sourceStep) from initial realise().
+      # Internal links are resolved in a second pass after all steps have their files pushed.
+      if ("sourceStep" %in% names(remoteFiles) && nrow(remoteFiles) > 0) {
+        externalLinks <- remoteFiles[is.na(remoteFiles$sourceStep),]
+        template$stepDf$remoteFiles[[1]] <- externalLinks
+      } else {
+        template$stepDf$remoteFiles[[1]] <- remoteFiles
+      }
+    }
     template$realise(run=F)
     
     # Store the new entityId back in importWF dataframe for parent relationship restoration
@@ -439,15 +454,17 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     cloneCli(nextStep,localPath = stepInputFolderPath)
 
     # push input files
-    inputFiles <- dir(file.path(importFolder,template$stepDf$handle,"inputFiles",fsep = "/"),all.files = T)
+    inputDir <- file.path(importFolder,template$stepDf$handle,"inputFiles",fsep = "/")
+    inputFiles <- if (dir.exists(inputDir)) dir(inputDir, all.files = T) else character(0)
     inputFiles <- inputFiles[!(inputFiles %in% c(".",".."))]
     if (length(inputFiles)>0) {
       for (iF in 1:length(inputFiles)) {
         inputPath <- file.path(importFolder,template$stepDf$handle,"inputFiles",inputFiles[iF],fsep = "/")
         outputPath <- file.path(stepInputFolderPath,inputFiles[iF],fsep = "/")
         
+        if (!file.exists(inputPath)) next
         # Check if it's a directory
-        if (file.info(inputPath)$isdir) {
+        if (isTRUE(file.info(inputPath)$isdir)) {
           # For directories, use recursive copy
           dir.create(outputPath, recursive = TRUE, showWarnings = FALSE)
           file.copy(inputPath, dirname(outputPath), recursive = TRUE)
@@ -468,9 +485,14 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
     # Bind variables for uploaded input files
     # Use the ORIGINAL remoteFiles (before filtering), not the filtered version
     allRemoteFiles <- originalRemoteFiles
-    variableFiles <- allRemoteFiles[!allRemoteFiles$asLink & !is.na(allRemoteFiles$variableName) & allRemoteFiles$variableName != "",]
+    variableFiles <- data.frame()
+    if (!is.null(allRemoteFiles) && nrow(allRemoteFiles) > 0 &&
+        "asLink" %in% names(allRemoteFiles) &&
+        "variableName" %in% names(allRemoteFiles)) {
+      variableFiles <- allRemoteFiles[!allRemoteFiles$asLink & !is.na(allRemoteFiles$variableName) & allRemoteFiles$variableName != "",]
+    }
 
-    if (!is.null(variableFiles) && nrow(variableFiles) > 0) {
+    if (nrow(variableFiles) > 0) {
 
       # Reload step to get updated file list after push
       nextStep <- loadResource(template$stepDf$entityId)
@@ -552,15 +574,17 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
 
     # push output files
     #push run
-    outputFiles <- dir(file.path(importFolder,template$stepDf$handle,"outputFiles",fsep = "/"),all.files = T)
+    outputDir <- file.path(importFolder,template$stepDf$handle,"outputFiles",fsep = "/")
+    outputFiles <- if (dir.exists(outputDir)) dir(outputDir, all.files = T) else character(0)
     outputFiles <- outputFiles[!(outputFiles %in% c(".",".."))]
     if (length(outputFiles)>0) {
       for (iF in 1:length(outputFiles)) {
         inputPath <- file.path(importFolder,template$stepDf$handle,"outputFiles",outputFiles[iF],fsep = "/")
         outputPath <- file.path(stepInputFolderPath,outputFiles[iF],fsep = "/")
         
+        if (!file.exists(inputPath)) next
         # Check if it's a directory
-        if (file.info(inputPath)$isdir) {
+        if (isTRUE(file.info(inputPath)$isdir)) {
           # For directories, use recursive copy
           dir.create(outputPath, recursive = TRUE, showWarnings = FALSE)
           file.copy(inputPath, dirname(outputPath), recursive = TRUE)
@@ -586,7 +610,98 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
   #    finishRun(executionList[i])
   #  }
   #}
-  
+
+  # Second pass: resolve internal links now that all steps have their files pushed.
+  # During the first pass, internal link files (those with sourceStep) were excluded
+  # from realise() because the source step's files weren't on the server yet.
+  # Now all steps are created and files pushed, so we can create the link references.
+  # We use inventory-based resolution (recurse=TRUE) because pushRunCli places
+  # output files inside run containers, not as direct children of the step.
+  if (!is.null(internalLinks) && nrow(internalLinks) > 0) {
+    log_info("Resolving internal links (second pass)")
+
+    # Pre-load inventories for all source steps (with cache refresh)
+    sourceInventories <- list()
+    uniqueSources <- unique(internalLinks$sourceStep)
+    for (src in uniqueSources) {
+      srcRow <- importWF[importWF$fullName == src,]
+      if (nrow(srcRow) > 0 && !is.na(srcRow$newEntityId[1])) {
+        srcStep <- loadResource(srcRow$newEntityId[1])
+        if (!is.null(srcStep)) {
+          inv <- getStepResourceInventory(srcStep, recurse = TRUE, update = TRUE)
+          sourceInventories[[src]] <- inv$data[[1]]
+        }
+      }
+    }
+
+    for (j in seq_len(nrow(internalLinks))) {
+      link <- internalLinks[j,]
+      sourceFullName <- link$sourceStep
+      targetFullName <- link$targetStep
+
+      # Get the new entityIds for source and target steps
+      sourceRow <- importWF[importWF$fullName == sourceFullName,]
+      targetRow <- importWF[importWF$fullName == targetFullName,]
+
+      if (nrow(sourceRow) == 0 || nrow(targetRow) == 0) {
+        log_warn("Could not find source or target step for internal link: ",
+                 sourceFullName, " -> ", targetFullName)
+        next
+      }
+
+      sourceEntityId <- sourceRow$newEntityId[1]
+      targetEntityId <- targetRow$newEntityId[1]
+
+      if (is.null(sourceEntityId) || is.na(sourceEntityId) ||
+          is.null(targetEntityId) || is.na(targetEntityId)) {
+        log_warn("Missing entityId for internal link: ",
+                 sourceFullName, " (", sourceEntityId, ") -> ",
+                 targetFullName, " (", targetEntityId, ")")
+        next
+      }
+
+      # Find the source file in the source step's inventory by name
+      fileName <- link$sourceInventoryPath
+      if (!is.null(fileName) && !is.na(fileName)) {
+        # Strip leading ./ for name matching
+        searchName <- if (startsWith(fileName, "./")) {
+          substr(fileName, 3, nchar(fileName))
+        } else {
+          fileName
+        }
+
+        inventory <- sourceInventories[[sourceFullName]]
+        resolved <- NULL
+        if (!is.null(inventory) && nrow(inventory) > 0) {
+          # Match by name (the file might be nested under a run)
+          match <- inventory[inventory$name == searchName,]
+          if (nrow(match) > 0) {
+            resolved <- loadResource(match$resourceId[1])
+          }
+        }
+
+        if (!is.null(resolved)) {
+          # Create a link in the target step pointing to the source file
+          tryCatch({
+            linkName <- link$name
+            if (!is.null(linkName) && startsWith(linkName, "./")) {
+              linkName <- substr(linkName, 3, nchar(linkName))
+            }
+            createLink(targetEntityId, resolved, linkName = linkName)
+            log_info("Created internal link: ", sourceFullName, "/", searchName,
+                     " -> ", targetFullName, "/", linkName)
+          }, error = function(e) {
+            log_warn("Failed to create internal link: ", e$message)
+          })
+        } else {
+          log_warn("Could not resolve internal link file: ", searchName,
+                   " from source step ", sourceEntityId,
+                   " (inventory has ", if (!is.null(inventory)) nrow(inventory) else 0, " items)")
+        }
+      }
+    }
+  }
+
   # Restore parent relationships after all steps are created
   if ("parentFullName" %in% names(importWF) && "newEntityId" %in% names(importWF)) {
     log_info("Restoring parent relationships")
@@ -608,7 +723,7 @@ importWorkflow <- function(workflowFile,importRepoFolder) {
           # Exactly one parent found
           parentEntityId <- importWF$newEntityId[parentRows[1]]
           
-          if (!is.null(childEntityId) && !is.null(parentEntityId) && !is.na(parentEntityId)) {
+          if (!is.null(childEntityId) && !is.na(childEntityId) && !is.null(parentEntityId) && !is.na(parentEntityId)) {
             tryCatch({
               attachStep(childEntityId, parentEntityId)
               log_info(paste("Restored parent relationship:", importWF$fullName[i], "->", parentFullName))
