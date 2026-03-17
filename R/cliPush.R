@@ -6,6 +6,7 @@
 #' @export
 pushCli <- function(localPath) {
   checkInit()
+  renewAccessToken()
   accessToken <- conf()$reqToken
   command <- glue::glue("push -accessToken {accessToken} -repository {localPath}")
   executeCli(command)

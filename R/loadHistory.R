@@ -81,9 +81,11 @@ actualLoadHistory <- function(resource) {
   if (as.character(resource$resourceId) == "0") {
     return(data.frame(comment = "root has no history"))
   }
-  return(restGetAsDf("/resources/{resourceId}/revisionHistory",
-                     urlParams = list(resourceId = resource$resourceId),
-                     dates = TRUE))
+  result <- restGetAsDf("/resources/{resourceId}/revisionHistory",
+                        urlParams = list(resourceId = resource$resourceId),
+                        dates = TRUE)
+  if (is.null(result)) return(data.frame())
+  return(result)
 }
 
 #' Load the parental/descendant relationships of a resource

@@ -7,6 +7,7 @@
 #' @export
 pushRunCli <- function(localPath, command = "Rstudio") {
   checkInit()
+  renewAccessToken()
   accessToken <- conf()$reqToken
   command <- glue::glue("push run -accessToken {accessToken} -repository {localPath} -command {command}")
   executeCli(command)

@@ -132,7 +132,9 @@ actualLoadChildSteps <- function(resource) {
     log_warn("Resource", resource$entityId, "is not a Step, so no child steps possible")
     return(NULL)
   }
-  return(restGetAsDf("/resources/{resourceId}/childSteps",
-                     urlParams = list(resourceId = resource$resourceId),
-                     nested = TRUE, dates = TRUE))
+  result <- restGetAsDf("/resources/{resourceId}/childSteps",
+                        urlParams = list(resourceId = resource$resourceId),
+                        nested = TRUE, dates = TRUE)
+  if (is.null(result)) return(data.frame())
+  return(result)
 }

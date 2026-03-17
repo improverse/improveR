@@ -51,8 +51,10 @@ actualLoadReferences <- function(resource) {
   if (as.character(resource$resourceId) == "0") {
     return(data.frame(comment = "root has no references"))
   }
-  return(restGetAsDf("/resources/{resourceId}/references",
-                     urlParams = list(resourceId = resource$resourceId),
-                     dates = TRUE))
+  result <- restGetAsDf("/resources/{resourceId}/references",
+                        urlParams = list(resourceId = resource$resourceId),
+                        dates = TRUE)
+  if (is.null(result)) return(data.frame())
+  return(result)
 }
 

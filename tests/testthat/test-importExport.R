@@ -226,7 +226,7 @@ test_that("Export and import with linear dependencies", {
   print(ls(importedWorkflow$steps))
 
   # Check if fullName exists and is valid
-  if (is.null(step3Import$fullName) || is.na(step3Import$fullName) || length(step3Import$fullName) == 0) {
+  if (is.null(step3Import$fullName) || length(step3Import$fullName) == 0 || any(is.na(step3Import$fullName))) {
     cat("ERROR: step3Import$fullName is NULL, NA, or empty!\n")
     cat("Available columns in step3Import:\n")
     print(names(step3Import))
@@ -302,12 +302,38 @@ test_that("Export and import with branching dependencies", {
   cat("branchB$fullName:", branchB$fullName, "\n")
   cat("ls(importedWorkflow$steps):", ls(importedWorkflow$steps), "\n")
 
+  # Check internalLinks
+  cat("importedWorkflow$internalLinks:\n")
+  if (!is.null(importedWorkflow$internalLinks)) {
+    print(importedWorkflow$internalLinks[, c("sourceStep", "targetStep", "name")])
+  } else {
+    cat("  NULL\n")
+  }
+
+  # Check remoteFiles of each step
+  for (sn in ls(importedWorkflow$steps)) {
+    stepEnv <- importedWorkflow$steps[[sn]]
+    rf <- stepEnv$stepDf$remoteFiles[[1]]
+    cat("Step", sn, "remoteFiles:\n")
+    if (!is.null(rf) && nrow(rf) > 0) {
+      cat("  cols:", paste(names(rf), collapse=", "), "\n")
+      cat("  nrow:", nrow(rf), "\n")
+      for (r in seq_len(nrow(rf))) {
+        cat("  [", r, "] name=", rf$name[r], " asLink=", rf$asLink[r], " ident=", rf$ident[r], "\n")
+      }
+    } else {
+      cat("  empty or NULL\n")
+    }
+  }
+
   branchAEnv <- importedWorkflow$steps[[branchA$fullName]]
   branchBEnv <- importedWorkflow$steps[[branchB$fullName]]
 
   # Check dependencies - should have items besides 'load' function
   branchADependenciesItems <- setdiff(ls(branchAEnv$dependencies), "load")
   branchBDependenciesItems <- setdiff(ls(branchBEnv$dependencies), "load")
+  cat("branchA dependencies:", paste(branchADependenciesItems, collapse=", "), "\n")
+  cat("branchB dependencies:", paste(branchBDependenciesItems, collapse=", "), "\n")
 
   expect_true(
     length(branchADependenciesItems) > 0,
@@ -1009,9 +1035,9 @@ test_that("Import fails gracefully when dependencies outputs are missing", {
 test_that("Multiple process configurations preserved", {
 
   repoVersion <- getRepositoryVersion()
-  #if (startsWith(repoVersion,"4.3")) {
+  if (startsWith(repoVersion,"4.3")) {
     testthat::skip(message = "not implemented for 4.3")
-  #}
+  }
 
   sourceTree <- createAnalysisTree(targetIdent = TEST_FOLDER,
                                   treeName = "MultiProcess")

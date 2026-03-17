@@ -135,8 +135,10 @@ actualLoadAuditTrail <- function(resource) {
   if (as.character(resource$resourceId) == "0") {
     return(NULL)
   }
-  return(restGetAsDf("/resources/{resourceId}/auditTrail",
-                     urlParams = list(resourceId = resource$resourceId),
-                     dates = TRUE))
+  result <- restGetAsDf("/resources/{resourceId}/auditTrail",
+                        urlParams = list(resourceId = resource$resourceId),
+                        dates = TRUE)
+  if (is.null(result)) return(data.frame())
+  return(result)
 }
 

@@ -12,6 +12,7 @@ cloneCli <- function(ident, localPath) {
     stop(paste(ident, "does not exist in", getCICOApiURL()))
   }
   shellFile <- cliPath()
+  renewAccessToken()
   accessToken <- conf()$reqToken
   command <- glue::glue("clone -accessToken {accessToken} -resource {resource$entityId} -repository {localPath} -userProfile {cliEnv$userProfile}")
   executeCli(command)
