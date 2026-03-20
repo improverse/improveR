@@ -80,7 +80,7 @@ singleAddBulkMetaDate <- function(ident,descriptorNameValueList, scope="Improve 
                                             data = dataList,
                                             restType = "POST")
 
-  metadata <- updateMetaData(ident)
+  metadata <- refreshMetaData(ident)
   return(metadata)
 }
 
@@ -110,7 +110,7 @@ singleDeleteMetaDate <- function(ident,descriptorName) {
                                               ),
                                               restType = "DELETE")
   }
-  metadata <- updateMetaData(ident)
+  metadata <- refreshMetaData(ident)
   return(metadata)
 }
 
@@ -156,7 +156,7 @@ singleUpdateMetaDate <- function(ident,descriptorName, value) {
                                             data = mdBody,
                                             restType = "PUT")
 
-  metadata <- updateMetaData(ident)
+  metadata <- refreshMetaData(ident)
   return(metadata)
 }
 
@@ -195,7 +195,7 @@ singleUpdateMetaDateById <- function(ident,metadataId, value) {
                                             data = mdBody,
                                             restType = "PUT")
 
-  metadata <- updateMetaData(ident)
+  metadata <- refreshMetaData(ident)
   return(metadata)
 }
 

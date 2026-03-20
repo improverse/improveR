@@ -128,8 +128,8 @@ unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
 }
 
 
-#' updateFile
-#' @description Retrieves5 the latest version of the file from the repository.
+#' refreshFile
+#' @description Retrieves the latest version of the file from the repository.
 #' @inheritParams common_ident
 #' @inheritSection common_ident Details ident
 
@@ -139,13 +139,20 @@ unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
 #' @param linkInInventory Logical; if TRUE, creates a link to the resource in inventory.
 #' @references ics1099
 #' @export
-updateFile <- function(ident, from = pwd(), filePath = ".",
+refreshFile <- function(ident, from = pwd(), filePath = ".",
              addIdToName = FALSE, linkInInventory = FALSE) {
   unloadFile(ident, from, filePath = filePath,
        addIdToName = addIdToName)
   res <- loadFile(ident, from, filePath,
           addIdToName, linkInInventory)
   return(res)
+}
+
+#' @rdname refreshFile
+#' @export
+updateFile <- function(...) {
+  .Deprecated("refreshFile")
+  refreshFile(...)
 }
 
 #' isFileUp2Date

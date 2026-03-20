@@ -25,7 +25,7 @@ createReviewEntry <- function(ident, resourceIds, from = pwd()) {
   data <- list("resourceIds" = resourceIds)
 
   result <- authenticatedREST("/reviews/{reviewId}/entries", urlParams = list(reviewId = reviewId), data = data, restType = "POST")
-  entries <- updateReviewEntries(reviewId)
+  entries <- refreshReviewEntries(reviewId)
 
   return(entries)
 }
@@ -54,7 +54,7 @@ deleteReviewEntry <- function(ident, from = pwd()) {
   }
 
   result <- authenticatedREST("/reviews/{reviewId}/entries", urlParams = list(reviewId = reviewId), restType = "DELETE")
-  updateReviewEntries(reviewId)
+  refreshReviewEntries(reviewId)
 
   if (!is.null(result)) {
     return(TRUE)

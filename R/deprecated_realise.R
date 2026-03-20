@@ -183,7 +183,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   log_debug("process variables set")
 
   # Update processes
-  main <- updateProcessesForStep(newStep$resourceId)
+  main <- refreshProcessesForStep(newStep$resourceId)
 
   # Handle step naming
   if (!is.null(prepStep$stepName)) {
@@ -235,7 +235,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
     unloadChildResources(newStep$parentId)
     unloadFullChildResources(newStep$parentId)
   }
-  newStep <- updateResource(newStep$resourceId)
+  newStep <- refreshResource(newStep$resourceId)
 
   # Update the step reference after reloading
   if (is.null(newStep)) {
@@ -307,7 +307,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
 getStepState_deprecated <- function(step) {
   if (is.character(step)) {
     # It's a resource ID
-    step <- updateResource(step)
+    step <- refreshResource(step)
   }
   return(step$runStatus)
 }

@@ -63,7 +63,7 @@ auditTrailResourceCacheList <- createCacheList("auditTrail")
 #'
 #' @seealso
 #' \code{\link{unloadAuditTrail}} to clear cache,
-#' \code{\link{updateAuditTrail}} to refresh from server
+#' \code{\link{refreshAuditTrail}} to refresh from server
 #'
 #' @references ics1097
 #' @export
@@ -91,7 +91,7 @@ loadAuditTrail <- function(ident,from=pwd()) {
 #'
 #' @seealso
 #' \code{\link{loadAuditTrail}} to load audit trail,
-#' \code{\link{updateAuditTrail}} to refresh from server
+#' \code{\link{refreshAuditTrail}} to refresh from server
 #'
 #' @references ics1097
 #' @export
@@ -100,7 +100,7 @@ unloadAuditTrail <- function(ident) {
   removeFromCache(res$resourceId,"",auditTrailResourceCacheList)
 }
 
-#' Update Audit Trail from Server
+#' Refresh Audit Trail from Server
 #'
 #' Clears cached audit trail data and reloads fresh data from the server.
 #'
@@ -120,10 +120,17 @@ unloadAuditTrail <- function(ident) {
 #'
 #' @references ics1097
 #' @export
-updateAuditTrail <- function(ident) {
+refreshAuditTrail <- function(ident) {
   unloadAuditTrail(ident)
   res <- loadAuditTrail(ident)
   return(res)
+}
+
+#' @rdname refreshAuditTrail
+#' @export
+updateAuditTrail <- function(...) {
+  .Deprecated("refreshAuditTrail")
+  refreshAuditTrail(...)
 }
 
 loadAuditTrailFromServer <- function(resource) {

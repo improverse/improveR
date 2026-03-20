@@ -31,7 +31,7 @@
 #' @references ics1140
 #' @export
 runStepResource <- function(ident) {
-  newStep <- updateResource(ident)
+  newStep <- refreshResource(ident)
   if (newStep$runStatus == "RUNNING") {
     log_error("Step is already running.")
     return(NULL)
@@ -95,7 +95,7 @@ runStepResource <- function(ident) {
 #' @export
 terminateStepResource <- function(ident, verbose = FALSE) {
   setEditable()
-  stepToTerminate <- updateResource(ident)
+  stepToTerminate <- refreshResource(ident)
 
   if (is.null(stepToTerminate)) {
     log_warn("Step could not be loaded.")
@@ -150,7 +150,7 @@ terminateStepResource <- function(ident, verbose = FALSE) {
       elapsed <- elapsed + pollInterval
 
       # Refresh the step resource to get current status from server
-      stepCheck <- updateResource(stepToTerminate)
+      stepCheck <- refreshResource(stepToTerminate)
 
       # If status is no longer RUNNING, termination is confirmed
       if (!is.null(stepCheck) && stepCheck$runStatus != "RUNNING") {
@@ -214,7 +214,7 @@ terminateStepResource <- function(ident, verbose = FALSE) {
 #' @export
 finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverToolName=NULL) {
 
-  step <- updateResource(ident,from)
+  step <- refreshResource(ident,from)
 
   if (is.null(step))
     return(NULL)
@@ -229,7 +229,7 @@ finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverTool
   wrongRun <- ""
 
   if (!is.null(toolId)) {
-    step <- updateResource(step)
+    step <- refreshResource(step)
     state<-step$runStatus
     if (state=="FINISHED") {
       processes <- actualLoadProcessesForStep(step$resourceId)
@@ -251,7 +251,7 @@ finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverTool
   }
 
   while(running) {
-    step <- updateResource(step)
+    step <- refreshResource(step)
     state<-step$runStatus
     if (is.null(toolId)) {
       if (state=="FINISHED") {

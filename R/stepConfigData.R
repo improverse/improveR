@@ -61,13 +61,20 @@ unloadRunservers <- function() {
   removeFromCache(defaultKey,"",runserversCacheList)
 }
 
-#' updateRunservers reloads the runservers from the repository
+#' refreshRunservers reloads the runservers from the repository
 #' @references ics1226
 #' @noRd
-updateRunservers <- function() {
+refreshRunservers <- function() {
   unloadRunservers()
   res <- loadRunservers()
   return(res)
+}
+
+#' @rdname refreshRunservers
+#' @noRd
+updateRunservers <- function(...) {
+  .Deprecated("refreshRunservers")
+  refreshRunservers(...)
 }
 
 
@@ -176,12 +183,19 @@ unloadToolsForRunserver <- function(runserverId) {
   removeFromCache(runserverId,"",runserverToolsCacheList)
 }
 
-#' updateToolsForRunserver reloads the runserver tools from the repository
+#' refreshToolsForRunserver reloads the runserver tools from the repository
 #' @param runserverId resourceId of the runserver
 #' @references ics1227
 #' @noRd
-updateToolsForRunserver <- function(runserverId) {
+refreshToolsForRunserver <- function(runserverId) {
   unloadToolsForRunserver(runserverId)
   res <- loadToolsForRunserver(runserverId)
   return(res)
+}
+
+#' @rdname refreshToolsForRunserver
+#' @noRd
+updateToolsForRunserver <- function(...) {
+  .Deprecated("refreshToolsForRunserver")
+  refreshToolsForRunserver(...)
 }

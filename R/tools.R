@@ -29,13 +29,20 @@ unloadToolCategories <- function() {
   removeFromCache(defaultKey,"",toolCategoriesCacheList)
 }
 
-#' updateToolCategories reloads the tool categories from the repository
+#' refreshToolCategories reloads the tool categories from the repository
 #' @references ics1229
 #' @noRd
-updateToolCategories <- function() {
+refreshToolCategories <- function() {
   unloadToolCategories()
   res <- loadToolCategories()
   return(res)
+}
+
+#' @rdname refreshToolCategories
+#' @noRd
+updateToolCategories <- function(...) {
+  .Deprecated("refreshToolCategories")
+  refreshToolCategories(...)
 }
 
 ##############################TOOLS
@@ -58,7 +65,7 @@ loadToolsForCategory <- function(categoryId) {
 actualLoadToolsForCategory <- function(categoryId) {
   toolsDf <- restGetAsDf("configuration/toolCategories/{id}/tools",
                           urlParams = list(id = categoryId))
-  if (is.null(toolsDf)) {
+  if (is.null(toolsDf) || nrow(toolsDf) == 0) {
     log_warn("no tools found for category:", categoryId)
     return(NULL)
   }
@@ -76,14 +83,21 @@ unloadToolsForCategory <- function(categoryId) {
   removeFromCache(categoryId,"",runserverToolsCacheList)
 }
 
-#' updateToolsForCategory reloads the category tools from the repository
+#' refreshToolsForCategory reloads the category tools from the repository
 #' @param categoryId categoryId of the category
 #' @references ics1230
 #' @noRd
-updateToolsForCategory <- function(categoryId) {
+refreshToolsForCategory <- function(categoryId) {
   unloadToolsForCategory(categoryId)
   res <- loadToolsForCategory(categoryId)
   return(res)
+}
+
+#' @rdname refreshToolsForCategory
+#' @noRd
+updateToolsForCategory <- function(...) {
+  .Deprecated("refreshToolsForCategory")
+  refreshToolsForCategory(...)
 }
 
 #' loads all registered tools with their categories

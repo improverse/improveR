@@ -19,6 +19,7 @@ finishResource <- function(ident, from = pwd()) {
                               urlParams = list(resourceId = res$resourceId),
                               restType = "PUT")
   if (!is.null(result)) {
+    unloadResource(res$resourceId)
     return(TRUE)
   }
   log_warn("Failed to finish resource:", ident)
@@ -45,6 +46,7 @@ reopenResource <- function(ident, from = pwd()) {
                               urlParams = list(resourceId = res$resourceId),
                               restType = "PUT")
   if (!is.null(result)) {
+    unloadResource(res$resourceId)
     return(TRUE)
   }
   log_warn("Failed to reopen resource:", ident)

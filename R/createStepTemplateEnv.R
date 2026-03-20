@@ -535,9 +535,13 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       }
     }
     fileList["asLink"] <- asLink
-    # If name is not provided, derive it from the resource
-    if (is.null(name) && !is.null(resource)) {
-      fileList["name"] <- resource$name
+    # If name is not provided, derive it from the input or the resource
+    if (is.null(name)) {
+      if (is.data.frame(ident) && "name" %in% names(ident)) {
+        fileList["name"] <- ident$name
+      } else if (!is.null(resource)) {
+        fileList["name"] <- resource$name
+      }
     } else {
       fileList["name"] <- name
     }
@@ -763,8 +767,6 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         #processes<-plyr::rbind.fill(processes,processDf)
       }
     } else {
-      #browser()
-      print(processName)
       usedTool <- env$getToolForProcess(processName)
       parameters <- usedTool$parameters[[1]]
       commandLine <- parameters[parameters$name == "Tool Arguments", ]$value
@@ -805,16 +807,22 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           if (!is.na(processFile$sourceInventoryPath)) {
             # During import, workflow$stepTemplates might not exist or have entityId
             # Skip resolution if we can't access the source step's entityId
-            if (!is.null(env$workflow) &&
-                !is.null(env$workflow$stepTemplates) &&
-                !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]) &&
-                !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId)) {
+            hasWorkflow <- !is.null(env$workflow)
+            hasStepTemplates <- hasWorkflow && !is.null(env$workflow$stepTemplates)
+            hasSourceStep <- hasStepTemplates && !is.null(env$workflow$stepTemplates[[processFile$sourceStep]])
+            hasEntityId <- hasSourceStep && !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId)
+            if (hasEntityId) {
               fileName <- processFile$sourceInventoryPath
               if (!startsWith(fileName,"./")) {
                 fileName <- paste0("./",fileName)
               }
               sourceStep <- env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId
-              processFile$ident<- loadResource(fileName,from=sourceStep)$entityId
+              resolved <- loadResource(fileName,from=sourceStep)
+              if (!is.null(resolved)) {
+                processFile$ident <- resolved$entityId
+              } else {
+                log_warn("Failed to resolve ", fileName, " from source step ", sourceStep)
+              }
             }
           }
           return(processFile)
@@ -941,6 +949,11 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
               next
             }
             processResource <- loadResource(processFile$ident)
+            if (is.null(processResource) || is.null(processResource$resourceId)) {
+              log_warn("Could not load resource for ident: ", processFile$ident,
+                       " (file: ", processFile$name, ") - skipping")
+              next
+            }
             resource <- data.frame(sourceResourceId = processResource$resourceId,
                                    targetName=processResource$name,
                                    stringsAsFactors = FALSE

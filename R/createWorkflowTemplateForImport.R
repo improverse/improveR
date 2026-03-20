@@ -30,8 +30,33 @@ createWorkflowTemplateForImport <- function(workflow, internalLinksData = NULL) 
     stepEnv <- workflow$steps[[stepName]]
     stepDf <- stepEnv$stepDf
 
-    # During import, we don't modify remoteFiles as resources don't exist yet
-    # The relationships are already established by importWorkflow
+    # Join internal links data to remoteFiles (same join as createWorkflowTemplateEnv).
+    # This is necessary because jsonlite may not preserve sourceStep/sourceInventoryPath
+    # columns consistently across all steps during the JSON roundtrip.
+    if (!is.null(internalLinks) && nrow(internalLinks) > 0) {
+      workflowLinks <- internalLinks[internalLinks$targetStep == stepName, ]
+      if (nrow(workflowLinks) > 0) {
+        remoteFiles <- stepDf$remoteFiles[[1]]
+        if (!is.null(remoteFiles) && nrow(remoteFiles) > 0) {
+          # Select only the columns we need from workflowLinks to avoid
+          # .x/.y suffix conflicts with overlapping column names
+          linkCols <- c("name", "sourceStep", "sourceInventoryPath", "targetStep")
+          linkCols <- intersect(linkCols, names(workflowLinks))
+          if (length(linkCols) > 0) {
+            workflowLinksClean <- workflowLinks[, linkCols, drop = FALSE]
+            # Remove pre-existing sourceStep/sourceInventoryPath columns from
+            # remoteFiles before joining to avoid .x/.y duplicates
+            dropCols <- setdiff(linkCols, "name")
+            dropCols <- intersect(dropCols, names(remoteFiles))
+            if (length(dropCols) > 0) {
+              remoteFiles <- remoteFiles[, !names(remoteFiles) %in% dropCols, drop = FALSE]
+            }
+            jointRemoteFiles <- dplyr::left_join(remoteFiles, workflowLinksClean, by = "name")
+            stepDf$remoteFiles <- list(jointRemoteFiles)
+          }
+        }
+      }
+    }
 
     stepTemplates[[stepName]] <- createStepTemplateEnv(
       stepDf = stepDf,
@@ -128,64 +153,7 @@ createWorkflowTemplateForImport <- function(workflow, internalLinksData = NULL) 
   }
   
   .workflow_template_private$executionOrder <- function(env, plan) {
-    .workflow_template_private$executionOrderInternal(env, plan)
-  }
-  
-  .workflow_template_private$executionOrderInternal <- function(env, plan, startSteps = NULL, counter = 0) {
-    counter <- counter + 1
-    if (!"dependencies" %in% names(plan)) {
-      plan$dependencies <- NA
-    }
-    if (!"usage" %in% names(plan)) {
-      plan$usage <- NA
-    }
-    if (is.null(startSteps)) {
-      startSteps <- plan[is.na(plan$dependencies), ]
-      plan <- plan[!is.na(plan$dependencies), ]
-    }
-    if (is.null(startSteps) || nrow(startSteps) == 0) {
-      log_warn("No step without dependencies, no executable order")
-      return(NULL)
-    }
-    
-    # Process each step in startSteps to see if we can add any of its dependents
-    for (s in seq_len(nrow(startSteps))) {
-      startStep <- startSteps[s, ]
-      if (!is.na(startStep$usage)) {
-        # Get the steps that use this step's output
-        usageSteps <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
-        if (length(usageSteps) > 0) {
-          for (usageStep in usageSteps) {
-            # Check if this usage step is still in the plan
-            candidateStep <- plan[plan$fullName == usageStep, ]
-            if (nrow(candidateStep) == 1 && "dependencies" %in% names(candidateStep)) {
-              # Check if all dependencies of this candidate are already in startSteps
-              dependencies <- if (!is.na(candidateStep$dependencies)) {
-                strsplit(candidateStep$dependencies, ",", fixed = TRUE)[[1]]
-              } else {
-                character(0)
-              }
-              if (all(dependencies %in% startSteps$fullName)) {
-                # All dependencies satisfied, add to startSteps
-                startSteps <- plyr::rbind.fill(startSteps, candidateStep)
-                plan <- plan[plan$fullName != usageStep, ]
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    # Check termination conditions
-    if (nrow(plan) == 0 || counter > 500) {
-      if (counter > 500) {
-        log_warn("Could not add all steps to execution order, check for cycles")
-      }
-      return(startSteps)
-    }
-    
-    # Recursive call with updated startSteps
-    return(.workflow_template_private$executionOrderInternal(env, plan, startSteps, counter))
+    workflowExecutionOrder(plan)
   }
   
   env$executePlan <- function(orderedWorkflow) {

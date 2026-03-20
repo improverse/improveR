@@ -37,7 +37,7 @@
 #' @seealso
 #' \code{\link{unlockResource}} to release lock,
 #' \code{\link{setEditable}} to enable write operations,
-#' \code{\link{updateResource}} for refreshing resource state
+#' \code{\link{refreshResource}} for refreshing resource state
 #'
 #' @examples
 #' \dontrun{
@@ -67,7 +67,7 @@
 #' @export
 lockResource <- function(ident,from=pwd()) {
   improveEditable()
-  res <- updateResource(ident,from)
+  res <- refreshResource(ident,from)
   if ("lockedByName" %in% names(res) && !is.na(res$lockedByName)) {
     log_warn(res,"is currently locked by user",res$lockedByName,", you have to unlock before locking")
     return(FALSE)
@@ -76,6 +76,7 @@ lockResource <- function(ident,from=pwd()) {
                                             urlParams = list(resourceId=res$resourceId),
                                             restType = "PUT")
   if (!is.null(result)) {
+    unloadResource(res$resourceId)
     return(TRUE)
   }
   log_warn("Failed to lock resource:", res$resourceId)
@@ -125,7 +126,7 @@ lockResource <- function(ident,from=pwd()) {
 #' @seealso
 #' \code{\link{lockResource}} to acquire lock,
 #' \code{\link{setEditable}} to enable write operations,
-#' \code{\link{updateResource}} for refreshing resource state
+#' \code{\link{refreshResource}} for refreshing resource state
 #'
 #' @examples
 #' \dontrun{
@@ -159,7 +160,7 @@ lockResource <- function(ident,from=pwd()) {
 #' @export
 unlockResource <- function(ident,from=pwd()) {
   improveEditable()
-  res <- updateResource(ident,from)
+  res <- refreshResource(ident,from)
   if (!("lockedByName" %in% names(res)) || is.na(res$lockedByName)) {
     log_warn(res,"is currently not locked")
     return(FALSE)
@@ -168,6 +169,7 @@ unlockResource <- function(ident,from=pwd()) {
                                             urlParams = list(resourceId=res$resourceId),
                                             restType = "PUT")
   if (!is.null(result)) {
+    unloadResource(res$resourceId)
     return(TRUE)
   }
   log_warn("Failed to unlock resource:", res$resourceId)

@@ -61,6 +61,8 @@ clearConnectionData <- function(includeRepoData=F) {
   Sys.setenv(IMPROVER_PASSWORD="")
   Sys.setenv(IMPROVER_TOKEN="")
   Sys.setenv(IMPROVER_REFRESH_TOKEN="")
+  # Reset CLI user profile so configureUserProfile() re-evaluates on next connect
+  cliEnv$userProfile <- NULL
   improveDisconnect()
 }
 
@@ -303,6 +305,42 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     log_info("OAuth authentication completed")
   }
   log_info(paste0("StepId: ", conf()$stepId))
+
+  # Validate the connection by making a lightweight API call.
+  # This catches stale tokens early — without this check, improveConnect()
+  # silently "succeeds" with expired tokens and the user gets no feedback.
+  if (!cacheEnv$offline) {
+    connectionValid <- tryCatch({
+      testResult <- authenticatedREST("/resources", restType = "GET")
+      !is.null(testResult)
+    }, error = function(e) FALSE)
+
+    if (!connectionValid) {
+      isOAuth <- is.null(conf()$reqToken) || is.na(conf()$reqToken) || conf()$reqToken == ""
+      if (isOAuth) {
+        log_warn("Connection validation failed — token may be stale. Re-authenticating via OAuth...")
+        repoUrl <- Sys.getenv("IMPROVER_REPO_URL")
+        stepId <- Sys.getenv("IMPROVER_STEP")
+        clearConnectionData()
+        cacheEnv$initialized <- TRUE
+        cacheEnv$logLevel <- logLevel
+        cacheEnv$secure <- secure
+        improveOAuth(repoUrl, shortEntityId = stepId, secure = secure)
+        return()
+      } else {
+        if (offlinePossible) {
+          log_warn("Connection validation failed — continuing in offline mode")
+          cacheEnv$offline <- TRUE
+        } else {
+          log_error("Connection validation failed — run token appears to be invalid.")
+          log_error("The provided IMPROVER_TOKEN may have expired or the server is unreachable.")
+          cacheEnv$initialized <- FALSE
+          stop("Connection validation failed: run token is invalid or server is unreachable")
+        }
+      }
+    }
+  }
+
   if (!is.null(conf()$stepId) & !is.na(conf()$stepId)) {
     rootStep <- loadResource(conf()$stepId)
     assign(x = "pwd", value = rootStep, envir = cacheEnv)
@@ -357,7 +395,7 @@ checkConnect <- function(secure = TRUE) {
   # Try to load the step resource to verify connection is still valid
   stepId <- conf()$stepId
   if (!is.null(stepId) && !is.na(stepId) && stepId != "") {
-    stepResource <- updateResource(stepId)
+    stepResource <- refreshResource(stepId)
     if (!is.null(stepResource)) {
       log_debug("Connection verified - step resource loaded successfully")
       return(invisible(TRUE))

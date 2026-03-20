@@ -59,10 +59,17 @@ unloadReviews <- function() {
 #' @returns A data frame of reviews, or \code{NULL} if none exist.
 #' @references ics348
 #' @export
-updateReviews <- function() {
+refreshReviews <- function() {
   unloadReviews()
   res <- loadReviews()
   return(res)
+}
+
+#' @rdname refreshReviews
+#' @export
+updateReviews <- function(...) {
+  .Deprecated("refreshReviews")
+  refreshReviews(...)
 }
 
 reviewersCacheList <- list(
@@ -134,11 +141,18 @@ unloadReviewers <- function(ident, from = pwd()) {
 #' @returns A data frame of reviewers, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-updateReviewers <- function(ident, from = pwd()) {
+refreshReviewers <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
   unloadReviewers(resourceId)
   res <- loadReviewers(resourceId)
   return(res)
+}
+
+#' @rdname refreshReviewers
+#' @export
+updateReviewers <- function(...) {
+  .Deprecated("refreshReviewers")
+  refreshReviewers(...)
 }
 
 reviewEntriesCacheList <- list(
@@ -213,11 +227,18 @@ unloadReviewEntries <- function(ident, from = pwd()) {
 #' @returns A data frame of review entries, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-updateReviewEntries <- function(ident, from = pwd()) {
+refreshReviewEntries <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
   unloadReviewEntries(resourceId)
   res <- loadReviewEntries(resourceId)
   return(res)
+}
+
+#' @rdname refreshReviewEntries
+#' @export
+updateReviewEntries <- function(...) {
+  .Deprecated("refreshReviewEntries")
+  refreshReviewEntries(...)
 }
 
 reviewCommentsCacheList <- list(
@@ -287,11 +308,18 @@ unloadReviewComments <- function(ident, from = pwd()) {
 #' @returns A data frame of review comments, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-updateReviewComments <- function(ident, from = pwd()) {
+refreshReviewComments <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
   unloadReviewComments(resourceId)
   res <- loadReviewComments(resourceId)
   return(res)
+}
+
+#' @rdname refreshReviewComments
+#' @export
+updateReviewComments <- function(...) {
+  .Deprecated("refreshReviewComments")
+  refreshReviewComments(...)
 }
 
 reviewEntryCommentsCacheList <- list(
@@ -364,8 +392,15 @@ unloadReviewEntryComments <- function(ident, entryId, from = pwd()) {
 #' @returns A data frame of review entry comments, or \code{NULL} if none exist.
 #' @references ics1543
 #' @export
-updateReviewEntryComments <- function(ident, entryId, from = pwd()) {
+refreshReviewEntryComments <- function(ident, entryId, from = pwd()) {
   unloadReviewEntryComments(ident, entryId, from)
   res <- loadReviewEntryComments(ident, entryId, from)
   return(res)
+}
+
+#' @rdname refreshReviewEntryComments
+#' @export
+updateReviewEntryComments <- function(...) {
+  .Deprecated("refreshReviewEntryComments")
+  refreshReviewEntryComments(...)
 }

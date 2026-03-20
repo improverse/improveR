@@ -20,7 +20,7 @@ validateRelationType <- function(relationTypeId, conn = NULL) {
   if (is.null(conn)) {
     relationTypes <- restGetAsDf("configuration/relationTypeLov")
   } else {
-    relationTypes <- updateRelationTypes(conn)
+    relationTypes <- refreshRelationTypes(conn)
   }
 
   if (is.null(relationTypes) || nrow(relationTypes) == 0) {

@@ -1,4 +1,6 @@
 invalidatePathCaches <- function(fromPath,deleteLinkedFiles=F) {
+  # Store original path before adding trailing slash (for exact match on files)
+  exactPath <- fromPath
   if (!endsWith(fromPath,"/")) {
     fromPath <- paste0(fromPath,"/")
   }
@@ -8,7 +10,8 @@ invalidatePathCaches <- function(fromPath,deleteLinkedFiles=F) {
     cacheName <- pathCaches[i]
     cache <- cacheEnv[[cacheName]]
     entryNames <- names(cache)
-    entryNames <- entryNames[startsWith(entryNames,fromPath)]
+    # Match both the exact path (for files) and children (for folders)
+    entryNames <- entryNames[entryNames == exactPath | startsWith(entryNames,fromPath)]
     ids <- lapply(entryNames,function(entryName) {
       entry <- cache[[entryName]]
       return(list(

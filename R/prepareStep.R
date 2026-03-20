@@ -41,7 +41,7 @@ changeStepDescription <- function(ident, from=pwd(),description) {
                                   data=as.list(stepEntity),
                                   restType = "PUT"
   )
-  return(updateResource(ident,from))
+  return(refreshResource(ident,from))
 }
 
 #' Change Step Rationale
@@ -82,7 +82,7 @@ changeStepRationale <- function(ident, from=pwd(),rationale) {
                                             data=as.list(stepEntity),
                                             restType = "PUT"
   )
-  return(updateResource(ident,from))
+  return(refreshResource(ident,from))
 }
 
 getToolId <- function(runserverName, runserverToolName) {

@@ -39,7 +39,7 @@ actualLoadProcessesForStep <- function(stepIdent) {
   processes <- restGetAsDf("resources/{stepId}/processes",
                            urlParams = list(stepId = stepIdent),
                            nested = TRUE)
-  if (!is.null(processes)) {
+  if (!is.null(processes) && nrow(processes) > 0) {
     processes$stepId <- stepIdent
   }
   return(processes)
@@ -58,14 +58,21 @@ unloadProcessesForStep <- function(stepIdent) {
   removeFromCache(step$resourceId,"",processesForStepsCacheList)
 }
 
-#' updateProcessesForStep reloads the processes for a step
+#' refreshProcessesForStep reloads the processes for a step
 #' @param stepIdent resourceId of the step or the step
 #' @references ics1218
 #' @noRd
-updateProcessesForStep <- function(stepIdent) {
+refreshProcessesForStep <- function(stepIdent) {
   unloadProcessesForStep(stepIdent)
   res <- loadProcessesForStep(stepIdent)
   return(res)
+}
+
+#' @rdname refreshProcessesForStep
+#' @noRd
+updateProcessesForStep <- function(...) {
+  .Deprecated("refreshProcessesForStep")
+  refreshProcessesForStep(...)
 }
 
 #' processGridProvider loads the grid provider for a given process
@@ -110,9 +117,11 @@ actualLoadProcessGridArguments <- function(processId) {
   dfs <- restGetAsDf("/resources/{resourceId}/processes/{processId}/gridArguments",
                      urlParams = list(resourceId = process$stepId, processId = process$id),
                      nested = TRUE)
-  if (is.null(dfs)) return(NULL)
+  if (is.null(dfs) || nrow(dfs) == 0) return(NULL)
   provider <- processGridProvider(process)
   gridArgumentDefinitions <- loadGridArguments(provider)
+  if (is.null(gridArgumentDefinitions) || nrow(gridArgumentDefinitions) == 0) return(dfs)
+  if (!("definitionId" %in% names(dfs))) return(dfs)
   colnames(gridArgumentDefinitions)[colnames(gridArgumentDefinitions) == 'id'] <- 'definitionId'
   dfs <- merge(dfs,gridArgumentDefinitions,by="definitionId")
   return(dfs)
@@ -127,14 +136,21 @@ unloadProcessGridArguments <- function(processId) {
   removeFromCache(processId,"",processGridArgumentsCacheList)
 }
 
-#' updateLoadProcessGridArguments reloads the process grid arguments for a process
+#' refreshProcessGridArguments reloads the process grid arguments for a process
 #' @param processId id of the process
 #' @references ics1218
 #' @noRd
-updateProcessGridArguments <- function(processId) {
+refreshProcessGridArguments <- function(processId) {
   unloadProcessGridArguments(processId)
   res <- loadProcessGridArguments(processId)
   return(res)
+}
+
+#' @rdname refreshProcessGridArguments
+#' @noRd
+updateProcessGridArguments <- function(...) {
+  .Deprecated("refreshProcessGridArguments")
+  refreshProcessGridArguments(...)
 }
 
 
@@ -176,14 +192,21 @@ unloadProcessVariables <- function(processId) {
   removeFromCache(processId,"",processVariablesCacheList)
 }
 
-#' updateProcessVariables reloads the process variables for a process
+#' refreshProcessVariables reloads the process variables for a process
 #' @param processId id of the process
 #' @references ics1218
 #' @noRd
-updateProcessVariables <- function(processId) {
+refreshProcessVariables <- function(processId) {
   unloadProcessVariables(processId)
   res <- loadProcessVariables(processId)
   return(res)
+}
+
+#' @rdname refreshProcessVariables
+#' @noRd
+updateProcessVariables <- function(...) {
+  .Deprecated("refreshProcessVariables")
+  refreshProcessVariables(...)
 }
 
 processRunsCacheList <- list(
@@ -225,14 +248,21 @@ unloadProcessRuns <- function(processId) {
   removeFromCache(processId,"",processRunsCacheList)
 }
 
-#' updateProcessRuns reloads the process runs for a process
+#' refreshProcessRuns reloads the process runs for a process
 #' @param processId id of the process
 #' @references ics1218
 #' @noRd
-updateProcessRuns <- function(processId) {
+refreshProcessRuns <- function(processId) {
   unloadProcessRuns(processId)
   res <- loadProcessRuns(processId)
   return(res)
+}
+
+#' @rdname refreshProcessRuns
+#' @noRd
+updateProcessRuns <- function(...) {
+  .Deprecated("refreshProcessRuns")
+  refreshProcessRuns(...)
 }
 
 

@@ -3,7 +3,7 @@
 #' @param entryId id (UUID) of the review entry whose existence is to be checked
 #' @noRd
 validateEntry <- function(reviewId, entryId) {
-  reviewEntries <- updateReviewEntries(reviewId)
+  reviewEntries <- refreshReviewEntries(reviewId)
   if (is.null(reviewEntries) || nrow(reviewEntries) == 0) {
     log_error("No reviewer exists for the review with the id:", reviewId)
     return(FALSE)
@@ -52,7 +52,7 @@ createReviewEntryComment <- function(ident, entryId, comment, from = pwd()) {
   data <- list("comment" = comment)
 
   result <- authenticatedREST("/reviews/{reviewId}/entries/{entryId}/comments", urlParams = list(reviewId = reviewId, entryId = entryId), data = data, restType = "POST")
-  entryComments <- updateReviewEntryComments(reviewId, entryId)
+  entryComments <- refreshReviewEntryComments(reviewId, entryId)
 
   return(entryComments)
 }

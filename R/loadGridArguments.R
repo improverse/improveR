@@ -36,14 +36,21 @@ unloadGridArguments <- function(gridProvider) {
   removeFromCache(gridProvider,"",gridArgumentsCacheList)
 }
 
-#' updateGridArguments reloads the grid arguments from the repository
+#' refreshGridArguments reloads the grid arguments from the repository
 #' @param gridProvider label of the grid provider
 #' @references ics1216
 #' @noRd
-updateGridArguments <- function(gridProvider) {
+refreshGridArguments <- function(gridProvider) {
   unloadGridArguments(gridProvider)
   res <- loadGridArguments(gridProvider)
   return(res)
+}
+
+#' @rdname refreshGridArguments
+#' @noRd
+updateGridArguments <- function(...) {
+  .Deprecated("refreshGridArguments")
+  refreshGridArguments(...)
 }
 
 #' loadGridArgumentDefinition loads grid argument by gridProvider and name

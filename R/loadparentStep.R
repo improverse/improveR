@@ -43,15 +43,22 @@ unloadParentStep <- function(ident, from=pwd()) {
   }
 }
 
-#' UpdateParentStep Reloads The Runservers From The Repository
+#' Refresh Parent Step from Server
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
 #' @references ics1209
 #' @export
-updateParentStep <- function(ident, from=pwd()) {
+refreshParentStep <- function(ident, from=pwd()) {
   unloadParentStep(ident,from)
   res <- loadParentStep(ident,from)
   return(res)
+}
+
+#' @rdname refreshParentStep
+#' @export
+updateParentStep <- function(...) {
+  .Deprecated("refreshParentStep")
+  refreshParentStep(...)
 }
 
 actualLoadParentStep <- function(ident,from=pwd()) {

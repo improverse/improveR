@@ -57,7 +57,7 @@ createReviewComment <- function(ident, resourceIdent, comment, commentType, from
                "commentType" = commentType)
 
   result <- authenticatedREST("/reviews/{reviewId}/comments", urlParams = list(reviewId = reviewId), data = data, restType = "POST")
-  comments <- updateReviewComments(reviewId)
+  comments <- refreshReviewComments(reviewId)
 
   return(comments)
 }

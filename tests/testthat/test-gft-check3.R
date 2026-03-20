@@ -178,7 +178,7 @@ test_that("GFT3-02: delete resource relation|ics1044", {
   )
 
   # Verify relation is gone — force cache refresh
-  relationsAfter <- improveR::updateResourceRelations(GFT3$FILE_A_PATH)
+  relationsAfter <- improveR::refreshResourceRelations(GFT3$FILE_A_PATH)
   if (!is.null(relationsAfter) && is.data.frame(relationsAfter)) {
     expect_false(GFT3$RELATION_ID %in% relationsAfter$id,
                  info = "Deleted relation should no longer appear")
@@ -307,7 +307,7 @@ test_that("GFT3-07: finish and reopen resource|ics1810,ics1811", {
   expect_true(finishResult, info = "finishResource should return TRUE on success")
 
   # Verify the resource state changed (load and check status)
-  finishedRes <- improveR::updateResource(GFT3$FILE_A_PATH)
+  finishedRes <- improveR::refreshResource(GFT3$FILE_A_PATH)
   if ("status" %in% names(finishedRes)) {
     cat("Resource status after finish:", finishedRes$status, "\n")
   }

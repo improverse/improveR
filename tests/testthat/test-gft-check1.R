@@ -361,7 +361,7 @@ test_that("GFT1-09: create link_target file and version it|ics472", {
   expect_true(unlocked, info = "Should be able to unlock link_target")
 
   # Verify version history shows at least 2 versions
-  improveR::updateResource(GFT$LINK_TARGET_PATH)
+  improveR::refreshResource(GFT$LINK_TARGET_PATH)
   history <- improveR::loadHistory(GFT$LINK_TARGET_PATH)
   expect_false(is.null(history), info = "History should not be NULL")
   expect_false(is.null(history$data), info = "History data should not be NULL")

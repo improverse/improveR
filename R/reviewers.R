@@ -19,7 +19,7 @@ validateReview <- function(reviewId) {
 #' @param reviewerId id (UUID) of the reviewer whose existence is to be checked
 #' @noRd
 validateReviewer <- function(reviewId, reviewerId) {
-  reviewers <- updateReviewers(reviewId)
+  reviewers <- refreshReviewers(reviewId)
   if (is.null(reviewers) || nrow(reviewers) == 0) {
     log_error("No reviewer exists for the review with the id:", reviewId)
     return(FALSE)
@@ -72,7 +72,7 @@ validateUser <- function(userId, username) {
 #' @param username name of the user
 #' @noRd
 validateDuplicateReviewer <- function(reviewId, userId, username) {
-  reviewers <- updateReviewers(reviewId)
+  reviewers <- refreshReviewers(reviewId)
   if (!is.null(reviewers) && nrow(reviewers) > 0) {
     # Reviewer API returns nested user fields: user.id, user.username
     userIdCol <- if ("user.id" %in% colnames(reviewers)) "user.id" else if ("userId" %in% colnames(reviewers)) "userId" else NULL
@@ -116,7 +116,7 @@ createReviewer <- function(ident, userId, username, from = pwd()) {
                "username" = username)
 
   result <- authenticatedREST("/reviews/{reviewId}/reviewers", urlParams = list(reviewId = reviewId), data = data, restType = "POST")
-  reviewers <- updateReviewers(reviewId)
+  reviewers <- refreshReviewers(reviewId)
 
   return(reviewers)
 }
@@ -144,7 +144,7 @@ deleteReviewer <- function(ident, reviewerId, from = pwd()) {
   }
 
   result <- authenticatedREST("/reviews/{reviewId}/reviewers/{reviewerId}", urlParams = list(reviewId = reviewId, reviewerId = reviewerId), restType = "DELETE")
-  updateReviewers(reviewId)
+  refreshReviewers(reviewId)
 
   if (!is.null(result)) {
     return(TRUE)

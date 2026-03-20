@@ -405,7 +405,7 @@ singleUpdateFileContent <- function(ident,localPath,comment) {
     return(NULL)
   }
   res <- httr::content(fResult)
-  resource <- updateResource(res[[1]]$resourceId)
+  resource <- refreshResource(res[[1]]$resourceId)
   return(resource)
 }
 
@@ -512,8 +512,13 @@ collectSteps <- function(
     stop("Not connected to improve server. Please run improveConnect() first.")
   }
 
+  # Handle data frame input (single resource) - extract resourceId
+  if (is.data.frame(ident)) {
+    ident <- getCorrectId(ident)
+  }
+
   # Handle vector of identifiers (e.g., c(step1, step2))
-  if (length(ident) > 1) {
+  if (is.character(ident) && length(ident) > 1) {
     allResults <- data.frame()
     for (i in seq_along(ident)) {
       result <- collectSteps(
@@ -529,7 +534,7 @@ collectSteps <- function(
   }
 
   # Load the resource(s)
-  resources <- updateResource(ident)
+  resources <- refreshResource(ident)
 
   if (is.null(resources)) {
     if (isTRUE(verbose)) {
@@ -598,7 +603,7 @@ collectSteps <- function(
   # Recursive helper function for containers
   collectSteps <- function(resource, results = data.frame()) {
     # Load all full child resources (includes runStatus for steps)
-    children <- updateFullChildResources(resource$entityId)
+    children <- refreshFullChildResources(resource$entityId)
 
     if (is.null(children) || !("data" %in% names(children))) {
       return(results)

@@ -180,7 +180,7 @@ test_that("GFT2-03: lock, update content, and unlock file|ics472", {
   expect_true(locked, info = "lockResource should return TRUE on success")
 
   # Verify the resource shows as locked
-  lockedRes <- improveR::updateResource(GFT2$FILE1_PATH)
+  lockedRes <- improveR::refreshResource(GFT2$FILE1_PATH)
   expect_true("lockedByName" %in% names(lockedRes),
               info = "Locked resource should have lockedByName field")
   expect_false(is.na(lockedRes$lockedByName),
@@ -196,7 +196,7 @@ test_that("GFT2-03: lock, update content, and unlock file|ics472", {
   expect_true(unlocked, info = "unlockResource should return TRUE on success")
 
   # Verify the resource is no longer locked
-  unlockedRes <- improveR::updateResource(GFT2$FILE1_PATH)
+  unlockedRes <- improveR::refreshResource(GFT2$FILE1_PATH)
   if ("lockedByName" %in% names(unlockedRes)) {
     expect_true(is.na(unlockedRes$lockedByName),
                 info = "lockedByName should be NA after unlock")
@@ -210,7 +210,7 @@ test_that("GFT2-03: lock, update content, and unlock file|ics472", {
 test_that("GFT2-04: verify file has multiple versions after edit|ics472", {
   skip_if(is.null(GFT2$FILE1_PATH), "No test file 1")
 
-  improveR::updateResource(GFT2$FILE1_PATH)
+  improveR::refreshResource(GFT2$FILE1_PATH)
   history <- improveR::loadHistory(GFT2$FILE1_PATH)
   skip_if(is.null(history) || is.null(history$data) || length(history$data) == 0,
           "History not available")

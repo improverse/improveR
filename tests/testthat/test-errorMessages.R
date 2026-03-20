@@ -129,16 +129,16 @@ test_that("not connected|ics1081", {
   checkConnected(unloadParentStep)
   checkConnected(unloadReferences)
 
-  checkConnected(updateResource)
-  checkConnected(updateAuditTrail)
-  checkConnected(updateChildResources)
-  checkConnected(updateChildSteps)
-  checkConnected(updateFile)
-  checkConnected(updateFullChildResources)
-  checkConnected(updateHistory)
-  checkConnected(updateMetaData)
-  checkConnected(updateParentStep)
-  checkConnected(updateReferences)
+  checkConnected(refreshResource)
+  checkConnected(refreshAuditTrail)
+  checkConnected(refreshChildResources)
+  checkConnected(refreshChildSteps)
+  checkConnected(refreshFile)
+  checkConnected(refreshFullChildResources)
+  checkConnected(refreshHistory)
+  checkConnected(refreshMetaData)
+  checkConnected(refreshParentStep)
+  checkConnected(refreshReferences)
 
 
   ###queries
@@ -233,13 +233,13 @@ test_that("load connected|ics1085,ics1090,ics1093,ics1094,ics1096,ics1097,ics109
 
     id <- FAKE_RES_ID
     resource <- func(id)
-    eMsg <- glue::glue(expectedMessage)
+    eMsg <- as.character(glue::glue(expectedMessage))
     message <- improveLastLogMessage("WARN")
     expect_equal(message,eMsg)
 
     id <- FAKE_ENTITY_ID
     resource <- func(id)
-    eMsg <- glue::glue(expectedMessage)
+    eMsg <- as.character(glue::glue(expectedMessage))
     message <- improveLastLogMessage("WARN")
     expect_equal(message,eMsg)
 
@@ -250,7 +250,7 @@ test_that("load connected|ics1085,ics1090,ics1093,ics1094,ics1096,ics1097,ics109
 
     id <- FAKE_PATH
     resource <- func(id)
-    eMsg <- glue::glue(expectedPathMessage)
+    eMsg <- as.character(glue::glue(expectedPathMessage))
     message <- improveLastLogMessage("WARN")
     expect_true(startsWith(message,eMsg))
   }
@@ -285,16 +285,16 @@ test_that("load connected|ics1085,ics1090,ics1093,ics1094,ics1096,ics1097,ics109
   checkNonexisting(unloadParentStep)
   checkNonexisting(unloadReferences)
 
-  checkNonexisting(updateResource)
-  checkNonexisting(updateAuditTrail)
-  checkNonexisting(updateChildResources)
-  checkNonexisting(updateChildSteps)
-  checkNonexisting(updateFile)
-  checkNonexisting(updateFullChildResources)
-  checkNonexisting(updateHistory)
-  checkNonexisting(updateMetaData)
-  checkNonexisting(updateParentStep)
-  checkNonexisting(updateReferences)
+  checkNonexisting(refreshResource)
+  checkNonexisting(refreshAuditTrail)
+  checkNonexisting(refreshChildResources)
+  checkNonexisting(refreshChildSteps)
+  checkNonexisting(refreshFile)
+  checkNonexisting(refreshFullChildResources)
+  checkNonexisting(refreshHistory)
+  checkNonexisting(refreshMetaData)
+  checkNonexisting(refreshParentStep)
+  checkNonexisting(refreshReferences)
 
 })
 
@@ -352,37 +352,37 @@ test_that("create in wrong target|ics1101,ics1102,ics1103,ics1104,ics1138,ics114
     type<-"Analysis Tree"
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
-    expect_equal(message,glue::glue(expectedMessage))
+    expect_equal(message,as.character(glue::glue(expectedMessage)))
 
     failed <- createExternalLink(testContainer,"errorLink","url")
     type<-"ExtLink"
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
-    expect_equal(message,glue::glue(expectedMessage))
+    expect_equal(message,as.character(glue::glue(expectedMessage)))
 
     failed <- createStep(testContainer)
     type<-"Step"
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
-    expect_equal(message,glue::glue(expectedMessage))
+    expect_equal(message,as.character(glue::glue(expectedMessage)))
 
     failed <- createLink(testContainer,TEST_FOLDER)
     type<-"Link"
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
-    expect_equal(message,glue::glue(expectedMessage))
+    expect_equal(message,as.character(glue::glue(expectedMessage)))
 
     failed <- createFolder(testContainer,"errorFolder")
     type<-"Folder"
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
-    expect_equal(message,glue::glue(expectedMessage))
+    expect_equal(message,as.character(glue::glue(expectedMessage)))
 
     failed <- createFile(testContainer,"errorFile")
     type<-"File"
     expect_null(failed)
     message <- improveLastLogMessage("WARN")
-    expect_equal(message,glue::glue(expectedMessage))
+    expect_equal(message,as.character(glue::glue(expectedMessage)))
   }
 
 
@@ -404,13 +404,13 @@ test_that("create in wrong target|ics1101,ics1102,ics1103,ics1104,ics1138,ics114
   type<-"Analysis Tree"
   expect_null(failed)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message,as.character(glue::glue(expectedMessage)))
 
   failed <- createExternalLink(analysisTree,"errorLink","url")
   type<-"ExtLink"
   expect_null(failed)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message,as.character(glue::glue(expectedMessage)))
 
   #create resources in folder
   failed <- createStep(TEST_FOLDER,"errorStep")
@@ -418,7 +418,7 @@ test_that("create in wrong target|ics1101,ics1102,ics1103,ics1104,ics1138,ics114
   target<-"Folder"
   expect_null(failed)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message,as.character(glue::glue(expectedMessage)))
 
 
   #create resource in step
@@ -433,13 +433,13 @@ test_that("create in wrong target|ics1101,ics1102,ics1103,ics1104,ics1138,ics114
   type<-"Analysis Tree"
   expect_null(failed)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message,as.character(glue::glue(expectedMessage)))
 
   failed <- createStep(testStep)
   type<-"Step"
   expect_null(failed)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message,as.character(glue::glue(expectedMessage)))
 
   #create resource in file
 

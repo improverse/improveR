@@ -99,7 +99,7 @@ setProcessVariables <- function(stepId, processId,processType="main",name="Main"
                                             ),
                                             data=processVariables,
                                             restType = "PUT")
-  result <- updateProcessesForStep(stepId)
+  result <- refreshProcessesForStep(stepId)
 }
 
 
@@ -252,7 +252,7 @@ detachStep <- function(ident,  from=pwd()) {
   )
   unloadChildSteps(parentStep)
   unloadParentStep(ident,from)
-  return(updateResource(ident,from))
+  return(refreshResource(ident,from))
 }
 
 #' Attach a Step to a Parent Step
@@ -306,7 +306,7 @@ attachStep <- function(ident, parent, from = pwd()) {
 
   unloadParentStep(stepEntity, from)
   unloadChildSteps(stepParentEntity)
-  return(updateResource(ident, from))
+  return(refreshResource(ident, from))
 }
 
 #' createProcess
@@ -364,7 +364,7 @@ createProcess <- function(stepId,processType="main",name="Main",selected=TRUE,ru
                               ),
                               data=processVariables,
                               restType = "POST")
-  result <- updateProcessesForStep(stepId)
+  result <- refreshProcessesForStep(stepId)
 }
 
 

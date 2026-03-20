@@ -180,7 +180,7 @@ getStepDf <- function(ident) {
   restContent <- httr::content(restResult)
 
 
-  processes <- updateProcessesForStep(stepIdent = ident)
+  processes <- refreshProcessesForStep(stepIdent = ident)
 
   #if run exists take toolArgs from run
   if (nrow(processes)==0) {
@@ -192,7 +192,7 @@ getStepDf <- function(ident) {
   processes$handle <- stepHandle
 
   processes <- byNotEmptyAsDf(processes,function(pro) {
-    gridArguments <- updateProcessGridArguments(pro$id)
+    gridArguments <- refreshProcessGridArguments(pro$id)
     if (!is.null(gridArguments)) {
       pro$gridArguments <- list(
         byNotEmptyAsDf(gridArguments,function(ga) {

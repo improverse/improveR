@@ -25,6 +25,10 @@
 #' @noRd
 
 getCorrectId <- function(resolveToId) {
+    if (is.null(resolveToId) || (is.atomic(resolveToId) && length(resolveToId) == 0)) {
+        log_error("getCorrectId called with NULL or empty value")
+        stop("resolveToId is NULL or empty")
+    }
     if (is.data.frame(resolveToId)) {
         if ("resourceId" %in% names(resolveToId)) {
             return(resolveToId$resourceId)
@@ -33,7 +37,12 @@ getCorrectId <- function(resolveToId) {
             log_error(resolveToId)
             stop("missing resourceId")
         }
-    } else if (startsWith(resolveToId, "/") | startsWith(resolveToId, "./") | startsWith(resolveToId, "\\") | startsWith(resolveToId, ".\\")) {
+    }
+    if (!is.character(resolveToId)) {
+        log_error("getCorrectId called with non-character value of class:", class(resolveToId))
+        stop(paste("resolveToId must be character, got:", class(resolveToId)))
+    }
+    if (startsWith(resolveToId, "/") | startsWith(resolveToId, "./") | startsWith(resolveToId, "\\") | startsWith(resolveToId, ".\\")) {
         return(resolveToId)
     } else if (!grepl("=", resolveToId, fixed = T) &&
         !grepl(":", resolveToId, fixed = T) &&

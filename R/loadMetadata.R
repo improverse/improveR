@@ -33,14 +33,21 @@ unloadMetaData <- function(ident) {
   }
 }
 
-#' Update Meta Data
+#' Refresh Meta Data
 #' @param ident id
 #' @references ics1096
 #' @export
-updateMetaData <- function(ident) {
+refreshMetaData <- function(ident) {
   unloadMetaData(ident)
   res <- loadMetaData(ident)
   return(res)
+}
+
+#' @rdname refreshMetaData
+#' @export
+updateMetaData <- function(...) {
+  .Deprecated("refreshMetaData")
+  refreshMetaData(...)
 }
 
 
@@ -52,7 +59,9 @@ actualLoadMetaData <- function(resource) {
   if (as.character(resource$resourceId) == "0") {
     return(data.frame(comment = "root has no meta data"))
   }
-  return(restGetAsDf("/resources/{resourceId}/metadata",
-                     urlParams = list(resourceId = resource$resourceId),
-                     dates = TRUE))
+  result <- restGetAsDf("/resources/{resourceId}/metadata",
+                        urlParams = list(resourceId = resource$resourceId),
+                        dates = TRUE)
+  if (is.null(result)) return(data.frame())
+  return(result)
 }

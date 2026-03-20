@@ -33,14 +33,21 @@ unloadReferences <- function(ident) {
   removeFromCache(res$resourceId,"",referencesResourceCacheList)
 }
 
-#' Update References
+#' Refresh References
 #' @param ident id
 #' @references ics1206
 #' @export
-updateReferences <- function(ident) {
+refreshReferences <- function(ident) {
   unloadReferences(ident)
   res <- loadReferences(ident)
   return(res)
+}
+
+#' @rdname refreshReferences
+#' @export
+updateReferences <- function(...) {
+  .Deprecated("refreshReferences")
+  refreshReferences(...)
 }
 
 loadReferencesFromServer <- function(resource) {

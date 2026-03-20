@@ -62,7 +62,7 @@ test_that("token refresh plugin works when token expires", {
 
     # Try an API call using authenticatedREST which should apply the refreshed token
     tryCatch({
-      result <- improveR::authenticatedREST("/users", restType = "GET")
+      result <- improveR:::authenticatedREST("/users", restType = "GET")
       expect_true(!is.null(result), "API call should succeed after token refresh")
       cat("✓ API call succeeded, token refresh is working\n")
     }, error = function(e) {
@@ -83,23 +83,27 @@ test_that("manual token refresh via plugin works", {
   # Store current token
   initial_token <- Sys.getenv("IMPROVER_TOKEN")
 
-  # Set token expiration to 0 to force refresh
-  Sys.setenv(IMPROVER_TOKEN_EXPIRATION = "0")
+  # Force refresh by using alwaysRefresh parameter
+  # Note: setting expiration to 0 won't work because shouldRefreshToken() returns FALSE when expiration==0
+  cat("Forcing token refresh using alwaysRefresh=TRUE...\n")
 
-  cat("Forcing token refresh by setting expiration to 0...\n")
+  # Capture log output using redirectLogs (logging:: writes to handler, not message())
+  improveR:::redirectLogs(TRUE)
+  tryCatch({
+    improveR::refreshToken(alwaysRefresh = TRUE)
+    cat("refreshToken() completed\n")
+  }, error = function(e) {
+    cat("Error:", e$message, "\n")
+  })
 
-  # Capture log output
-  log_output <- capture.output({
-    tryCatch({
-      improveR::refreshToken()
-      cat("refreshToken() completed\n")
-    }, error = function(e) {
-      cat("Error:", e$message, "\n")
-    })
-  }, type = "message")
+  # Check for the plugin log message in the structured log list
+  logs <- improveR:::logEnv$logs
+  all_messages <- unlist(logs, recursive = TRUE)
+  refresh_logged <- any(grepl("Token refreshed via plugin", all_messages))
 
-  # Check for the plugin log message
-  refresh_logged <- any(grepl("Token refreshed via plugin", log_output))
+  # Reset log redirection
+  improveR:::resetLogs()
+  improveR:::redirectLogs(FALSE)
 
   expect_true(refresh_logged,
               "Token refresh plugin should log 'Token refreshed via plugin'")
@@ -107,12 +111,12 @@ test_that("manual token refresh via plugin works", {
   if (refresh_logged) {
     cat("✓ Token refresh plugin successfully triggered\n")
   } else {
-    cat("Log output received:\n", paste(log_output, collapse = "\n"), "\n")
+    cat("Log messages captured:\n", paste(all_messages, collapse = "\n"), "\n")
   }
 
   # Verify the token works
   tryCatch({
-    result <- improveR::authenticatedREST("/users", restType = "GET")
+    result <- improveR:::authenticatedREST("/users", restType = "GET")
     expect_true(!is.null(result), "API call should succeed with refreshed token")
     cat("✓ Refreshed token works for API calls\n")
   }, error = function(e) {

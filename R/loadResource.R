@@ -132,13 +132,13 @@ unloadResource <- function(ident,from=pwd()) {
   }
 }
 
-#' Update Resource
-#' @description Updates a resource.
+#' Refresh Resource
+#' @description Refreshes a resource from the server by clearing cache and reloading.
 #' @param ident id
 #' @param from pwd for relative path
 #' @references ics1090
 #' @export
-updateResource <- function(ident,from=pwd()) {
+refreshResource <- function(ident,from=pwd()) {
   res <- loadResource(ident,from)
   if (!is.null(res)) {
     unloadResource(ident,from)
@@ -146,6 +146,13 @@ updateResource <- function(ident,from=pwd()) {
     return(res)
   }
   return(res)
+}
+
+#' @rdname refreshResource
+#' @export
+updateResource <- function(...) {
+  .Deprecated("refreshResource")
+  refreshResource(...)
 }
 
 #' Is Resource Up2 Date

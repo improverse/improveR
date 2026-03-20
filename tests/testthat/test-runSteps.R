@@ -405,7 +405,51 @@ test_that("DMG spans multiple trees, linear|ics1140", {
 
   TEST_FOLDER <- ensureTestFolder()
 
-
+  # Clean up leftover resources from previous test runs
+  # Delete in correct order: folders with steps need resetStep first
+  resetCache()
+  for (stale_name in c("fullDependencies", "fullUsage")) {
+    existing <- loadResource(paste0("./", stale_name), TEST_FOLDER)
+    if (!is.null(existing)) {
+      # Reset any running steps inside the folder before deleting
+      tryCatch({
+        children <- loadFullChildResources(existing)
+        if (!is.null(children) && !is.null(children$data[[1]]) && nrow(children$data[[1]]) > 0) {
+          for (child in children$data[[1]]$entityId) {
+            tryCatch({
+              childChildren <- loadFullChildResources(child)
+              if (!is.null(childChildren) && !is.null(childChildren$data[[1]])) {
+                for (cc in childChildren$data[[1]]$entityId) {
+                  tryCatch(resetStep(cc), error = function(e) NULL)
+                }
+              }
+            }, error = function(e) NULL)
+            tryCatch(resetStep(child), error = function(e) NULL)
+          }
+        }
+        delete(existing)
+      }, error = function(e) {
+        cat("Warning: Could not fully clean up", stale_name, ":", e$message, "\n")
+      })
+    }
+  }
+  for (stale_name in c("DMG L1", "DMG L2", "DMG L3")) {
+    existing <- loadResource(paste0("./", stale_name), TEST_FOLDER)
+    if (!is.null(existing)) {
+      tryCatch({
+        children <- loadFullChildResources(existing)
+        if (!is.null(children) && !is.null(children$data[[1]]) && nrow(children$data[[1]]) > 0) {
+          for (child in children$data[[1]]$entityId) {
+            tryCatch(resetStep(child), error = function(e) NULL)
+          }
+        }
+        delete(existing)
+      }, error = function(e) {
+        cat("Warning: Could not fully clean up", stale_name, ":", e$message, "\n")
+      })
+    }
+  }
+  resetCache()
 
   dmgL1 <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER, treeName = "DMG L1")
 
@@ -646,7 +690,7 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
 
 
   step <- realStep$getStepResource()
-  step <- improveR::updateResource(step)
+  step <- improveR::refreshResource(step)
   expect_equal(realStep$getStepState(), "FINISHED")
   entityId <- step$entityId
 
@@ -845,7 +889,7 @@ test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", 
 
   relativeWorkflowAfter <- improveR::byNotEmptyAsDf(executedSteps, function(line) {
     process <- improveR::getMainProcess(line$entityId)
-    runs <- updateProcessRuns(process$id)
+    runs <- refreshProcessRuns(process$id)
     line$runNoAfter <- nrow(runs)
     return(line)
   })
@@ -863,7 +907,7 @@ test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", 
 
   relativeWorkflowAfter <- improveR::byNotEmptyAsDf(executedSteps, function(line) {
     process <- improveR::getMainProcess(line$entityId)
-    runs <- updateProcessRuns(process$id)
+    runs <- refreshProcessRuns(process$id)
     line$runNoAfter <- nrow(runs)
     return(line)
   })
@@ -1024,7 +1068,7 @@ test_that("terminate running step|ics1140", {
   Sys.sleep(2)
 
   # Update the step resource to get current status
-  stepResource <- improveR::updateResource(stepResource)
+  stepResource <- improveR::refreshResource(stepResource)
 
   # Verify the step is running (or at least not FINISHED yet)
   # Note: depending on timing, it might be QUEUED, RUNNING, or already FINISHED
@@ -1041,7 +1085,7 @@ test_that("terminate running step|ics1140", {
   Sys.sleep(2)
 
   # Update step status after termination
-  stepResource <- improveR::updateResource(stepResource)
+  stepResource <- improveR::refreshResource(stepResource)
 
   # Verify the step is terminated
   cat("\nStep status after termination:", stepResource$runStatus, "\n")

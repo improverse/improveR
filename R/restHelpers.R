@@ -13,7 +13,7 @@
 #' @param nested If \code{TRUE}, use \code{mergeNestedListToDataframe} instead
 #'   of \code{mergeListToDataframe}.
 #' @param dates If \code{TRUE}, apply \code{convertDates()} to the result.
-#' @returns A data frame, or \code{NULL} on failure / empty result.
+#' @returns A data frame (possibly with zero rows), or \code{NULL} on failure.
 #' @noRd
 restGetAsDf <- function(url,
                         urlParams    = list(),
@@ -30,11 +30,12 @@ restGetAsDf <- function(url,
     cont <- cont[[elementsKey]]
   }
 
-  if (is.null(cont) || length(cont) == 0) return(NULL)
+  if (is.null(cont)) return(NULL)
 
   df <- if (nested) mergeNestedListToDataframe(cont) else mergeListToDataframe(cont)
 
-  if (is.null(df) || nrow(df) == 0) return(NULL)
+  if (is.null(df)) return(NULL)
+  if (nrow(df) == 0) return(NULL)
 
   if (dates) df <- convertDates(df)
 

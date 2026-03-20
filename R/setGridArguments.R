@@ -31,7 +31,7 @@ setGridArgument <- function(processId,argumentName,argumentValue,update=T) {
                                                                       processId=process$id),
                                                      data = gridData)
 
-  return(updateProcessGridArguments(process$id))
+  return(refreshProcessGridArguments(process$id))
 }
 
 buildDataList <- function(gridArgument,argumentValue) {
@@ -91,7 +91,7 @@ updateGridArgument <- function(processId,argumentName,argumentValue) {
                                                                         id=gridArgument$id),
                                                        data = gridData)
 
-    return(updateProcessGridArguments(process$id))
+    return(refreshProcessGridArguments(process$id))
   } else  {
     log_warn(paste0(process$stepId," ",argumentName))
     log_warn("can only update if gridargument exists only once")
@@ -134,5 +134,5 @@ deleteGridArgumentsById <- function(processId,ids) {
                                                  id=id))
     gridArgumentsContent <- httr::content(gridArgumentsResponse)
   })
-  return(updateProcessGridArguments(process$id))
+  return(refreshProcessGridArguments(process$id))
 }

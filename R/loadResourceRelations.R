@@ -56,10 +56,17 @@ unloadRelationTypes <- function() {
 
 #' Reloads the Relation Types
 #' @export
-updateRelationTypes <- function() {
+refreshRelationTypes <- function() {
   unloadRelationTypes()
   res <- loadRelationTypes()
   return(res)
+}
+
+#' @rdname refreshRelationTypes
+#' @export
+updateRelationTypes <- function(...) {
+  .Deprecated("refreshRelationTypes")
+  refreshRelationTypes(...)
 }
 
 resourceRelationsCacheList <- list(
@@ -127,11 +134,18 @@ unloadResourceRelations <- function(ident, from = pwd()) {
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1044
 #' @export
-updateResourceRelations <- function(ident, from = pwd()) {
+refreshResourceRelations <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
   unloadResourceRelations(resourceId)
   res <- loadResourceRelations(resourceId)
   return(res)
+}
+
+#' @rdname refreshResourceRelations
+#' @export
+updateResourceRelations <- function(...) {
+  .Deprecated("refreshResourceRelations")
+  refreshResourceRelations(...)
 }
 
 # resolveToResourceId moved to restHelpers.R

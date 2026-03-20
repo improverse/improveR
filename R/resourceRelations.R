@@ -20,7 +20,7 @@ validateResource <- function(resourceId) {
 #' @param relationId id (UUID) of the relation
 #' @noRd
 validateResourceRelation <- function(resourceId, relationId) {
-  resourceRelations <- updateResourceRelations(resourceId)
+  resourceRelations <- refreshResourceRelations(resourceId)
   if (is.null(resourceRelations) || nrow(resourceRelations) == 0) {
     log_error("No resource relation exists for the resource with id:", resourceId)
     return(FALSE)
@@ -43,7 +43,7 @@ validateResourceRelation <- function(resourceId, relationId) {
 #' @param targetResourceId id (UUID) of the target resource
 #' @noRd
 validateTargetResourceIdDuplicate <- function(resourceId, targetResourceId) {
-  resourceRelations <- updateResourceRelations(resourceId)
+  resourceRelations <- refreshResourceRelations(resourceId)
   if (!is.null(resourceRelations) && nrow(resourceRelations) > 0 && any(resourceRelations$targetResourceId == targetResourceId, na.rm = TRUE)) {
     log_error("Another resource relation with the targetResourceId:", targetResourceId, "already exists for the resource with the id:", resourceId)
     return(FALSE)
@@ -96,7 +96,7 @@ createResourceRelation <- function(ident, targetIdent, relationTypeId, descripti
                "description" = description)
 
   result <- authenticatedREST("/resources/{resourceId}/relation",  urlParams = list(resourceId = resourceId), data = data, restType = "POST")
-  relations <- updateResourceRelations(resourceId)
+  relations <- refreshResourceRelations(resourceId)
 
   return(relations)
 }
@@ -123,7 +123,7 @@ updateResourceRelation <- function(ident, relationId, newRelationTypeId, newDesc
     return(NULL)
   }
 
-  resourceRelations <- updateResourceRelations(resourceId)
+  resourceRelations <- refreshResourceRelations(resourceId)
   targetResourceId <- resourceRelations[!is.na(resourceRelations$id) & resourceRelations$id == relationId,]$targetResourceId
 
   data <- list("targetResourceId" = targetResourceId,
@@ -131,7 +131,7 @@ updateResourceRelation <- function(ident, relationId, newRelationTypeId, newDesc
                "description" = newDescription)
 
   result <- authenticatedREST("/resources/{resourceId}/relation/{relationId}", urlParams = list(resourceId = resourceId, relationId = relationId), data = data, restType = "PUT")
-  relations <- updateResourceRelations(resourceId)
+  relations <- refreshResourceRelations(resourceId)
 
   return(relations)
 }
@@ -156,7 +156,7 @@ deleteResourceRelation <- function(ident, relationId, from = pwd()) {
   }
 
   result <- authenticatedREST("/resources/{resourceId}/relation/{relationId}", urlParams = list(resourceId = resourceId, relationId = relationId), restType = "DELETE")
-  updateResourceRelations(resourceId)
+  refreshResourceRelations(resourceId)
 
   if (!is.null(result)) {
     return(TRUE)

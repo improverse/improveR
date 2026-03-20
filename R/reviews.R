@@ -51,7 +51,7 @@ createReview <- function(name, parentIdent, comment, templateId, resourceIds, re
                "dueDate" = dueDate)
 
   result <- authenticatedREST("/reviews", data = data, restType = "POST")
-  updateReviews()
+  refreshReviews()
 
   if (is.null(result)) {
     log_warn("failed to create review '", name, "' - server returned no result")
