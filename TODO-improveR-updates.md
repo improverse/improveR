@@ -10,11 +10,26 @@
 - [x] Cache invalidation: lockResource/unlockResource now unload resource cache after state change
 - [x] Cache invalidation: finishResource/reopenResource now unload resource cache after state change
 - [x] Empty API result handling: actualLoad* functions return data.frame() instead of NULL
+- [x] Cache invalidation tests (`test-cacheInvalidation.R`) — 22 tests covering lock/unlock, finish/reopen, create/delete children, push
+- [x] Upfront tool validation (`validateWorkflowTools()`) — validates all tool configs exist before import
+- [x] Link mapping hash validation — `validateMappingFiles()` compares filehash, warns on mismatch
 
-## 1. updateLinks Function
-- [ ] Update `updateLinks` function to have consistent syntax with other update functions
-- [ ] Should follow pattern similar to `updateFileContent`, `updateMetadata`, etc.
-- [ ] Current syntax may be inconsistent with other API calls
+## 1. Rename Cache-Refresh Functions (`update*` → `refresh*`)
+
+- [x] All 28 cache-refresh functions renamed to `refresh*`
+- [x] Deprecated wrappers added for all old `update*` names
+- [x] All internal callers updated to use new names
+- [x] NAMESPACE updated with new exports
+- [x] Man pages updated
+
+### Server-mutation functions (keep `update*` — correct semantic):
+- `updateFileContent()` — change.R (uploads new file content)
+- `updateMetaDate()` / `updateMetaDateById()` — metadata.R (modifies metadata value)
+- `updateLinks()` — updateLinks.R (refreshes outdated links on server)
+- `updateResourceRelation()` — resourceRelations.R (modifies a relation)
+- `updateGridArgument()` — setGridArguments.R (modifies grid arg value)
+- `updateResourcePermission()` — permissions.R (modifies ACL entry)
+- `updateAccessToken()` — tokenManagement.R (updates local env vars, not server)
 
 ## 2. Cache Invalidation Review
 The following functions need cache invalidation review:
@@ -35,7 +50,7 @@ The following functions need cache invalidation review:
 - [x] `delete` already has comprehensive cache invalidation (invalidatePathCaches + unloadChildResources)
 
 ## 4. Testing Requirements
-- [ ] Create tests for cache invalidation scenarios
+- [x] Create tests for cache invalidation scenarios (test-cacheInvalidation.R)
 - [ ] Verify multi-user scenarios (user A locks, user B's cache)
 - [ ] Test push/pull cycles with cache states
 
@@ -44,60 +59,41 @@ The following functions need cache invalidation review:
 ### clearConnectionData must reset cliEnv$userProfile
 - [x] Mitigated: hash-based profiles (`improveR_<md5>`) mean each server URL gets its
   own profile name, so cross-server conflicts no longer occur.
-- [ ] Nice-to-have: `clearConnectionData()` could still reset `cliEnv$userProfile <- NULL`
-  for correctness, but it's no longer causing auth failures.
+- [x] `clearConnectionData()` now resets `cliEnv$userProfile <- NULL`
 
 ### CLI user profile persists on disk — must reset and re-check on connect
 - [x] Fixed: `configureUserProfile()` now generates profile names from `openssl::md5(apiURL)`,
   so each server URL gets a unique on-disk profile. No more stale URL conflicts.
 
 ### Upfront tool validation when no ToolMapping is present
-- [ ] When no ToolMapping.json file exists, validate before import that all tools
-  referenced in the workflow actually exist on the target server.
-- Currently this is only discovered at `realise()` time per step, which means partial
-  imports can occur (some steps created, then failure mid-way through the workflow).
-- The validation should extract all tool keys from the workflow steps, check them against
-  `getToolInstances()`, and abort early with a clear error listing missing tools — the
-  same way filled tool mappings are validated in `validateImportMappings()`.
-- **File**: `improveR/R/importWorkflow.R`, around the `else` branch at "No tool mapping file found"
+- [x] `validateWorkflowTools()` in `exportImportUtils.R` — validates all runserver/tool/instance
+  combos exist on target server before import begins. Called from both `importWorkflow.R`
+  and `importFolder.R` after `applyToolMappingFromFile()`.
 
 ### Link mapping validation should check file hash identity
-- [ ] Link mapping validation (`validateImportMappings`) only checks that the mapped
-  resource exists on the target server (`loadResource(ident)`), but does NOT compare
-  the `filehash` from the mapping against the actual file's hash on the target.
-- The LinkMapping.json contains a `filehash` column from the export. During validation,
-  the loaded resource's hash should be compared against the expected hash to ensure the
-  user mapped to the correct file (not just any file that happens to exist).
-- A mismatch should produce a warning (not an error), since the user may intentionally
-  map to a different version of the file.
-- **File**: `improveR/R/importWorkflow.R`, function `validateImportMappings()`, link validation loop
+- [x] `validateMappingFiles()` now compares `filehash` from LinkMapping against actual
+  `resource$fileHash` on target. Emits warning on mismatch (not error).
 
 ### Folder/tree export: recursively download data and export trees
-- [ ] Implement recursive folder export — download all data from a folder tree
-  and package it for transfer (not just workflow steps, but arbitrary folder hierarchies).
-- [ ] Corresponding recursive folder import — recreate folder structure and upload
-  all data into a target location.
-- [ ] Handle tree (analysis tree) export/import as part of this, preserving the
-  tree structure and step relationships.
+- [x] `exportFolder()` — recursive folder export with multi-tree unified workflow
+- [x] `importFolder()` — recursive folder import with folder structure, trees, files, links
+- [x] Shared helpers extracted to `exportImportUtils.R`
+- [x] Cross-repo round-trip test (`test-crossRepoFolderImport.R`) — 16/16 pass
 
-### folderUpload: behavior when target already exists
-- [ ] Clarify and test what happens when `uploadFolder` is called and the target
-  folder (or files within it) already exists on the server.
-- Should it overwrite, skip, error, or create new versions?
-- Current behavior needs to be documented and tested for edge cases.
+### importFolder: behavior when target already exists
+- [x] Implemented `onConflict` parameter: `"skip"` (default), `"overwrite"`, `"error"`
+- [x] `"skip"`: reuses existing folders/trees, skips file content update
+- [x] `"overwrite"`: reuses folders/trees, updates file content via `updateFileContent()`
+- [x] `"error"`: upfront conflict detection, stops with list of conflicts before changes
+- [x] Old `overwrite=TRUE` boolean mapped to `onConflict="overwrite"` (deprecated)
+- [x] Tests in `test-importOnConflict.R` (OC1-OC8)
+- Note: tree step duplication on re-import with "skip" is documented (OC7) —
+  `realise()` creates new steps inside existing trees. Use "error" to prevent.
 
 ### improveConnect should validate connection when token already exists
-- [ ] If `improveConnect()` is called and a token is already present (e.g. from a
-  previous session or stale env vars), it should run `checkConnect()` to verify the
-  connection is actually valid before returning success.
-- Currently, calling `improveConnect()` can silently succeed (token exists, no error
-  thrown) even though the connection is dead. Calling it again produces the same
-  result — the user is never actually connected and gets no feedback.
-- `improveConnect()` should: detect existing token → call `checkConnect()` → if
-  `checkConnect()` fails, clear stale token data and re-authenticate from scratch.
-- This prevents the "call connect, not connected, call again, still not connected"
-  loop that users hit when tokens are expired or the server has changed.
-- **File**: `improveR/R/improveConnect.R`
+- [x] `improveConnect()` now validates the token with a lightweight API call after
+  config is loaded. If validation fails: OAuth → clears stale data and re-authenticates;
+  run token → errors with clear message (or falls back to offline mode if `offlinePossible=TRUE`).
 
 ### CLI JAR rejects refreshed tokens after ~20 minutes (Keycloak SSO session?)
 - [x] Fixed: CLI functions now call `renewAccessToken()` before each CLI invocation,

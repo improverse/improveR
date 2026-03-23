@@ -74,5 +74,5 @@ ics1139
 \seealso{
 \code{\link{unlockResource}} to release lock,
 \code{\link{setEditable}} to enable write operations,
-\code{\link{updateResource}} for refreshing resource state
+\code{\link{refreshResource}} for refreshing resource state
 }

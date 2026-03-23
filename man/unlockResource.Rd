@@ -82,5 +82,5 @@ ics1139
 \seealso{
 \code{\link{lockResource}} to acquire lock,
 \code{\link{setEditable}} to enable write operations,
-\code{\link{updateResource}} for refreshing resource state
+\code{\link{refreshResource}} for refreshing resource state
 }

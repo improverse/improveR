@@ -71,6 +71,6 @@ ics1205
 }
 \seealso{
 \code{\link{unloadChildSteps}} to clear cache,
-\code{\link{updateChildSteps}} to refresh from server,
+\code{\link{refreshChildSteps}} to refresh from server,
 \code{\link{loadChildResources}} for all child resource types
 }

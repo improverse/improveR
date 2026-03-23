@@ -70,6 +70,6 @@ children <- loadChildResources("/Projects/MyWorkflow")
 }
 \seealso{
 \code{\link{unloadChildResources}} to clear cache,
-\code{\link{updateChildResources}} to refresh from server,
+\code{\link{refreshChildResources}} to refresh from server,
 \code{\link{loadChildSteps}} for step-specific children
 }
