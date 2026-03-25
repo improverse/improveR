@@ -182,8 +182,8 @@ test_that("getRunGridArguments retrieves run grid arguments|ics1332", {
   runId <- get("TEST_RUN_ID", envir = globalenv())
 
   result <- improveR::getRunGridArguments(stepRes$resourceId, processId, runId)
-  if (!is.null(result)) {
-    expect_true(is.data.frame(result))
+  expect_true(is.null(result) || is.data.frame(result))
+  if (!is.null(result) && is.data.frame(result)) {
     cat("Run grid arguments found:", nrow(result), "\n")
   }
 })
@@ -199,4 +199,5 @@ test_that("cleanup run details test environment", {
   if (exists("TEST_PROCESS_ID", envir = globalenv())) rm("TEST_PROCESS_ID", envir = globalenv())
   if (exists("TEST_RUN_ID", envir = globalenv())) rm("TEST_RUN_ID", envir = globalenv())
   if (exists("TEST_FOLDER", envir = globalenv())) rm("TEST_FOLDER", envir = globalenv())
+  expect_true(TRUE)
 })

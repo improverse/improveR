@@ -1,41 +1,56 @@
 # Test Review Lifecycle Functions
 # Tests: getReviewById, acceptReview, declineReview, changeReviewStatus
+#
+# Review state machine: Open -> Reviewing -> Accepted/Declined
+# accept/decline require "Reviewing" state, which needs changeReviewStatus.
+# Reviews are created as admin with test1 as reviewer. connectAs("test1") is
+# used where the reviewer identity is needed.
 
-ensureTestFolder <- function() {
-  if (!exists("TEST_FOLDER", envir = globalenv())) {
-    tryCatch({
-      improveR::improveConnect()
-      improveR::setEditable(TRUE)
-      testFolder <- improveR::createFolder(
-        targetIdent = "/",
-        folderName = paste0("test-reviewlc-", format(Sys.time(), "%Y%m%d%H%M%S")),
-        comment = "review lifecycle test setup"
-      )
-      assign("TEST_FOLDER", testFolder, envir = globalenv())
-    }, error = function(e) {
-      skip(paste("Server not available:", e$message))
-    })
-  }
+hasConnectAs <- function() {
+  "improveRtestsupport" %in% loadedNamespaces() &&
+    exists("connectAs", envir = asNamespace("improveRtestsupport"))
 }
 
-# Helper: create a review and return the resource data frame
-createTestReview <- function(name, testFolder, testFile, allUsers) {
-  result <- improveR::createReview(
+reconnectAsAdmin <- function() {
+  tryCatch({
+    improveRtestsupport::connectAs("admin")
+    improveR::setEditable(TRUE)
+  }, error = function(e) {
+    # Fallback: reconnect normally
+    improveR::clearConnectionData(includeRepoData = FALSE)
+    Sys.setenv(IMPROVER_TOKEN = "", IMPROVER_REFRESH_TOKEN = "")
+    Sys.setenv(IMPROVER_TEST_USERNAME = "admin", IMPROVER_TEST_PASSWORD = "admin")
+    improveRtestsupport::improveConnect()
+    improveR::setEditable(TRUE)
+  })
+}
+
+# Helper: find the test1 user ID from the users list
+getTest1UserId <- function(allUsers) {
+  idx <- which(allUsers$username == "test1")
+  if (length(idx) == 0) return(NULL)
+  allUsers$id[idx[1]]
+}
+
+# Helper: create a review with test1 as reviewer
+createTestReview <- function(name, testFolder, testFile, test1UserId) {
+  improveR::createReview(
     name = name,
     parentIdent = testFolder$path,
     comment = "review lifecycle test",
     templateId = NULL,
     resourceIds = list(testFile$resourceId),
-    reviewerIds = list(allUsers$id[1]),
+    reviewerIds = list(test1UserId),
     dueDate = format(Sys.Date() + 30, "%Y-%m-%d")
   )
-  return(result)
 }
 
 # ---------------------------------------------------------------------------
 # Setup
 # ---------------------------------------------------------------------------
 test_that("setup review lifecycle test environment", {
+  skip_if(!hasConnectAs(), "connectAs not available - need multi-user support")
+
   tryCatch({
     improveR::improveConnect()
     improveR::setEditable(TRUE)
@@ -49,7 +64,7 @@ test_that("setup review lifecycle test environment", {
     comment = "review lifecycle test setup"
   )
   expect_false(is.null(testFolder))
-  assign("TEST_FOLDER", testFolder, envir = globalenv())
+  assign("REVLC_FOLDER", testFolder, envir = globalenv())
 
   testFile <- improveR::createFile(
     targetIdent = testFolder$resourceId,
@@ -57,33 +72,31 @@ test_that("setup review lifecycle test environment", {
     comment = "test file for review lifecycle"
   )
   expect_false(is.null(testFile))
-  assign("TEST_FILE", testFile, envir = globalenv())
+  assign("REVLC_FILE", testFile, envir = globalenv())
 
   allUsers <- improveR::users()
   expect_false(is.null(allUsers))
-  assign("TEST_USERS", allUsers, envir = globalenv())
 
-  # Create a review for lifecycle tests
+  test1Id <- getTest1UserId(allUsers)
+  skip_if(is.null(test1Id), "test1 user not found on this server")
+  assign("REVLC_TEST1_ID", test1Id, envir = globalenv())
+
+  # Create a review as admin with test1 as reviewer
   reviewName <- paste0("LCReview-", format(Sys.time(), "%H%M%S"))
-  reviewData <- createTestReview(reviewName, testFolder, testFile, allUsers)
-  if (!is.null(reviewData)) {
-    assign("TEST_REVIEW", reviewData, envir = globalenv())
-    cat("Created review:", reviewData$resourceId, "\n")
-  }
+  reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
+  expect_false(is.null(reviewData))
+  assign("REVLC_REVIEW", reviewData, envir = globalenv())
+  cat("Created review:", reviewData$resourceId, "with test1 as reviewer\n")
 })
 
 # ---------------------------------------------------------------------------
 # getReviewById | ics1528
 # ---------------------------------------------------------------------------
 test_that("getReviewById retrieves a review|ics1528", {
-  ensureTestFolder()
-  if (!exists("TEST_REVIEW", envir = globalenv())) skip("No review created")
-  review <- get("TEST_REVIEW", envir = globalenv())
+  skip_if(!exists("REVLC_REVIEW", envir = globalenv()), "No review created")
+  review <- get("REVLC_REVIEW", envir = globalenv())
 
   result <- improveR::getReviewById(review)
-  if (is.null(result)) {
-    skip("getReviewById not supported on this server")
-  }
   expect_false(is.null(result))
   expect_true(is.data.frame(result))
   cat("Retrieved review:", review$resourceId, "\n")
@@ -91,78 +104,131 @@ test_that("getReviewById retrieves a review|ics1528", {
 
 # ---------------------------------------------------------------------------
 # acceptReview | ics1476
+# Transition: Open -> Reviewing -> Accepted
 # ---------------------------------------------------------------------------
 test_that("acceptReview accepts a review|ics1476", {
-  ensureTestFolder()
-  if (!exists("TEST_REVIEW", envir = globalenv())) skip("No review created")
-  review <- get("TEST_REVIEW", envir = globalenv())
+  skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
+  skip_if(!hasConnectAs(), "connectAs not available")
+  testFolder <- get("REVLC_FOLDER", envir = globalenv())
+  testFile <- get("REVLC_FILE", envir = globalenv())
+  test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
 
-  result <- improveR::acceptReview(review, comment = "automated accept")
-  if (!result) {
-    skip("acceptReview failed - review may not be in correct state")
-  }
+  # Create a fresh review for accept test
+  reviewName <- paste0("AcceptReview-", format(Sys.time(), "%H%M%S"))
+  reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
+  expect_false(is.null(reviewData))
+
+  # Transition to Reviewing state
+  statusOk <- improveR::changeReviewStatus(reviewData, "Reviewing")
+  expect_true(statusOk, info = "Could not transition review to Reviewing state")
+
+  # Switch to test1 (the reviewer) to accept
+  improveRtestsupport::connectAs("test1")
+  improveR::setEditable(TRUE)
+
+  result <- improveR::acceptReview(reviewData, comment = "automated accept by test1")
   expect_true(result)
-  cat("Accepted review:", review$resourceId, "\n")
+  cat("Accepted review:", reviewData$resourceId, "\n")
+
+  # Switch back to admin
+  reconnectAsAdmin()
 })
 
 # ---------------------------------------------------------------------------
 # declineReview | ics1477
+# Transition: Open -> Reviewing -> Declined
 # ---------------------------------------------------------------------------
 test_that("declineReview declines a review|ics1477", {
-  ensureTestFolder()
-  if (!exists("TEST_FOLDER", envir = globalenv())) skip("No test folder")
-  testFolder <- get("TEST_FOLDER", envir = globalenv())
-  testFile <- get("TEST_FILE", envir = globalenv())
-  allUsers <- get("TEST_USERS", envir = globalenv())
+  skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
+  skip_if(!hasConnectAs(), "connectAs not available")
+  testFolder <- get("REVLC_FOLDER", envir = globalenv())
+  testFile <- get("REVLC_FILE", envir = globalenv())
+  test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
 
   reviewName <- paste0("DeclineReview-", format(Sys.time(), "%H%M%S"))
-  reviewData <- createTestReview(reviewName, testFolder, testFile, allUsers)
-  if (is.null(reviewData)) skip("Could not create review for decline test")
+  reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
+  expect_false(is.null(reviewData))
 
-  result <- improveR::declineReview(reviewData, comment = "automated decline")
-  if (!result) {
-    skip("declineReview failed - review may not be in correct state")
-  }
+  statusOk <- improveR::changeReviewStatus(reviewData, "Reviewing")
+  expect_true(statusOk, info = "Could not transition review to Reviewing state")
+
+  # Switch to test1 to decline
+  improveRtestsupport::connectAs("test1")
+  improveR::setEditable(TRUE)
+
+  result <- improveR::declineReview(reviewData, comment = "automated decline by test1")
   expect_true(result)
   cat("Declined review:", reviewData$resourceId, "\n")
+
+  reconnectAsAdmin()
 })
 
 # ---------------------------------------------------------------------------
 # changeReviewStatus | ccs27
 # ---------------------------------------------------------------------------
-test_that("changeReviewStatus changes a review status|ccs27", {
-  ensureTestFolder()
-  if (!exists("TEST_FOLDER", envir = globalenv())) skip("No test folder")
-  testFolder <- get("TEST_FOLDER", envir = globalenv())
-  testFile <- get("TEST_FILE", envir = globalenv())
-  allUsers <- get("TEST_USERS", envir = globalenv())
+test_that("changeReviewStatus Open to Reviewing|ccs27", {
+  skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
+  testFolder <- get("REVLC_FOLDER", envir = globalenv())
+  testFile <- get("REVLC_FILE", envir = globalenv())
+  test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
 
-  reviewName <- paste0("StatusReview-", format(Sys.time(), "%H%M%S"))
-  reviewData <- createTestReview(reviewName, testFolder, testFile, allUsers)
-  if (is.null(reviewData)) skip("Could not create review for status test")
+  reviewName <- paste0("StatusReview1-", format(Sys.time(), "%H%M%S"))
+  reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
+  expect_false(is.null(reviewData))
 
-  result <- improveR::changeReviewStatus(reviewData, "Closed")
-  if (!result) {
-    skip("changeReviewStatus not supported on this server")
-  }
+  # Open -> Reviewing
+  result <- improveR::changeReviewStatus(reviewData, "Reviewing")
   expect_true(result)
-  cat("Changed review status to Closed:", reviewData$resourceId, "\n")
+  cat("Changed review to Reviewing:", reviewData$resourceId, "\n")
+})
+
+test_that("changeReviewStatus Reviewing to Accepted via accept|ccs27", {
+  skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
+  skip_if(!hasConnectAs(), "connectAs not available")
+  testFolder <- get("REVLC_FOLDER", envir = globalenv())
+  testFile <- get("REVLC_FILE", envir = globalenv())
+  test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
+
+  reviewName <- paste0("StatusReview2-", format(Sys.time(), "%H%M%S"))
+  reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
+  expect_false(is.null(reviewData))
+
+  # Open -> Reviewing
+  result1 <- improveR::changeReviewStatus(reviewData, "Reviewing")
+  expect_true(result1)
+
+  # Verify state via getReviewById
+  reviewInfo <- improveR::getReviewById(reviewData)
+  expect_false(is.null(reviewInfo))
+  cat("Review status after transition:", reviewInfo$status, "\n")
+
+  # Accept as test1
+  improveRtestsupport::connectAs("test1")
+  improveR::setEditable(TRUE)
+  result2 <- improveR::acceptReview(reviewData, comment = "status test accept")
+  expect_true(result2)
+  cat("Accepted review via status flow:", reviewData$resourceId, "\n")
+
+  reconnectAsAdmin()
 })
 
 # ---------------------------------------------------------------------------
 # Cleanup
 # ---------------------------------------------------------------------------
 test_that("cleanup review lifecycle test environment", {
-  if (exists("TEST_FOLDER", envir = globalenv())) {
-    testFolder <- get("TEST_FOLDER", envir = globalenv())
-    tryCatch({
-      improveR::delete(testFolder$resourceId, comment = "review lifecycle test cleanup")
-    }, error = function(e) {
+  # Ensure we're admin
+  if (hasConnectAs()) {
+    tryCatch(reconnectAsAdmin(), error = function(e) NULL)
+  }
+  if (exists("REVLC_FOLDER", envir = globalenv())) {
+    testFolder <- get("REVLC_FOLDER", envir = globalenv())
+    tryCatch(improveR::delete(testFolder$resourceId), error = function(e) {
       cat("Cleanup warning:", e$message, "\n")
     })
-    rm("TEST_FOLDER", envir = globalenv())
+    rm("REVLC_FOLDER", envir = globalenv())
   }
-  if (exists("TEST_FILE", envir = globalenv())) rm("TEST_FILE", envir = globalenv())
-  if (exists("TEST_REVIEW", envir = globalenv())) rm("TEST_REVIEW", envir = globalenv())
-  if (exists("TEST_USERS", envir = globalenv())) rm("TEST_USERS", envir = globalenv())
+  if (exists("REVLC_FILE", envir = globalenv())) rm("REVLC_FILE", envir = globalenv())
+  if (exists("REVLC_REVIEW", envir = globalenv())) rm("REVLC_REVIEW", envir = globalenv())
+  if (exists("REVLC_TEST1_ID", envir = globalenv())) rm("REVLC_TEST1_ID", envir = globalenv())
+  expect_true(TRUE)
 })

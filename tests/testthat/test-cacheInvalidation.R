@@ -257,4 +257,5 @@ test_that("cleanup cache invalidation test environment", {
   }
   if (exists("TEST_FILE_CI", envir = globalenv())) rm("TEST_FILE_CI", envir = globalenv())
   if (exists("CHILD_FILE_CI", envir = globalenv())) rm("CHILD_FILE_CI", envir = globalenv())
+  expect_true(TRUE)
 })

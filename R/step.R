@@ -287,6 +287,7 @@ detachStep <- function(ident,  from=pwd()) {
 attachStep <- function(ident, parent, from = pwd()) {
   stepEntity <- loadResource(ident, from)
   stepParentEntity <- loadResource(parent, from)
+
   tree <- stepEntity$parentId
 
   result <- authenticatedREST(
@@ -298,10 +299,6 @@ attachStep <- function(ident, parent, from = pwd()) {
 
   if (is.null(result)) {
     log_warn("Step was not attached.")
-  }
-
-  if (stepEntity$resourceId == stepParentEntity$resourceId) {
-    log_warn("Step cannot be attached to itself.")
   }
 
   unloadParentStep(stepEntity, from)

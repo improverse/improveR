@@ -414,4 +414,5 @@ test_that("Cleanup onConflict test environment", {
     })
     rm("OC_TEST_FOLDER", envir = globalenv())
   }
+  expect_true(TRUE)
 })

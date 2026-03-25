@@ -235,7 +235,13 @@ test_that("GFT3-05: set ACL entry on test folder for a group|ccs6", {
 
   testUsers <- allUsers[allUsers$username != GFT3$ADMIN_USER & allUsers$active == TRUE, ]
   skip_if(nrow(testUsers) == 0, "No active non-admin users available")
-  GFT3$TEST_USER <- testUsers[1, ]
+  # Prefer test1 — we know it has password=test1 for connectAs
+  test1Idx <- which(testUsers$username == "test1")
+  if (length(test1Idx) > 0) {
+    GFT3$TEST_USER <- testUsers[test1Idx[1], ]
+  } else {
+    GFT3$TEST_USER <- testUsers[1, ]
+  }
   cat("Test user:", GFT3$TEST_USER$username, "(", GFT3$TEST_USER$id, ")\n")
 
   # Create a group for ACL testing

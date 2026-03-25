@@ -977,7 +977,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           process$resources <- list(resources)
         }
         # Only apply distinct if resources were actually created
-        if (!is.null(process$resources) && length(process$resources) > 0 && !is.null(process$resources[[1]]) && nrow(process$resources[[1]]) > 0) {
+        if (!is.null(process$resources) && length(process$resources) > 0 && !is.null(process$resources[[1]]) && NROW(process$resources[[1]]) > 0) {
           process$resources <- list(dplyr::distinct(process$resources[[1]],
                                                     .data$targetName,
                                                     .keep_all = T))

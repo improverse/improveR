@@ -146,4 +146,5 @@ test_that("cleanup favorites test environment", {
   }
   if (exists("TEST_FILE", envir = globalenv())) rm("TEST_FILE", envir = globalenv())
   if (exists("FAV_LINK", envir = globalenv())) rm("FAV_LINK", envir = globalenv())
+  expect_true(TRUE)
 })

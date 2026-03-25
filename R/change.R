@@ -758,6 +758,14 @@ checkRunStatus <- function(
     }
   }
 
+  if (!"runStatus" %in% names(stepsCollected)) {
+    if (returnType == "logical") {
+      return(TRUE)
+    } else {
+      return(stepsCollected)
+    }
+  }
+
   breakingSteps <- stepsCollected %>%
     dplyr::filter(!runStatus %in% c("FINISHED", "INITIAL"))
 

@@ -105,4 +105,5 @@ test_that("cleanup resource lifecycle test environment", {
     rm("TEST_FOLDER", envir = globalenv())
   }
   if (exists("TEST_FILE", envir = globalenv())) rm("TEST_FILE", envir = globalenv())
+  expect_true(TRUE)
 })

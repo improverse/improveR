@@ -24,6 +24,7 @@ test_that("setup transactions test environment", {
   }, error = function(e) {
     skip(paste("Server not available:", e$message))
   })
+  expect_true(TRUE)
 })
 
 # ---------------------------------------------------------------------------
@@ -59,4 +60,5 @@ test_that("createTransaction opens a new transaction|ccs11", {
 # ---------------------------------------------------------------------------
 test_that("cleanup transactions test environment", {
   if (exists("TEST_CONNECTED", envir = globalenv())) rm("TEST_CONNECTED", envir = globalenv())
+  expect_true(TRUE)
 })

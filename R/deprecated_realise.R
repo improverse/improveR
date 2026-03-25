@@ -246,8 +246,10 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   # Add files from the environment's file lists
   # Remote files
   remoteFiles <- prepStep$remoteFiles[[1]]
-  remoteFiles <- dplyr::distinct(remoteFiles, name, .keep_all = TRUE)
-  if (!is.null(remoteFiles) && nrow(remoteFiles) > 0) {
+  if (!is.null(remoteFiles) && NROW(remoteFiles) > 0) {
+    remoteFiles <- dplyr::distinct(remoteFiles, name, .keep_all = TRUE)
+  }
+  if (!is.null(remoteFiles) && NROW(remoteFiles) > 0) {
     for (i in 1:nrow(remoteFiles)) {
     }
     byNotEmpty(remoteFiles, function(filePrep) {
