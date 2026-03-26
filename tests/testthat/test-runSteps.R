@@ -401,6 +401,48 @@ test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
 })
 
 
+test_that("nested subfolder in step inventory|ics1140,ics1213,ccs40", {
+  TEST_FOLDER <- ensureTestFolder()
+
+  testTree <- improveR::createAnalysisTree(targetIdent = TEST_FOLDER,
+                                           treeName = "nestedSubfolderTest")
+
+  stepEnv <- rBatchStep(testTree)
+  stepEnv$setStepDescription("Nested subfolder step")
+  stepEnv$setStepRationale("test nested subfolder creation")
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/DataManipulation.R"),
+                            variableName = "command-file")
+  # 2-level deep subfolder
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/data.csv"),
+                            name = "level1/level2/data.csv", asLink = FALSE)
+  # 3-level deep subfolder
+  stepEnv$addStepRemoteFile(paste0(TEST_FOLDER, "/EDA.R"),
+                            name = "level1/level2/level3/script.R", asLink = FALSE)
+  step <- stepEnv$realise()
+  stepEnv$finishRun()
+
+  # Verify 2-level nested file
+  inventory <- step$getStepInventory(recurse = TRUE) %>%
+    improveR::strip()
+
+  nested2 <- dplyr::filter(inventory, name == "data.csv",
+                           grepl("level2", path))
+  expect_equal(nrow(nested2), 1,
+               info = "2-level nested file should exist in inventory")
+  expect_true(grepl("level1/level2/data.csv", nested2$path),
+              info = "Path should contain level1/level2/data.csv")
+
+  # Verify 3-level nested file
+  nested3 <- dplyr::filter(inventory, name == "script.R",
+                           grepl("level3", path))
+  expect_equal(nrow(nested3), 1,
+               info = "3-level nested file should exist in inventory")
+  expect_true(grepl("level1/level2/level3/script.R", nested3$path),
+              info = "Path should contain level1/level2/level3/script.R")
+
+  cat("Nested subfolder test passed: 2-level and 3-level deep\n")
+})
+
 test_that("DMG spans multiple trees, linear|ics1140", {
 
   TEST_FOLDER <- ensureTestFolder()

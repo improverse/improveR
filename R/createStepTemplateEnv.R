@@ -138,27 +138,32 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     if (startsWith(fileName, "./")) {
       fileName <- substr(fileName, 3, nchar(fileName))
     }
-    if (grepl(pattern = "/", x=fileName,fixed = T)) {
-      pathParts <- strsplit(x=fileName,split="/",fixed=T)[[1]]
-      if (length(pathParts)!=2) {
-        log_warn("maximum folder depth allowed is 1, by filename in realise step")
-        log_warn(fileName)
-        return()
+    if (grepl(pattern = "/", x=fileName,fixed = TRUE)) {
+      pathParts <- strsplit(x=fileName,split="/",fixed=TRUE)[[1]]
+      # Last part is the file name, everything before is folder path
+      fileName <- pathParts[length(pathParts)]
+      folderParts <- pathParts[-length(pathParts)]
+
+      # Walk the folder path, creating as needed
+      currentTarget <- newStep
+      for (folderName in folderParts) {
+        children <- loadChildResources(currentTarget)
+        if (!is.null(children) && nrow(children) > 0) {
+          folder <- children[children$name == folderName, ]
+        } else {
+          folder <- data.frame()
+        }
+        if (nrow(folder) == 1 && folder$nodeType != "Folder") {
+          log_warn(folderName, "already exists but not as folder")
+          return()
+        }
+        if (nrow(folder) == 1) {
+          currentTarget <- folder
+        } else {
+          currentTarget <- createFolder(currentTarget, folderName = folderName)
+        }
       }
-      folderName <- pathParts[1]
-      fileName<- pathParts[2]
-      children <- loadChildResources(newStep)
-      folder <- children[children$name==folderName,]
-      if (nrow(folder)==1 && folder$nodeType!="Folder") {
-        log_warn(folderName)
-        log_warn("already exists but not as folder")
-        return()
-      }
-      if (nrow(folder)==1) {
-        createTarget<-folder
-      } else {
-        createTarget <- createFolder(newStep,folderName=folderName)
-      }
+      createTarget <- currentTarget
     }
 
     if (!("variableName" %in% names(filePrep))) {
@@ -997,27 +1002,30 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         moveResource <- moveResources[i]
         fileName <- subFolderNameMapping[[moveResource]]
         pathParts <- strsplit(x = fileName, split = "/", fixed = TRUE)[[1]]
-        createTarget <- NULL
-        if (length(pathParts) != 2) {
-          log_error("maximum folder depth allowed is 1, by filename in realise step")
-          log_error(fileName)
-          stop()
+        # Last part is file name, everything before is folder path
+        fileName <- pathParts[length(pathParts)]
+        folderParts <- pathParts[-length(pathParts)]
+
+        # Walk the folder path, creating as needed
+        currentTarget <- newStep
+        for (folderName in folderParts) {
+          children <- loadChildResources(currentTarget)
+          if (!is.null(children) && nrow(children) > 0) {
+            folder <- children[children$name == folderName, ]
+          } else {
+            folder <- data.frame()
+          }
+          if (nrow(folder) == 1 && folder$nodeType != "Folder") {
+            log_error(folderName, "already exists but not as folder")
+            stop()
+          }
+          if (nrow(folder) == 1) {
+            currentTarget <- folder
+          } else {
+            currentTarget <- createFolder(currentTarget, folderName = folderName)
+          }
         }
-        folderName <- pathParts[1]
-        fileName <- pathParts[2]
-        children <- loadChildResources(newStep)
-        folder <- children[children$name == folderName, ]
-        if (nrow(folder) == 1 && folder$nodeType != "Folder") {
-          log_error(folderName)
-          log_error("already exists but not as folder")
-          stop()
-        }
-        if (nrow(folder) == 1) {
-          createTarget <- folder
-        } else {
-          createTarget <- createFolder(newStep, folderName = folderName)
-        }
-        move(file.path(newStep$path, moveResource), createTarget, fileName)
+        move(file.path(newStep$path, moveResource), currentTarget, fileName)
       }
     }
   }
