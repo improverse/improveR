@@ -58,8 +58,9 @@ test_that("setup review lifecycle test environment", {
     skip(paste("Server not available:", e$message))
   })
 
+  basePath <- createFolderPath("reviewLifecycle")
   testFolder <- improveR::createFolder(
-    targetIdent = "/",
+    targetIdent = basePath,
     folderName = paste0("test-reviewlc-", format(Sys.time(), "%Y%m%d%H%M%S")),
     comment = "review lifecycle test setup"
   )

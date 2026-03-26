@@ -3,12 +3,11 @@
 \name{refreshParentalDescendant}
 \alias{refreshParentalDescendant}
 \alias{updateParentalDescendant}
-\title{Update parental/descendant cache for a resource}
+\title{Refresh parental/descendant cache for a resource}
 \usage{
-refreshParentalDescendant(...)
+refreshParentalDescendant(ident)
 
-
-updateParentalDescendant(ident)
+updateParentalDescendant(...)
 }
 \arguments{
 \item{ident}{id}
@@ -17,8 +16,6 @@ updateParentalDescendant(ident)
 Invisibly returns \code{NULL}.
 }
 \description{
-\code{refreshParentalDescendant} is deprecated; use \code{refreshParentalDescendant} instead.
-
 Replace cached parental/descendant information for a resource identified by \code{ident}
 with newly fetched data.
 }
@@ -33,7 +30,7 @@ The function is invoked for its side effect.
 }
 \examples{
 \dontrun{
-updateParentalDescendant(my_ident)
+refreshParentalDescendant(my_ident)
 }
 
 }

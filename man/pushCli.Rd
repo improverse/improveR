@@ -10,5 +10,6 @@ pushCli(localPath)
 \item{localPath}{The local repository path.}
 }
 \description{
-Pushes changes to the CLI.
+Pushes changes to the CLI. After pushing, the resource cache is invalidated
+to ensure subsequent queries reflect the updated server state.
 }

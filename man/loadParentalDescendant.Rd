@@ -58,7 +58,7 @@ Parental descendants are
 \details{
 The function uses caching to improve performance. The cache persists for the
 entire R session. If parental descendant relationships change on the server,
-use \code{updateParentalDescendant()} to refresh the cached data, or use
+use \code{refreshParentalDescendant()} to refresh the cached data, or use
 \code{unloadParentalDescendant()} to remove the cached data.
 }
 \examples{
@@ -72,5 +72,5 @@ loadParentalDescendant("my-resource-name", from = "/path/to/repo")
 
 }
 \seealso{
-\code{\link[=updateParentalDescendant]{updateParentalDescendant()}}, \code{\link[=unloadParentalDescendant]{unloadParentalDescendant()}}, \code{\link[=loadResource]{loadResource()}}
+\code{\link[=refreshParentalDescendant]{refreshParentalDescendant()}}, \code{\link[=unloadParentalDescendant]{unloadParentalDescendant()}}, \code{\link[=loadResource]{loadResource()}}
 }

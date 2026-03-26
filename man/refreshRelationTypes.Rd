@@ -5,13 +5,10 @@
 \alias{updateRelationTypes}
 \title{Reloads the Relation Types}
 \usage{
-refreshRelationTypes(...)
+refreshRelationTypes()
 
-
-updateRelationTypes()
+updateRelationTypes(...)
 }
 \description{
-\code{refreshRelationTypes} is deprecated; use \code{refreshRelationTypes} instead.
-
 Reloads the Relation Types
 }

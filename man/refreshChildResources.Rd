@@ -3,12 +3,11 @@
 \name{refreshChildResources}
 \alias{refreshChildResources}
 \alias{updateChildResources}
-\title{Update Child Resources from Server}
+\title{Refresh Child Resources from Server}
 \usage{
-refreshChildResources(...)
+refreshChildResources(ident)
 
-
-updateChildResources(ident)
+updateChildResources(...)
 }
 \arguments{
 \item{ident}{The resource identifier - can be a resource ID, entity ID,
@@ -19,8 +18,6 @@ A list with updated child resources data. See \code{\link{loadChildResources}}
 for details on the return structure.
 }
 \description{
-\code{refreshChildResources} is deprecated; use \code{refreshChildResources} instead.
-
 Clears cached child resources data and reloads fresh data from the server.
 }
 \references{

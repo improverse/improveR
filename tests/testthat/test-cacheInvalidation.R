@@ -8,8 +8,9 @@ ensureTestFolder <- function() {
     tryCatch({
       improveR::improveConnect()
       improveR::setEditable(TRUE)
+      basePath <- createFolderPath("cacheInvalidation")
       testFolder <- improveR::createFolder(
-        targetIdent = "/",
+        targetIdent = basePath,
         folderName = paste0("test-cache-", format(Sys.time(), "%Y%m%d%H%M%S"))
       )
       assign("TEST_FOLDER_CI", testFolder, envir = globalenv())
@@ -30,8 +31,9 @@ test_that("setup cache invalidation test environment", {
     skip(paste("Server not available:", e$message))
   })
 
+  basePath <- createFolderPath("cacheInvalidation")
   testFolder <- improveR::createFolder(
-    targetIdent = "/",
+    targetIdent = basePath,
     folderName = paste0("test-cache-", format(Sys.time(), "%Y%m%d%H%M%S"))
   )
   expect_false(is.null(testFolder))

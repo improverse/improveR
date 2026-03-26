@@ -5,18 +5,15 @@
 \alias{updateFullChildResources}
 \title{refreshFullChildResources}
 \usage{
-refreshFullChildResources(...)
+refreshFullChildResources(ident)
 
-
-updateFullChildResources(ident)
+updateFullChildResources(...)
 }
 \arguments{
 \item{ident}{id}
 }
 \description{
-\code{refreshFullChildResources} is deprecated; use \code{refreshFullChildResources} instead.
-
-updateFullChildResources
+refreshFullChildResources
 }
 \references{
 ics1085

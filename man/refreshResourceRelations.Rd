@@ -5,10 +5,9 @@
 \alias{updateResourceRelations}
 \title{Reloads the Resource Relations}
 \usage{
-refreshResourceRelations(...)
+refreshResourceRelations(ident, from = pwd())
 
-
-updateResourceRelations(ident, from = pwd())
+updateResourceRelations(...)
 }
 \arguments{
 \item{ident}{Identifier of the resource.}
@@ -16,8 +15,6 @@ updateResourceRelations(ident, from = pwd())
 \item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
 }
 \description{
-\code{refreshResourceRelations} is deprecated; use \code{refreshResourceRelations} instead.
-
 Reloads the Resource Relations
 }
 \references{

@@ -18,13 +18,10 @@ toc:
 
 navbar:
   structure:
-    left:  [intro, reference, articles, FAQ, news]
+    left:  [intro, reference, articles, news]
     right: [search, github, lightswitch]
 
   components:
-    faqs:
-      text: "FAQs"
-      href: articles/faqs.html # This creates a direct link
     articles:
       text: Articles
       menu:
@@ -48,208 +45,320 @@ navbar:
 
 
 reference:
-- title: Step and workflow management
+- title: Authentication and Connection
   contents:
-  - attachStep
-  - changeStepDescription
-  - changeStepRationale
-  - createStepEnv
-  - createStepTemplateEnv
-  - createWorkflow
-  - createWorkflowTemplateEnv
-  - detachStep
-  - finishRunResource
-  - getStep
-  - getStepTemplate
-  - getToolInstances
-  - resetToolInstances
-  - runStepResource
-  - terminateStepResource
-  - createAnalysisTree
-  - workflowTemplateFromJSON
-
-- title: Authentication
-  contents:
-  - clearConnectionData
-  - improveClose
   - improveConnect
   - improveConnected
   - improveDisconnect
+  - improveClose
   - improveEditable
   - improveOAuth
-  - refreshToken
+  - improveInit
   - setEditable
+  - clearConnectionData
+  - checkConnect
+  - getRepositoryVersion
 
-- title: Review
+- title: Resource Operations
   contents:
-  - createReview
-  - createReviewComment
-  - createReviewEntry
-  - createReviewEntryComment
-  - createReviewer
-  - getReviewComments
-  - getReviewEntries
-  - getReviewEntryComments
-  - getReviewers
-  - loadReviewComments
-  - loadReviewEntries
-  - loadReviewEntryComments
-  - loadReviewers
-  - loadReviews
-  - loadRunserver
-
-- title: Meta Data and Resource Relations
-  contents:
-  - addBulkMetaDate
-  - addMetaDate
-  - createResourceRelation
-  - deleteMetaDate
-  - deleteResourceRelation
-
-- title: CLI tools
-  contents:
-  - cloneCli
-  - createContentCache
-  - pullCli
-  - pushCli
-  - pushRunCli
-  - versionCli
-
-- title: Basic modify operations
-  contents:
-  - copy
-  - delete
-  - deleteReviewEntry
-  - deleteReviewer
-  - move
+  - loadResource
+  - loadResourceFromServer
+  - loadResourceVersionFromServer
+  - refreshResource
+  - unloadResource
+  - loadChildResources
+  - refreshChildResources
+  - unloadChildResources
+  - loadFullChildResources
+  - refreshFullChildResources
+  - unloadFullChildResources
   - createFile
   - createFolder
   - createLink
   - createExternalLink
-
-- title: Miscellaneous
-  contents:
-  - byNotEmpty
-  - byNotEmptyAsDf
-  - convertImproveTimestampToPosix
-  - createWorkflowTemplateForImport
-  - exportWorkflow
-  - getData
-  - getGraphics
-  - getHTML
-  - getR
-  - getTextString
-  - importWorkflow
-  - includeGraphics
-  - loadHistory
-  - loadMetaData
-  - loadMetaDataDefinition
-  - loadMetaDataDefinitionPickList
-  - loadMetaDataDefinitions
-  - loadParentalDescendant
-  - loadParentStep
-  - loadResource
-  - lockResource
-  - query
-  - queryFolder
-  - resetCache
-  - showGraphics
-  - showHTML
-  - sourceR
-  - unloadHistory
-  - unloadMetaData
-  - unloadMetaDataDefinitions
-  - unloadParentalDescendant
-  - unloadParentStep
-  - unlockResource
   - updateFileContent
-  - updateHistory
-  - updateMetaData
-  - updateMetaDataDefinitions
-  - updateParentalDescendant
-  - updateParentStep
   - uploadFolder
-  - whoami
-
-- title: Other
-  contents:
-  - "%>%"
-  - applyTokenData
-  - checkConnect
-  - effectiveRights
-  - getActiveTokenRefresher
+  - copy
+  - move
+  - delete
   - getCopy
-  - getCurrentTokenData
   - getFile
   - getFilesFromFolder
-  - getFullFolderAuditTrail
-  - getImproveInternalDir
-  - getImproveWorkspaceDir
-  - getLogFile
-  - getMainProcess
-  - getMetaData
-  - getMetaDataMap
-  - getParent
-  - getProcessFileVariables
-  - getRepositoryVersion
-  - getWorkflow
-  - improveInit
+  - loadFile
+  - refreshFile
+  - unloadFile
   - isFileUp2Date
   - isResourceUp2Date
-  - listTokenRefreshers
-  - loadAuditTrail
-  - loadChildResources
-  - loadChildSteps
-  - loadFile
-  - loadFullChildResources
-  - loadReferences
-  - loadRelationTypes
-  - loadResourceFromServer
-  - loadResourceRelations
-  - loadResourceVersionFromServer
-  - log_debug
-  - log_error
-  - log_info
-  - log_warn
-  - pwd
-  - registerTokenRefresher
-  - shouldRefreshToken
-  - strip
-  - unauthenticatedREST
-  - unloadAuditTrail
-  - unloadChildResources
-  - unloadChildSteps
-  - unloadFile
-  - unloadFullChildResources
-  - unloadReferences
-  - unloadRelationTypes
-  - unloadResource
-  - unloadResourceRelations
-  - unloadReviewComments
-  - unloadReviewEntries
-  - unloadReviewEntryComments
-  - unloadReviewers
-  - unloadReviews
-  - updateAccessToken
-  - updateAuditTrail
-  - updateChildResources
-  - updateChildSteps
   - updateFile
-  - updateFullChildResources
-  - updateLinks
-  - updateMetaData
-  - updateMetaDate
-  - updateMetaDateById
-  - updateParentStep
-  - updateReferences
-  - updateRelationTypes
   - updateResource
-  - updateResourceRelation
-  - updateResourceRelations
+  - updateLinks
+  - getParent
+
+- title: Step and Workflow Management
+  contents:
+  - attachStep
+  - detachStep
+  - changeStepDescription
+  - changeStepRationale
+  - getStep
+  - getStepTemplate
+  - createStepEnv
+  - createStepTemplateEnv
+  - createAnalysisTree
+  - createWorkflow
+  - createWorkflowTemplateEnv
+  - getWorkflow
+  - workflowTemplateFromJSON
+  - createWorkflowTemplateForImport
+  - getMainProcess
+  - getProcessFileVariables
+  - setCommandFile
+  - runStepResource
+  - finishRunResource
+  - terminateStepResource
+  - loadParentStep
+  - refreshParentStep
+  - unloadParentStep
+  - loadChildSteps
+  - refreshChildSteps
+  - unloadChildSteps
+  - loadParentalDescendant
+  - refreshParentalDescendant
+  - unloadParentalDescendant
+
+- title: Tool and Runserver Management
+  contents:
+  - loadToolCategories
+  - loadToolsForCategory
+  - createToolCategory
+  - renameToolCategory
+  - deleteToolCategory
+  - createTool
+  - createToolInstance
+  - updateToolInstance
+  - createToolParameter
+  - updateToolParameter
+  - getToolInstances
+  - resetToolInstances
+  - loadRunserver
+
+- title: Import and Export
+  contents:
+  - exportFolder
+  - importFolder
+  - exportWorkflow
+  - importWorkflow
+
+- title: Permissions and Access Control
+  contents:
+  - getResourcePermissions
+  - effectiveUserPermissions
+  - effectiveRights
+  - setResourcePermission
+  - replaceResourcePermissions
+  - updateResourcePermission
+  - removeResourcePermission
+  - getOwners
+  - getCollaborators
+  - getReadOnly
+  - getUsersByRole
+  - loadGroups
+  - loadGroup
+  - loadGroupUsers
+  - createGroup
+  - deleteGroup
+  - addGroupUser
+  - removeGroupUser
+  - addSubgroup
+  - users
+  - whoami
+
+- title: Favorites
+  contents:
+  - loadFavorites
+  - loadFavoriteChildren
+  - addFavoriteLink
+  - createFavoriteFolder
+  - removeFavorite
+
+- title: Reviews
+  contents:
+  - createReview
+  - getReviewById
+  - acceptReview
+  - declineReview
+  - changeReviewStatus
+  - loadReviews
+  - refreshReviews
+  - unloadReviews
+  - createReviewer
+  - deleteReviewer
+  - getReviewers
+  - loadReviewers
+  - refreshReviewers
+  - unloadReviewers
+  - createReviewEntry
+  - deleteReviewEntry
+  - getReviewEntries
+  - loadReviewEntries
+  - refreshReviewEntries
+  - unloadReviewEntries
+  - createReviewComment
+  - createReviewEntryComment
+  - getReviewComments
+  - getReviewEntryComments
+  - loadReviewComments
+  - loadReviewEntryComments
+  - refreshReviewComments
+  - refreshReviewEntryComments
+  - unloadReviewComments
+  - unloadReviewEntryComments
   - updateReviewComments
   - updateReviewEntries
   - updateReviewEntryComments
   - updateReviewers
   - updateReviews
-  - users
+
+- title: Metadata and Resource Relations
+  contents:
+  - addMetaDate
+  - addBulkMetaDate
+  - updateMetaDate
+  - updateMetaDateById
+  - deleteMetaDate
+  - getMetaData
+  - getMetaDataMap
+  - loadMetaData
+  - refreshMetaData
+  - unloadMetaData
+  - loadMetaDataDefinition
+  - loadMetaDataDefinitionPickList
+  - loadMetaDataDefinitions
+  - refreshMetaDataDefinitions
+  - unloadMetaDataDefinitions
+  - updateMetaData
+  - updateMetaDataDefinitions
+  - createResourceRelation
+  - updateResourceRelation
+  - deleteResourceRelation
+  - loadResourceRelations
+  - refreshResourceRelations
+  - unloadResourceRelations
+  - loadRelationTypes
+  - refreshRelationTypes
+  - unloadRelationTypes
+  - updateRelationTypes
+  - updateResourceRelations
+
+- title: Resource Lifecycle
+  contents:
+  - finishResource
+  - reopenResource
+  - lockResource
+  - unlockResource
+
+- title: Transactions
+  contents:
+  - getLatestRevision
+  - getLatestRun
+  - getRun
+  - getRunGridArguments
+  - getRunParameters
+  - getRunPhases
+  - createTransaction
+
+- title: History and Audit Trail
+  contents:
+  - loadHistory
+  - refreshHistory
+  - unloadHistory
+  - updateHistory
+  - loadAuditTrail
+  - refreshAuditTrail
+  - unloadAuditTrail
+  - updateAuditTrail
+  - getFullFolderAuditTrail
+  - loadReferences
+  - refreshReferences
+  - unloadReferences
+  - updateReferences
+
+- title: CLI Tools
+  contents:
+  - cloneCli
+  - pullCli
+  - pushCli
+  - pushRunCli
+  - versionCli
+  - createContentCache
+
+- title: Token Management
+  contents:
+  - refreshToken
+  - applyTokenData
+  - updateAccessToken
+  - getCurrentTokenData
+  - shouldRefreshToken
+  - getActiveTokenRefresher
   - getTokenRefresher
+  - listTokenRefreshers
+  - registerTokenRefresher
+
+- title: Data Retrieval Helpers
+  contents:
+  - getData
+  - getGraphics
+  - getHTML
+  - getR
+  - getTextString
+  - includeGraphics
+  - showGraphics
+  - showHTML
+  - sourceR
+
+- title: Query and Search
+  contents:
+  - query
+  - queryFolder
+
+- title: Utilities
+  contents:
+  - "%>%"
+  - byNotEmpty
+  - byNotEmptyAsDf
+  - convertImproveTimestampToPosix
+  - getImproveInternalDir
+  - getImproveWorkspaceDir
+  - getLogFile
+  - lastRestError
+  - log_debug
+  - log_error
+  - log_info
+  - log_warn
+  - pwd
+  - resetCache
+  - strip
+  - unauthenticatedREST
+
+- title: Cache Refresh (deprecated update* aliases)
+  desc: >
+    Functions that clear and reload cached data. The `update*` variants are
+    deprecated aliases for their `refresh*` counterparts.
+  contents:
+  - refreshChildResources
+  - refreshChildSteps
+  - refreshFullChildResources
+  - refreshParentStep
+  - refreshParentalDescendant
+  - refreshReviewComments
+  - refreshReviewEntries
+  - refreshReviewEntryComments
+  - refreshReviewers
+  - refreshReviews
+  - updateChildResources
+  - updateChildSteps
+  - updateFullChildResources
+  - updateParentStep
+  - updateParentalDescendant
+  - updateFile
+  - updateResource

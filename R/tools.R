@@ -12,9 +12,15 @@ actualToolCategories <- function(...) {
 }
 
 
-#' loads all registered tool categories
+#' Load Tool Categories
+#'
+#' Retrieves all registered tool categories from the improve repository.
+#'
+#' @returns A data frame of tool categories with columns such as id, name, identifier.
+#'   Returns \code{NULL} if no categories exist.
+#' @seealso \code{\link{createToolCategory}}, \code{\link{loadToolsForCategory}}
 #' @references ics1229
-#' @noRd
+#' @export
 loadToolCategories <- function() {
   categories <- getFromCache(defaultKey,actualToolCategories,toolCategoriesCacheList,NULL)
   return(categories)
@@ -51,11 +57,16 @@ toolsCacheList <- list(
   toolsCache="categoryId"
 )
 
-#' loadToolsForCategory
+#' Load Tools for a Category
 #'
-#' @param categoryId categoryId of the tools
+#' Retrieves all tools registered under a specific tool category.
+#'
+#' @param categoryId Character. The ID of the tool category.
+#' @returns A data frame of tools with columns such as id, name, categoryId.
+#'   Returns \code{NULL} if no tools exist in the category.
+#' @seealso \code{\link{loadToolCategories}}, \code{\link{createTool}}
 #' @references ics1230
-#' @noRd
+#' @export
 loadToolsForCategory <- function(categoryId) {
   catgoryTools <- getFromCache(categoryId,actualLoadToolsForCategory,toolsCacheList,NULL)
   return(catgoryTools)

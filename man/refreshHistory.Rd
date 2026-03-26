@@ -5,18 +5,15 @@
 \alias{updateHistory}
 \title{refreshHistory}
 \usage{
-refreshHistory(...)
+refreshHistory(ident)
 
-
-updateHistory(ident)
+updateHistory(...)
 }
 \arguments{
 \item{ident}{id}
 }
 \description{
-\code{refreshHistory} is deprecated; use \code{refreshHistory} instead.
-
-updateHistory
+refreshHistory
 }
 \section{Details ident}{
 

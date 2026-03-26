@@ -165,12 +165,15 @@ exportWorkflow <- function(workflow, workflowName, targetFolder = ".") {
 
   # Package into zip
   oldwd <- getwd()
+  if (is.null(oldwd)) oldwd <- tempdir()
   setwd(targetFolder)
   zipFile <- paste0(workflowName, ".zip")
   if (file.exists(zipFile)) {
     unlink(zipFile)
   }
-  utils::zip(zipfile = zipFile, files = workflowName)
-  setwd(oldwd)
-  unlink(workflowFolder, force = T, recursive = T)
+  tryCatch(
+    utils::zip(zipfile = zipFile, files = workflowName),
+    finally = setwd(oldwd)
+  )
+  unlink(workflowFolder, force = TRUE, recursive = TRUE)
 }

@@ -365,3 +365,94 @@ createProcess <- function(stepId,processType="main",name="Main",selected=TRUE,ru
 }
 
 
+#' Set Command File on a Realised Step
+#'
+#' Binds a file as the command-file process variable on an already-realised step.
+#' This is used when a step has been created and realised, but the command file
+#' needs to be set or changed after the fact.
+#'
+#' @param stepIdent Identifier of the step. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param fileIdent Identifier of the file to bind as command file. Can be a path,
+#'   resource ID, entity ID, or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#'
+#' @returns The updated process variables data frame, invisibly. Returns \code{NULL} on failure.
+#'
+#' @examples
+#' \dontrun{
+#' setCommandFile("/Projects/MyTree/Step 1", "/Projects/Files/myScript.R")
+#' }
+#' @seealso \code{\link{getMainProcess}}, \code{\link{getProcessFileVariables}}
+#' @references ccs40
+#' @export
+setCommandFile <- function(stepIdent, fileIdent, from = pwd()) {
+  improveEditable()
+
+  step <- loadResource(stepIdent, from)
+  if (is.null(step)) {
+    log_warn("setCommandFile: cannot find step:", stepIdent)
+    return(NULL)
+  }
+
+  file <- loadResource(fileIdent, from)
+  if (is.null(file)) {
+    log_warn("setCommandFile: cannot find file:", fileIdent)
+    return(NULL)
+  }
+
+  mainProcess <- getMainProcess(step)
+  if (is.null(mainProcess)) {
+    log_warn("setCommandFile: no main process found for step:", step$resourceId)
+    return(NULL)
+  }
+  processId <- mainProcess$id
+
+  # Get existing variables and look for command-file
+  variables <- getProcessFileVariables(step, processId)
+  variableId <- NULL
+
+  if (!is.null(variables) && nrow(variables) > 0) {
+    cmdFileRow <- variables[variables$name == "command-file", ]
+    if (nrow(cmdFileRow) > 0) {
+      variableId <- cmdFileRow$id[1]
+    }
+  }
+
+  # Create the variable if it doesn't exist
+  if (is.null(variableId)) {
+    newVars <- createProcessFileVariable(step, processId, "command-file", "fileRef", 0)
+    if (is.null(newVars)) {
+      log_warn("setCommandFile: failed to create command-file variable")
+      return(NULL)
+    }
+    cmdFileRow <- newVars[newVars$name == "command-file", ]
+    if (nrow(cmdFileRow) == 0) {
+      log_warn("setCommandFile: command-file variable not found after creation")
+      return(NULL)
+    }
+    variableId <- cmdFileRow$id[1]
+  }
+
+  # Bind the file to the variable
+  data <- list(
+    type = "processVariable",
+    id = variableId,
+    name = "command-file",
+    variableType = "fileRef",
+    valueResourceId = file$resourceId
+  )
+
+  result <- authenticatedREST(
+    "/resources/{stepId}/processes/{processId}/variables/{variableId}",
+    urlParams = list(stepId = step$resourceId, processId = processId, variableId = variableId),
+    data = data,
+    restType = "PUT")
+
+  if (is.null(result)) {
+    log_warn("setCommandFile: failed to bind file to command-file variable")
+    return(NULL)
+  }
+
+  return(invisible(getProcessFileVariables(step, processId)))
+}

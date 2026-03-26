@@ -3,12 +3,11 @@
 \name{refreshAuditTrail}
 \alias{refreshAuditTrail}
 \alias{updateAuditTrail}
-\title{Update Audit Trail from Server}
+\title{Refresh Audit Trail from Server}
 \usage{
-refreshAuditTrail(...)
+refreshAuditTrail(ident)
 
-
-updateAuditTrail(ident)
+updateAuditTrail(...)
 }
 \arguments{
 \item{ident}{The resource identifier - can be a resource ID, entity ID,
@@ -19,8 +18,6 @@ A data frame with updated audit trail data. See \code{\link{loadAuditTrail}}
 for details on the return structure.
 }
 \description{
-\code{refreshAuditTrail} is deprecated; use \code{refreshAuditTrail} instead.
-
 Clears cached audit trail data and reloads fresh data from the server.
 }
 \details{

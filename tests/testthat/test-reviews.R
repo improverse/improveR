@@ -37,8 +37,9 @@ ensureTestFolder <- function() {
     tryCatch({
       improveR::improveConnect()
       improveR::setEditable(TRUE)
+      basePath <- createFolderPath("reviews")
       testFolder <- improveR::createFolder(
-        targetIdent = "/",
+        targetIdent = basePath,
         folderName = paste0("test-reviews-", format(Sys.time(), "%Y%m%d%H%M%S")),
         comment = "review test setup"
       )
@@ -60,8 +61,9 @@ test_that("setup review test environment", {
     skip(paste("Server not available:", e$message))
   })
 
+  basePath <- createFolderPath("reviews")
   testFolder <- improveR::createFolder(
-    targetIdent = "/",
+    targetIdent = basePath,
     folderName = paste0("test-reviews-", format(Sys.time(), "%Y%m%d%H%M%S")),
     comment = "review test setup"
   )

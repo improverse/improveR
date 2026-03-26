@@ -6,8 +6,9 @@ ensureTestFolder <- function() {
     tryCatch({
       improveR::improveConnect()
       improveR::setEditable(TRUE)
+      basePath <- createFolderPath("resourceLifecycle")
       testFolder <- improveR::createFolder(
-        targetIdent = "/",
+        targetIdent = basePath,
         folderName = paste0("test-reslc-", format(Sys.time(), "%Y%m%d%H%M%S")),
         comment = "resource lifecycle test setup"
       )
@@ -29,8 +30,9 @@ test_that("setup resource lifecycle test environment", {
     skip(paste("Server not available:", e$message))
   })
 
+  basePath <- createFolderPath("resourceLifecycle")
   testFolder <- improveR::createFolder(
-    targetIdent = "/",
+    targetIdent = basePath,
     folderName = paste0("test-reslc-", format(Sys.time(), "%Y%m%d%H%M%S")),
     comment = "resource lifecycle test setup"
   )

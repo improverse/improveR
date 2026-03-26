@@ -3,20 +3,17 @@
 \name{refreshMetaDataDefinitions}
 \alias{refreshMetaDataDefinitions}
 \alias{updateMetaDataDefinitions}
-\title{Update Meta Data Definitions}
+\title{Refresh Meta Data Definitions}
 \usage{
-refreshMetaDataDefinitions(...)
+refreshMetaDataDefinitions(scope = "Improve Client")
 
-
-updateMetaDataDefinitions(scope = "Improve Client")
+updateMetaDataDefinitions(...)
 }
 \arguments{
 \item{scope}{the metadata scope}
 }
 \description{
-\code{refreshMetaDataDefinitions} is deprecated; use \code{refreshMetaDataDefinitions} instead.
-
-Update Meta Data Definitions
+Refresh Meta Data Definitions
 }
 \references{
 ics1137

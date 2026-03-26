@@ -5,16 +5,15 @@
 \alias{updateFile}
 \title{refreshFile}
 \usage{
-refreshFile(...)
-
-
-updateFile(
+refreshFile(
   ident,
   from = pwd(),
   filePath = ".",
   addIdToName = FALSE,
   linkInInventory = FALSE
 )
+
+updateFile(...)
 }
 \arguments{
 \item{ident}{id}
@@ -28,9 +27,7 @@ updateFile(
 \item{linkInInventory}{Logical; if TRUE, creates a link to the resource in inventory.}
 }
 \description{
-\code{refreshFile} is deprecated; use \code{refreshFile} instead.
-
-Retrieves5 the latest version of the file from the repository.
+Retrieves the latest version of the file from the repository.
 }
 \section{Details ident}{
 

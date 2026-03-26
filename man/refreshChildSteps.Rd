@@ -3,12 +3,11 @@
 \name{refreshChildSteps}
 \alias{refreshChildSteps}
 \alias{updateChildSteps}
-\title{Update Child Steps from Server}
+\title{Refresh Child Steps from Server}
 \usage{
-refreshChildSteps(...)
+refreshChildSteps(ident)
 
-
-updateChildSteps(ident)
+updateChildSteps(...)
 }
 \arguments{
 \item{ident}{The resource identifier - can be a resource ID, entity ID,
@@ -19,8 +18,6 @@ A data frame with updated child steps data. See \code{\link{loadChildSteps}}
 for details on the return structure.
 }
 \description{
-\code{refreshChildSteps} is deprecated; use \code{refreshChildSteps} instead.
-
 Clears cached child steps data and reloads fresh data from the server.
 }
 \references{

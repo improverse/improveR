@@ -3,20 +3,17 @@
 \name{refreshReferences}
 \alias{refreshReferences}
 \alias{updateReferences}
-\title{Update References}
+\title{Refresh References}
 \usage{
-refreshReferences(...)
+refreshReferences(ident)
 
-
-updateReferences(ident)
+updateReferences(...)
 }
 \arguments{
 \item{ident}{id}
 }
 \description{
-\code{refreshReferences} is deprecated; use \code{refreshReferences} instead.
-
-Update References
+Refresh References
 }
 \references{
 ics1206

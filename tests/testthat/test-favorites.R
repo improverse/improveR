@@ -7,8 +7,9 @@ ensureTestFolder <- function() {
     tryCatch({
       improveR::improveConnect()
       improveR::setEditable(TRUE)
+      basePath <- createFolderPath("favorites")
       testFolder <- improveR::createFolder(
-        targetIdent = "/",
+        targetIdent = basePath,
         folderName = paste0("test-favorites-", format(Sys.time(), "%Y%m%d%H%M%S")),
         comment = "favorites test setup"
       )
@@ -30,8 +31,9 @@ test_that("setup favorites test environment", {
     skip(paste("Server not available:", e$message))
   })
 
+  basePath <- createFolderPath("favorites")
   testFolder <- improveR::createFolder(
-    targetIdent = "/",
+    targetIdent = basePath,
     folderName = paste0("test-favorites-", format(Sys.time(), "%Y%m%d%H%M%S")),
     comment = "favorites test setup"
   )

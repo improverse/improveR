@@ -3,20 +3,17 @@
 \name{refreshMetaData}
 \alias{refreshMetaData}
 \alias{updateMetaData}
-\title{Update Meta Data}
+\title{Refresh Meta Data}
 \usage{
-refreshMetaData(...)
+refreshMetaData(ident)
 
-
-updateMetaData(ident)
+updateMetaData(...)
 }
 \arguments{
 \item{ident}{id}
 }
 \description{
-\code{refreshMetaData} is deprecated; use \code{refreshMetaData} instead.
-
-Update Meta Data
+Refresh Meta Data
 }
 \references{
 ics1096

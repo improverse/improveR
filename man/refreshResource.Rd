@@ -3,12 +3,11 @@
 \name{refreshResource}
 \alias{refreshResource}
 \alias{updateResource}
-\title{Update Resource}
+\title{Refresh Resource}
 \usage{
-refreshResource(...)
+refreshResource(ident, from = pwd())
 
-
-updateResource(ident, from = pwd())
+updateResource(...)
 }
 \arguments{
 \item{ident}{id}
@@ -16,9 +15,7 @@ updateResource(ident, from = pwd())
 \item{from}{pwd for relative path}
 }
 \description{
-\code{refreshResource} is deprecated; use \code{refreshResource} instead.
-
-Updates a resource.
+Refreshes a resource from the server by clearing cache and reloading.
 }
 \references{
 ics1090

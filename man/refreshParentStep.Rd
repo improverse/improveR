@@ -3,12 +3,11 @@
 \name{refreshParentStep}
 \alias{refreshParentStep}
 \alias{updateParentStep}
-\title{UpdateParentStep Reloads The Runservers From The Repository}
+\title{Refresh Parent Step from Server}
 \usage{
-refreshParentStep(...)
+refreshParentStep(ident, from = pwd())
 
-
-updateParentStep(ident, from = pwd())
+updateParentStep(...)
 }
 \arguments{
 \item{ident}{resourceID, entityId or path to the step.}
@@ -16,9 +15,7 @@ updateParentStep(ident, from = pwd())
 \item{from}{path working directory, default is the calling step}
 }
 \description{
-\code{refreshParentStep} is deprecated; use \code{refreshParentStep} instead.
-
-UpdateParentStep Reloads The Runservers From The Repository
+Refresh Parent Step from Server
 }
 \references{
 ics1209
