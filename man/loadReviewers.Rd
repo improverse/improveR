@@ -2,19 +2,21 @@
 % Please edit documentation in R/loadREview.R
 \name{loadReviewers}
 \alias{loadReviewers}
-\title{Loads All The Reviewers For A Review
-it uses caching
-the result is returned as a data frame}
+\title{Loads All The Reviewers For A Review}
 \usage{
-loadReviewers(resourceId)
+loadReviewers(ident, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of reviewers, or \code{NULL} if none exist.
 }
 \description{
-Loads All The Reviewers For A Review
-it uses caching
-the result is returned as a data frame
+Retrieves all reviewers for a review. Results are cached.
 }
 \references{
 ics1208

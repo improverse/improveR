@@ -2,16 +2,15 @@
 % Please edit documentation in R/loadREview.R
 \name{loadReviews}
 \alias{loadReviews}
-\title{Loads All Registered Reviews
-it uses caching
-the result is returned as a data frame}
+\title{Loads All Registered Reviews}
 \usage{
 loadReviews()
 }
+\value{
+A data frame of reviews, or \code{NULL} if none exist.
+}
 \description{
-Loads All Registered Reviews
-it uses caching
-the result is returned as a data frame
+Retrieves the list of all reviews from the repository. Results are cached.
 }
 \references{
 ics348

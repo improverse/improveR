@@ -73,6 +73,7 @@ createFile <- function(
   if (localPath=="") {
     identList <- resolveImplicitResourceName(targetIdent,folderName = fileName)
     if (is.null(identList)) {
+      log_warn("could not resolve target path and file name from:", targetIdent)
       return(NULL)
     }
     targetIdent <- identList$targetIdent
@@ -167,7 +168,7 @@ resolveImplicitResourceName <- function(targetIdent,folderName) {
     targetSplits <- strsplit(x = targetIdent,split="/",fixed = T)[[1]]
     len <- length(targetSplits)
     if (len<2) {
-      logging::logwarn("either full path with name of new resource or target path and resource name have to be provided")
+      log_warn("either full path with name of new resource or target path and resource name have to be provided")
       return(NULL)
     }
 
@@ -237,13 +238,17 @@ createGeneric <- function(targetIdent,folderName,type,url="",comment) {
                                                   data=data,
                                                   contentType = "application/json",
                                                   encode = "json")
+        if (is.null(result)) {
+          log_warn("Failed to create resource at path:", path)
+          return(NULL)
+        }
         parsedResult <- httr::content(result)
         unloadChildResources(target)
         res <- loadResource(parsedResult$resourceId)
         return(res)
       }
     } else {
-      logging::logwarn(paste0(targetIdent," does not exist"))
+      log_warn(paste0(targetIdent," does not exist"))
     }
   }
 }
@@ -267,7 +272,7 @@ createGenericFile <- function(targetIdent,folderName,type,localPath,comment) {
       exists <- targetChildren[targetChildren$name==folderName,]
 
       if (nrow(exists)==1) {
-        logging::loginfo(paste0(folderName," already exists in ",target$path))
+        log_info(paste0(folderName," already exists in ",target$path))
         return(loadResource(exists))
       }
 
@@ -289,6 +294,6 @@ createGenericFile <- function(targetIdent,folderName,type,localPath,comment) {
       return(res)
     }
   } else {
-    logging::logwarn(paste0(targetIdent," does not exist"))
+    log_warn(paste0(targetIdent," does not exist"))
   }
 }

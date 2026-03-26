@@ -51,12 +51,20 @@ checkInit <- function() {
 
 #' Configure User Profile
 #'
-#' Configures the user profile for CLI usage.
+#' Configures the user profile for CLI usage. The profile name is derived
+#' from a hash of the API URL so that each repository gets its own profile,
+#' avoiding conflicts when switching between servers.
 #'
-#' @param userProfile A string representing the user profile name. Default is "improveR".
+#' @param userProfile A string representing the user profile name. If NULL
+#'   (default), a name is generated from the API URL hash.
 #' @noRd
-configureUserProfile <- function(userProfile = "improveR") {
+configureUserProfile <- function(userProfile = NULL) {
   apiURL <- getCICOApiURL()
+
+  if (is.null(userProfile)) {
+    urlHash <- substr(as.character(openssl::md5(apiURL)), 1, 8)
+    userProfile <- paste0("improveR_", urlHash)
+  }
 
   # Add -checkCertificates false when secure=FALSE
   checkCertificates <- ""

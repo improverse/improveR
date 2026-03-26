@@ -31,7 +31,7 @@
 #' @references ics1140
 #' @export
 runStepResource <- function(ident) {
-  newStep <- updateResource(ident)
+  newStep <- refreshResource(ident)
   if (newStep$runStatus == "RUNNING") {
     log_error("Step is already running.")
     return(NULL)
@@ -95,10 +95,10 @@ runStepResource <- function(ident) {
 #' @export
 terminateStepResource <- function(ident, verbose = FALSE) {
   setEditable()
-  stepToTerminate <- updateResource(ident)
+  stepToTerminate <- refreshResource(ident)
 
   if (is.null(stepToTerminate)) {
-    logging::logwarn("Step could not be loaded.")
+    log_warn("Step could not be loaded.")
     return(invisible(FALSE))
   }
 
@@ -109,7 +109,7 @@ terminateStepResource <- function(ident, verbose = FALSE) {
       restType = "POST"
     )
   } else {
-    logging::logwarn(
+    log_warn(
       glue::glue(
         "{stepToTerminate$path} has run status {stepToTerminate$runStatus}.
       Cannot be terminated."
@@ -123,19 +123,19 @@ terminateStepResource <- function(ident, verbose = FALSE) {
   if (isTRUE(verbose)) {
     # Map specific codes to messages
     if (identical(status, 200L)) {
-      logging::loginfo(glue::glue(
+      log_info(glue::glue(
         "{ident} - HTTP {status}: Step is terminated"
       ))
     } else if (identical(status, 304L)) {
-      logging::loginfo(glue::glue(
+      log_info(glue::glue(
         "{ident} - HTTP {status}: Could start the run."
       ))
     } else if (identical(status, 500L)) {
-      logging::loginfo(glue::glue(
+      log_info(glue::glue(
         "{ident} - HTTP {status}: Runserver is not reachable"
       ))
     } else {
-      logging::loginfo(glue::glue("{ident} - HTTP {status}: received"))
+      log_info(glue::glue("{ident} - HTTP {status}: received"))
     }
   }
 
@@ -150,15 +150,12 @@ terminateStepResource <- function(ident, verbose = FALSE) {
       elapsed <- elapsed + pollInterval
 
       # Refresh the step resource to get current status from server
-      stepCheck <- tryCatch(
-        updateResource(stepToTerminate),
-        error = function(e) NULL
-      )
+      stepCheck <- refreshResource(stepToTerminate)
 
       # If status is no longer RUNNING, termination is confirmed
       if (!is.null(stepCheck) && stepCheck$runStatus != "RUNNING") {
         if (isTRUE(verbose)) {
-          logging::loginfo(glue::glue(
+          log_info(glue::glue(
             "{ident} - Status confirmed: {stepCheck$runStatus}"
           ))
         }
@@ -167,7 +164,7 @@ terminateStepResource <- function(ident, verbose = FALSE) {
     }
 
     if (elapsed >= maxWaitTime && isTRUE(verbose)) {
-      logging::logwarn(glue::glue(
+      log_warn(glue::glue(
         "{ident} - Termination timeout: Status confirmation took longer than {maxWaitTime}s"
       ))
     }
@@ -217,7 +214,7 @@ terminateStepResource <- function(ident, verbose = FALSE) {
 #' @export
 finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverToolName=NULL) {
 
-  step <- updateResource(ident,from)
+  step <- refreshResource(ident,from)
 
   if (is.null(step))
     return(NULL)
@@ -226,13 +223,13 @@ finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverTool
     toolId <- getToolId(runserverName, runserverToolName)
     print(toolId)
   } else if (!is.null(runserverName)||!is.null(runserverToolName)) {
-    logging::logwarn("runServerName and runServerToolName must be provided in finishRun, or none of them")
+    log_warn("runServerName and runServerToolName must be provided in finishRun, or none of them")
   }
   running<-TRUE
   wrongRun <- ""
 
   if (!is.null(toolId)) {
-    step <- updateResource(step)
+    step <- refreshResource(step)
     state<-step$runStatus
     if (state=="FINISHED") {
       processes <- actualLoadProcessesForStep(step$resourceId)
@@ -254,7 +251,7 @@ finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverTool
   }
 
   while(running) {
-    step <- updateResource(step)
+    step <- refreshResource(step)
     state<-step$runStatus
     if (is.null(toolId)) {
       if (state=="FINISHED") {

@@ -16,7 +16,7 @@ normalisePath <- function(path,startPath="/") {
     startPath<-startPath$path
   } else {
     if (is.null(startPath) | length(startPath)==0 | length(startPath)>1) {
-      logging::logwarn(paste0(startPath," is an illegal relativeRoot, exactly one relativeRoot can be provided, using / instead"))
+      log_warn(paste0(startPath," is an illegal relativeRoot, exactly one relativeRoot can be provided, using / instead"))
       startPath<-"/"
     } else {
       if (!startsWith(startPath,".") & !startsWith(startPath,"\\") & !startsWith(startPath,"/")) {
@@ -26,8 +26,8 @@ normalisePath <- function(path,startPath="/") {
   }
 
   #if (nchar(path)>2 & endsWith(path,"/"))
-  logging::logdebug("normalising path: ")
-  logging::logdebug(path)
+  log_debug("normalising path: ")
+  log_debug(path)
 
   path <- stringr::str_replace_all(path,"\\\\","/")
   path <- stringr::str_replace_all(path,"//","/")
@@ -49,9 +49,9 @@ normalisePath <- function(path,startPath="/") {
       startPathParts<-startPathParts[1:length(startPathParts)-1]
       startPath <- paste(startPathParts,collapse = "/")
     } else {
-      logging::loginfo("trying to navigate beyond root:")
-      logging::loginfo(path)
-      logging::loginfo(startPath)
+      log_info("trying to navigate beyond root:")
+      log_info(path)
+      log_info(startPath)
       return(NULL)
     }
   } else {

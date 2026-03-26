@@ -37,7 +37,7 @@
 #' @seealso
 #' \code{\link{unlockResource}} to release lock,
 #' \code{\link{setEditable}} to enable write operations,
-#' \code{\link{updateResource}} for refreshing resource state
+#' \code{\link{refreshResource}} for refreshing resource state
 #'
 #' @examples
 #' \dontrun{
@@ -67,18 +67,20 @@
 #' @export
 lockResource <- function(ident,from=pwd()) {
   improveEditable()
-  res <- updateResource(ident,from)
+  res <- refreshResource(ident,from)
   if ("lockedByName" %in% names(res) && !is.na(res$lockedByName)) {
     log_warn(res,"is currently locked by user",res$lockedByName,", you have to unlock before locking")
-    return(F)
+    return(FALSE)
   }
   result <- authenticatedREST("/resources/{resourceId}/lock",
                                             urlParams = list(resourceId=res$resourceId),
                                             restType = "PUT")
-  if (!is.null(result) && !is.null(result$status_code) && result$status_code==200) {
-    return(T)
+  if (!is.null(result)) {
+    unloadResource(res$resourceId)
+    return(TRUE)
   }
-  return(F)
+  log_warn("Failed to lock resource:", res$resourceId)
+  return(FALSE)
 }
 
 #' Unlock Resource to Allow Collaborative Access
@@ -124,7 +126,7 @@ lockResource <- function(ident,from=pwd()) {
 #' @seealso
 #' \code{\link{lockResource}} to acquire lock,
 #' \code{\link{setEditable}} to enable write operations,
-#' \code{\link{updateResource}} for refreshing resource state
+#' \code{\link{refreshResource}} for refreshing resource state
 #'
 #' @examples
 #' \dontrun{
@@ -158,16 +160,18 @@ lockResource <- function(ident,from=pwd()) {
 #' @export
 unlockResource <- function(ident,from=pwd()) {
   improveEditable()
-  res <- updateResource(ident,from)
+  res <- refreshResource(ident,from)
   if (!("lockedByName" %in% names(res)) || is.na(res$lockedByName)) {
     log_warn(res,"is currently not locked")
-    return(F)
+    return(FALSE)
   }
   result <- authenticatedREST("/resources/{resourceId}/unlock",
                                             urlParams = list(resourceId=res$resourceId),
                                             restType = "PUT")
-  if (!is.null(result) && !is.null(result$status_code) && result$status_code==200) {
-    return(T)
+  if (!is.null(result)) {
+    unloadResource(res$resourceId)
+    return(TRUE)
   }
-  return(F)
+  log_warn("Failed to unlock resource:", res$resourceId)
+  return(FALSE)
 }

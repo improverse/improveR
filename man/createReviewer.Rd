@@ -4,14 +4,20 @@
 \alias{createReviewer}
 \title{Adds a User as Reviewer to a Review}
 \usage{
-createReviewer(reviewId, userId, username)
+createReviewer(ident, userId, username, from = pwd())
 }
 \arguments{
-\item{reviewId}{id (UUID) of the review}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
 
-\item{userId}{id (UUID) of the user}
+\item{userId}{Character. ID (UUID) of the user to add as reviewer.}
 
-\item{username}{name of the user}
+\item{username}{Character. Username of the user to add as reviewer.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of the review's current reviewers, or \code{NULL} on failure.
 }
 \description{
 Adds a User as Reviewer to a Review

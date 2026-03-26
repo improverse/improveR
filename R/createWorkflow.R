@@ -36,7 +36,7 @@ library(magrittr)
   if (length(stepPaths) > 0) {
     for (i in seq_along(stepPaths)) {
       stepPath <- stepPaths[i]
-      foundTargets <- links[startsWith(links$path, stepPath), ]
+      foundTargets <- links[startsWith(links$path, paste0(stepPath, "/")), ]
       if (nrow(foundTargets) > 0) {
         stepName <- fullSteps[fullSteps$path == stepPath, ]$fullName
         foundTargets$sourceInventoryPath <- substr(foundTargets$path,nchar(stepPath)+2,nchar(foundTargets$path))
@@ -62,13 +62,12 @@ library(magrittr)
     if (!is.null(allTargets)) {
       allTargets<-dplyr::distinct(allTargets,targetStep,targetName,.keep_all = T)
       allTargets<-dplyr::mutate(allTargets,name=targetName)
-      env$internalLinks <- dplyr::select (allTargets,fileSize,fileHash,targetStep,name,sourceInventoryPath,sourceStep)
+      env$internalLinks <- dplyr::select(allTargets, fileSize, filehash = fileHash, targetStep, name, sourceInventoryPath, sourceStep)
     }
 
   }
 
 
-  #resolv parent kram
 
   byNotEmpty(stepsDf,function(oneStep) {
     stepEnv <- env$steps[[oneStep$fullName]]
@@ -83,55 +82,7 @@ library(magrittr)
 }
 
 .workflow_private$executionOrder <- function(env, plan) {
-  .workflow_private$executionOrderInternal(env, plan)
-}
-
-.workflow_private$executionOrderInternal <- function(env, plan, startSteps = NULL, counter = 0) {
-  counter <- counter + 1
-  if (!"dependencies" %in% names(plan)) {
-    plan$dependencies <- NA
-  }
-  if (!"usage" %in% names(plan)) {
-    plan$usage <- ""
-  }
-  if (is.null(startSteps)) {
-    startSteps <- plan[is.na(plan$dependencies), ]
-    plan <- plan[!is.na(plan$dependencies), ]
-  }
-  if (is.null(startSteps) || nrow(startSteps) == 0) {
-    logging::logwarn("No step without dependencies, no executable order")
-    return(NULL)
-  }
-  for (s in seq_len(nrow(startSteps))) {
-    startStep <- startSteps[s, ]
-    dependenciess <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
-    if (length(dependenciess) > 0) {
-      for (dependentStepName in dependenciess) {
-        dependenciesHandle <- plan[plan$fullName == dependentStepName, ]
-        if (
-          nrow(dependenciesHandle) == 1 &&
-            "dependencies" %in% names(dependenciesHandle)
-        ) {
-          stepDependencies <- strsplit(
-            dependenciesHandle$dependencies,
-            ",",
-            fixed = TRUE
-          )[[1]]
-          if (all(stepDependencies %in% startSteps$fullName)) {
-            startSteps <- plyr::rbind.fill(startSteps, dependenciesHandle)
-            plan <- plan[plan$fullName != dependentStepName, ]
-          }
-        }
-      }
-    }
-  }
-  if (nrow(plan) == 0 || counter > 500) {
-    if (counter > 500) {
-      logging::logwarn("could not add all steps to execution order, check for cycles")
-    }
-    return(startSteps)
-  }
-  .workflow_private$executionOrderInternal(env, plan, startSteps, counter)
+  workflowExecutionOrder(plan)
 }
 
 .workflow_private$getLinkTarget <- function(env, internalLink) {
@@ -445,12 +396,12 @@ createWorkflow <- function() {
   # @return Invisibly returns NULL
   env$executePlan <- function(executionPlan) {
     if (is.null(executionPlan) || nrow(executionPlan) == 0) {
-      logging::loginfo("No steps to execute")
+      log_info("No steps to execute")
       return(invisible(NULL))
     }
     orderedWorkflow <- .workflow_private$executionOrder(env, executionPlan)
     if (is.null(orderedWorkflow) || nrow(orderedWorkflow) == 0) {
-      logging::loginfo("No executable order could be determined")
+      log_info("No executable order could be determined")
       return(invisible(NULL))
     }
     executionList <- c()
@@ -462,11 +413,11 @@ createWorkflow <- function() {
         "dependencies" %in% names(nextData) && !is.na(nextData$dependencies)
       ) {
         dependencies <- unique(strsplit(nextData$dependencies, ",")[[1]])
-        for (dependencies in dependencies) {
-          if (dependencies %in% executionList) {
-            logging::loginfo("waiting to finish")
-            finishRunResource(env$steps[[dependencies]]$stepDf$sourceEntityId)
-            executionList <- executionList[executionList != dependencies]
+        for (dep in dependencies) {
+          if (dep %in% executionList) {
+            log_info("waiting to finish")
+            finishRunResource(env$steps[[dep]]$stepDf$sourceEntityId)
+            executionList <- executionList[executionList != dep]
           }
         }
       }

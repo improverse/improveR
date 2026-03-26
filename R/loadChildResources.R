@@ -62,7 +62,7 @@ childResourceCacheList <- createCacheList("child")
 #'
 #' @seealso
 #' \code{\link{unloadChildResources}} to clear cache,
-#' \code{\link{updateChildResources}} to refresh from server,
+#' \code{\link{refreshChildResources}} to refresh from server,
 #' \code{\link{loadChildSteps}} for step-specific children
 #'
 #' @export
@@ -86,7 +86,7 @@ loadChildResources <- function(ident,from=pwd()) {
 #'
 #' @seealso
 #' \code{\link{loadChildResources}} to load child resources,
-#' \code{\link{updateChildResources}} to refresh from server
+#' \code{\link{refreshChildResources}} to refresh from server
 #'
 #' @references ics1085
 #' @export
@@ -96,7 +96,7 @@ unloadChildResources <- function(ident) {
   removeFromCache(res$resourceId,"",childResourceCacheList)
 }
 
-#' Update Child Resources from Server
+#' Refresh Child Resources from Server
 #'
 #' Clears cached child resources data and reloads fresh data from the server.
 #'
@@ -112,10 +112,17 @@ unloadChildResources <- function(ident) {
 #'
 #' @references ics1085
 #' @export
-updateChildResources <- function(ident) {
+refreshChildResources <- function(ident) {
   unloadChildResources(ident)
   res <- loadChildResources(ident)
   return(res)
+}
+
+#' @rdname refreshChildResources
+#' @export
+updateChildResources <- function(...) {
+  .Deprecated("refreshChildResources")
+  refreshChildResources(...)
 }
 
 loadChildResourcesFromServer <- function(resource) {

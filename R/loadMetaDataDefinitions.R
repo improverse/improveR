@@ -10,6 +10,7 @@ actualLoadMetaDataDefinitions <- function(scope="Improve Client"){
                                             urlParams = list(scope=scope
                                             ),
                                             restType = "GET")
+  if (is.null(result)) return(NULL)
   definitions <- httr::content(result)
   definitions <- lapply(definitions, function(definition) {
     if ("category" %in% names(definition)) {
@@ -46,14 +47,21 @@ unloadMetaDataDefinitions <- function(scope="Improve Client") {
   removeFromCache(scope,"",metadataDefinitionsCacheList)
 }
 
-#' Update Meta Data Definitions
+#' Refresh Meta Data Definitions
 #' @param scope the metadata scope
 #' @references ics1137
 #' @export
-updateMetaDataDefinitions <- function(scope="Improve Client") {
+refreshMetaDataDefinitions <- function(scope="Improve Client") {
   unloadMetaDataDefinitions(scope)
   res <- loadMetaDataDefinitions(scope)
   return(res)
+}
+
+#' @rdname refreshMetaDataDefinitions
+#' @export
+updateMetaDataDefinitions <- function(...) {
+  .Deprecated("refreshMetaDataDefinitions")
+  refreshMetaDataDefinitions(...)
 }
 
 #' Loads One Meta Data Definitions By Name For A Scope, The Default Scope Is "Improve Client"

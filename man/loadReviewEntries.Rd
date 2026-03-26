@@ -2,19 +2,21 @@
 % Please edit documentation in R/loadREview.R
 \name{loadReviewEntries}
 \alias{loadReviewEntries}
-\title{Loads All The Review Entries For A Review
-it uses caching
-the result is returned as a data frame}
+\title{Loads All The Review Entries For A Review}
 \usage{
-loadReviewEntries(resourceId)
+loadReviewEntries(ident, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of review entries, or \code{NULL} if none exist.
 }
 \description{
-Loads All The Review Entries For A Review
-it uses caching
-the result is returned as a data frame
+Retrieves all entries for a review. Results are cached.
 }
 \references{
 ics1208

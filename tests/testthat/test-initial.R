@@ -74,6 +74,14 @@ test_that("general file setup", {
     resetCache()
     cacheEnv<-improveR:::cacheEnv
     folder <- loadResource(TEST_FOLDER)
+
+    # Clean up leftover resources from previous test runs
+    existing <- loadResource("./versionMoved", folder)
+    if (!is.null(existing)) delete(existing)
+    existing <- loadResource("./versionFolder", folder)
+    if (!is.null(existing)) delete(existing)
+    resetCache()
+
     newFolder <- createFolder(folder,"versionFolder")
 
     firstEntityVersionId <- newFolder$entityVersionId

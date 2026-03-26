@@ -178,7 +178,7 @@ queryFolder <- function(queryString, fetchSize=100,fetchOffset=0,ident,from=pwd(
     return(NULL)
   }
   if (nrow(resource)>1) {
-    logging::logwarn("queryFolder only allowed for one folder")
+    log_warn("queryFolder only allowed for one folder")
     return(NULL)
   }
   queryPrefix <- paste0("(path='",

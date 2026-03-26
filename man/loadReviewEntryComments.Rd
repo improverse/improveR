@@ -2,21 +2,23 @@
 % Please edit documentation in R/loadREview.R
 \name{loadReviewEntryComments}
 \alias{loadReviewEntryComments}
-\title{Loads All The Comments For A Review Entry
-it uses caching
-the result is returned as a data frame}
+\title{Loads All The Comments For A Review Entry}
 \usage{
-loadReviewEntryComments(resourceId, entryId)
+loadReviewEntryComments(ident, entryId, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
 
-\item{entryId}{id (UUID) of the review entry}
+\item{entryId}{Character. ID (UUID) of the review entry.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of review entry comments, or \code{NULL} if none exist.
 }
 \description{
-Loads All The Comments For A Review Entry
-it uses caching
-the result is returned as a data frame
+Retrieves all comments for a review entry.
 }
 \references{
 ics1543

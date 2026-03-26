@@ -41,7 +41,7 @@ changeStepDescription <- function(ident, from=pwd(),description) {
                                   data=as.list(stepEntity),
                                   restType = "PUT"
   )
-  return(updateResource(ident,from))
+  return(refreshResource(ident,from))
 }
 
 #' Change Step Rationale
@@ -82,7 +82,7 @@ changeStepRationale <- function(ident, from=pwd(),rationale) {
                                             data=as.list(stepEntity),
                                             restType = "PUT"
   )
-  return(updateResource(ident,from))
+  return(refreshResource(ident,from))
 }
 
 getToolId <- function(runserverName, runserverToolName) {
@@ -115,8 +115,8 @@ addExtLinkToStep <- function(newStep, filePrep) {
   if (grepl(pattern = "/", x=fileName,fixed = T)) {
     pathParts <- strsplit(x=fileName,split="/",fixed=T)[[1]]
     if (length(pathParts)!=2) {
-      logging::logwarn("maximum folder depth allowed is 1, by filename in realise step")
-      logging::logwarn(fileName)
+      log_warn("maximum folder depth allowed is 1, by filename in realise step")
+      log_warn(fileName)
       return()
     }
     folderName <- pathParts[1]
@@ -124,8 +124,8 @@ addExtLinkToStep <- function(newStep, filePrep) {
     children <- loadChildResources(newStep)
     folder <- children[children$name==folderName,]
     if (nrow(folder)==1 && folder$nodeType!="Folder") {
-      logging::logwarn(folderName)
-      logging::logwarn("already exists but not as folder")
+      log_warn(folderName)
+      log_warn("already exists but not as folder")
       return()
     }
     if (nrow(folder)==1) {

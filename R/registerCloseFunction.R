@@ -38,7 +38,7 @@ improveCloseToken = new.env(parent=emptyenv())
 #' @noRd
 registerCloseFunction <- function(name,func) {
   if (name %in% ls(envir=improveCloseToken)) {
-    logging::logwarn(paste0("Function ",name," was already registered, will be overwritten"))
+    log_warn(paste0("Function ",name," was already registered, will be overwritten"))
   }
   assign(name,func,envir=improveCloseToken)
 }
@@ -53,7 +53,7 @@ unregisterCloseFunction <- function(name) {
     rm(list = ls(pattern = name,envir=improveCloseToken),envir=improveCloseToken)
   }
   else {
-    logging::logwarn(paste0("Function ",name," was not registered, will not be unregistered"))
+    log_warn(paste0("Function ",name," was not registered, will not be unregistered"))
   }
 }
 

@@ -4,10 +4,13 @@
 \alias{unloadReviewers}
 \title{Unloads the Reviewers for a Review}
 \usage{
-unloadReviewers(resourceId)
+unloadReviewers(ident, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
 }
 \description{
 Unloads the Reviewers for a Review

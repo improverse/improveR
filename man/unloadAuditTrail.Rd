@@ -25,5 +25,5 @@ ics1097
 }
 \seealso{
 \code{\link{loadAuditTrail}} to load audit trail,
-\code{\link{updateAuditTrail}} to refresh from server
+\code{\link{refreshAuditTrail}} to refresh from server
 }

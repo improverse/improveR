@@ -4,12 +4,18 @@
 \alias{deleteReviewer}
 \title{Removes a Reviewer from a Review}
 \usage{
-deleteReviewer(reviewId, reviewerId)
+deleteReviewer(ident, reviewerId, from = pwd())
 }
 \arguments{
-\item{reviewId}{id (UUID) of the review}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
 
-\item{reviewerId}{id (UUID) of the reviewer}
+\item{reviewerId}{Character. ID (UUID) of the reviewer to remove.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+\code{TRUE} if the reviewer was removed successfully, \code{FALSE} otherwise.
 }
 \description{
 Removes a Reviewer from a Review

@@ -23,7 +23,7 @@ fullProcess <- function(process,stepHandle) {
   newHandle$position <- process$position
   newHandle$parentProcessId <- process$parentProcessId
 
-  gridArguments <- updateProcessGridArguments(process$id)
+  gridArguments <- refreshProcessGridArguments(process$id)
 
   if (!is.null(gridArguments)) {
     newHandle$gridArguments <- list(

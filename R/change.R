@@ -83,14 +83,11 @@ singleChange <- function(source,target,changeFunction,targetName="",overwrite=F,
   unloadResource(targetFolderId)
   unloadChildResources(targetFolderId)
   unloadChildResources(sourceR$parentId)
-  copiedRes <- updateResource(sourceR$resourceId)
   if (is.null(result)) {
-    return(copiedRes)
+    log_warn("Failed to perform", changeFunction, "operation")
+    return(NULL)
   }
   resultId <- httr::content(result)$resourceId
-  if (is.null(resultId)) {
-    return(copiedRes)
-  }
   copiedRes <- loadResource(resultId)
   return(copiedRes)
 }
@@ -287,19 +284,23 @@ move <- function(sources,target,targetName="",overwrite=F,comment="modified by i
 singleDelete <- function(resId) {
   resource <- loadResource(resId)
   if (is.null(resource)) {
-    return(F)
+    return(FALSE)
   }
   result <- authenticatedREST('/resources/{resourceId}',
                                             urlParams = list(resourceId=resource$resourceId
                                             ),
                                             restType = "DELETE")
-  invalidatePathCaches(resource$path,deleteLinkedFiles = T)
+  invalidatePathCaches(resource$path,deleteLinkedFiles = TRUE)
   if (is.null(resource$parentId)) {
     resource$parentId <-"/"
   }
   #unloadResource(resource$resourceId)
   unloadChildResources(resource$parentId)
-  return(result$status_code==200)
+  if (is.null(result)) {
+    log_warn("Failed to delete resource:", resource$resourceId)
+    return(FALSE)
+  }
+  return(TRUE)
 }
 
 #' Delete Resources Permanently
@@ -371,7 +372,7 @@ if (!is.null(resNodeType) && !resNodeType %in% c("File", "Link")) {
 
   # If FALSE, deletion is blocked due to incompatible step status or non-existent resource
   if (isFALSE(stepStatus)) {
-    logging::logwarn("NO resource was deleted.")
+    log_warn("NO resource was deleted.")
     return(invisible(FALSE))
   }
 }
@@ -399,8 +400,12 @@ singleUpdateFileContent <- function(ident,localPath,comment) {
     encode = NULL,
     restType = "PUT"
   )
+  if (is.null(fResult)) {
+    log_warn("Failed to update file content for resource:", resource$resourceId)
+    return(NULL)
+  }
   res <- httr::content(fResult)
-  resource <- updateResource(res[[1]]$resourceId)
+  resource <- refreshResource(res[[1]]$resourceId)
   return(resource)
 }
 
@@ -507,8 +512,13 @@ collectSteps <- function(
     stop("Not connected to improve server. Please run improveConnect() first.")
   }
 
+  # Handle data frame input (single resource) - extract resourceId
+  if (is.data.frame(ident)) {
+    ident <- getCorrectId(ident)
+  }
+
   # Handle vector of identifiers (e.g., c(step1, step2))
-  if (length(ident) > 1) {
+  if (is.character(ident) && length(ident) > 1) {
     allResults <- data.frame()
     for (i in seq_along(ident)) {
       result <- collectSteps(
@@ -524,18 +534,11 @@ collectSteps <- function(
   }
 
   # Load the resource(s)
-  resources <- tryCatch(
-    # updateResource(ident),
-    updateResource(ident),
-    error = \(e) {
-      message(glue::glue("Source {ident} does not exist."))
-      return(NULL)
-    }
-  )
+  resources <- refreshResource(ident)
 
   if (is.null(resources)) {
     if (isTRUE(verbose)) {
-      logging::logwarn(glue::glue("Source {ident} does not exist."))
+      log_warn(glue::glue("Source {ident} does not exist."))
     }
     return(FALSE)
   }
@@ -600,7 +603,7 @@ collectSteps <- function(
   # Recursive helper function for containers
   collectSteps <- function(resource, results = data.frame()) {
     # Load all full child resources (includes runStatus for steps)
-    children <- updateFullChildResources(resource$entityId)
+    children <- refreshFullChildResources(resource$entityId)
 
     if (is.null(children) || !("data" %in% names(children))) {
       return(results)
@@ -775,7 +778,7 @@ checkRunStatus <- function(
   }
 
   if (nrow(breakingSteps) > 0) {
-    logging::logwarn(
+    log_warn(
       glue::glue_collapse(
         c(
           "The following step(s) have a run status other than 'INITIAL' or 'FINISHED':",

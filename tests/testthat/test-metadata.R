@@ -132,7 +132,7 @@ ensureTestFolder <- function() {
     a <- updateMetaDate(metadatafolder, "Indication", "Diabetes")
     a <- updateMetaDate(metadatafolder, "ProgramStart", lubridate::ymd("2017-01-31"))
 
-    metaData <- updateMetaData(metadatafolder)
+    metaData <- refreshMetaData(metadatafolder)
     expect_equal(metaData$type, "meta data")
     expect_equal(metaData$resourceId, metadatafolder$resourceId)
     expect_equal(metaData$entityId, metadatafolder$entityId)
@@ -178,7 +178,7 @@ ensureTestFolder <- function() {
     )
     result <- addBulkMetaDate(metadatafolder, descriptorNameValueList)
 
-    metaData <- updateMetaData(metadatafolder)
+    metaData <- refreshMetaData(metadatafolder)
     expect_equal(metaData$type, "meta data")
     expect_equal(metaData$resourceId, metadatafolder$resourceId)
     expect_equal(metaData$entityId, metadatafolder$entityId)
@@ -208,7 +208,7 @@ ensureTestFolder <- function() {
 
     result <- deleteMetaDate(metadatafolder, c("Compound", "Indication", "ProgramStart"))
 
-    metaData <- updateMetaData(metadatafolder)
+    metaData <- refreshMetaData(metadatafolder)
     expect_equal(metaData$type, "meta data")
     expect_equal(metaData$resourceId, metadatafolder$resourceId)
     expect_equal(metaData$entityId, metadatafolder$entityId)

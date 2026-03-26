@@ -5,20 +5,27 @@
 \title{Updates a Resource Relation}
 \usage{
 updateResourceRelation(
-  resourceId,
+  ident,
   relationId,
   newRelationTypeId,
-  newDescription
+  newDescription,
+  from = pwd()
 )
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the source resource. Can be a path, resource ID,
+entity ID, or a data frame row from \code{loadResource()}.}
 
-\item{relationId}{id (UUID) of the relation}
+\item{relationId}{ID (UUID) of the relation to update.}
 
-\item{newRelationTypeId}{id (UUID) of the relation type}
+\item{newRelationTypeId}{ID (UUID) of the new relation type.}
 
-\item{newDescription}{description of the resource relation}
+\item{newDescription}{Character. New description of the resource relation.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of the resource's current relations, or \code{NULL} on failure.
 }
 \description{
 Updates a Resource Relation

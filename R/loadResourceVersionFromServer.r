@@ -10,7 +10,7 @@
 loadResourceVersionFromServer <- function(entityVersionId,invalidatesReproducibility=T) {
   if (cacheEnv$persistentCaching & cacheEnv$reproducible & invalidatesReproducibility) {
     cacheEnv$reproducible<-F
-    logging::logwarn("No longer reproducible, as repo was accessed directly without cache, use loadResource")
+    log_warn("No longer reproducible, as repo was accessed directly without cache, use loadResource")
   }
 
   if (length(entityVersionId)>1) {
@@ -23,23 +23,23 @@ loadResourceVersionFromServer <- function(entityVersionId,invalidatesReproducibi
         )
     )
   }
-  logging::logdebug(paste0("Loading Resource for version",entityVersionId))
+  log_debug(paste0("Loading Resource for version",entityVersionId))
 
 
   entityId <- extractEntityId(entityVersionId)
   res<-loadResource(entityId)
   if (is.null(res)) {
-    logging::logwarn(paste0("Resource with entityId: ",entityId," could not be loaded"))
+    log_warn(paste0("Resource with entityId: ",entityId," could not be loaded"))
     return(NULL)
   }
   his<-loadHistory(entityId)
   if (is.null(his) || is.null(his$data) || length(his$data) == 0) {
-    logging::logwarn(paste0("History for entityId: ",entityId," could not be loaded"))
+    log_warn(paste0("History for entityId: ",entityId," could not be loaded"))
     return(NULL)
   }
   historyData <- his$data[[1]]
   if (is.null(historyData) || nrow(historyData) == 0) {
-    logging::logwarn(paste0("No history data for entityId: ",entityId))
+    log_warn(paste0("No history data for entityId: ",entityId))
     return(NULL)
   }
 
@@ -55,7 +55,7 @@ loadResourceVersionFromServer <- function(entityVersionId,invalidatesReproducibi
                                    revisionId=revisionId)
   )
   if (is.null(result)) {
-    logging::logwarn(paste0("Resource Version with ID: ",entityVersionId," could not be loaded"))
+    log_warn(paste0("Resource Version with ID: ",entityVersionId," could not be loaded"))
     return(NULL)
   }
   cont <- httr::content(result)

@@ -188,7 +188,7 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   env$parent$load <- function(stepDepth = 1, treeDepth = 1) {
     if (stepDepth == 1 && treeDepth == 1) {
       step <- env$getStepResource()
-      parent <- updateParentStep(step)
+      parent <- refreshParentStep(step)
       if (is.null(parent)) {
         parent <- data.frame()
       }
@@ -223,7 +223,7 @@ createStepEnv <- function(stepDf = NULL, workflow = NULL) {
   env$children$load <- function(stepDepth = 1, treeDepth = 1) {
     if (stepDepth == 1 && treeDepth == 1) {
       step <- env$getStepResource()
-      children <- updateChildSteps(step)$data[[1]]
+      children <- refreshChildSteps(step)$data[[1]]
 
       if (nrow(children) > 0) {
         stepsDf <- env$workflow$df()

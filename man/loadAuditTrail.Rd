@@ -74,5 +74,5 @@ ics1097
 }
 \seealso{
 \code{\link{unloadAuditTrail}} to clear cache,
-\code{\link{updateAuditTrail}} to refresh from server
+\code{\link{refreshAuditTrail}} to refresh from server
 }

@@ -5,23 +5,31 @@
 \title{Creates a New Resource Relation}
 \usage{
 createResourceRelation(
-  resourceId,
-  targetResourceId,
+  ident,
+  targetIdent,
   relationTypeId,
-  description
+  description,
+  from = pwd()
 )
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the source resource. Can be a path, resource ID,
+entity ID, or a data frame row from \code{loadResource()}.}
 
-\item{targetResourceId}{id (UUID) of the target resource}
+\item{targetIdent}{Identifier of the target resource. Same formats as \code{ident}.}
 
-\item{relationTypeId}{id (UUID) of the relation type}
+\item{relationTypeId}{ID (UUID) of the relation type. Use \code{loadRelationTypes()}
+to retrieve available types.}
 
-\item{description}{description of the resource relation}
+\item{description}{Character. Description of the resource relation.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of the resource's current relations, or \code{NULL} on failure.
 }
 \description{
-Creates a New Resource Relation
+Creates a relation between two resources in the repository.
 }
 \references{
 ics1044

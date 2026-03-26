@@ -129,7 +129,7 @@ createLink <- function(linkContainer,links,linkName="") {
       return(res)
     }
   } else {
-    logging::logwarn(paste0(linkContainer," does not exist"))
+    log_warn(paste0(linkContainer," does not exist"))
   }
 
 }

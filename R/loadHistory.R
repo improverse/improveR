@@ -61,16 +61,23 @@ unloadHistory <- function(ident) {
   removeFromCache(res$resourceId,"",historyResourceCacheList)
 }
 
-#' updateHistory
+#' refreshHistory
 #' @inheritParams common_ident
 #' @inheritSection common_ident Details ident
 
 #' @references ics1094
 #' @export
-updateHistory <- function(ident) {
+refreshHistory <- function(ident) {
   unloadHistory(ident)
   res <- loadHistory(ident)
   return(res)
+}
+
+#' @rdname refreshHistory
+#' @export
+updateHistory <- function(...) {
+  .Deprecated("refreshHistory")
+  refreshHistory(...)
 }
 
 loadHistoryFromServer <- function(resource) {
@@ -78,21 +85,14 @@ loadHistoryFromServer <- function(resource) {
 }
 
 actualLoadHistory <- function(resource) {
-  result<-NULL
-  if (as.character(resource$resourceId)!="0") {
-    result <- authenticatedREST("/resources/{resourceId}/revisionHistory",
-                                list(resourceId=resource$resourceId)
-    )
-  } else {
-    result <- data.frame(comment="root has no history")
+  if (as.character(resource$resourceId) == "0") {
+    return(data.frame(comment = "root has no history"))
   }
-  if (is.null(result)) {
-    return(NULL)
-  }
-  cont <- httr::content(result)
-  df <- mergeListToDataframe(cont)
-  df<-convertDates(df)
-  return(df)
+  result <- restGetAsDf("/resources/{resourceId}/revisionHistory",
+                        urlParams = list(resourceId = resource$resourceId),
+                        dates = TRUE)
+  if (is.null(result)) return(data.frame())
+  return(result)
 }
 
 #' Load the parental/descendant relationships of a resource
@@ -104,7 +104,7 @@ actualLoadHistory <- function(resource) {
 #'
 #' The function uses caching to improve performance. The cache persists for the
 #' entire R session. If parental descendant relationships change on the server,
-#' use `updateParentalDescendant()` to refresh the cached data, or use
+#' use `refreshParentalDescendant()` to refresh the cached data, or use
 #' `unloadParentalDescendant()` to remove the cached data.
 #' 
 #' @param ident Character. Resource identifier to resolve (e.g. UUID, name, or any
@@ -150,7 +150,7 @@ actualLoadHistory <- function(resource) {
 #' loadParentalDescendant("my-resource-name", from = "/path/to/repo")
 #' }
 #'
-#' @seealso [updateParentalDescendant()], [unloadParentalDescendant()], [loadResource()]
+#' @seealso [refreshParentalDescendant()], [unloadParentalDescendant()], [loadResource()]
 #' @export
 loadParentalDescendant <- function(ident, from = pwd()) {
   return(
@@ -166,7 +166,7 @@ loadParentalDescendant <- function(ident, from = pwd()) {
 #' Remove cached parental/descendant information for a resource identified by \code{ident}.
 #'
 #' @inheritParams common_ident
-#' @seealso [updateParentalDescendant()], [loadParentalDescendant()], [loadResource()]
+#' @seealso [refreshParentalDescendant()], [loadParentalDescendant()], [loadResource()]
 #' @details
 #' This function loads the resource corresponding to \code{ident} (via \code{loadResource})
 #' and then removes any stored parental/descendant data for that resource from the
@@ -187,9 +187,9 @@ unloadParentalDescendant <- function(ident) {
   removeFromCache(res$resourceId,"",parentalDescendantCacheList)
 }
 
-#' Update parental/descendant cache for a resource
+#' Refresh parental/descendant cache for a resource
 #'
-#' Replace cached parental/descendant information for a resource identified by \code{ident} 
+#' Replace cached parental/descendant information for a resource identified by \code{ident}
 #' with newly fetched data.
 #'
 #' @inheritParams common_ident
@@ -206,14 +206,21 @@ unloadParentalDescendant <- function(ident) {
 #' @seealso [loadParentalDescendant()], [unloadParentalDescendant()], [loadResource()]
 #' @examples
 #' \dontrun{
-#' updateParentalDescendant(my_ident)
+#' refreshParentalDescendant(my_ident)
 #' }
 #'
 #' @export
-updateParentalDescendant <- function(ident) {
+refreshParentalDescendant <- function(ident) {
   unloadParentalDescendant(ident)
   res <- loadParentalDescendant(ident)
   return(res)
+}
+
+#' @rdname refreshParentalDescendant
+#' @export
+updateParentalDescendant <- function(...) {
+  .Deprecated("refreshParentalDescendant")
+  refreshParentalDescendant(...)
 }
 
 loadParentalDescendantFromServer <- function(resource) {
@@ -227,7 +234,7 @@ actualLoadParentalDescendant <- function(resource) {
   )
 
   if (is.null(result)) {
-    logging::loginfo(paste("No parental descendant found for:", resource$entityId))
+    log_info(paste("No parental descendant found for:", resource$entityId))
     return(NULL)
   }
 

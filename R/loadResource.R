@@ -79,13 +79,13 @@ loadResource <- function(ident, from = pwd()) {
   if (grepl("/", ident, fixed = T) | grepl("\\", ident, fixed = T)) {
 
     ident <- normalisePath(ident, startPath = from)
-    logging::logdebug("path recognized")
-    logging::logdebug(ident)
+    log_debug("path recognized")
+    log_debug(ident)
     res <- getFromCache(ident, loadResourceByPathGeneric, resourceCacheList)
   }
   else if (isEntityVersionId(ident)) {
-    logging::logdebug("resource version specifier")
-    logging::logdebug(ident)
+    log_debug("resource version specifier")
+    log_debug(ident)
     res <- getFromCache(ident, internalLoadResourceVersionFromServer, resourceVersionCacheList)
   }
   else {
@@ -100,10 +100,10 @@ isEntityVersionId <- function(entityVId) {
   if (length(entityParts)==2) {
     entityParts <- strsplit(entityParts[2],"-")[[1]]
     if(length(entityParts)==3) {
-      return(T)
+      return(TRUE)
     }
   }
-  return(F)
+  return(FALSE)
 }
 
 #QUESTION invalidatesRepoducibility with default input F; in loadREsourceServer default is T
@@ -132,13 +132,13 @@ unloadResource <- function(ident,from=pwd()) {
   }
 }
 
-#' Update Resource
-#' @description Updates a resource.
+#' Refresh Resource
+#' @description Refreshes a resource from the server by clearing cache and reloading.
 #' @param ident id
 #' @param from pwd for relative path
 #' @references ics1090
 #' @export
-updateResource <- function(ident,from=pwd()) {
+refreshResource <- function(ident,from=pwd()) {
   res <- loadResource(ident,from)
   if (!is.null(res)) {
     unloadResource(ident,from)
@@ -146,6 +146,13 @@ updateResource <- function(ident,from=pwd()) {
     return(res)
   }
   return(res)
+}
+
+#' @rdname refreshResource
+#' @export
+updateResource <- function(...) {
+  .Deprecated("refreshResource")
+  refreshResource(...)
 }
 
 #' Is Resource Up2 Date
@@ -156,8 +163,8 @@ updateResource <- function(ident,from=pwd()) {
 isResourceUp2Date <- function(ident,from=pwd()) {
   res <- loadResource(ident,from)
   if (res$isVersion) {
-    logging::logwarn("Versions are always up 2 date")
-    logging::logwarn(paste0(ident," is a version ID"))
+    log_warn("Versions are always up 2 date")
+    log_warn(paste0(ident," is a version ID"))
     return(TRUE)
   }
   serverResource <- loadResourceFromServer(res$resourceId)

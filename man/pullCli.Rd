@@ -10,5 +10,6 @@ pullCli(localPath)
 \item{localPath}{The local repository path.}
 }
 \description{
-Pulls changes from the CLI.
+Pulls changes from the CLI. After pulling, the resource cache is invalidated
+to ensure the in-memory state matches what was just downloaded.
 }

@@ -51,11 +51,38 @@
 
 whoami <- function() {
   improveConnected()
+
+  # 1. Check session configuration (set by OAuth login)
   user <- conf()$user
-  if (user!="") {
+  if (!is.null(user) && user != "") {
     return(user)
   }
+
+  # 2. On server >= 4.4, use the REST /users/whoami endpoint
+  repoVersion <- tryCatch(getRepositoryVersion(), error = function(e) NULL)
+  if (!is.null(repoVersion)) {
+    majorMinor <- tryCatch({
+      parts <- strsplit(repoVersion, "[.-]")[[1]]
+      as.numeric(paste0(parts[1], ".", parts[2]))
+    }, error = function(e) 0)
+    if (majorMinor >= 4.4) {
+      result <- tryCatch(
+        authenticatedREST("/users/whoami", restType = "GET"),
+        error = function(e) NULL
+      )
+      if (!is.null(result)) {
+        cont <- httr::content(result)
+        if (!is.null(cont$username) && cont$username != "") {
+          return(cont$username)
+        }
+      }
+    }
+  }
+
+  # 3. Fallback: audit trail lookup (original logic for older servers / batch mode)
   audit <- loadAuditTrail(pwd()$entityId)$data[[1]]
-  audit<-audit[audit$entityReferenceType=="Run" & audit$operation=="create" & audit$createdAt==max(audit$createdAt),]
+  audit <- audit[audit$entityReferenceType == "Run" &
+                   audit$operation == "create" &
+                   audit$createdAt == max(audit$createdAt), ]
   return(audit$username)
 }

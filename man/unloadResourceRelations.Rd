@@ -4,10 +4,12 @@
 \alias{unloadResourceRelations}
 \title{Unloads All Resource Relations}
 \usage{
-unloadResourceRelations(resourceId)
+unloadResourceRelations(ident, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the resource.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
 }
 \description{
 Unloads All Resource Relations

@@ -5,8 +5,8 @@
 #' Default is the root directory.
 #' @noRd
 loadResourceByPathGeneric <- function(path,from=pwd()) {
-  logging::logdebug("loading path: ")
-  logging::logdebug(path)
+  log_debug("loading path: ")
+  log_debug(path)
   returnResult <- F
   path <- stringr::str_replace_all(path,"\\\\","/")
   pathParts <- stringr::str_split(path,"/")[[1]]

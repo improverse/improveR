@@ -36,12 +36,14 @@ actualLoadReviews <- function(...) {
 }
 
 #' Loads All Registered Reviews
-#' it uses caching
-#' the result is returned as a data frame
+#'
+#' Retrieves the list of all reviews from the repository. Results are cached.
+#'
+#' @returns A data frame of reviews, or \code{NULL} if none exist.
 #' @references ics348
 #' @export
 loadReviews <- function() {
-  reviews <- getFromCache(defaultKeyReviews, actualLoadReviews, reviewsCacheList, NULL)
+  reviews <- getFromCache(defaultKeyReviews(), actualLoadReviews, reviewsCacheList, NULL)
   return(reviews)
 }
 
@@ -50,16 +52,24 @@ loadReviews <- function() {
 #' @export
 unloadReviews <- function() {
   loadReviews()
-  removeFromCache(defaultKeyReviews, "", reviewsCacheList)
+  removeFromCache(defaultKeyReviews(), "", reviewsCacheList)
 }
 
 #' Reloads the Reviews
+#' @returns A data frame of reviews, or \code{NULL} if none exist.
 #' @references ics348
 #' @export
-updateReviews <- function() {
+refreshReviews <- function() {
   unloadReviews()
   res <- loadReviews()
   return(res)
+}
+
+#' @rdname refreshReviews
+#' @export
+updateReviews <- function(...) {
+  .Deprecated("refreshReviews")
+  refreshReviews(...)
 }
 
 reviewersCacheList <- list(
@@ -67,56 +77,82 @@ reviewersCacheList <- list(
 )
 
 #' Get Reviewers
-#' @param ident id
-#' @param from defaults to pwd, used to resolve relative paths
+#'
+#' Retrieves all reviewers for a given review.
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of reviewers, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-getReviewers <- function(ident,from=pwd()) {
-  review <- loadResource(ident,from)
-  if (is.null(review) || review$nodeType!="Review") {
-    logging::logwarn(paste0(ident," does not specify a Review"))
+getReviewers <- function(ident, from = pwd()) {
+  review <- loadResource(ident, from)
+  if (is.null(review) || review$nodeType != "Review") {
+    log_warn(paste0(ident, " does not specify a Review"))
   }
   result <- authenticatedREST("/reviews/{resourceId}/reviewers",
-                                            list(resourceId=review$resourceId))
+                              list(resourceId = review$resourceId))
   cont <- httr::content(result)
   cont <- cont$elements
-  df <-mergeListToDataframe(cont)
+  df <- mergeListToDataframe(cont)
   if (is.null(df) || nrow(df) == 0) {
     return(NULL)
   }
 
-  df$resourceId <- ident
+  df$resourceId <- review$resourceId
   return(df)
 }
 
 #' Loads All The Reviewers For A Review
-#' it uses caching
-#' the result is returned as a data frame
-#' @param resourceId id (UUID) of the resource
+#'
+#' Retrieves all reviewers for a review. Results are cached.
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of reviewers, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-loadReviewers <- function(resourceId) {
+loadReviewers <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   reviewReviewers <- getFromCache(resourceId, getReviewers, reviewersCacheList, NULL)
   return(reviewReviewers)
 }
 
 #' Unloads the Reviewers for a Review
-#' @param resourceId id (UUID) of the resource
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1208
 #' @export
-unloadReviewers <- function(resourceId) {
+unloadReviewers <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   loadReviewers(resourceId)
   removeFromCache(resourceId, "", reviewersCacheList)
 }
 
 #' Reloads the Reviewers for a Review
-#' @param resourceId id (UUID) of the resource
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of reviewers, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-updateReviewers <- function(resourceId) {
+refreshReviewers <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   unloadReviewers(resourceId)
   res <- loadReviewers(resourceId)
   return(res)
+}
+
+#' @rdname refreshReviewers
+#' @export
+updateReviewers <- function(...) {
+  .Deprecated("refreshReviewers")
+  refreshReviewers(...)
 }
 
 reviewEntriesCacheList <- list(
@@ -124,59 +160,85 @@ reviewEntriesCacheList <- list(
 )
 
 #' Get Review Entries
-#' @param ident id
-#' @param from defaults to pwd, used to resolve relative paths
+#'
+#' Retrieves all entries for a given review.
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of review entries, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-getReviewEntries <- function(ident,from=pwd()) {
-  review <- loadResource(ident,from)
-  if (is.null(review) || review$nodeType!="Review") {
-    logging::logwarn(paste0(ident," does not specify a Review"))
+getReviewEntries <- function(ident, from = pwd()) {
+  review <- loadResource(ident, from)
+  if (is.null(review) || review$nodeType != "Review") {
+    log_warn(paste0(ident, " does not specify a Review"))
   }
   result <- authenticatedREST("/reviews/{resourceId}/entries",
-                                            list(resourceId=review$resourceId))
+                              list(resourceId = review$resourceId))
   cont <- httr::content(result)
   cont <- cont$elements
-  cont <- lapply(cont,function(entry) {
-    resource <- as.data.frame(entry$resource,stringsAsFactors=F)
+  cont <- lapply(cont, function(entry) {
+    resource <- as.data.frame(entry$resource, stringsAsFactors = FALSE)
     resource$id <- entry$id
     resource$status <- entry$status
     resource$states <- list(entry$states)
     resource$comments <- list(entry$comments)
     return(resource)
   })
-  df <-mergeListToDataframe(cont)
+  df <- mergeListToDataframe(cont)
   return(df)
 }
 
 #' Loads All The Review Entries For A Review
-#' it uses caching
-#' the result is returned as a data frame
-#' @param resourceId id (UUID) of the resource
+#'
+#' Retrieves all entries for a review. Results are cached.
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of review entries, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-loadReviewEntries <- function(resourceId) {
+loadReviewEntries <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   reviewerEntries <- getFromCache(resourceId, getReviewEntries, reviewEntriesCacheList, NULL)
   return(reviewerEntries)
 }
 
 #' Unloads the Review Entries for a Review
-#' @param resourceId id (UUID) of the resource
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1208
 #' @export
-unloadReviewEntries <- function(resourceId) {
+unloadReviewEntries <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   loadReviewEntries(resourceId)
   removeFromCache(resourceId, "", reviewEntriesCacheList)
 }
 
 #' Reloads the Review Entries for a Review
-#' @param resourceId id (UUID) of the resource
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of review entries, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-updateReviewEntries <- function(resourceId) {
+refreshReviewEntries <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   unloadReviewEntries(resourceId)
   res <- loadReviewEntries(resourceId)
   return(res)
+}
+
+#' @rdname refreshReviewEntries
+#' @export
+updateReviewEntries <- function(...) {
+  .Deprecated("refreshReviewEntries")
+  refreshReviewEntries(...)
 }
 
 reviewCommentsCacheList <- list(
@@ -184,19 +246,24 @@ reviewCommentsCacheList <- list(
 )
 
 #' Get Review Comments
-#' @param ident id
-#' @param from defaults to pwd, used to resolve relative paths
+#'
+#' Retrieves all comments for a given review.
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of review comments, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-getReviewComments <- function(ident,from=pwd()) {
-  review <- loadResource(ident,from)
-  if (is.null(review) || review$nodeType!="Review") {
-    logging::logwarn(paste0(ident," does not specify a Review"))
+getReviewComments <- function(ident, from = pwd()) {
+  review <- loadResource(ident, from)
+  if (is.null(review) || review$nodeType != "Review") {
+    log_warn(paste0(ident, " does not specify a Review"))
   }
   result <- authenticatedREST("/reviews/{resourceId}/comments",
-                                            list(resourceId=review$resourceId))
+                              list(resourceId = review$resourceId))
   cont <- httr::content(result)
-  df <-mergeListToDataframe(cont)
+  df <- mergeListToDataframe(cont)
   if (is.null(df) || nrow(df) == 0) {
     return(NULL)
   }
@@ -205,54 +272,80 @@ getReviewComments <- function(ident,from=pwd()) {
 }
 
 #' Loads All The Review Comments For A Review
-#' it uses caching
-#' the result is returned as a data frame
-#' @param resourceId id (UUID) of the resource
+#'
+#' Retrieves all comments for a review. Results are cached.
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of review comments, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-loadReviewComments <- function(resourceId) {
+loadReviewComments <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   reviewComments <- getFromCache(resourceId, getReviewComments, reviewCommentsCacheList, NULL)
   return(reviewComments)
 }
 
 #' Unloads the Review Comments for a Review
-#' @param resourceId id (UUID) of the resource
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1208
 #' @export
-unloadReviewComments <- function(resourceId) {
+unloadReviewComments <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   loadReviewComments(resourceId)
   removeFromCache(resourceId, "", reviewCommentsCacheList)
 }
 
 #' Reloads the Review Comments for a Review
-#' @param resourceId id (UUID) of the resource
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of review comments, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
-updateReviewComments <- function(resourceId) {
+refreshReviewComments <- function(ident, from = pwd()) {
+  resourceId <- resolveToResourceId(ident, from)
   unloadReviewComments(resourceId)
   res <- loadReviewComments(resourceId)
   return(res)
+}
+
+#' @rdname refreshReviewComments
+#' @export
+updateReviewComments <- function(...) {
+  .Deprecated("refreshReviewComments")
+  refreshReviewComments(...)
 }
 
 reviewEntryCommentsCacheList <- list(
   reviewEntryCommentsCache = "resourceId, entryId" # missing "double key"
 )
 
-#' Get Review Etnry Comments
-#' @param resourceId id (UUID) of the resource
-#' @param entryId id (UUID) of the review entry
-#' @param from defaults to pwd, used to resolve relative paths
+#' Get Review Entry Comments
+#'
+#' Retrieves all comments for a specific review entry.
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param entryId Character. ID (UUID) of the review entry.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of review entry comments, or \code{NULL} if none exist.
 #' @references ics1543
 #' @export
-getReviewEntryComments <- function(resourceId, entryId, from=pwd()) {
-  review <- loadResource(resourceId, from)
-  if (is.null(review) || review$nodeType!="Review") {
-    logging::logwarn(paste0(resourceId," does not specify a Review"))
+getReviewEntryComments <- function(ident, entryId, from = pwd()) {
+  review <- loadResource(ident, from)
+  if (is.null(review) || review$nodeType != "Review") {
+    log_warn(paste0(ident, " does not specify a Review"))
   }
   result <- authenticatedREST("/reviews/{resourceId}/entries/{entryId}/comments",
-                                            list(resourceId=review$resourceId, entryId = entryId))
+                              list(resourceId = review$resourceId, entryId = entryId))
   cont <- httr::content(result)
-  df <-mergeListToDataframe(cont)
+  df <- mergeListToDataframe(cont)
   if (is.null(df) || nrow(df) == 0) {
     return(NULL)
   }
@@ -261,35 +354,53 @@ getReviewEntryComments <- function(resourceId, entryId, from=pwd()) {
 }
 
 #' Loads All The Comments For A Review Entry
-#' it uses caching
-#' the result is returned as a data frame
-#' @param resourceId id (UUID) of the resource
-#' @param entryId id (UUID) of the review entry
+#'
+#' Retrieves all comments for a review entry.
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param entryId Character. ID (UUID) of the review entry.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of review entry comments, or \code{NULL} if none exist.
 #' @references ics1543
 #' @export
-loadReviewEntryComments <- function(resourceId, entryId) {
+loadReviewEntryComments <- function(ident, entryId, from = pwd()) {
   # reviewComments <- getFromCache(key, getReviewEntryComments, reviewEntryCommentsCacheList, NULL)
-  reviewEntryComments <- getReviewEntryComments(resourceId, entryId)
+  reviewEntryComments <- getReviewEntryComments(ident, entryId, from)
   return(reviewEntryComments)
 }
 
 #' Unloads the Comments for a Review Entry
-#' @param resourceId id (UUID) of the resource
-#' @param entryId id (UUID) of the review entry
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param entryId Character. ID (UUID) of the review entry.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1543
 #' @export
-unloadReviewEntryComments <- function(resourceId, entryId) {
-  loadReviewEntryComments(resourceId, entryId)
+unloadReviewEntryComments <- function(ident, entryId, from = pwd()) {
+  loadReviewEntryComments(ident, entryId, from)
   # removeFromCache(key, "", reviewEntryCommentsCacheList)
 }
 
 #' Reloads the Comments for a Review Entry
-#' @param resourceId id (UUID) of the resource
-#' @param entryId id (UUID) of the review entry
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param entryId Character. ID (UUID) of the review entry.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of review entry comments, or \code{NULL} if none exist.
 #' @references ics1543
 #' @export
-updateReviewEntryComments <- function(resourceId, entryId) {
-  unloadReviewEntryComments(resourceId, entryId)
-  res <- loadReviewEntryComments(resourceId, entryId)
+refreshReviewEntryComments <- function(ident, entryId, from = pwd()) {
+  unloadReviewEntryComments(ident, entryId, from)
+  res <- loadReviewEntryComments(ident, entryId, from)
   return(res)
+}
+
+#' @rdname refreshReviewEntryComments
+#' @export
+updateReviewEntryComments <- function(...) {
+  .Deprecated("refreshReviewEntryComments")
+  refreshReviewEntryComments(...)
 }

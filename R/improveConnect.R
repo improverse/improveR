@@ -61,6 +61,8 @@ clearConnectionData <- function(includeRepoData=F) {
   Sys.setenv(IMPROVER_PASSWORD="")
   Sys.setenv(IMPROVER_TOKEN="")
   Sys.setenv(IMPROVER_REFRESH_TOKEN="")
+  # Reset CLI user profile so configureUserProfile() re-evaluates on next connect
+  cliEnv$userProfile <- NULL
   improveDisconnect()
 }
 
@@ -201,7 +203,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
         copyEnv <- get(val, envir = loadedEnv)
         assign(val, copyEnv, envir = cacheEnv)
       })
-      logging::loginfo("Loaded cached data from file .improver.cache")
+      log_info("Loaded cached data from file .improver.cache")
     }
     registerCloseFunction("9saveCache", saveCache)
     cacheEnv$reproducible <- T
@@ -233,9 +235,9 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
 
     confData <- data.frame(reqToken = reqToken, stepId = stepId, repoUrl = serverAddress, runWorkspace = runWorkspace, stringsAsFactors = F)
     assign("conf", confData, cacheEnv)
-    logging::loginfo("Access Data parsed from Command Line:")
+    log_info("Access Data parsed from Command Line:")
     if (noCommandArgs > 4 && commandArgs(trailingOnly = TRUE)[[5]] == "write") {
-      logging::loginfo("(also written to conf.json)")
+      log_info("(also written to conf.json)")
       confJson <- jsonlite::toJSON(confData)
       output <- file("conf.json", "wb")
       write(confJson, output)
@@ -259,36 +261,36 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     runWorkspace <- paste0(workspace, "/")
     confData <- data.frame(repoUrl = serverAddress, runWorkspace = runWorkspace, user = "", reqToken = reqToken, stepId = stepId, stringsAsFactors = F)
     assign("conf", confData, cacheEnv)
-    logging::loginfo("Access Data from Environment variables:")
+    log_info("Access Data from Environment variables:")
   } else {
     tryCatch(
       {
         conf <- as.data.frame(jsonlite::read_json("conf.json"), stringsAsFactors = FALSE)
         # TODO this is a fix for docker mapping
         conf$runWorkspace <- paste0(getwd(), "/")
-        logging::loginfo("Access Data read from conf.json:")
+        log_info("Access Data read from conf.json:")
         assign("conf", conf, cacheEnv)
       },
       error = function(cond) {
         if (!offlinePossible) {
-          logging::logerror(cond)
-          logging::logerror("Neither commandline arguments, environment variables nor conf.json supplied.")
-          logging::logerror("Expected commandline arguments:")
-          logging::logerror("<command-file>")
-          logging::logerror("<jwt>")
-          logging::logerror("<step-entityId>")
-          logging::logerror("<repoUrl>")
-          logging::logerror("<runWorkspace>")
-          logging::logerror("Expected environment variables:")
-          logging::logerror("For Run Token Authentication:")
-          logging::logerror("  IMPROVER_TOKEN (mandatory)")
-          logging::logerror("  IMPROVER_REPO_URL (mandatory)")
-          logging::logerror("  IMPROVER_STEP (optional)")
-          logging::logerror("For OAuth Authentication:")
-          logging::logerror("  IMPROVER_REPO_URL (mandatory)")
-          logging::logerror("  IMPROVER_STEP (mandatory)")
-          logging::logerror("  IMPROVER_HEADLESS_OAUTH (optional)")
-          logging::logerror("  IMPROVER_WORKSPACE (optional)")
+          log_error(cond)
+          log_error("Neither commandline arguments, environment variables nor conf.json supplied.")
+          log_error("Expected commandline arguments:")
+          log_error("<command-file>")
+          log_error("<jwt>")
+          log_error("<step-entityId>")
+          log_error("<repoUrl>")
+          log_error("<runWorkspace>")
+          log_error("Expected environment variables:")
+          log_error("For Run Token Authentication:")
+          log_error("  IMPROVER_TOKEN (mandatory)")
+          log_error("  IMPROVER_REPO_URL (mandatory)")
+          log_error("  IMPROVER_STEP (optional)")
+          log_error("For OAuth Authentication:")
+          log_error("  IMPROVER_REPO_URL (mandatory)")
+          log_error("  IMPROVER_STEP (mandatory)")
+          log_error("  IMPROVER_HEADLESS_OAUTH (optional)")
+          log_error("  IMPROVER_WORKSPACE (optional)")
           stop("Not configured correctly")
         }
         cacheEnv$offline <- T
@@ -297,18 +299,54 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
   }
 
   if (!is.na(conf()$reqToken) && !is.null(conf()$reqToken) && conf()$reqToken != "") {
-    logging::loginfo("Using run token authentication")
-    logging::loginfo(paste0("Token: ", conf()$reqToken))
+    log_info("Using run token authentication")
+    log_info(paste0("Token: ", conf()$reqToken))
   } else {
-    logging::loginfo("OAuth authentication completed")
+    log_info("OAuth authentication completed")
   }
-  logging::loginfo(paste0("StepId: ", conf()$stepId))
+  log_info(paste0("StepId: ", conf()$stepId))
+
+  # Validate the connection by making a lightweight API call.
+  # This catches stale tokens early — without this check, improveConnect()
+  # silently "succeeds" with expired tokens and the user gets no feedback.
+  if (!cacheEnv$offline) {
+    connectionValid <- tryCatch({
+      testResult <- authenticatedREST("/resources", restType = "GET")
+      !is.null(testResult)
+    }, error = function(e) FALSE)
+
+    if (!connectionValid) {
+      isOAuth <- is.null(conf()$reqToken) || is.na(conf()$reqToken) || conf()$reqToken == ""
+      if (isOAuth) {
+        log_warn("Connection validation failed — token may be stale. Re-authenticating via OAuth...")
+        repoUrl <- Sys.getenv("IMPROVER_REPO_URL")
+        stepId <- Sys.getenv("IMPROVER_STEP")
+        clearConnectionData()
+        cacheEnv$initialized <- TRUE
+        cacheEnv$logLevel <- logLevel
+        cacheEnv$secure <- secure
+        improveOAuth(repoUrl, shortEntityId = stepId, secure = secure)
+        return()
+      } else {
+        if (offlinePossible) {
+          log_warn("Connection validation failed — continuing in offline mode")
+          cacheEnv$offline <- TRUE
+        } else {
+          log_error("Connection validation failed — run token appears to be invalid.")
+          log_error("The provided IMPROVER_TOKEN may have expired or the server is unreachable.")
+          cacheEnv$initialized <- FALSE
+          stop("Connection validation failed: run token is invalid or server is unreachable")
+        }
+      }
+    }
+  }
+
   if (!is.null(conf()$stepId) & !is.na(conf()$stepId)) {
     rootStep <- loadResource(conf()$stepId)
     assign(x = "pwd", value = rootStep, envir = cacheEnv)
   }
-  logging::loginfo(paste0("repoUrl: ", conf()$repoUrl))
-  logging::loginfo(paste0("runWorkspace: ", conf()$runWorkspace))
+  log_info(paste0("repoUrl: ", conf()$repoUrl))
+  log_info(paste0("runWorkspace: ", conf()$runWorkspace))
   setRootPath(getwd())
   registerCloseFunction("1removeImproveJson", improveClose)
 
@@ -318,7 +356,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     repoVersionUrl <- paste0(repoBaseUrl, "repository?status")
     tryCatch({
       versionResult <- unauthenticatedREST(repoVersionUrl, restType = "GET")
-      if (versionResult$status_code == 200) {
+      if (!is.null(versionResult) && versionResult$status_code == 200) {
         # Parse HTML content
         versionContent <- httr::content(versionResult, "text", encoding = "UTF-8")
         # Extract version from HTML - looking for "Version: X.X.X-X (hash)"
@@ -326,16 +364,16 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
         if (length(versionMatch) > 0) {
           # Extract just the version number
           version <- gsub("Version:\\s*([0-9\\.\\-]+).*", "\\1", versionMatch[1])
-          logging::loginfo(paste0("Connected to repository version: ", version))
+          log_info(paste0("Connected to repository version: ", version))
           cacheEnv$repositoryVersion <- version
         } else {
-          logging::logwarn("Could not parse repository version from response")
+          log_warn("Could not parse repository version from response")
         }
       } else {
-        logging::logwarn("Could not retrieve repository version information")
+        log_warn("Could not retrieve repository version information")
       }
     }, error = function(e) {
-      logging::logwarn(paste0("Failed to check repository version: ", e$message))
+      log_warn(paste0("Failed to check repository version: ", e$message))
     })
   }
 }
@@ -349,7 +387,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
 checkConnect <- function(secure = TRUE) {
   # First check if we're connected at all
   if (!improveConnected(silent = TRUE)) {
-    logging::loginfo("Not connected. Attempting to connect...")
+    log_info("Not connected. Attempting to connect...")
     improveConnect(secure = secure)
     return(invisible(TRUE))
   }
@@ -357,34 +395,24 @@ checkConnect <- function(secure = TRUE) {
   # Try to load the step resource to verify connection is still valid
   stepId <- conf()$stepId
   if (!is.null(stepId) && !is.na(stepId) && stepId != "") {
-    tryCatch({
-      # Use updateResource to force a fresh load from server
-      stepResource <- updateResource(stepId)
-      if (!is.null(stepResource)) {
-        logging::logdebug("Connection verified - step resource loaded successfully")
-        return(invisible(TRUE))
-      } else {
-        logging::logwarn("Step resource returned NULL - reconnecting")
-      }
-    }, error = function(e) {
-      logging::logwarn(paste0("Failed to load step resource: ", e$message))
-    })
+    stepResource <- refreshResource(stepId)
+    if (!is.null(stepResource)) {
+      log_debug("Connection verified - step resource loaded successfully")
+      return(invisible(TRUE))
+    } else {
+      log_warn("Step resource returned NULL - reconnecting")
+    }
   } else {
-    logging::logdebug("No step ID configured - checking basic connectivity")
-    # If no step ID, just try a basic API call
-    tryCatch({
-      result <- authenticatedREST("/users")
-      if (!is.null(result) && result$status_code >= 200 && result$status_code < 300) {
-        logging::logdebug("Connection verified via users endpoint")
-        return(invisible(TRUE))
-      }
-    }, error = function(e) {
-      logging::logwarn(paste0("Failed to verify connection: ", e$message))
-    })
+    log_debug("No step ID configured - checking basic connectivity")
+    result <- authenticatedREST("/users")
+    if (!is.null(result)) {
+      log_debug("Connection verified via users endpoint")
+      return(invisible(TRUE))
+    }
   }
 
   # If we get here, connection is invalid - clear and reconnect
-  logging::loginfo("Connection invalid - clearing connection data and reconnecting")
+  log_info("Connection invalid - clearing connection data and reconnecting")
   clearConnectionData()
   improveConnect(secure = secure)
   return(invisible(TRUE))

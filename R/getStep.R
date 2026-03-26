@@ -112,13 +112,12 @@ getStep <- function(ident,workflow=NULL) {
   # Validate input - check if ident is a data frame with multiple rows
   if (is.data.frame(ident)) {
     if (nrow(ident) > 1) {
-      stop("getStep() expects a single step, but received a data frame with ", nrow(ident), " rows. ",
-           "Please select a single row using indexing: getStep(ident[1,]) or getStep(ident[2,])",
-           call. = FALSE)
+      log_warn("getStep() received a data frame with", nrow(ident), "rows, using the first row")
+      ident <- ident[1, ]
     } else if (nrow(ident) == 0) {
-      stop("getStep() received an empty data frame", call. = FALSE)
+      log_warn("getStep() received an empty data frame")
+      return(NULL)
     }
-    # Single row data frame - this is OK, continue
   }
 
   if (!is.null(workflow)) {
@@ -174,11 +173,14 @@ getStepDf <- function(ident) {
   restResult <- authenticatedREST(url = "/resources/{resourceId}",
                                   urlParams = list(resourceId = step$resourceId),
                                   queryParams = list(optParams="inventory"))
-
+  if (is.null(restResult)) {
+    log_warn("Failed to load step inventory for:", step$resourceId)
+    return(NULL)
+  }
   restContent <- httr::content(restResult)
 
 
-  processes <- updateProcessesForStep(stepIdent = ident)
+  processes <- refreshProcessesForStep(stepIdent = ident)
 
   #if run exists take toolArgs from run
   if (nrow(processes)==0) {
@@ -190,7 +192,7 @@ getStepDf <- function(ident) {
   processes$handle <- stepHandle
 
   processes <- byNotEmptyAsDf(processes,function(pro) {
-    gridArguments <- updateProcessGridArguments(pro$id)
+    gridArguments <- refreshProcessGridArguments(pro$id)
     if (!is.null(gridArguments)) {
       pro$gridArguments <- list(
         byNotEmptyAsDf(gridArguments,function(ga) {
@@ -400,9 +402,9 @@ createRemoteFileDf <- function(stepHandle,ident=NULL,name=NULL,asLink=T,variable
       fileList["filehash"]<- target$fileHash
       fileList["maxVersion"]<-target$revisionId
     } else {
-      logging::logwarn("Only files or resources can be added to an inventory")
-      logging::logwarn(ident)
-      logging::logwarn(stepHandle)
+      log_warn("Only files or resources can be added to an inventory")
+      log_warn(ident)
+      log_warn(stepHandle)
       return(NULL)
     }
   }

@@ -128,8 +128,8 @@ unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
 }
 
 
-#' updateFile
-#' @description Retrieves5 the latest version of the file from the repository.
+#' refreshFile
+#' @description Retrieves the latest version of the file from the repository.
 #' @inheritParams common_ident
 #' @inheritSection common_ident Details ident
 
@@ -139,13 +139,20 @@ unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
 #' @param linkInInventory Logical; if TRUE, creates a link to the resource in inventory.
 #' @references ics1099
 #' @export
-updateFile <- function(ident, from = pwd(), filePath = ".",
+refreshFile <- function(ident, from = pwd(), filePath = ".",
              addIdToName = FALSE, linkInInventory = FALSE) {
   unloadFile(ident, from, filePath = filePath,
        addIdToName = addIdToName)
   res <- loadFile(ident, from, filePath,
           addIdToName, linkInInventory)
   return(res)
+}
+
+#' @rdname refreshFile
+#' @export
+updateFile <- function(...) {
+  .Deprecated("refreshFile")
+  refreshFile(...)
 }
 
 #' isFileUp2Date
@@ -159,8 +166,8 @@ updateFile <- function(ident, from = pwd(), filePath = ".",
 isFileUp2Date <- function(ident,from=pwd()) {
   res <- loadResource(ident,from)
   if (res$isVersion) {
-    logging::logwarn("Versions are always up 2 date")
-    logging::logwarn(paste0(ident," is a version ID"))
+    log_warn("Versions are always up 2 date")
+    log_warn(paste0(ident," is a version ID"))
     return(TRUE)
   }
   f <- loadFile(ident,from)
@@ -217,7 +224,7 @@ actualLoadFile <- function(resource,filePath,addIdToName,linkInInventory) {
         resource$revisionId <- resource$targetRevisionId
         resource$resourceId <- resource$targetId
       }
-      logging::logdebug(paste0("download: ",fPath))
+      log_debug(paste0("download: ",fPath))
       f <- file.create(fPath)
       f <- file(fPath, "wb")
       fResult <- authenticatedREST("/revisions/{revisionId}/resources/{resourceId}/content",

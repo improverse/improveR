@@ -25,9 +25,7 @@ getDependencies <- function(step, env) {
           "/resources/{resourceId}/dependencies",
           urlParams = list(resourceId = step$resourceId)
         )
-        if (
-          !is.null(dependenciesResult) && dependenciesResult$status_code == 200
-        ) {
+        if (!is.null(dependenciesResult)) {
           return(httr::content(dependenciesResult))
         }
         return(list())

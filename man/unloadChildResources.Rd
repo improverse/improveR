@@ -21,5 +21,5 @@ ics1085
 }
 \seealso{
 \code{\link{loadChildResources}} to load child resources,
-\code{\link{updateChildResources}} to refresh from server
+\code{\link{refreshChildResources}} to refresh from server
 }

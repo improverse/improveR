@@ -21,6 +21,7 @@ cloneChildstepCli <- function(localSource, localTarget, comment, toolCategory = 
     tools <- loadAllTools()
     tool <- tools[tools$id == step$toolId, ]$name
   }
+  refreshToken()
   accessToken <- conf()$reqToken
   command <- glue::glue("clone childstep -accessToken {accessToken} -sourceRepository {localSource} -targetRepository {localTarget} -tool {tool} -toolCategory {toolCategory} -comment {comment}")
   executeCli(command)

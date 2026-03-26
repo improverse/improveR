@@ -34,14 +34,21 @@ unloadFullChildResources <- function(ident) {
 }
 
 
-#' updateFullChildResources
+#' refreshFullChildResources
 #' @param ident id
 #' @references ics1085
 #' @export
-updateFullChildResources <- function(ident) {
+refreshFullChildResources <- function(ident) {
   unloadFullChildResources(ident)
   res <- loadFullChildResources(ident)
   return(res)
+}
+
+#' @rdname refreshFullChildResources
+#' @export
+updateFullChildResources <- function(...) {
+  .Deprecated("refreshFullChildResources")
+  refreshFullChildResources(...)
 }
 
 loadFullChildResourcesFromServer <- function(resource) {

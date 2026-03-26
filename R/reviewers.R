@@ -2,24 +2,15 @@
 #' @param reviewId id (UUID) of the review whose existence is to be checked
 #' @noRd
 validateReview <- function(reviewId) {
-  reviews <- updateReviews()
-  if (is.null(reviews) || nrow(reviews) == 0) {
-    log_error("No review exists")
-    return(FALSE)
-  } else if (!"id" %in% colnames(reviews)) {
-    log_error("The 'id' column does not exist in the 'reviews' data frame")
-    return(FALSE)
-  }
-
-  filteredReview <- reviews[!is.na(reviews$id) & reviews$id == reviewId,]
-  if (is.null(filteredReview) || nrow(filteredReview) == 0) {
+  resource <- loadResource(reviewId)
+  if (is.null(resource)) {
     log_error("The review with the id:", reviewId, "does not exist")
     return(FALSE)
-  } else if (nrow(filteredReview) > 1) {
-    log_error("Found more than one review with the id:", reviewId)
+  }
+  if (resource$nodeType != "Review") {
+    log_error("Resource", reviewId, "is not a Review (nodeType:", resource$nodeType, ")")
     return(FALSE)
   }
-
   return(TRUE)
 }
 
@@ -28,7 +19,7 @@ validateReview <- function(reviewId) {
 #' @param reviewerId id (UUID) of the reviewer whose existence is to be checked
 #' @noRd
 validateReviewer <- function(reviewId, reviewerId) {
-  reviewers <- updateReviewers(reviewId)
+  reviewers <- refreshReviewers(reviewId)
   if (is.null(reviewers) || nrow(reviewers) == 0) {
     log_error("No reviewer exists for the review with the id:", reviewId)
     return(FALSE)
@@ -81,25 +72,41 @@ validateUser <- function(userId, username) {
 #' @param username name of the user
 #' @noRd
 validateDuplicateReviewer <- function(reviewId, userId, username) {
-  reviewers <- updateReviewers(reviewId)
-  if (!is.null(reviewers) && !all(c("userid", "username") %in% colnames(reviewers))) {
-    log_error("The 'userid' or 'username' column does not exist in the 'reviewers' data frame")
-    return(FALSE)
-  } else if (!is.null(reviewers) && nrow(reviewers) > 0 && any((reviewers$userId == userId) & (reviewers$username == username), na.rm = TRUE)) {
-    log_error("Another reviewer with the id:", userId, "and the username:", username, "already exists for the review with the id:", reviewId)
-    return(FALSE)
+  reviewers <- refreshReviewers(reviewId)
+  if (!is.null(reviewers) && nrow(reviewers) > 0) {
+    # Reviewer API returns nested user fields: user.id, user.username
+    userIdCol <- if ("user.id" %in% colnames(reviewers)) "user.id" else if ("userId" %in% colnames(reviewers)) "userId" else NULL
+    usernameCol <- if ("user.username" %in% colnames(reviewers)) "user.username" else if ("username" %in% colnames(reviewers)) "username" else NULL
+    if (is.null(userIdCol) || is.null(usernameCol)) {
+      log_error("Cannot find user ID/username columns in reviewers data frame. Available columns:", paste(colnames(reviewers), collapse=", "))
+      return(FALSE)
+    }
+    if (any((reviewers[[userIdCol]] == userId) & (reviewers[[usernameCol]] == username), na.rm = TRUE)) {
+      log_error("Another reviewer with the id:", userId, "and the username:", username, "already exists for the review with the id:", reviewId)
+      return(FALSE)
+    }
   }
   return(TRUE)
 }
 
 #' Adds a User as Reviewer to a Review
-#' @param reviewId id (UUID) of the review
-#' @param userId id (UUID) of the user
-#' @param username name of the user
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param userId Character. ID (UUID) of the user to add as reviewer.
+#' @param username Character. Username of the user to add as reviewer.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns A data frame of the review's current reviewers, or \code{NULL} on failure.
 #' @references ics368
 #' @export
-createReviewer <- function(reviewId, userId, username) {
+createReviewer <- function(ident, userId, username, from = pwd()) {
   improveEditable()
+  resource <- loadResource(ident, from)
+  if (is.null(resource)) {
+    log_warn("cannot find review by ident:", ident)
+    return(NULL)
+  }
+  reviewId <- resource$resourceId
 
   if (!validateReview(reviewId) || !validateUser(userId, username) || !validateDuplicateReviewer(reviewId, userId, username)) {
     return(NULL)
@@ -109,25 +116,39 @@ createReviewer <- function(reviewId, userId, username) {
                "username" = username)
 
   result <- authenticatedREST("/reviews/{reviewId}/reviewers", urlParams = list(reviewId = reviewId), data = data, restType = "POST")
-  updateReviewers(reviewId)
+  reviewers <- refreshReviewers(reviewId)
 
-  return(result)
+  return(reviewers)
 }
 
 #' Removes a Reviewer from a Review
-#' @param reviewId id (UUID) of the review
-#' @param reviewerId id (UUID) of the reviewer
+#'
+#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
+#'   or a data frame row from \code{loadResource()}.
+#' @param reviewerId Character. ID (UUID) of the reviewer to remove.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns \code{TRUE} if the reviewer was removed successfully, \code{FALSE} otherwise.
 #' @references ics369
 #' @export
-deleteReviewer <- function(reviewId, reviewerId) {
+deleteReviewer <- function(ident, reviewerId, from = pwd()) {
   improveEditable()
+  resource <- loadResource(ident, from)
+  if (is.null(resource)) {
+    log_warn("cannot find review by ident:", ident)
+    return(FALSE)
+  }
+  reviewId <- resource$resourceId
 
   if (!validateReview(reviewId) || !validateReviewer(reviewId, reviewerId)) {
-    return(NULL)
+    return(FALSE)
   }
 
   result <- authenticatedREST("/reviews/{reviewId}/reviewers/{reviewerId}", urlParams = list(reviewId = reviewId, reviewerId = reviewerId), restType = "DELETE")
-  updateReviewers(reviewId)
+  refreshReviewers(reviewId)
 
-  return(result)
+  if (!is.null(result)) {
+    return(TRUE)
+  }
+  log_warn("Failed to delete reviewer:", reviewerId, "from review:", reviewId)
+  return(FALSE)
 }

@@ -12,5 +12,6 @@ pushRunCli(localPath, command = "Rstudio")
 \item{command}{The command to run. Default is "Rstudio".}
 }
 \description{
-Pushes and runs a command on the CLI.
+Pushes and runs a command on the CLI. After pushing, the resource cache is
+invalidated to ensure subsequent queries reflect the updated server state.
 }

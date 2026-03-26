@@ -80,7 +80,7 @@ singleAddBulkMetaDate <- function(ident,descriptorNameValueList, scope="Improve 
                                             data = dataList,
                                             restType = "POST")
 
-  metadata <- updateMetaData(ident)
+  metadata <- refreshMetaData(ident)
   return(metadata)
 }
 
@@ -110,7 +110,7 @@ singleDeleteMetaDate <- function(ident,descriptorName) {
                                               ),
                                               restType = "DELETE")
   }
-  metadata <- updateMetaData(ident)
+  metadata <- refreshMetaData(ident)
   return(metadata)
 }
 
@@ -133,7 +133,7 @@ singleUpdateMetaDate <- function(ident,descriptorName, value) {
   metadata <- loadMetaData(ident)$data[[1]]
   metadata <- metadata[metadata$descriptorName==descriptorName,]
   if (nrow(metadata)==0 || nrow(metadata)>1) {
-    logging::logwarn(paste0(
+    log_warn(paste0(
       "0 or more than one meta date found for descriptor ",
       descriptorName,
       " on resource ",
@@ -156,7 +156,7 @@ singleUpdateMetaDate <- function(ident,descriptorName, value) {
                                             data = mdBody,
                                             restType = "PUT")
 
-  metadata <- updateMetaData(ident)
+  metadata <- refreshMetaData(ident)
   return(metadata)
 }
 
@@ -195,7 +195,7 @@ singleUpdateMetaDateById <- function(ident,metadataId, value) {
                                             data = mdBody,
                                             restType = "PUT")
 
-  metadata <- updateMetaData(ident)
+  metadata <- refreshMetaData(ident)
   return(metadata)
 }
 

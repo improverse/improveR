@@ -21,5 +21,5 @@ ics1205
 }
 \seealso{
 \code{\link{loadChildSteps}} to load child steps,
-\code{\link{updateChildSteps}} to refresh from server
+\code{\link{refreshChildSteps}} to refresh from server
 }

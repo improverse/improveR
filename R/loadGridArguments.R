@@ -16,16 +16,13 @@ loadGridArguments <- function(gridProvider) {
 }
 
 actualLoadGridArguments <- function(gridProvider) {
-  gridArgumentDefinitionsResult <- authenticatedREST("/configuration/gridArguments/{gridProvider}/definitions",
-                                                     urlParams = list(gridProvider=gridProvider))
-  if (is.null(gridArgumentDefinitionsResult)) {
-    log_warn("no gridArguments for provider",gridProvider)
-    return(NULL)
+  df <- restGetAsDf("/configuration/gridArguments/{gridProvider}/definitions",
+                    urlParams = list(gridProvider = gridProvider),
+                    nested = TRUE)
+  if (is.null(df)) {
+    log_warn("no gridArguments for provider", gridProvider)
   }
-  gridArgumentDefinitionsContent <- httr::content(gridArgumentDefinitionsResult)
-  return(
-    mergeNestedListToDataframe(gridArgumentDefinitionsContent)
-  )
+  return(df)
 }
 
 
@@ -39,14 +36,21 @@ unloadGridArguments <- function(gridProvider) {
   removeFromCache(gridProvider,"",gridArgumentsCacheList)
 }
 
-#' updateGridArguments reloads the grid arguments from the repository
+#' refreshGridArguments reloads the grid arguments from the repository
 #' @param gridProvider label of the grid provider
 #' @references ics1216
 #' @noRd
-updateGridArguments <- function(gridProvider) {
+refreshGridArguments <- function(gridProvider) {
   unloadGridArguments(gridProvider)
   res <- loadGridArguments(gridProvider)
   return(res)
+}
+
+#' @rdname refreshGridArguments
+#' @noRd
+updateGridArguments <- function(...) {
+  .Deprecated("refreshGridArguments")
+  refreshGridArguments(...)
 }
 
 #' loadGridArgumentDefinition loads grid argument by gridProvider and name

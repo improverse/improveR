@@ -30,5 +30,5 @@ unloadParentalDescendant(my_ident)
 
 }
 \seealso{
-\code{\link[=updateParentalDescendant]{updateParentalDescendant()}}, \code{\link[=loadParentalDescendant]{loadParentalDescendant()}}, \code{\link[=loadResource]{loadResource()}}
+\code{\link[=refreshParentalDescendant]{refreshParentalDescendant()}}, \code{\link[=loadParentalDescendant]{loadParentalDescendant()}}, \code{\link[=loadResource]{loadResource()}}
 }

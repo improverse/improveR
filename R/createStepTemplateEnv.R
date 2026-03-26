@@ -141,8 +141,8 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     if (grepl(pattern = "/", x=fileName,fixed = T)) {
       pathParts <- strsplit(x=fileName,split="/",fixed=T)[[1]]
       if (length(pathParts)!=2) {
-        logging::logwarn("maximum folder depth allowed is 1, by filename in realise step")
-        logging::logwarn(fileName)
+        log_warn("maximum folder depth allowed is 1, by filename in realise step")
+        log_warn(fileName)
         return()
       }
       folderName <- pathParts[1]
@@ -150,8 +150,8 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       children <- loadChildResources(newStep)
       folder <- children[children$name==folderName,]
       if (nrow(folder)==1 && folder$nodeType!="Folder") {
-        logging::logwarn(folderName)
-        logging::logwarn("already exists but not as folder")
+        log_warn(folderName)
+        log_warn("already exists but not as folder")
         return()
       }
       if (nrow(folder)==1) {
@@ -201,6 +201,9 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
                                               valueResourceId=newFile$resourceId,
                                               variableType="fileRef"),
                                   restType = "PUT")
+      if (is.null(result)) {
+        log_warn("Failed to bind file variable:", filePrep$variableName, "to step:", newStep$resourceId)
+      }
       timing("variableStart")
     }
   }
@@ -209,7 +212,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
   .template_private$create <- function() {
     improveEditable()
-    logging::logdebug("createPreparedStep")
+    log_debug("createPreparedStep")
     timing("createPreparedStep")
 
     prepStep <- env$stepDf
@@ -284,24 +287,22 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     )
 
     if (is.null(createResult)) {
-      stop("Failed to create step: REST call returned NULL. Check authentication and server connection.")
+      log_warn("Failed to create step: check authentication and server connection")
+      return(NULL)
     }
 
-    if (createResult$status_code == 201) {
-      createContent <- httr::content(createResult)
-      newStep <- loadResource(createContent$resourceId)
-      localFiles <- env$stepDf$localFiles[[1]]
-      if (!is.null(localFiles)) {
-        byNotEmpty(localFiles,function(filePrep) {
-          .template_private$addFileToStep(newStep,filePrep)
-        })
-      }
-      invisible(unloadChildResources(newStep$parentId))
-      invisible(unloadFullChildResources(newStep$parentId))
-      env$moveSubFolderNameMapping(subFolderNameMapping, newStep)
-      return(newStep)
+    createContent <- httr::content(createResult)
+    newStep <- loadResource(createContent$resourceId)
+    localFiles <- env$stepDf$localFiles[[1]]
+    if (!is.null(localFiles)) {
+      byNotEmpty(localFiles,function(filePrep) {
+        .template_private$addFileToStep(newStep,filePrep)
+      })
     }
-    return(NULL)
+    invisible(unloadChildResources(newStep$parentId))
+    invisible(unloadFullChildResources(newStep$parentId))
+    env$moveSubFolderNameMapping(subFolderNameMapping, newStep)
+    return(newStep)
   }
 
 
@@ -377,7 +378,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       }
       stepList[key] <- tidyr::nest(valueList, data = tidyr::everything())
     } else {
-      logging::logwarn(paste0(
+      log_warn(paste0(
         "only character or dataframe allowed in stephandle for key: ",
         key
       ))
@@ -423,7 +424,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           }
           process[key] <- tidyr::nest(valueList, data = tidyr::everything())
         } else {
-          logging::logwarn(paste0(
+          log_warn(paste0(
             "only character or dataframe allowed in stephandle for key: ",
             key
           ))
@@ -527,16 +528,20 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         fileList["filehash"] <- target$fileHash
         fileList["maxVersion"] <- target$revisionId
       } else {
-        logging::logwarn("Only files or resources can be added to an inventory")
-        logging::logwarn(ident)
-        logging::logwarn(stepHandle)
+        log_warn("Only files or resources can be added to an inventory")
+        log_warn(ident)
+        log_warn(stepHandle)
         return(env)
       }
     }
     fileList["asLink"] <- asLink
-    # If name is not provided, derive it from the resource
-    if (is.null(name) && !is.null(resource)) {
-      fileList["name"] <- resource$name
+    # If name is not provided, derive it from the input or the resource
+    if (is.null(name)) {
+      if (is.data.frame(ident) && "name" %in% names(ident)) {
+        fileList["name"] <- ident$name
+      } else if (!is.null(resource)) {
+        fileList["name"] <- resource$name
+      }
     } else {
       fileList["name"] <- name
     }
@@ -762,8 +767,6 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         #processes<-plyr::rbind.fill(processes,processDf)
       }
     } else {
-      #browser()
-      print(processName)
       usedTool <- env$getToolForProcess(processName)
       parameters <- usedTool$parameters[[1]]
       commandLine <- parameters[parameters$name == "Tool Arguments", ]$value
@@ -804,16 +807,22 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
           if (!is.na(processFile$sourceInventoryPath)) {
             # During import, workflow$stepTemplates might not exist or have entityId
             # Skip resolution if we can't access the source step's entityId
-            if (!is.null(env$workflow) &&
-                !is.null(env$workflow$stepTemplates) &&
-                !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]) &&
-                !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId)) {
+            hasWorkflow <- !is.null(env$workflow)
+            hasStepTemplates <- hasWorkflow && !is.null(env$workflow$stepTemplates)
+            hasSourceStep <- hasStepTemplates && !is.null(env$workflow$stepTemplates[[processFile$sourceStep]])
+            hasEntityId <- hasSourceStep && !is.null(env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId)
+            if (hasEntityId) {
               fileName <- processFile$sourceInventoryPath
               if (!startsWith(fileName,"./")) {
                 fileName <- paste0("./",fileName)
               }
               sourceStep <- env$workflow$stepTemplates[[processFile$sourceStep]]$stepDf$entityId
-              processFile$ident<- loadResource(fileName,from=sourceStep)$entityId
+              resolved <- loadResource(fileName,from=sourceStep)
+              if (!is.null(resolved)) {
+                processFile$ident <- resolved$entityId
+              } else {
+                log_warn("Failed to resolve ", fileName, " from source step ", sourceStep)
+              }
             }
           }
           return(processFile)
@@ -940,6 +949,11 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
               next
             }
             processResource <- loadResource(processFile$ident)
+            if (is.null(processResource) || is.null(processResource$resourceId)) {
+              log_warn("Could not load resource for ident: ", processFile$ident,
+                       " (file: ", processFile$name, ") - skipping")
+              next
+            }
             resource <- data.frame(sourceResourceId = processResource$resourceId,
                                    targetName=processResource$name,
                                    stringsAsFactors = FALSE
@@ -1015,13 +1029,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     return(env$step)
   }
 
-  env$getStepValue <- function(key) {
-    stepList <- env$stepDf
-    if (key %in% names(stepList)) {
-      return(as.character(stepList[key]))
-    }
-    return(NULL)
-  }
+  env$getStepValue <- .template_private$getStepValue
 
 
   env$realise <- function(force = TRUE, run = TRUE,workflow=NULL) {
@@ -1036,20 +1044,20 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
         # Use new implementation only for 4.4+, default to deprecated for compatibility
         if (majorMinor >= 4.4) {
-          logging::loginfo(paste0("Using new realise implementation for repository version ", repoVersion))
+          log_info(paste0("Using new realise implementation for repository version ", repoVersion))
           # Continue with new implementation below
         } else {
-          logging::loginfo(paste0("Using realise_deprecated for repository version ", repoVersion))
+          log_info(paste0("Using realise_deprecated for repository version ", repoVersion))
           return(realise_deprecated(env, force = force, run = run,workflow=workflow))
         }
       } else {
         # If we can't parse version, default to deprecated for safety
-        logging::loginfo("Could not parse repository version, using realise_deprecated")
+        log_info("Could not parse repository version, using realise_deprecated")
         return(realise_deprecated(env, force = force, run = run,workflow=workflow))
       }
     } else {
       # No version info available, default to deprecated for compatibility
-      logging::loginfo("No repository version available, using realise_deprecated")
+      log_info("No repository version available, using realise_deprecated")
       return(realise_deprecated(env, force = force, run = run,workflow=workflow))
     }
     if (!is.null(env$getStepValue("inheritFromParent")) && env$getStepValue("inheritFromParent")=="TRUE") {
@@ -1067,7 +1075,7 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     }
     newStep <- NULL
     if (!force) {
-      logging::logdebug("check step equality")
+      log_debug("check step equality")
       # newStep <- existsInTargetTree(handle)
       # if (!is.null(newStep)) {
       #   env$setStepValue(handle, "entityId", as.character(newStep$entityId))
@@ -1075,6 +1083,9 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       # }
     }
     newStep <- .template_private$create()
+    if (is.null(newStep)) {
+      stop("Failed to create step: check authentication and server connection.", call. = FALSE)
+    }
     env$setStepValue("entityId", as.character(newStep$entityId))
     tree <- loadResource(newStep$parentId)
     env$setStepValue("treeIdent", tree$resourceId)

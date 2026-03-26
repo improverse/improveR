@@ -4,12 +4,15 @@
 \alias{unloadReviewEntryComments}
 \title{Unloads the Comments for a Review Entry}
 \usage{
-unloadReviewEntryComments(resourceId, entryId)
+unloadReviewEntryComments(ident, entryId, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
 
-\item{entryId}{id (UUID) of the review entry}
+\item{entryId}{Character. ID (UUID) of the review entry.}
+
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
 }
 \description{
 Unloads the Comments for a Review Entry

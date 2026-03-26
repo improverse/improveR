@@ -8,17 +8,19 @@ toolCategoriesCacheList <- list(
 
 
 actualToolCategories <- function(...) {
-  result <- authenticatedREST('configuration/toolCategories',
-                                            restType = "GET")
-  categories <- httr::content(result)
-  categoriesDf <- mergeListToDataframe(categories)
-  return(categoriesDf)
+  return(restGetAsDf("configuration/toolCategories"))
 }
 
 
-#' loads all registered tool categories
+#' Load Tool Categories
+#'
+#' Retrieves all registered tool categories from the improve repository.
+#'
+#' @returns A data frame of tool categories with columns such as id, name, identifier.
+#'   Returns \code{NULL} if no categories exist.
+#' @seealso \code{\link{createToolCategory}}, \code{\link{loadToolsForCategory}}
 #' @references ics1229
-#' @noRd
+#' @export
 loadToolCategories <- function() {
   categories <- getFromCache(defaultKey,actualToolCategories,toolCategoriesCacheList,NULL)
   return(categories)
@@ -33,13 +35,20 @@ unloadToolCategories <- function() {
   removeFromCache(defaultKey,"",toolCategoriesCacheList)
 }
 
-#' updateToolCategories reloads the tool categories from the repository
+#' refreshToolCategories reloads the tool categories from the repository
 #' @references ics1229
 #' @noRd
-updateToolCategories <- function() {
+refreshToolCategories <- function() {
   unloadToolCategories()
   res <- loadToolCategories()
   return(res)
+}
+
+#' @rdname refreshToolCategories
+#' @noRd
+updateToolCategories <- function(...) {
+  .Deprecated("refreshToolCategories")
+  refreshToolCategories(...)
 }
 
 ##############################TOOLS
@@ -48,11 +57,16 @@ toolsCacheList <- list(
   toolsCache="categoryId"
 )
 
-#' loadToolsForCategory
+#' Load Tools for a Category
 #'
-#' @param categoryId categoryId of the tools
+#' Retrieves all tools registered under a specific tool category.
+#'
+#' @param categoryId Character. The ID of the tool category.
+#' @returns A data frame of tools with columns such as id, name, categoryId.
+#'   Returns \code{NULL} if no tools exist in the category.
+#' @seealso \code{\link{loadToolCategories}}, \code{\link{createTool}}
 #' @references ics1230
-#' @noRd
+#' @export
 loadToolsForCategory <- function(categoryId) {
   catgoryTools <- getFromCache(categoryId,actualLoadToolsForCategory,toolsCacheList,NULL)
   return(catgoryTools)
@@ -60,21 +74,14 @@ loadToolsForCategory <- function(categoryId) {
 
 
 actualLoadToolsForCategory <- function(categoryId) {
-  result <- authenticatedREST('configuration/toolCategories/{id}/tools',
-                                            urlParams = list(id=categoryId
-                                            ),
-                                            restType = "GET")
-  if (is.null(result)) {
-    log_warn("no tools found for category:",categoryId)
+  toolsDf <- restGetAsDf("configuration/toolCategories/{id}/tools",
+                          urlParams = list(id = categoryId))
+  if (is.null(toolsDf) || nrow(toolsDf) == 0) {
+    log_warn("no tools found for category:", categoryId)
     return(NULL)
   }
-  tools <- httr::content(result)
-  toolsDf <- mergeListToDataframe(tools)
-  if (nrow(toolsDf)>0) {
-    toolsDf$categoryId<-categoryId
-    return(toolsDf)
-  }
-  return(NULL)
+  toolsDf$categoryId <- categoryId
+  return(toolsDf)
 }
 
 
@@ -87,14 +94,21 @@ unloadToolsForCategory <- function(categoryId) {
   removeFromCache(categoryId,"",runserverToolsCacheList)
 }
 
-#' updateToolsForCategory reloads the category tools from the repository
+#' refreshToolsForCategory reloads the category tools from the repository
 #' @param categoryId categoryId of the category
 #' @references ics1230
 #' @noRd
-updateToolsForCategory <- function(categoryId) {
+refreshToolsForCategory <- function(categoryId) {
   unloadToolsForCategory(categoryId)
   res <- loadToolsForCategory(categoryId)
   return(res)
+}
+
+#' @rdname refreshToolsForCategory
+#' @noRd
+updateToolsForCategory <- function(...) {
+  .Deprecated("refreshToolsForCategory")
+  refreshToolsForCategory(...)
 }
 
 #' loads all registered tools with their categories

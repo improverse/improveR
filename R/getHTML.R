@@ -88,8 +88,8 @@ showHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="",includeCaption=T
   graphicsObject <- getHTML(ident=ident,from = from,addAsLink = addAsLink,caption = caption)
   if (is.null(graphicsObject$path)) {
     if (length(graphicsObject)==0) {
-      logging::logerror("No HTML object found")
-      logging::logerror(ident)
+      log_error("No HTML object found")
+      log_error(ident)
       return()
     }
     figString <-""

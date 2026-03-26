@@ -4,11 +4,17 @@
 \alias{loadRelationTypes}
 \title{Loads All Registered Relation Types}
 \usage{
-loadRelationTypes(conn)
+loadRelationTypes()
 }
-\arguments{
-\item{conn}{database connection}
+\value{
+A data frame of relation types with columns such as \code{id},
+\code{name}, \code{reverseName}, \code{description}, or \code{NULL} if
+no relation types are configured.
 }
 \description{
-Loads All Registered Relation Types
+Retrieves the list of available relation types from the repository server.
+Results are cached for performance.
+}
+\references{
+ics1592
 }

@@ -7,12 +7,16 @@
 getReviewers(ident, from = pwd())
 }
 \arguments{
-\item{ident}{id}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
 
-\item{from}{defaults to pwd, used to resolve relative paths}
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of reviewers, or \code{NULL} if none exist.
 }
 \description{
-Get Reviewers
+Retrieves all reviewers for a given review.
 }
 \references{
 ics1208

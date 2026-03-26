@@ -2,19 +2,23 @@
 % Please edit documentation in R/loadREview.R
 \name{getReviewEntryComments}
 \alias{getReviewEntryComments}
-\title{Get Review Etnry Comments}
+\title{Get Review Entry Comments}
 \usage{
-getReviewEntryComments(resourceId, entryId, from = pwd())
+getReviewEntryComments(ident, entryId, from = pwd())
 }
 \arguments{
-\item{resourceId}{id (UUID) of the resource}
+\item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
+or a data frame row from \code{loadResource()}.}
 
-\item{entryId}{id (UUID) of the review entry}
+\item{entryId}{Character. ID (UUID) of the review entry.}
 
-\item{from}{defaults to pwd, used to resolve relative paths}
+\item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+}
+\value{
+A data frame of review entry comments, or \code{NULL} if none exist.
 }
 \description{
-Get Review Etnry Comments
+Retrieves all comments for a specific review entry.
 }
 \references{
 ics1543

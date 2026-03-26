@@ -108,7 +108,7 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
     internalLinks <- workflow$internalLinks
     if (!is.null(internalLinks) && nrow(internalLinks) > 0) {
       # Only select columns that exist in the data frame
-      requiredCols <- c("entityId","fileHash","revisionId","path","targetStep","sourceStep","sourceInventoryPath","name")
+      requiredCols <- c("entityId","filehash","revisionId","path","targetStep","sourceStep","sourceInventoryPath","name")
       existingCols <- intersect(names(internalLinks), requiredCols)
       if (length(existingCols) > 0) {
         internalLinks <- dplyr::select(internalLinks, dplyr::all_of(existingCols))
@@ -132,109 +132,20 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       remoteFiles<- stepDf$remoteFiles[[1]]
       # Only join if remoteFiles exists (step might only have local files)
       if (!is.null(remoteFiles) && nrow(remoteFiles) > 0) {
-        jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("name"="name"))
-        stepDf$remoteFiles<-list(jointRemoteFiles)
-      }
-      #case import:
-      if (F) {
-
-
-      if (!("sourceStep"%in%names(remoteFiles))) {
-        # During import, entityId might not exist, need a different join strategy
-        if ("entityId" %in% names(workflowLinks) && "ident" %in% names(remoteFiles)) {
-          # Normal case: join by entityId
-          jointRemoteFiles <- dplyr::left_join(remoteFiles,workflowLinks,by=c("ident"="entityId"))
+        # Select only needed columns from workflowLinks to avoid .x/.y suffix conflicts
+        linkCols <- intersect(c("name", "sourceStep", "sourceInventoryPath", "targetStep"), names(workflowLinks))
+        if (length(linkCols) > 0) {
+          workflowLinksClean <- workflowLinks[, linkCols, drop = FALSE]
+          dropCols <- intersect(setdiff(linkCols, "name"), names(remoteFiles))
+          if (length(dropCols) > 0) {
+            remoteFiles <- remoteFiles[, !names(remoteFiles) %in% dropCols, drop = FALSE]
+          }
+          jointRemoteFiles <- dplyr::left_join(remoteFiles, workflowLinksClean, by = "name")
         } else {
-          # Import case: manually match based on targetStep + name combination
-          # Since we already filtered workflowLinks by targetStep (line 49), we're only
-          # matching within a single step's context. File names within a single step
-          # should be unique (can't have two files with same path in one step).
-          # This makes the name-based matching safe within this filtered context.
           jointRemoteFiles <- remoteFiles
-          if ("name" %in% names(workflowLinks) && "name" %in% names(remoteFiles)) {
-            for (i in seq_len(nrow(jointRemoteFiles))) {
-              # Find matching link for this specific remote file
-              # Clean the name to match (remove ./ prefix if present)
-              cleanName <- jointRemoteFiles$name[i]
-              if (startsWith(cleanName, "./")) {
-                cleanName <- substr(cleanName, 3, nchar(cleanName))
-              }
-              matchingLinks <- workflowLinks[workflowLinks$name == cleanName | workflowLinks$name == jointRemoteFiles$name[i],]
-              if (nrow(matchingLinks) > 0) {
-                # Take the first match (they should all be the same for this targetStep+name combo)
-                for (col in names(matchingLinks)) {
-                  if (!(col %in% names(jointRemoteFiles))) {
-                    jointRemoteFiles[[col]] <- NA
-                  }
-                  jointRemoteFiles[i, col] <- matchingLinks[1, col]
-                }
-              }
-            }
-          }
         }
-
-        jointRemoteFiles <-byNotEmptyAsDf(jointRemoteFiles,function(remoteFile) {
-
-          if ("sourceStep" %in% names(remoteFile) && !is.na(remoteFile$sourceStep)) {
-            # If sourceInventoryPath is already present from the workflow links, use it
-            if ("sourceInventoryPath" %in% names(remoteFile) && !is.na(remoteFile$sourceInventoryPath)) {
-              # Already has sourceInventoryPath, nothing to do
-            } else {
-              # Try to construct sourceInventoryPath from the source file
-              # First, we need to find the actual source file in the source step
-              sourceStepEnv <- workflow$steps[[remoteFile$sourceStep]]
-              if (!is.null(sourceStepEnv)) {
-                # Get all files from the source step
-                sourceStepFiles <- sourceStepEnv$stepDf$localFiles[[1]]
-                sourceStepRemoteFiles <- sourceStepEnv$stepDf$remoteFiles[[1]]
-
-                # Find the file that matches this link's entity ID
-                matchingFile <- NULL
-                if (!is.null(sourceStepRemoteFiles) && "ident" %in% names(sourceStepRemoteFiles)) {
-                  matchingFile <- sourceStepRemoteFiles[sourceStepRemoteFiles$ident == remoteFile$ident,]
-                }
-
-                if (!is.null(matchingFile) && nrow(matchingFile) > 0) {
-                  # Use the name from the matching file in the source step
-                  sourceFileName <- matchingFile$name[1]
-                  if (startsWith(sourceFileName, "./")) {
-                    remoteFile$sourceInventoryPath <- sourceFileName
-                  } else {
-                    remoteFile$sourceInventoryPath <- paste0("./", sourceFileName)
-                  }
-                } else if (!is.null(sourceStepFiles) && "name" %in% names(sourceStepFiles)) {
-                  # Try to match by name in local files
-                  cleanName <- remoteFile$name
-                  if (startsWith(cleanName, "./")) {
-                    cleanName <- substr(cleanName, 3, nchar(cleanName))
-                  }
-                  matchingFile <- sourceStepFiles[sourceStepFiles$name == cleanName | sourceStepFiles$name == remoteFile$name,]
-                  if (nrow(matchingFile) > 0) {
-                    sourceFileName <- matchingFile$name[1]
-                    if (startsWith(sourceFileName, "./")) {
-                      remoteFile$sourceInventoryPath <- sourceFileName
-                    } else {
-                      remoteFile$sourceInventoryPath <- paste0("./", sourceFileName)
-                    }
-                  }
-                }
-              }
-            }
-          }
-          if (!("name" %in% names(remoteFile)) || is.na(remoteFile$name)) {
-            # Try to get name from resource, but handle case where it doesn't exist
-            if (!is.null(remoteFile$ident) && !is.na(remoteFile$ident)) {
-              resource <- loadResource(remoteFile$ident)
-              if (!is.null(resource) && !is.null(resource$name)) {
-                remoteFile$name<-paste0("./",resource$name)
-              }
-            }
-          }
-          return(remoteFile)
-        })
         stepDf$remoteFiles<-list(jointRemoteFiles)
       }
-}
     }
     stepTemplates[[stepName]] <- createStepTemplateEnv(
       stepDf = stepDf,
@@ -348,12 +259,12 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
   # @return Invisibly returns NULL
   env$executePlan <- function(executionPlan) {
     if (is.null(executionPlan) || nrow(executionPlan) == 0) {
-      logging::loginfo("No steps to execute")
+      log_info("No steps to execute")
       return(invisible(NULL))
     }
     orderedWorkflow <-  .workflow_template_private$executionOrder(env, executionPlan)
     if (is.null(orderedWorkflow) || nrow(orderedWorkflow) == 0) {
-      logging::loginfo("No executable order could be determined")
+      log_info("No executable order could be determined")
       return(invisible(NULL))
     }
     workflow <- NULL
@@ -364,11 +275,11 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
 
       if ("dependencies" %in% names(nextData) && !is.na(nextData$dependencies)) {
         dependencies <- unique(strsplit(nextData$dependencies, ",")[[1]])
-        for (dependencies in dependencies) {
-          if (dependencies %in% executionList) {
-            logging::loginfo("waiting to finish")
-            finishRunResource(env$stepTemplates[[dependencies]]$stepDf$entityId)
-            executionList <- executionList[executionList != dependencies]
+        for (dep in dependencies) {
+          if (dep %in% executionList) {
+            log_info("waiting to finish")
+            finishRunResource(env$stepTemplates[[dep]]$stepDf$entityId)
+            executionList <- executionList[executionList != dep]
           }
         }
       }
@@ -425,9 +336,9 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
                 tryCatch({
                   detachStep(childNewId)
                   attachStep(childNewId, parentNewId)
-                  logging::loginfo(paste("Restored parent relationship:", childNewId,childFullName, "->", parentNewId,parentFullName))
+                  log_info(paste("Restored parent relationship:", childNewId,childFullName, "->", parentNewId,parentFullName))
                 }, error = function(e) {
-                  logging::logwarn(paste("Failed to restore parent relationship for", childFullName, ":", e$message))
+                  log_warn(paste("Failed to restore parent relationship for", childFullName, ":", e$message))
                 })
               }
             }
@@ -642,58 +553,7 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
 
 
   .workflow_template_private$executionOrder <- function(env, plan) {
-    .workflow_template_private$executionOrderInternal(env, plan)
-  }
-
-  .workflow_template_private$executionOrderInternal <- function(env, plan, startSteps = NULL, counter = 0) {
-    counter <- counter + 1
-    if (!"dependencies" %in% names(plan)) {
-      plan$dependencies <- NA
-    }
-    if (!"usage" %in% names(plan)) {
-      plan$usage <- NA
-    }
-    if (is.null(startSteps)) {
-      startSteps <- plan[is.na(plan$dependencies), ]
-      plan <- plan[!is.na(plan$dependencies), ]
-    }
-    if (is.null(startSteps) || nrow(startSteps) == 0) {
-      logging::logwarn("No step without dependencies, no executable order")
-      return(NULL)
-    }
-    for (s in seq_len(nrow(startSteps))) {
-      startStep <- startSteps[s, ]
-      if (!is.na(startStep$usage)) {
-        dependenciess <- strsplit(startStep$usage, ",", fixed = TRUE)[[1]]
-        if (length(dependenciess) > 0) {
-          for (dependentStepName in dependenciess) {
-            dependenciesHandle <- plan[plan$fullName == dependentStepName, ]
-            if (
-              nrow(dependenciesHandle) == 1 &&
-                "dependencies" %in% names(dependenciesHandle)
-            ) {
-              stepDependencies <- strsplit(
-                dependenciesHandle$dependencies,
-                ",",
-                fixed = TRUE
-              )[[1]]
-              if (all(stepDependencies %in% startSteps$fullName)) {
-                startSteps <- plyr::rbind.fill(startSteps, dependenciesHandle)
-                plan <- plan[plan$fullName != dependentStepName, ]
-              }
-            }
-          }
-        }
-      }
-
-    }
-    if (nrow(plan) == 0 || counter > 500) {
-      if (counter > 500) {
-        logging::logwarn("could not add all steps to execution order, check for cycles")
-      }
-      return(startSteps)
-    }
-    .workflow_template_private$executionOrderInternal(env, plan, startSteps, counter)
+    workflowExecutionOrder(plan)
   }
 
   .workflow_template_private$setValue <- function(key,value) {
@@ -734,7 +594,7 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
       matchingSteps <- .workflow_template_private$findMatchingSteps(env, paramDef$stepPattern, workflowDf)
 
       if (length(matchingSteps) == 0) {
-        logging::logwarn(paste0("Parameter '", paramName, "' matched no steps with pattern '", paramDef$stepPattern, "'"))
+        log_warn(paste0("Parameter '", paramName, "' matched no steps with pattern '", paramDef$stepPattern, "'"))
         next
       }
 
@@ -769,10 +629,10 @@ createWorkflowTemplateEnv <- function(workflow = NULL, addParental=F) {
           } else if (paramDef$property == "stepName") {
             stepTemplate$setStepName(valueToApply)
           } else {
-            logging::logwarn("Unknown property type '", paramDef$property, "' for parameter '", paramName, "'")
+            log_warn("Unknown property type '", paramDef$property, "' for parameter '", paramName, "'")
           }
         }, error = function(e) {
-          logging::logerror("Failed to apply parameter '", paramName, "' to step '", stepName, "': ", e$message)
+          log_error("Failed to apply parameter '", paramName, "' to step '", stepName, "': ", e$message)
         })
       }
 
@@ -941,7 +801,6 @@ workflowTemplateFromJSON <- function(filepath) {
 }
 
 
-  # TODO resolv parent kram
 
 
 

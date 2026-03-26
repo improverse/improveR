@@ -109,8 +109,8 @@ showGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description=
   graphicsObject <- getGraphics(ident=ident,from = from,addAsLink = addAsLink,caption = caption,description=description)
   if (is.null(graphicsObject$path)) {
     if (length(graphicsObject)==0) {
-      logging::logerror("No picture found")
-      logging::logerror(ident)
+      log_error("No picture found")
+      log_error(ident)
       return()
     }
     figString <-""
@@ -181,8 +181,8 @@ showGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description=
 includeGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",includeCaption=T,includeDescription=T,...) {
   graphicsObject <- getGraphics(ident=ident,from = from,addAsLink = addAsLink,caption = caption,description=description)
   if (is.null(graphicsObject$path)) {
-    logging::logerror("No or more than one pictures found")
-    logging::logerror(ident)
+    log_error("No or more than one pictures found")
+    log_error(ident)
     return()
   }
   gg <- knitr::include_graphics(graphicsObject$path,...)

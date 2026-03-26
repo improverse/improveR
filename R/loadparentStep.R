@@ -43,15 +43,22 @@ unloadParentStep <- function(ident, from=pwd()) {
   }
 }
 
-#' UpdateParentStep Reloads The Runservers From The Repository
+#' Refresh Parent Step from Server
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
 #' @references ics1209
 #' @export
-updateParentStep <- function(ident, from=pwd()) {
+refreshParentStep <- function(ident, from=pwd()) {
   unloadParentStep(ident,from)
   res <- loadParentStep(ident,from)
   return(res)
+}
+
+#' @rdname refreshParentStep
+#' @export
+updateParentStep <- function(...) {
+  .Deprecated("refreshParentStep")
+  refreshParentStep(...)
 }
 
 actualLoadParentStep <- function(ident,from=pwd()) {
@@ -67,38 +74,15 @@ actualLoadParentStep <- function(ident,from=pwd()) {
     return(NULL)
   }
 
-  result <- tryCatch({
-    authenticatedREST('resources/{stepId}/parentStep',
-                      urlParams = list(stepId=step$resourceId),
-                      restType = "GET")
-  }, error = function(e) {
-    log_warn("Failed to load parent step for ", step$entityId, " (", step$name, "): ", e$message)
-    return(NULL)
-  })
-
+  result <- authenticatedREST('resources/{stepId}/parentStep',
+                              urlParams = list(stepId=step$resourceId),
+                              restType = "GET")
   if (is.null(result)) {
+    log_warn("Failed to load parent step for", step$entityId, "(", step$name, ")")
     return(NULL)
   }
 
-  # Check if result is a valid HTTP response
-  if (!inherits(result, "response")) {
-    log_warn("Invalid response when loading parent step for ", step$entityId, " (", step$name, ")")
-    return(NULL)
-  }
-
-  # Check HTTP status - parent might be deleted
-  if (httr::status_code(result) >= 400) {
-    log_warn("Parent step not found (possibly deleted) for ", step$entityId, " (", step$name, "): HTTP ", httr::status_code(result))
-    return(NULL)
-  }
-
-  parent <- tryCatch({
-    httr::content(result)
-  }, error = function(e) {
-    log_warn("Failed to parse parent step response for ", step$entityId, " (", step$name, "): ", e$message)
-    return(NULL)
-  })
-
+  parent <- httr::content(result)
   if (is.null(parent)) {
     return(NULL)
   }
