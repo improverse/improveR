@@ -14,14 +14,9 @@ validateParams <- function(params) {
 
 #' helper function to validate relation type existence
 #' @param relationTypeId id (UUID) of the relation type whose existence is to be checked
-#' @param conn database connection
 #' @noRd
-validateRelationType <- function(relationTypeId, conn = NULL) {
-  if (is.null(conn)) {
-    relationTypes <- restGetAsDf("configuration/relationTypeLov")
-  } else {
-    relationTypes <- refreshRelationTypes(conn)
-  }
+validateRelationType <- function(relationTypeId) {
+  relationTypes <- restGetAsDf("configuration/relationTypeLov")
 
   if (is.null(relationTypes) || nrow(relationTypes) == 0) {
     log_error("No relation type exists")
