@@ -405,6 +405,7 @@ singleUpdateFileContent <- function(ident,localPath,comment) {
     return(NULL)
   }
   res <- httr::content(fResult)
+  invalidateAllFileCaches(resource)
   resource <- refreshResource(res[[1]]$resourceId)
   return(resource)
 }

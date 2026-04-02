@@ -2,6 +2,35 @@ fileResourceCacheList <- createCacheList("file")
 
 cacheEnv$fileCaches <- list()
 
+#' Invalidate All File Caches for a Resource
+#' @description Removes a resource from all file download caches regardless of
+#' filePath or addIdToName. Also deletes the physical downloaded files.
+#' This is needed because files can be cached under multiple filePath/addIdToName
+#' combinations (e.g. "text" from getTextString, "." from refreshFile).
+#' @param ident resource identifier (resourceId, entityId, path, or resource data frame)
+#' @param from used for relative paths
+#' @noRd
+invalidateAllFileCaches <- function(ident, from = pwd()) {
+  res <- loadResource(ident, from)
+  if (is.null(res)) return(invisible(NULL))
+
+  searchKeys <- unique(c(res$entityId, res$entityVersionId))
+
+  for (cacheName in names(cacheEnv$fileCaches)) {
+    fC <- cacheEnv$fileCaches[[cacheName]]
+    for (key in searchKeys) {
+      cachedEntry <- searchInCache(fC, key)
+      if (!is.null(cachedEntry) && "data" %in% names(cachedEntry)) {
+        tryCatch(unlink(cachedEntry$data[[1]], recursive = TRUE),
+                 error = function(e) {})
+      }
+      tryCatch(removeFromCache(key, "", fC),
+               error = function(e) {})
+    }
+  }
+  invisible(NULL)
+}
+
 getFileCache <- function(filePath,addIdToName) {
   fileCacheName <- glue::glue("file-{filePath}-{addIdToName}")
   if (!(fileCacheName %in% names(cacheEnv$fileCaches))) {
@@ -141,8 +170,8 @@ unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
 #' @export
 refreshFile <- function(ident, from = pwd(), filePath = ".",
              addIdToName = FALSE, linkInInventory = FALSE) {
-  unloadFile(ident, from, filePath = filePath,
-       addIdToName = addIdToName)
+  invalidateAllFileCaches(ident, from)
+  unloadResource(ident, from)
   res <- loadFile(ident, from, filePath,
           addIdToName, linkInInventory)
   return(res)
