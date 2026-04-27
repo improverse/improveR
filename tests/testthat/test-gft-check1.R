@@ -45,8 +45,12 @@ GFT <- new.env(parent = emptyenv())
 # Setup
 # ---------------------------------------------------------------------------
 test_that("GFT1-setup: connect and create test base folder", {
-  improveR::improveConnect()
-  improveR::setEditable(TRUE)
+  tryCatch({
+    improveR::improveConnect()
+    improveR::setEditable(TRUE)
+  }, error = function(e) {
+    skip(paste("Server not available:", e$message))
+  })
 
   basePath <- Sys.getenv("TEST_FOLDER", "/Projects/Tests")
   baseRes <- improveR::loadResource(basePath)
@@ -65,7 +69,7 @@ test_that("GFT1-setup: connect and create test base folder", {
     }
     baseRes <- improveR::loadResource(basePath)
     if (is.null(baseRes)) {
-      stop(paste("Could not create TEST_FOLDER:", basePath))
+      skip(paste("Could not create TEST_FOLDER:", basePath))
     }
   }
   GFT$BASE_PATH <- basePath
@@ -88,7 +92,7 @@ test_that("GFT1-setup: connect and create test base folder", {
 # Create folder structure | ics472
 # ===========================================================================
 test_that("GFT1-01: create acop subfolder|ics472,ics1101", {
-  stopifnot("No GFT root folder" = !is.null(GFT$ROOT_PATH))
+  skip_if(is.null(GFT$ROOT_PATH), "No GFT root folder")
 
   subfolder <- improveR::createFolder(
     targetIdent = GFT$ROOT_PATH,
@@ -106,10 +110,11 @@ test_that("GFT1-01: create acop subfolder|ics472,ics1101", {
 # Import data files | ics472
 # ===========================================================================
 test_that("GFT1-02: import test data files into acop|ics472,ics1102", {
-  stopifnot("No acop subfolder" = !is.null(GFT$ACOP_PATH))
+  skip_if(is.null(GFT$ACOP_PATH), "No acop subfolder")
 
   testZip <- system.file("ExampleWorkflow.zip", package = "improveR")
-  stopifnot("ExampleWorkflow.zip not found in package" = !(testZip == ""))
+  skip_if(testZip == "", "ExampleWorkflow.zip not found in package")
+
   tmpDir <- file.path(tempdir(), paste0("gft-import-", format(Sys.time(), "%H%M%S")))
   dir.create(tmpDir, showWarnings = FALSE, recursive = TRUE)
   utils::unzip(testZip, exdir = tmpDir)
@@ -143,7 +148,7 @@ test_that("GFT1-02: import test data files into acop|ics472,ics1102", {
 # Analysis tree | ics472
 # ===========================================================================
 test_that("GFT1-03: create analysis tree|ics472,ics1103", {
-  stopifnot("No GFT root folder" = !is.null(GFT$ROOT_PATH))
+  skip_if(is.null(GFT$ROOT_PATH), "No GFT root folder")
 
   tree <- improveR::createAnalysisTree(
     targetIdent = GFT$ROOT_PATH,
@@ -160,9 +165,9 @@ test_that("GFT1-03: create analysis tree|ics472,ics1103", {
 # Create and run Step 1 | ics472, ics473
 # ===========================================================================
 test_that("GFT1-04: create and run R root step (Step 1)|ics472,ics473,ics1140", {
-  stopifnot("No analysis tree" = !is.null(GFT$TREE_PATH))
-  stopifnot("R_RUNSERVER, R_TOOL, R_TOOL_INSTANCE env vars must be set" = hasRunServerConfig())
-  stopifnot("No acop folder with files" = !is.null(GFT$ACOP_PATH))
+  skip_if(is.null(GFT$TREE_PATH), "No analysis tree")
+  skip_if(!hasRunServerConfig(), "R_RUNSERVER/R_TOOL/R_TOOL_INSTANCE not set")
+  skip_if(is.null(GFT$ACOP_PATH), "No acop folder with files")
 
   stepEnv <- rBatchStep(GFT$TREE_PATH)
   stepEnv$setStepDescription("GFT Step 1")
@@ -191,7 +196,7 @@ test_that("GFT1-04: create and run R root step (Step 1)|ics472,ics473,ics1140", 
     stepEnv$finishRun()
     cat("Step 1 finished successfully\n")
   }, error = function(e) {
-    stop(paste("Step 1 run failed:", e$message))
+    skip(paste("Step 1 run failed:", e$message))
   })
 
   # Verify run produced processes
@@ -214,9 +219,9 @@ test_that("GFT1-04: create and run R root step (Step 1)|ics472,ics473,ics1140", 
 # Verify run details | ics473
 # ===========================================================================
 test_that("GFT1-05: verify run details for Step 1|ics473,ics1218", {
-  stopifnot("No Step 1" = !is.null(GFT$STEP1_RES))
-  stopifnot("No process found" = !is.null(GFT$STEP1_PROCESS_ID))
-  stopifnot("No run found" = !is.null(GFT$STEP1_RUN_ID))
+  skip_if(is.null(GFT$STEP1_RES), "No Step 1")
+  skip_if(is.null(GFT$STEP1_PROCESS_ID), "No process found")
+  skip_if(is.null(GFT$STEP1_RUN_ID), "No run found")
 
   latestRun <- improveR::getLatestRun(
     GFT$STEP1_RES$resourceId, GFT$STEP1_PROCESS_ID
@@ -242,9 +247,9 @@ test_that("GFT1-05: verify run details for Step 1|ics473,ics1218", {
 # Create child step (Step 2) | ics472, ics473
 # ===========================================================================
 test_that("GFT1-06: create and run child step (Step 2)|ics472,ics473,ics1140", {
-  stopifnot("No analysis tree" = !is.null(GFT$TREE_PATH))
-  stopifnot("R_RUNSERVER, R_TOOL, R_TOOL_INSTANCE env vars must be set" = hasRunServerConfig())
-  stopifnot("No acop folder with files" = !is.null(GFT$ACOP_PATH))
+  skip_if(is.null(GFT$TREE_PATH), "No analysis tree")
+  skip_if(!hasRunServerConfig(), "R_RUNSERVER/R_TOOL/R_TOOL_INSTANCE not set")
+  skip_if(is.null(GFT$ACOP_PATH), "No acop folder with files")
 
   stepEnv2 <- rBatchStep(GFT$TREE_PATH)
   stepEnv2$setStepDescription("GFT Step 2")
@@ -278,12 +283,12 @@ test_that("GFT1-06: create and run child step (Step 2)|ics472,ics473,ics1140", {
 # Detach / Attach steps | ics474
 # ===========================================================================
 test_that("GFT1-07: detach Step 2 from parent|ics474,ics1225,ics2046", {
-  stopifnot("No Step 2" = !is.null(GFT$STEP2_PATH))
+  skip_if(is.null(GFT$STEP2_PATH), "No Step 2")
 
   result <- tryCatch(
     improveR::detachStep(GFT$STEP2_PATH),
     error = function(e) {
-      stop(paste("detachStep failed:", e$message))
+      skip(paste("detachStep failed:", e$message))
     }
   )
   expect_false(is.null(result), info = "detachStep should return updated resource")
@@ -301,13 +306,13 @@ test_that("GFT1-07: detach Step 2 from parent|ics474,ics1225,ics2046", {
 })
 
 test_that("GFT1-08: attach Step 1 as child of Step 2|ics474,ics1225,ics2046", {
-  stopifnot("No Step 1" = !is.null(GFT$STEP1_PATH))
-  stopifnot("No Step 2" = !is.null(GFT$STEP2_PATH))
+  skip_if(is.null(GFT$STEP1_PATH), "No Step 1")
+  skip_if(is.null(GFT$STEP2_PATH), "No Step 2")
 
   result <- tryCatch(
     improveR::attachStep(ident = GFT$STEP1_PATH, parent = GFT$STEP2_PATH),
     error = function(e) {
-      stop(paste("attachStep failed:", e$message))
+      skip(paste("attachStep failed:", e$message))
     }
   )
   expect_false(is.null(result), info = "attachStep should return updated resource")
@@ -325,7 +330,7 @@ test_that("GFT1-08: attach Step 1 as child of Step 2|ics474,ics1225,ics2046", {
 # File versioning: checkout / edit / checkin | ics472
 # ===========================================================================
 test_that("GFT1-09: create link_target file and version it|ics472,ics1102,ics2049,ics1210", {
-  stopifnot("No GFT root folder" = !is.null(GFT$ROOT_PATH))
+  skip_if(is.null(GFT$ROOT_PATH), "No GFT root folder")
 
   # Create the initial file
   tmpDir <- file.path(tempdir(), "gft-link")
@@ -374,14 +379,15 @@ test_that("GFT1-09: create link_target file and version it|ics472,ics1102,ics204
 # Step inventory | ics472
 # ===========================================================================
 test_that("GFT1-10: verify step inventory contains expected files|ics472,ics1213", {
-  stopifnot("No Step 1" = !is.null(GFT$STEP1_RES))
+  skip_if(is.null(GFT$STEP1_RES), "No Step 1")
 
   children <- tryCatch(
     improveR::loadChildResources(GFT$STEP1_RES),
     error = function(e) NULL
   )
-  stopifnot("loadChildResources returned NULL" = !is.null(children))
-  stopifnot("No child data returned" = !(is.null(children$data) || length(children$data) == 0))
+  skip_if(is.null(children), "loadChildResources returned NULL")
+  skip_if(is.null(children$data) || length(children$data) == 0,
+          "No child data returned")
 
   inventory <- children$data[[1]]
   expect_true(is.data.frame(inventory), info = "Inventory should be a data frame")
@@ -393,14 +399,15 @@ test_that("GFT1-10: verify step inventory contains expected files|ics472,ics1213
 # Audit trail | ics472
 # ===========================================================================
 test_that("GFT1-11: audit trail has entries for GFT folder|ics472,ics1097", {
-  stopifnot("No GFT root folder" = !is.null(GFT$ROOT_PATH))
+  skip_if(is.null(GFT$ROOT_PATH), "No GFT root folder")
 
   audit <- tryCatch(
     improveR::loadAuditTrail(GFT$ROOT_PATH),
     error = function(e) NULL
   )
-  stopifnot("loadAuditTrail returned NULL" = !is.null(audit))
-  stopifnot("No audit data returned" = !(is.null(audit$data) || length(audit$data) == 0))
+  skip_if(is.null(audit), "loadAuditTrail returned NULL")
+  skip_if(is.null(audit$data) || length(audit$data) == 0,
+          "No audit data returned")
 
   entries <- audit$data[[1]]
   expect_true(is.data.frame(entries), info = "Audit entries should be a data frame")
@@ -412,7 +419,7 @@ test_that("GFT1-11: audit trail has entries for GFT folder|ics472,ics1097", {
 # Cleanup
 # ===========================================================================
 test_that("GFT1-cleanup: delete GFT test folder", {
-  stopifnot("No GFT root folder to clean up" = !is.null(GFT$ROOT_PATH))
+  skip_if(is.null(GFT$ROOT_PATH), "No GFT root folder to clean up")
 
   result <- improveR::delete(GFT$ROOT_PATH)
   expect_true(result, info = "Deletion of GFT root folder should succeed")

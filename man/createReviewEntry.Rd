@@ -2,15 +2,26 @@
 % Please edit documentation in R/reviewEntries.R
 \name{createReviewEntry}
 \alias{createReviewEntry}
-\title{Creates Review Entries For A Review}
+\title{Add Review Entries}
 \usage{
-createReviewEntry(ident, resourceIds, from = pwd())
+createReviewEntry(
+  ident,
+  resourceIds,
+  followLinks = FALSE,
+  recursiveAdd = FALSE,
+  from = pwd()
+)
 }
 \arguments{
 \item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
 or a data frame row from \code{loadResource()}.}
 
 \item{resourceIds}{Character vector of resource IDs (UUIDs) to add as review entries.}
+
+\item{followLinks}{Logical. If \code{TRUE}, link targets are also added. Defaults to \code{FALSE}.}
+
+\item{recursiveAdd}{Logical. If \code{TRUE}, children of folders are added recursively.
+Defaults to \code{FALSE}.}
 
 \item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
 }

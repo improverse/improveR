@@ -6,6 +6,9 @@
 \usage{
 versionCli()
 }
+\value{
+The version string (invisibly).
+}
 \description{
 Displays the version of the CLI.
 }

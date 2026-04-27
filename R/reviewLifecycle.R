@@ -38,19 +38,21 @@ getReviewById <- function(ident, from = pwd()) {
   return(df)
 }
 
-#' Accept Review
+#' Accept Review Invitation
 #'
-#' Accepts a review that is currently in the reviewing state. Sends a plain
-#' text comment as the request body.
+#' Accepts a review invitation as a reviewer. The review must be in
+#' \code{"Planning"} state and the current user must be an invited reviewer.
+#' After accepting, the reviewer can comment on and approve/reject entries
+#' once the review transitions to \code{"Reviewing"}.
 #'
 #' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
 #'   or a data frame row from \code{loadResource()}.
-#' @param comment Optional plain text comment for the acceptance.
+#' @param comment Optional plain text comment.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
-#' @returns \code{TRUE} if the review was accepted successfully, \code{FALSE} otherwise.
+#' @returns \code{TRUE} if the invitation was accepted, \code{FALSE} otherwise.
 #' @references ics1476
 #' @export
-acceptReview <- function(ident, comment = "", from = pwd()) {
+acceptReviewInvitation <- function(ident, comment = "", from = pwd()) {
   improveEditable()
   resource <- loadResource(ident, from)
   if (is.null(resource)) {
@@ -66,23 +68,24 @@ acceptReview <- function(ident, comment = "", from = pwd()) {
   if (!is.null(result)) {
     return(TRUE)
   }
-  log_warn("failed to accept review for ident:", ident)
+  log_warn("failed to accept review invitation for ident:", ident)
   return(FALSE)
 }
 
-#' Decline Review
+
+#' Decline Review Invitation
 #'
-#' Declines a review that is currently in the reviewing state. Sends a plain
-#' text comment as the request body.
+#' Declines a review invitation as a reviewer. The review must be in
+#' \code{"Planning"} state and the current user must be an invited reviewer.
 #'
 #' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
 #'   or a data frame row from \code{loadResource()}.
-#' @param comment Optional plain text comment for the decline.
+#' @param comment Optional plain text comment.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
-#' @returns \code{TRUE} if the review was declined successfully, \code{FALSE} otherwise.
+#' @returns \code{TRUE} if the invitation was declined, \code{FALSE} otherwise.
 #' @references ics1477
 #' @export
-declineReview <- function(ident, comment = "", from = pwd()) {
+declineReviewInvitation <- function(ident, comment = "", from = pwd()) {
   improveEditable()
   resource <- loadResource(ident, from)
   if (is.null(resource)) {
@@ -98,19 +101,51 @@ declineReview <- function(ident, comment = "", from = pwd()) {
   if (!is.null(result)) {
     return(TRUE)
   }
-  log_warn("failed to decline review for ident:", ident)
+  log_warn("failed to decline review invitation for ident:", ident)
   return(FALSE)
 }
 
+
 #' Change Review Status
 #'
-#' Changes the status of a review to the specified new status.
+#' Changes the status of a review. Reviews have three statuses with the
+#' following transitions:
+#'
+#' \describe{
+#'   \item{\strong{Planning}}{Initial state. Entries and reviewers are being set up.}
+#'   \item{\strong{Reviewing}}{Active review. Reviewers can approve/reject entries.
+#'     Requires at least one entry and one reviewer.}
+#'   \item{\strong{Approved}}{Final/locked state. Both the review and all reviewed
+#'     resources are locked. Only an admin can revert to Reviewing.}
+#' }
+#'
+#' Valid transitions:
+#' \itemize{
+#'   \item \code{Planning -> Reviewing} (requestor or admin, needs entries + reviewer)
+#'   \item \code{Reviewing -> Approved} (requestor or admin, all entries must be reviewed, no rejections)
+#'   \item \code{Reviewing -> Planning} (requestor or admin, resets all approvals)
+#'   \item \code{Approved -> Reviewing} (admin only, reopens a locked review)
+#' }
 #'
 #' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
 #'   or a data frame row from \code{loadResource()}.
-#' @param newStatus The target status string (e.g. \code{"Reviewing"}, \code{"Closed"}).
+#' @param newStatus Character. The target status: \code{"Reviewing"}, \code{"Approved"},
+#'   or \code{"Planning"}.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @returns \code{TRUE} if the status was changed successfully, \code{FALSE} otherwise.
+#'
+#' @examples
+#' \dontrun{
+#' # Start the review process
+#' changeReviewStatus(review, "Reviewing")
+#'
+#' # Approve and lock the review (all entries must be reviewed first)
+#' changeReviewStatus(review, "Approved")
+#'
+#' # Revert to planning (resets approvals)
+#' changeReviewStatus(review, "Planning")
+#' }
+#'
 #' @references ccs27
 #' @export
 changeReviewStatus <- function(ident, newStatus, from = pwd()) {
@@ -126,6 +161,7 @@ changeReviewStatus <- function(ident, newStatus, from = pwd()) {
                               data = list(),
                               restType = "POST")
   if (!is.null(result)) {
+    refreshResource(resource$resourceId)
     return(TRUE)
   }
   log_warn("failed to change review status to '", newStatus, "' for ident:", ident)

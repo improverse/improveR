@@ -10,7 +10,8 @@ changeReviewStatus(ident, newStatus, from = pwd())
 \item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
 or a data frame row from \code{loadResource()}.}
 
-\item{newStatus}{The target status string (e.g. \code{"Reviewing"}, \code{"Closed"}).}
+\item{newStatus}{Character. The target status: \code{"Reviewing"}, \code{"Approved"},
+or \code{"Planning"}.}
 
 \item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
 }
@@ -18,7 +19,38 @@ or a data frame row from \code{loadResource()}.}
 \code{TRUE} if the status was changed successfully, \code{FALSE} otherwise.
 }
 \description{
-Changes the status of a review to the specified new status.
+Changes the status of a review. Reviews have three statuses with the
+following transitions:
+}
+\details{
+\describe{
+\item{\strong{Planning}}{Initial state. Entries and reviewers are being set up.}
+\item{\strong{Reviewing}}{Active review. Reviewers can approve/reject entries.
+Requires at least one entry and one reviewer.}
+\item{\strong{Approved}}{Final/locked state. Both the review and all reviewed
+resources are locked. Only an admin can revert to Reviewing.}
+}
+
+Valid transitions:
+\itemize{
+\item \code{Planning -> Reviewing} (requestor or admin, needs entries + reviewer)
+\item \code{Reviewing -> Approved} (requestor or admin, all entries must be reviewed, no rejections)
+\item \code{Reviewing -> Planning} (requestor or admin, resets all approvals)
+\item \code{Approved -> Reviewing} (admin only, reopens a locked review)
+}
+}
+\examples{
+\dontrun{
+# Start the review process
+changeReviewStatus(review, "Reviewing")
+
+# Approve and lock the review (all entries must be reviewed first)
+changeReviewStatus(review, "Approved")
+
+# Revert to planning (resets approvals)
+changeReviewStatus(review, "Planning")
+}
+
 }
 \references{
 ccs27

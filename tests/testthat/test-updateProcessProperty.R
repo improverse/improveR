@@ -42,7 +42,7 @@ test_that("setup updateProcessProperty test", {
 })
 
 test_that("updateProcessProperty sets key without erasing existing fields|ics2046", {
-  stopifnot("No step created" = exists("UPP_STEP", envir = globalenv()))
+  skip_if(!exists("UPP_STEP", envir = globalenv()), "No step created")
   stepResource <- get("UPP_STEP", envir = globalenv())
 
   # Load the Main process BEFORE update — capture existing fields
@@ -87,7 +87,7 @@ test_that("updateProcessProperty sets key without erasing existing fields|ics204
 })
 
 test_that("updateProcessProperty can overwrite an existing key|ics2046", {
-  stopifnot("No step created" = exists("UPP_STEP", envir = globalenv()))
+  skip_if(!exists("UPP_STEP", envir = globalenv()), "No step created")
   stepResource <- get("UPP_STEP", envir = globalenv())
 
   # Update the same key with a different value
@@ -107,7 +107,7 @@ test_that("updateProcessProperty can overwrite an existing key|ics2046", {
 })
 
 test_that("updateProcessProperty returns NULL for non-existent process name", {
-  stopifnot("No step created" = exists("UPP_STEP", envir = globalenv()))
+  skip_if(!exists("UPP_STEP", envir = globalenv()), "No step created")
   stepResource <- get("UPP_STEP", envir = globalenv())
 
   result <- improveR::updateProcessProperty(

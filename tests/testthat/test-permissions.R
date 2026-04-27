@@ -106,7 +106,7 @@ test_that("setResourcePermission creates ACL visible in getResourcePermissions|i
 
   if (is.null(aclEntry)) {
     deleteGroup(group$id)
-    stop("setResourcePermission not supported on this server")
+    skip("setResourcePermission not supported on this server")
   }
 
   # Verify ACL contains the group
@@ -153,7 +153,7 @@ test_that("permissions inherit to child folders|ics769,ics2044", {
   putResult <- replaceResourcePermissions(parentFolder$resourceId, aclEntries)
   if (is.null(putResult)) {
     deleteGroup(group$id)
-    stop("replaceResourcePermissions not supported")
+    skip("replaceResourcePermissions not supported")
   }
 
   # Verify parent has the permission
@@ -196,7 +196,7 @@ test_that("inherit=FALSE does not propagate to children|ics769,ics2044", {
   putResult <- replaceResourcePermissions(parentFolder$resourceId, aclEntries)
   if (is.null(putResult)) {
     deleteGroup(group$id)
-    stop("replaceResourcePermissions not supported")
+    skip("replaceResourcePermissions not supported")
   }
 
   # Parent has the permission
@@ -234,7 +234,7 @@ test_that("multiple ACL entries on same resource|ics769,ics2044", {
   putResult <- replaceResourcePermissions(TEST_FOLDER, aclEntries)
   if (is.null(putResult)) {
     deleteGroup(group1$id); deleteGroup(group2$id)
-    stop("replaceResourcePermissions not supported")
+    skip("replaceResourcePermissions not supported")
   }
 
   acl <- getResourcePermissions(TEST_FOLDER)
@@ -273,7 +273,7 @@ test_that("effectiveRights returns correct rights for user|ics769,ics2044", {
   if (is.null(putResult)) {
     removeGroupUser(group$id, adminUser$id[1])
     deleteGroup(group$id)
-    stop("replaceResourcePermissions not supported")
+    skip("replaceResourcePermissions not supported")
   }
 
   rights <- effectiveRights(TEST_FOLDER, memberId = adminUser$id[1])
@@ -308,7 +308,7 @@ test_that("getOwners returns users from OWN_ group|ics2044", {
   if (is.null(putResult)) {
     removeGroupUser(ownGroup$id, adminUser$id[1])
     deleteGroup(ownGroup$id)
-    stop("replaceResourcePermissions not supported")
+    skip("replaceResourcePermissions not supported")
   }
 
   owners <- getOwners(TEST_FOLDER)
@@ -337,7 +337,7 @@ test_that("getUsersByRole returns correct users, NULL for missing role|ics2044",
   if (is.null(putResult)) {
     removeGroupUser(colGroup$id, adminUser$id[1])
     deleteGroup(colGroup$id)
-    stop("replaceResourcePermissions not supported")
+    skip("replaceResourcePermissions not supported")
   }
 
   result <- getUsersByRole(TEST_FOLDER, "COL_")

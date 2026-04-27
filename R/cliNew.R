@@ -16,12 +16,6 @@ requirePicocli <- function(cmd) {
   }
 }
 
-#' Build picocli args with --pico prefix
-#' @noRd
-picoArgs <- function(...) {
-  c("--pico", ...)
-}
-
 #' Show Repository Status
 #'
 #' Shows local/remote changes and conflicts for a local repository.
@@ -34,7 +28,7 @@ picoArgs <- function(...) {
 statusCli <- function(localPath, json = TRUE) {
   requirePicocli("status")
   renewAccessToken()
-  args <- picoArgs("status",
+  args <- c("status",
             "--access-token", conf()$reqToken,
             "-C", localPath)
   executeCli(args, json = json)
@@ -54,7 +48,7 @@ statusCli <- function(localPath, json = TRUE) {
 mergeCli <- function(localPath, files, mergeTool = NULL, json = FALSE) {
   requirePicocli("merge")
   renewAccessToken()
-  args <- picoArgs("merge",
+  args <- c("merge",
             "--access-token", conf()$reqToken,
             "-C", localPath)
   if (!is.null(mergeTool)) args <- c(args, "--mergetool", mergeTool)
@@ -80,7 +74,7 @@ resetCli <- function(localPath, files = NULL, all = FALSE, force = FALSE,
                      confirm = FALSE, revision = NULL, json = FALSE) {
   requirePicocli("reset")
   renewAccessToken()
-  args <- picoArgs("reset",
+  args <- c("reset",
             "--access-token", conf()$reqToken,
             "-C", localPath)
   if (all) args <- c(args, "--all")
@@ -103,7 +97,7 @@ resetCli <- function(localPath, files = NULL, all = FALSE, force = FALSE,
 resolveCli <- function(localPath, files, json = FALSE) {
   requirePicocli("resolve")
   renewAccessToken()
-  args <- picoArgs("resolve",
+  args <- c("resolve",
             "--access-token", conf()$reqToken,
             "-C", localPath,
             files)
@@ -121,7 +115,7 @@ resolveCli <- function(localPath, files, json = FALSE) {
 #' @export
 cleanCli <- function(localPath, preview = FALSE) {
   requirePicocli("clean")
-  args <- picoArgs("clean", "-C", localPath)
+  args <- c("clean", "-C", localPath)
   if (preview) args <- c(args, "--preview")
   executeCli(args)
 }
@@ -139,7 +133,7 @@ cleanCli <- function(localPath, preview = FALSE) {
 #' @export
 addInputsCli <- function(localPath, includeFiles, clean = FALSE) {
   requirePicocli("add-inputs")
-  args <- picoArgs("add-inputs",
+  args <- c("add-inputs",
             "-C", localPath,
             "--include-files", includeFiles)
   if (clean) args <- c(args, "--clean")
@@ -163,7 +157,7 @@ createStepCli <- function(toolCategory, tool, analysisTree = NULL,
                           parentStep = NULL, comment = NULL) {
   requirePicocli("create-step")
   renewAccessToken()
-  args <- picoArgs("create-step",
+  args <- c("create-step",
             "--access-token", conf()$reqToken,
             "--tool-category", toolCategory,
             "--tool", tool,
@@ -185,7 +179,7 @@ createStepCli <- function(toolCategory, tool, analysisTree = NULL,
 toolsCli <- function() {
   requirePicocli("tools")
   renewAccessToken()
-  args <- picoArgs("tools",
+  args <- c("tools",
             "--access-token", conf()$reqToken,
             "--profile", cliProfileName())
   executeCli(args)
@@ -202,7 +196,7 @@ toolsCli <- function() {
 infoCli <- function(localPath) {
   requirePicocli("info")
   renewAccessToken()
-  args <- picoArgs("info",
+  args <- c("info",
             "--access-token", conf()$reqToken,
             "-C", localPath)
   executeCli(args)

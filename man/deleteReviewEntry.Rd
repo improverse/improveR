@@ -2,13 +2,18 @@
 % Please edit documentation in R/reviewEntries.R
 \name{deleteReviewEntry}
 \alias{deleteReviewEntry}
-\title{Deletes All Review Entries From A Review}
+\title{Delete Review Entries}
 \usage{
-deleteReviewEntry(ident, from = pwd())
+deleteReviewEntry(ident, reviewEntryIds, comment = "", from = pwd())
 }
 \arguments{
 \item{ident}{Identifier of the review. Can be a path, resource ID, entity ID,
 or a data frame row from \code{loadResource()}.}
+
+\item{reviewEntryIds}{Character vector of review entry IDs (UUIDs) to remove.
+These are the entry IDs (from \code{getReviewEntries()$id}), not resource IDs.}
+
+\item{comment}{Character. Optional comment for the deletion. Defaults to empty string.}
 
 \item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
 }
@@ -16,8 +21,9 @@ or a data frame row from \code{loadResource()}.}
 \code{TRUE} if the entries were removed successfully, \code{FALSE} otherwise.
 }
 \description{
-Removes all entries from an existing review.
+Removes specific entries from an existing review by their review entry IDs.
+Use \code{getReviewEntries()$id} to get the entry IDs.
 }
 \references{
-ics365
+ics1542
 }

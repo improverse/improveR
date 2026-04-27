@@ -1,56 +1,50 @@
 # Test Transaction Functions
 # Tests: getLatestRevision, createTransaction
 
-ensureTestFolder <- function() {
-  if (!exists("TEST_CONNECTED", envir = globalenv())) {
+test_that("setup transactions test", {
+  tryCatch({
     improveR::improveConnect()
     improveR::setEditable(TRUE)
-    assign("TEST_CONNECTED", TRUE, envir = globalenv())
-  }
-}
-
-# ---------------------------------------------------------------------------
-# Setup
-# ---------------------------------------------------------------------------
-test_that("setup transactions test environment", {
-  improveR::improveConnect()
-  improveR::setEditable(TRUE)
-  assign("TEST_CONNECTED", TRUE, envir = globalenv())
+  }, error = function(e) {
+    skip(paste("Server not available:", e$message))
+  })
   expect_true(TRUE)
 })
 
-# ---------------------------------------------------------------------------
-# getLatestRevision | ccs10
-# ---------------------------------------------------------------------------
-test_that("getLatestRevision retrieves the latest revision|ccs10", {
-  ensureTestFolder()
-  result <- improveR::getLatestRevision()
-  if (is.null(result)) {
-    stop("getLatestRevision not supported on this server")
-  }
-  expect_true(is.list(result))
-  expect_false(is.null(result$id))
-  cat("Latest revision retrieved:", result$id, "\n")
+test_that("getLatestRevision returns a revision with an ID|ccs10", {
+  rev <- improveR::getLatestRevision()
+  skip_if(is.null(rev), "getLatestRevision not supported")
+
+  expect_true(is.list(rev))
+  expect_false(is.null(rev$id))
+  expect_true(nchar(rev$id) > 0)
 })
 
-# ---------------------------------------------------------------------------
-# createTransaction | ccs11
-# ---------------------------------------------------------------------------
-test_that("createTransaction opens a new transaction|ccs11", {
-  ensureTestFolder()
-  result <- improveR::createTransaction(comment = "automated test transaction")
-  if (is.null(result)) {
-    stop("createTransaction not supported on this server")
-  }
-  expect_true(is.list(result))
-  expect_false(is.null(result$id))
-  cat("Created transaction:", result$id, "\n")
+test_that("createTransaction creates a new revision|ccs11", {
+  revBefore <- improveR::getLatestRevision()
+  skip_if(is.null(revBefore), "getLatestRevision not supported")
+
+  tx <- improveR::createTransaction(comment = "automated test transaction")
+  skip_if(is.null(tx), "createTransaction not supported")
+
+  expect_false(is.null(tx$id))
+  # The transaction should be a NEW revision, different from before
+  expect_true(tx$id != revBefore$id,
+              info = "Transaction should create a new revision ID")
+  # And it should now be the latest
+  revAfter <- improveR::getLatestRevision()
+  expect_equal(revAfter$id, tx$id,
+               info = "Latest revision should match the created transaction")
 })
 
-# ---------------------------------------------------------------------------
-# Cleanup
-# ---------------------------------------------------------------------------
-test_that("cleanup transactions test environment", {
-  if (exists("TEST_CONNECTED", envir = globalenv())) rm("TEST_CONNECTED", envir = globalenv())
-  expect_true(TRUE)
+test_that("mutations create new revisions|ccs10", {
+  revBefore <- improveR::getLatestRevision()
+  skip_if(is.null(revBefore), "getLatestRevision not supported")
+
+  TEST_FOLDER <- improveR:::workflowFilesSetup()
+  createFile(TEST_FOLDER, fileName = paste0("revtest_", sample(1000:9999, 1), ".txt"))
+
+  revAfter <- improveR::getLatestRevision()
+  expect_true(revAfter$id != revBefore$id,
+              info = "Creating a file should produce a new revision")
 })

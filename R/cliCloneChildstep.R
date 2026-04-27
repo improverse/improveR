@@ -1,12 +1,12 @@
 #' Clone Child Step CLI
 #'
-#' Clones a child step from the CLI.
+#' Creates a child step on the server and clones it to a fresh local repository.
 #'
 #' @param localSource The local source repository.
 #' @param localTarget The local target repository.
 #' @param comment A comment for the clone operation.
-#' @param toolCategory The tool category. Default is NULL.
-#' @param tool The tool name. Default is NULL.
+#' @param toolCategory The tool category. Default is NULL (uses parent step's category).
+#' @param tool The tool name. Default is NULL (uses parent step's tool).
 #' @noRd
 cloneChildstepCli <- function(localSource, localTarget, comment, toolCategory = NULL, tool = NULL) {
   checkInit()
@@ -21,8 +21,24 @@ cloneChildstepCli <- function(localSource, localTarget, comment, toolCategory = 
     tools <- loadAllTools()
     tool <- tools[tools$id == step$toolId, ]$name
   }
-  refreshToken()
-  accessToken <- conf()$reqToken
-  command <- glue::glue("clone childstep -accessToken {accessToken} -sourceRepository {localSource} -targetRepository {localTarget} -tool {tool} -toolCategory {toolCategory} -comment {comment}")
-  executeCli(command)
+  renewAccessToken()
+  token <- conf()$reqToken
+
+  if (hasPicocli()) {
+    args <- c("childstep",
+              "--access-token", token,
+              "-C", localTarget,
+              "--tool-category", toolCategory,
+              "--tool", tool,
+              "-m", comment)
+  } else {
+    args <- c("clone", "childstep",
+              "-accessToken", token,
+              "-sourceRepository", localSource,
+              "-targetRepository", localTarget,
+              "-tool", tool,
+              "-toolCategory", toolCategory,
+              "-comment", comment)
+  }
+  executeCli(args)
 }

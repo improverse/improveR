@@ -10,22 +10,19 @@
 
 Sys.setenv(TEST_NAME = "getConvenience")
 
-# -----------------------------------------------------------------------------
-# Setup — run once, cache result for all tests
-# -----------------------------------------------------------------------------
-test_that("setup getConvenience test environment|ics1141", {
+setupGetTests <- function() {
+  Sys.setenv(TEST_NAME = "getConvenience")
   improveR::improveConnect()
   improveR::setEditable(TRUE)
   baseFilePath <- improveR:::baseFilesSetup()
-  expect_false(is.null(baseFilePath))
-  assign("GC_BASE_PATH", baseFilePath, envir = globalenv())
-})
+  baseFilePath
+}
 
 # -----------------------------------------------------------------------------
 # getFile / getCopy
 # -----------------------------------------------------------------------------
 test_that("getFile returns a descriptor with local path|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   csvPath <- paste0(baseFilePath, "/rgetTest/csv.csv")
 
   desc <- improveR::getFile(csvPath)
@@ -35,7 +32,7 @@ test_that("getFile returns a descriptor with local path|ics1141", {
 })
 
 test_that("getFile addIdToName=FALSE does not prefix entityId|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   csvPath <- paste0(baseFilePath, "/rgetTest/csv.csv")
 
   withId <- improveR::getFile(csvPath, addIdToName = TRUE)
@@ -47,7 +44,7 @@ test_that("getFile addIdToName=FALSE does not prefix entityId|ics1141", {
 })
 
 test_that("getCopy creates a local copy without addIdToName|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   csvPath <- paste0(baseFilePath, "/rgetTest/csv.csv")
 
   desc <- improveR::getCopy(csvPath)
@@ -62,43 +59,43 @@ test_that("getCopy creates a local copy without addIdToName|ics1141", {
 # getData parser branches: csv, xlsx, rds, custom
 # -----------------------------------------------------------------------------
 test_that("getData parses csv files|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   csvPath <- paste0(baseFilePath, "/rgetTest/csv.csv")
 
   desc <- improveR::getData(csvPath)
   expect_false(is.null(desc))
   expect_true(!is.null(desc$data))
-  expect_true(is.data.frame(desc$data[[1]]))
-  expect_gt(nrow(desc$data[[1]]), 0)
+  expect_true(is.data.frame(desc$data))
+  expect_gt(nrow(desc$data), 0)
 })
 
 test_that("getData parses xlsx files|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   xlsxPath <- paste0(baseFilePath, "/rgetTest/excel.xlsx")
 
   desc <- improveR::getData(xlsxPath)
   expect_false(is.null(desc))
   expect_true(!is.null(desc$data))
-  expect_true(is.data.frame(desc$data[[1]]))
+  expect_true(is.data.frame(desc$data))
 })
 
 test_that("getData accepts a custom parser|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   csvPath <- paste0(baseFilePath, "/rgetTest/csv.csv")
 
   # Custom parser: return line count instead of a dataframe
   customParser <- function(path, ...) length(readLines(path, warn = FALSE))
   desc <- improveR::getData(csvPath, parser = customParser)
   expect_false(is.null(desc))
-  expect_true(is.numeric(desc$data[[1]]))
-  expect_gt(desc$data[[1]], 0)
+  expect_true(is.numeric(desc$data))
+  expect_gt(desc$data, 0)
 })
 
 # -----------------------------------------------------------------------------
 # getFilesFromFolder — filePattern and recurse
 # -----------------------------------------------------------------------------
 test_that("getFilesFromFolder returns all files in folder|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   folderPath <- paste0(baseFilePath, "/rgetTEXT")
 
   files <- improveR::getFilesFromFolder(folderPath)
@@ -108,7 +105,7 @@ test_that("getFilesFromFolder returns all files in folder|ics1141", {
 })
 
 test_that("getFilesFromFolder filters by filePattern|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   folderPath <- paste0(baseFilePath, "/rgetGRAPH")
 
   all <- improveR::getFilesFromFolder(folderPath)
@@ -122,7 +119,7 @@ test_that("getFilesFromFolder filters by filePattern|ics1141", {
 })
 
 test_that("getFilesFromFolder recurse=T descends into subfolders|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
 
   shallow <- improveR::getFilesFromFolder(baseFilePath, recurse = FALSE)
   deep <- improveR::getFilesFromFolder(baseFilePath, recurse = TRUE)
@@ -136,7 +133,7 @@ test_that("getFilesFromFolder recurse=T descends into subfolders|ics1141", {
 # sourceR — loads an R file and executes it in the calling environment
 # -----------------------------------------------------------------------------
 test_that("sourceR executes the R file (side effects visible)|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   rPath <- paste0(baseFilePath, "/rgetR/test.R")
 
   # sourceR executes the script; we just check it returns without error
@@ -150,7 +147,7 @@ test_that("sourceR executes the R file (side effects visible)|ics1141", {
 # getTextString — loads text file as character string
 # -----------------------------------------------------------------------------
 test_that("getTextString returns text data as a character string|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   txtPath <- paste0(baseFilePath, "/rgetTEXT/sampleText.txt")
 
   desc <- improveR::getTextString(txtPath)
@@ -165,7 +162,7 @@ test_that("getTextString returns text data as a character string|ics1141", {
 # showGraphics / includeGraphics / showHTML — exercise the descriptor paths
 # -----------------------------------------------------------------------------
 test_that("showGraphics returns a graphics descriptor|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   imgPath <- paste0(baseFilePath, "/rgetGRAPH/uploads.png")
 
   desc <- improveR::showGraphics(imgPath)
@@ -175,7 +172,7 @@ test_that("showGraphics returns a graphics descriptor|ics1141", {
 })
 
 test_that("includeGraphics returns a graphics descriptor|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   imgPath <- paste0(baseFilePath, "/rgetGRAPH/uploads.png")
 
   desc <- improveR::includeGraphics(imgPath)
@@ -184,7 +181,7 @@ test_that("includeGraphics returns a graphics descriptor|ics1141", {
 })
 
 test_that("showHTML returns an HTML descriptor|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   htmlPath <- paste0(baseFilePath, "/rgetHTML/htmlExample.html")
 
   desc <- improveR::showHTML(htmlPath)
@@ -197,7 +194,7 @@ test_that("showHTML returns an HTML descriptor|ics1141", {
 # addAsLink flag (ics1141)
 # -----------------------------------------------------------------------------
 test_that("getFile addAsLink=FALSE skips inventory linking|ics1141", {
-  baseFilePath <- get("GC_BASE_PATH", envir = globalenv())
+  baseFilePath <- setupGetTests()
   csvPath <- paste0(baseFilePath, "/rgetTest/csv.csv")
 
   # Neither path should fail. We don't assert server-side inventory here

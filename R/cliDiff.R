@@ -28,7 +28,7 @@ diffCli <- function(localPath, path, base = FALSE, theirs = FALSE) {
     )
   }
   renewAccessToken()
-  args <- picoArgs("diff",
+  args <- c("diff",
             "--access-token", conf()$reqToken,
             "-C", localPath)
   if (base) args <- c(args, "--base")

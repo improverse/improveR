@@ -2,7 +2,7 @@
 #' @param reviewId id (UUID) of the review
 #' @noRd
 validateReviewState <- function(reviewId) {
-  resource <- loadResource(reviewId)
+  resource <- refreshResource(reviewId)
   if (is.null(resource)) {
     log_error("The review with the id:", reviewId, "does not exist")
     return(FALSE)
