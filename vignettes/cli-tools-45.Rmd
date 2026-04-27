@@ -1,0 +1,283 @@
+---
+title: "CLI 4.5 Features"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{CLI 4.5 Features}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  message = TRUE,
+  warning = TRUE,
+  eval = FALSE
+)
+library(improveR)
+```
+
+# CLI 4.5 Features
+
+This article covers features introduced in CLI version 4.5.0. For basic CLI
+operations (clone, push, pull, lock/unlock), see the [CLI tools](cli-tools.html)
+article.
+
+**Requirements**: improveRcontributions with CLI jar 4.5.0 or later.
+
+```{r check-version}
+# Verify CLI version
+ver <- improveR:::cliDetectedVersion()
+cat("CLI version:", ver, "\n")
+if (!is.null(ver) && compareVersion(ver, "4.5.0") < 0) {
+  stop("This article requires CLI 4.5.0+. Update the JAR in improveRcontributions.")
+}
+```
+
+## 1. Diff: Compare Local vs Server
+
+The `diffCli()` function shows differences between your local workspace and
+the server, similar to `git diff`.
+
+### Unified diff (local vs baseline)
+
+```{r diff-unified}
+# After modifying a file locally, see what changed:
+diffCli(localPath = "./my-repo", path = "model/control.mod")
+```
+
+Output is a standard unified diff:
+
+```
+--- a/model/control.mod
++++ b/model/control.mod
+@@ -12,3 +12,4 @@
+ $ESTIMATION METHOD=1
+ $COVARIANCE
++$TABLE ID DV PRED RES
+```
+
+### Retrieve specific revisions
+
+Use `--base` or `--theirs` to extract file content at a specific point:
+
+```{r diff-base-theirs}
+# Get the baseline (last-pulled) version of a file
+baseline <- diffCli("./my-repo", "model/control.mod", base = TRUE)
+writeLines(baseline, "control_baseline.mod")
+
+# Get the latest server version (even without pulling)
+server <- diffCli("./my-repo", "model/control.mod", theirs = TRUE)
+writeLines(server, "control_server.mod")
+```
+
+This is useful during conflict resolution: extract both versions, compare them
+in your editor, then resolve manually.
+
+## 2. Conflict Resolution Workflow
+
+CLI 4.5 provides a structured workflow for handling concurrent edits.
+
+```{r conflict-workflow}
+# Step 1: Check status to see conflicts
+statusCli("./my-repo", json = TRUE)
+
+# Step 2: For each conflict file, inspect the versions
+# Your local version is already on disk. Get the other two:
+diffCli("./my-repo", "model/control.mod", base = TRUE)    # what you both started from
+diffCli("./my-repo", "model/control.mod", theirs = TRUE)   # what the other person pushed
+
+# Step 3: See a unified diff of your changes vs baseline
+diffCli("./my-repo", "model/control.mod")
+
+# Step 4: Attempt automatic merge
+mergeCli("./my-repo", files = "model/control.mod")
+
+# Step 5: If merge succeeded (or after manual edit), mark resolved
+resolveCli("./my-repo", files = "model/control.mod")
+
+# Step 6: Push the resolved version
+pushCli("./my-repo", comment = "Resolved conflict in control.mod")
+```
+
+### Using an external merge tool
+
+```{r merge-tool}
+# Use a 3-way merge tool (e.g. kdiff3, meld)
+mergeCli("./my-repo",
+         files = "model/control.mod",
+         mergeTool = "kdiff3 {local} {base} {remote} -o {merged}")
+```
+
+## 3. Include/Exclude Patterns for Push
+
+Control which files are uploaded. Patterns use glob syntax (`**`, `*`, `?`,
+`[abc]`).
+
+### Setting default patterns
+
+```{r add-inputs}
+# Set which files are tracked for push (persisted in the repo)
+addInputsCli("./my-repo", includeFiles = "*.R,*.csv,data/")
+
+# Clear and replace patterns
+addInputsCli("./my-repo", includeFiles = "model/**,*.mlxtran", clean = TRUE)
+```
+
+### Push with patterns
+
+```{r push-patterns}
+# Push only specific file types
+pushCli("./my-repo",
+        comment = "Update R scripts",
+        includeFiles = "*.R,*.csv")
+
+# Exclude temporary files
+pushCli("./my-repo",
+        comment = "Push all except temp",
+        excludeFiles = "temp_dir/,*[Tt][Ee][Mm][Pp]*")
+
+# Push specific files by path (like git add + git push)
+pushCli("./my-repo",
+        comment = "Push two files",
+        files = c("model/control.mod", "data/input.csv"))
+
+# Patterns also accept R vectors (collapsed to comma-separated internally)
+pushCli("./my-repo",
+        comment = "Vector form",
+        includeFiles = c("*.R", "data/"))
+```
+
+## 4. Reset with Revision
+
+Reset conflict files or the entire workspace to a specific point in time.
+
+```{r reset}
+# Reset all conflict files to baseline
+resetCli("./my-repo", all = TRUE)
+
+# Reset specific files
+resetCli("./my-repo", files = c("model/control.mod", "data/input.csv"))
+
+# Force-reset entire workspace to baseline (destructive)
+resetCli("./my-repo", force = TRUE, confirm = TRUE)
+
+# Reset to a specific revision ID
+resetCli("./my-repo", force = TRUE, confirm = TRUE,
+         revision = "D504E3C0BEE345278A90359E1DEA1CBB")
+```
+
+## 5. Reset Inventory and Files-to-Keep
+
+When re-running a step, you can control what happens to previous outputs.
+
+```{r reset-inventory}
+# Normal rerun: previous outputs remain, new outputs are added
+runStepResource("/Projects/analysis/Step 1")
+
+# Reset inventory: wipe all outputs before running
+# The step starts with a clean inventory
+runStepResource("/Projects/analysis/Step 1", resetInventory = TRUE)
+
+# Reset inventory but keep specific files (by resource GUID)
+# Useful when you want to preserve certain outputs across reruns
+inventory <- loadFullChildResources("/Projects/analysis/Step 1")$data[[1]]
+keepIds <- inventory$resourceId[inventory$name %in% c("important_result.rds")]
+runStepResource("/Projects/analysis/Step 1",
+                resetInventory = TRUE,
+                filesToKeep = keepIds)
+```
+
+## 6. Update Process Properties on Live Steps
+
+Set arbitrary process properties on an already-realised step without losing
+existing configuration.
+
+```{r update-process-property}
+# Set checkout include patterns on a live step
+updateProcessProperty(
+  stepIdent = "/Projects/analysis/Step 1",
+  processName = "Main",
+  key = "checkoutIncludePatterns",
+  value = "test_script.R\r\ndata.csv"
+)
+
+# This is a safe read-modify-write operation:
+# existing properties (toolId, runserverToolId, etc.) are preserved
+```
+
+For setting properties at step creation time, use `setProcessValue` on the
+template before `realise()`:
+
+```{r set-process-value-template}
+template <- createStepTemplateEnv(treeIdent = myTree)
+template$setStepRunserverLabel("runserver")
+template$setStepToolLabel("Rbatch")
+template$setStepToolInstance("default")
+
+# Set checkout patterns before realising
+template$setProcessValue("Main", "checkoutIncludePatterns", "*.R\r\n*.csv")
+
+template$realise()
+```
+
+## 7. Relation Type Management
+
+Create and delete relation types (admin operation).
+
+```{r relation-types}
+# List existing relation types
+types <- loadRelationTypes()
+print(types[, c("id", "name", "reverseName")])
+
+# Create a new relation type
+newType <- createRelationType(
+  name = "derived from",
+  reverseName = "source of",
+  description = "Links a derived dataset to its source"
+)
+cat("Created type:", newType$id, "\n")
+
+# Use it to create a relation between resources
+createResourceRelation(
+  ident = "/Projects/analysis/derived_data.csv",
+  targetIdent = "/Projects/data/raw_data.csv",
+  relationTypeId = newType$id,
+  description = "Derived via cleaning script"
+)
+
+# Delete a relation type (when no longer needed)
+deleteRelationType(newType$id)
+```
+
+## 8. Repo Prefix Auto-Discovery
+
+When connecting without `IMPROVER_STEP`, the repository entity ID prefix
+is now auto-discovered:
+
+```{r repo-prefix}
+# Connect without IMPROVER_STEP set
+Sys.setenv(IMPROVER_STEP = "")
+improveConnect()
+
+# repoPrefix() now returns the correct prefix (e.g. "hc4310:")
+# instead of "" — all entity ID operations work correctly
+cat("Prefix:", repoPrefix(), "\n")
+```
+
+## Summary of New Functions
+
+| Function | Description |
+|---|---|
+| `diffCli()` | Unified diff or revision content streaming |
+| `resetCli(revision = ...)` | Reset to specific revision |
+| `addInputsCli()` | Set default include patterns |
+| `pushCli(includeFiles = ...)` | Push with file patterns (vector or string) |
+| `runStepResource(resetInventory, filesToKeep)` | Control inventory on rerun |
+| `updateProcessProperty()` | Set process properties on live steps |
+| `createRelationType()` | Create relation types (admin) |
+| `deleteRelationType()` | Delete relation types (admin) |
+| `repoPrefix()` | Get repository entity ID prefix |
