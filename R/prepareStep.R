@@ -85,6 +85,79 @@ changeStepRationale <- function(ident, from=pwd(),rationale) {
   return(refreshResource(ident,from))
 }
 
+#' Mark Step Flags
+#'
+#' Sets or clears boolean flags on an existing step. Only flags that are
+#' explicitly provided (non-\code{NULL}) are changed; all other step properties
+#' are preserved.
+#'
+#' @param ident Identifier of the step. Can be the step's path, resource
+#'   (version) id, full entity (version) id, or short entity (version) id.
+#' @param from Root directory for resolving relative paths. Default is
+#'   \code{pwd()}.
+#' @param keyStep Logical or \code{NULL}. Mark as a key step.
+#' @param baseModel Logical or \code{NULL}. Mark as a base model.
+#' @param fullModel Logical or \code{NULL}. Mark as a full model.
+#' @param finalModel Logical or \code{NULL}. Mark as the final model.
+#' @param referenceModel Logical or \code{NULL}. Mark as a reference model.
+#'
+#' @return The updated step resource (invisibly).
+#'
+#' @details
+#' Flags are boolean properties on step resources that help classify and
+#' organise analysis steps within a workflow. They are visible in the improve
+#' client and can be used for filtering and reporting.
+#'
+#' Pass \code{TRUE} to set a flag, \code{FALSE} to clear it, or leave as
+#' \code{NULL} (default) to keep the current value.
+#'
+#' @examples
+#' \dontrun{
+#' # Mark a step as the final model
+#' markStep("/Projects/analysis/Step 18", finalModel = TRUE)
+#'
+#' # Set multiple flags at once
+#' markStep("/Projects/analysis/Step 5", keyStep = TRUE, baseModel = TRUE)
+#'
+#' # Clear a flag
+#' markStep("/Projects/analysis/Step 5", baseModel = FALSE)
+#' }
+#'
+#' @seealso
+#' \code{\link{changeStepDescription}} for updating step description,
+#' \code{\link{changeStepRationale}} for updating step rationale
+#'
+#' @export
+markStep <- function(ident, from = pwd(),
+                     keyStep = NULL, baseModel = NULL, fullModel = NULL,
+                     finalModel = NULL, referenceModel = NULL) {
+  stepEntity <- loadResource(ident, from)
+  if (is.null(stepEntity)) {
+    log_warn("Step not found:", ident)
+    return(invisible(NULL))
+  }
+
+  changed <- FALSE
+  if (!is.null(keyStep)) { stepEntity$keyStep <- keyStep; changed <- TRUE }
+  if (!is.null(baseModel)) { stepEntity$baseModel <- baseModel; changed <- TRUE }
+  if (!is.null(fullModel)) { stepEntity$fullModel <- fullModel; changed <- TRUE }
+  if (!is.null(finalModel)) { stepEntity$finalModel <- finalModel; changed <- TRUE }
+  if (!is.null(referenceModel)) { stepEntity$referenceModel <- referenceModel; changed <- TRUE }
+
+  if (!changed) {
+    log_info("markStep: no flags specified, nothing to update")
+    return(invisible(stepEntity))
+  }
+
+  authenticatedREST(
+    "/resources/{resourceId}/",
+    urlParams = list(resourceId = stepEntity$resourceId),
+    data = as.list(stepEntity),
+    restType = "PUT"
+  )
+  invisible(refreshResource(ident, from))
+}
+
 getToolId <- function(runserverName, runserverToolName) {
   runservers <- loadRunservers()
   runserver <- runservers[runservers$label==runserverName,]
