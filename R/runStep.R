@@ -7,6 +7,11 @@
 #'
 #' @param ident A step identifier. Can be the step's path, resource (version) id,
 #'   full entity (version) id, or short entity (version) id.
+#' @param resetInventory Logical. If \code{TRUE}, the server resets the step's
+#'   inventory before running. Defaults to \code{FALSE} (backwards compatible).
+#' @param filesToKeep Character vector. Resource GUIDs of inventory items to
+#'   keep when \code{resetInventory = TRUE}. Ignored when \code{resetInventory}
+#'   is \code{FALSE}. Defaults to \code{NULL} (keep nothing / reset all).
 #'
 #' @return The step identifier, returned invisibly.
 #'
@@ -30,7 +35,7 @@
 #'
 #' @references ics1140
 #' @export
-runStepResource <- function(ident) {
+runStepResource <- function(ident, resetInventory = FALSE, filesToKeep = NULL) {
   newStep <- refreshResource(ident)
   if (newStep$runStatus == "RUNNING") {
     log_error("Step is already running.")
@@ -38,12 +43,27 @@ runStepResource <- function(ident) {
   }
 
   improveEditable()
+
+  # Build request body only when needed (backwards compatible — empty body
+  # when neither filesToKeep nor sshPublicKeyHash is provided).
+  data <- ""
+  if (!is.null(filesToKeep)) {
+    data <- list(filesToKeep = as.list(filesToKeep))
+  }
+
+  queryParams <- list()
+  if (isTRUE(resetInventory)) {
+    queryParams <- list(resetInventory = "true")
+  }
+
   result <- authenticatedREST(
     "resources/{stepId}/run",
     urlParams = list(stepId = newStep$resourceId),
+    queryParams = queryParams,
+    data = data,
     restType = "POST"
   )
-  
+
   invisible(ident)
 }
 
