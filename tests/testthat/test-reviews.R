@@ -1,12 +1,6 @@
 # Test Review Functions
-# Tests: createReview, createReviewer, deleteReviewer,
-#        createReviewEntry, deleteReviewEntry,
-#        createReviewComment, createReviewEntryComment
-#        loadReviews, getReviewers, getReviewEntries, getReviewComments, getReviewEntryComments
-#
-# Comments and entry deletion require the review to be in "Reviewing" state.
-# We use changeReviewStatus to transition, and connectAs("test1") where the
-# reviewer identity is needed.
+# Tests actual review behavior — verifying state changes on the server,
+# not just return types.
 
 hasConnectAs <- function() {
   "improveRtestsupport" %in% loadedNamespaces() &&
@@ -30,24 +24,6 @@ getTest1UserId <- function(allUsers) {
   idx <- which(allUsers$username == "test1")
   if (length(idx) == 0) return(NULL)
   allUsers$id[idx[1]]
-}
-
-ensureTestFolder <- function() {
-  if (!exists("REV_FOLDER", envir = globalenv())) {
-    tryCatch({
-      improveR::improveConnect()
-      improveR::setEditable(TRUE)
-      basePath <- createFolderPath("reviews")
-      testFolder <- improveR::createFolder(
-        targetIdent = basePath,
-        folderName = paste0("test-reviews-", format(Sys.time(), "%Y%m%d%H%M%S")),
-        comment = "review test setup"
-      )
-      assign("REV_FOLDER", testFolder, envir = globalenv())
-    }, error = function(e) {
-      skip(paste("Server not available:", e$message))
-    })
-  }
 }
 
 # ---------------------------------------------------------------------------
@@ -88,28 +64,15 @@ test_that("setup review test environment", {
 })
 
 # ---------------------------------------------------------------------------
-# loadReviews | ics1525
-# ---------------------------------------------------------------------------
-test_that("loadReviews returns data frame|ics1525", {
-  ensureTestFolder()
-  reviews <- improveR::loadReviews()
-  if (!is.null(reviews)) {
-    expect_true(is.data.frame(reviews))
-  }
-})
-
-# ---------------------------------------------------------------------------
 # createReview | ics1527
+# Verify: review can be loaded back and has correct name and entries
 # ---------------------------------------------------------------------------
-test_that("createReview creates a new review|ics1527", {
-  ensureTestFolder()
+test_that("createReview creates a review with correct name and entry|ics1527,ics2045", {
+  skip_if(!exists("REV_FOLDER", envir = globalenv()), "No test folder")
   testFile <- get("REV_FILE", envir = globalenv())
-  allUsers <- get("REV_USERS", envir = globalenv())
   testFolder <- get("REV_FOLDER", envir = globalenv())
-
-  # Use test1 as reviewer if available, otherwise first user
   test1Id <- get("REV_TEST1_ID", envir = globalenv())
-  reviewerId <- if (!is.null(test1Id)) test1Id else allUsers$id[1]
+  reviewerId <- if (!is.null(test1Id)) test1Id else get("REV_USERS", envir = globalenv())$id[1]
 
   reviewName <- paste0("TestReview-", format(Sys.time(), "%H%M%S"))
   result <- improveR::createReview(
@@ -122,207 +85,283 @@ test_that("createReview creates a new review|ics1527", {
     dueDate = format(Sys.Date() + 30, "%Y-%m-%d")
   )
 
-  if (is.null(result)) {
-    skip("Review creation not supported or failed on this server")
-  }
-  expect_false(is.null(result))
-  expect_true(is.data.frame(result))
+  if (is.null(result)) skip("Review creation not supported on this server")
+
+  # Verify: load review back by ID and check name
+  loaded <- improveR::getReviewById(result)
+  expect_false(is.null(loaded))
+  expect_equal(loaded$name, reviewName,
+               info = "Loaded review name should match what was created")
+
+  # Verify: review has the file as an entry
+  entries <- improveR::getReviewEntries(result)
+  expect_true(is.data.frame(entries))
+  expect_true(testFile$resourceId %in% entries$resourceId,
+              info = "Review should contain the submitted file as an entry")
+
   assign("REV_REVIEW", result, envir = globalenv())
-  cat("Created review:", result$resourceId, "\n")
-})
-
-# ---------------------------------------------------------------------------
-# getReviewers | ics1531
-# ---------------------------------------------------------------------------
-test_that("getReviewers lists reviewers of a review|ics1531", {
-  ensureTestFolder()
-  skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
-  review <- get("REV_REVIEW", envir = globalenv())
-
-  reviewers <- improveR::getReviewers(review)
-  expect_false(is.null(reviewers))
-  if (is.data.frame(reviewers)) {
-    expect_gt(nrow(reviewers), 0)
-    cat("Reviewers found:", nrow(reviewers), "\n")
-  }
 })
 
 # ---------------------------------------------------------------------------
 # createReviewer | ics368
+# Verify: reviewer appears in getReviewers after being added
 # ---------------------------------------------------------------------------
-test_that("createReviewer adds a reviewer to a review|ics368", {
-  ensureTestFolder()
+test_that("createReviewer adds a reviewer visible in getReviewers|ics368,ics2045", {
   skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
   review <- get("REV_REVIEW", envir = globalenv())
   allUsers <- get("REV_USERS", envir = globalenv())
 
-  if (nrow(allUsers) < 2) skip("Need at least 2 users for reviewer test")
+  if (nrow(allUsers) < 2) skip("Need at least 2 users")
 
-  # Find a user that isn't already the reviewer
   test1Id <- get("REV_TEST1_ID", envir = globalenv())
   otherIdx <- which(allUsers$id != test1Id & allUsers$username != "admin")
   if (length(otherIdx) == 0) otherIdx <- which(allUsers$id != test1Id)
-  skip_if(length(otherIdx) == 0, "No second user available for reviewer test")
+  skip_if(length(otherIdx) == 0, "No second user available")
+
+  reviewersBefore <- improveR::getReviewers(review)
+  countBefore <- if (is.data.frame(reviewersBefore)) nrow(reviewersBefore) else 0
 
   result <- improveR::createReviewer(
     ident = review,
     userId = allUsers$id[otherIdx[1]],
     username = allUsers$username[otherIdx[1]]
   )
+  if (is.null(result)) skip("createReviewer not supported or duplicate reviewer")
 
-  if (is.null(result)) {
-    skip("createReviewer not supported or duplicate reviewer")
-  }
-  expect_false(is.null(result))
+  # Verify: reviewer count increased
+  reviewersAfter <- improveR::getReviewers(review)
+  expect_true(is.data.frame(reviewersAfter))
+  expect_equal(nrow(reviewersAfter), countBefore + 1,
+               info = "Reviewer count should increase by 1")
+
   assign("REV_REVIEWER", result, envir = globalenv())
-  cat("Added reviewer:", allUsers$username[otherIdx[1]], "\n")
 })
 
 # ---------------------------------------------------------------------------
 # deleteReviewer | ics369
+# Verify: reviewer disappears from getReviewers after deletion
 # ---------------------------------------------------------------------------
-test_that("deleteReviewer removes a reviewer from a review|ics369", {
-  ensureTestFolder()
+test_that("deleteReviewer removes reviewer from getReviewers|ics369,ics2045", {
   skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
   skip_if(!exists("REV_REVIEWER", envir = globalenv()), "No reviewer added")
   review <- get("REV_REVIEW", envir = globalenv())
 
-  reviewers <- improveR::getReviewers(review)
-  expect_false(is.null(reviewers))
-  if (is.data.frame(reviewers) && nrow(reviewers) > 1) {
-    reviewerId <- reviewers$id[nrow(reviewers)]
-    result <- improveR::deleteReviewer(review, reviewerId)
-    expect_true(result)
-    cat("Removed reviewer:", reviewerId, "\n")
-  }
-})
+  reviewersBefore <- improveR::getReviewers(review)
+  expect_true(is.data.frame(reviewersBefore))
+  skip_if(nrow(reviewersBefore) < 2, "Need at least 2 reviewers to test delete")
 
-# ---------------------------------------------------------------------------
-# getReviewEntries | ics1540
-# ---------------------------------------------------------------------------
-test_that("getReviewEntries lists review entries|ics1540", {
-  ensureTestFolder()
-  skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
-  review <- get("REV_REVIEW", envir = globalenv())
+  countBefore <- nrow(reviewersBefore)
+  reviewerToDelete <- reviewersBefore$id[nrow(reviewersBefore)]
 
-  entries <- improveR::getReviewEntries(review)
-  if (!is.null(entries) && is.data.frame(entries)) {
-    expect_gt(nrow(entries), 0)
-    cat("Review entries found:", nrow(entries), "\n")
-  }
+  result <- improveR::deleteReviewer(review, reviewerToDelete)
+  expect_true(result)
+
+  # Verify: reviewer count decreased
+  reviewersAfter <- improveR::getReviewers(review)
+  expect_equal(nrow(reviewersAfter), countBefore - 1,
+               info = "Reviewer count should decrease by 1")
+  # Verify: deleted reviewer is gone
+  expect_false(reviewerToDelete %in% reviewersAfter$id,
+               info = "Deleted reviewer should not appear in list")
 })
 
 # ---------------------------------------------------------------------------
 # createReviewEntry | ics1541
+# Verify: entry count increases and new entry contains the file
 # ---------------------------------------------------------------------------
-test_that("createReviewEntry adds entries to a review|ics1541", {
-  ensureTestFolder()
+test_that("createReviewEntry adds entry visible in getReviewEntries|ics1541,ics2045", {
   skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
   review <- get("REV_REVIEW", envir = globalenv())
   testFolder <- get("REV_FOLDER", envir = globalenv())
 
+  entriesBefore <- improveR::getReviewEntries(review)
+  countBefore <- if (is.data.frame(entriesBefore)) nrow(entriesBefore) else 0
+
   extraFile <- improveR::createFile(
     targetIdent = testFolder$resourceId,
-    fileName = "review-extra-file.txt",
-    comment = "extra file for review entry test"
+    fileName = paste0("entry-test-", sample(1000:9999, 1), ".txt"),
+    comment = "file for entry test"
   )
   expect_false(is.null(extraFile))
 
-  result <- improveR::createReviewEntry(
+  improveR::createReviewEntry(
     ident = review,
     resourceIds = list(extraFile$resourceId)
   )
-  expect_false(is.null(result))
-  expect_true(is.data.frame(result))
-  cat("Added review entry for resource:", extraFile$resourceId, "\n")
+
+  # Verify: entry count increased
+  entriesAfter <- improveR::getReviewEntries(review)
+  expect_true(is.data.frame(entriesAfter))
+  expect_equal(nrow(entriesAfter), countBefore + 1,
+               info = "Entry count should increase by 1")
+  # Verify: the new file is in the entries
+  expect_true(extraFile$resourceId %in% entriesAfter$resourceId,
+              info = "New file should appear in review entries")
 })
 
 # ---------------------------------------------------------------------------
 # deleteReviewEntry | ics1542
-# Transition to Reviewing state first — deletion may require it
+# Verify: selective deletion — one entry removed, other remains
 # ---------------------------------------------------------------------------
-test_that("deleteReviewEntry removes all entries from a review|ics1542", {
-  ensureTestFolder()
+test_that("deleteReviewEntry removes specific entry, keeps others|ics1542,ics2045", {
   skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
   review <- get("REV_REVIEW", envir = globalenv())
+  testFolder <- get("REV_FOLDER", envir = globalenv())
 
-  result <- improveR::deleteReviewEntry(review)
-  # DELETE /reviews/{id}/entries may not be supported on all server versions
-  if (!result) {
-    cat("deleteReviewEntry not supported on this server version\n")
-  }
-  # At minimum the function should not error out
-  expect_true(is.logical(result))
+  fileA <- improveR::createFile(
+    targetIdent = testFolder$resourceId,
+    fileName = paste0("del-A-", sample(1000:9999, 1), ".txt"),
+    comment = "delete test A"
+  )
+  fileB <- improveR::createFile(
+    targetIdent = testFolder$resourceId,
+    fileName = paste0("del-B-", sample(1000:9999, 1), ".txt"),
+    comment = "delete test B"
+  )
+  improveR::createReviewEntry(
+    ident = review,
+    resourceIds = list(fileA$resourceId, fileB$resourceId)
+  )
+
+  entriesBefore <- improveR::getReviewEntries(review)
+  countBefore <- nrow(entriesBefore)
+
+  entryIdA <- entriesBefore$id[entriesBefore$resourceId == fileA$resourceId]
+  expect_true(length(entryIdA) == 1)
+
+  result <- improveR::deleteReviewEntry(review, reviewEntryIds = list(entryIdA))
+  expect_true(result)
+
+  entriesAfter <- improveR::getReviewEntries(review)
+  expect_equal(nrow(entriesAfter), countBefore - 1,
+               info = "Entry count should decrease by 1")
+  expect_false(fileA$resourceId %in% entriesAfter$resourceId,
+               info = "Deleted entry's file should be gone")
+  expect_true(fileB$resourceId %in% entriesAfter$resourceId,
+              info = "Other entry's file should remain")
 })
 
 # ---------------------------------------------------------------------------
 # createReviewComment | ics1536
-# Review must be in Reviewing state for comments
+# Verify: comment appears in getReviewComments
 # ---------------------------------------------------------------------------
-test_that("createReviewComment adds a comment to a review|ics1536", {
-  ensureTestFolder()
+test_that("createReviewComment adds comment visible in getReviewComments|ics1536,ics2045", {
   skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
-  skip_if(!hasConnectAs(), "connectAs not available for reviewer comment")
+  skip_if(!hasConnectAs(), "connectAs not available")
   review <- get("REV_REVIEW", envir = globalenv())
   testFile <- get("REV_FILE", envir = globalenv())
 
-  # Transition to Reviewing state (needed for comments)
-  improveR::changeReviewStatus(review, "Reviewing")
+  # Reviewer must accept invitation first (while review is in Planning)
+  improveRtestsupport::connectAs("test1")
+  improveR::setEditable(TRUE)
+  accepted <- improveR::acceptReviewInvitation(review, comment = "accepting for comment test")
+  reconnectAsAdmin()
+  if (!accepted) {
+    skip("Reviewer could not accept invitation for comment test")
+  }
 
-  # Invalidate cache so validateReviewState sees the updated status
+  improveR::changeReviewStatus(review, "Reviewing")
   improveR::refreshResource(review$resourceId)
 
-  # Re-add entry if deleted
-  improveR::createReviewEntry(
-    ident = review,
-    resourceIds = list(testFile$resourceId)
-  )
+  # Ensure the file is an entry
+  improveR::createReviewEntry(ident = review, resourceIds = list(testFile$resourceId))
 
-  # Comments may need to come from the reviewer — switch to test1
   improveRtestsupport::connectAs("test1")
   improveR::setEditable(TRUE)
 
+  commentText <- paste0("Test comment ", sample(1000:9999, 1))
   result <- improveR::createReviewComment(
     ident = review,
     resourceIdent = testFile$resourceId,
-    comment = "Automated test comment from reviewer",
+    comment = commentText,
     commentType = "GENERAL"
   )
-  # createReviewComment may return NULL on 400 if the commentType or
-  # API contract differs on this server version
+
   if (is.null(result)) {
-    cat("createReviewComment returned NULL (API may not support this format)\n")
-  } else {
-    cat("Added review comment as test1\n")
+    reconnectAsAdmin()
+    skip("createReviewComment not supported on this server")
   }
-  # The function should at least not error — NULL is acceptable if the
-  # server rejects the comment format, but we verify it ran
-  expect_true(is.null(result) || is.data.frame(result))
+
+  # Verify: comment appears in list
+  comments <- improveR::getReviewComments(review)
+  expect_true(is.data.frame(comments), info = "Should have comments after creating one")
+  expect_true(any(grepl(commentText, comments$comment, fixed = TRUE)),
+              info = "Created comment text should appear in getReviewComments")
 
   reconnectAsAdmin()
 })
 
 # ---------------------------------------------------------------------------
-# getReviewComments | ics1533
+# approveReviewEntries | ics1545
+# Verify: entry status changes after approval
 # ---------------------------------------------------------------------------
-test_that("getReviewComments lists review comments|ics1533", {
-  ensureTestFolder()
+test_that("approve, reset, reject entry workflow|ics1545,ics1547,ics1546", {
   skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
+  skip_if(!hasConnectAs(), "connectAs not available")
   review <- get("REV_REVIEW", envir = globalenv())
 
-  comments <- improveR::getReviewComments(review)
-  # Comments may be NULL if the server didn't accept the comment in the previous test
-  expect_true(is.null(comments) || is.data.frame(comments))
-  if (!is.null(comments) && is.data.frame(comments)) {
-    cat("Review comments found:", nrow(comments), "\n")
-  }
+  # Reviewer should already have accepted invitation from the comment test.
+  # Ensure we're in Reviewing state.
+  review <- improveR::refreshResource(review$resourceId)
+  improveR::changeReviewStatus(review, "Reviewing")
+  improveR::refreshResource(review$resourceId)
+
+  entries <- improveR::getReviewEntries(review)
+  skip_if(is.null(entries) || nrow(entries) < 2,
+          "Need at least 2 entries for approve/reset/reject workflow")
+
+  # Use only the FIRST entry for approve/reset/reject so the review stays in Reviewing
+  testEntryId <- entries$id[1]
+
+  improveRtestsupport::connectAs("test1")
+  improveR::setEditable(TRUE)
+
+  # 1. Approve one entry
+  result <- improveR::approveReviewEntries(
+    ident = review,
+    reviewEntryIds = list(testEntryId),
+    comment = "approve one entry"
+  )
+  expect_true(result, info = "approveReviewEntries should succeed")
+
+  entriesAfter <- improveR::getReviewEntries(review)
+  approvedEntry <- entriesAfter[entriesAfter$id == testEntryId, ]
+  expect_equal(approvedEntry$status, "Approved",
+               info = "Approved entry should have Approved status")
+
+  # 2. Reset that entry
+  result <- improveR::resetReviewEntries(
+    ident = review,
+    reviewEntryIds = list(testEntryId),
+    comment = "reset entry"
+  )
+  expect_true(result, info = "resetReviewEntries should succeed")
+
+  entriesAfter <- improveR::getReviewEntries(review)
+  resetEntry <- entriesAfter[entriesAfter$id == testEntryId, ]
+  expect_true(resetEntry$status != "Approved",
+              info = "Entry should not be Approved after reset")
+
+  # 3. Reject that entry
+  result <- improveR::rejectReviewEntries(
+    ident = review,
+    reviewEntryIds = list(testEntryId),
+    comment = "reject entry"
+  )
+  expect_true(result, info = "rejectReviewEntries should succeed")
+
+  entriesAfter <- improveR::getReviewEntries(review)
+  rejectedEntry <- entriesAfter[entriesAfter$id == testEntryId, ]
+  expect_equal(rejectedEntry$status, "Rejected",
+               info = "Rejected entry should have DECLINED status")
+
+  reconnectAsAdmin()
 })
 
 # ---------------------------------------------------------------------------
 # Validation: invalid inputs
 # ---------------------------------------------------------------------------
-test_that("createReview returns NULL for invalid resource IDs|ics1527", {
-  ensureTestFolder()
+test_that("createReview returns NULL for invalid resource IDs|ics1527,ics2045", {
   result <- improveR::createReview(
     name = "InvalidReview",
     parentIdent = "/",
@@ -335,8 +374,7 @@ test_that("createReview returns NULL for invalid resource IDs|ics1527", {
   expect_null(result)
 })
 
-test_that("createReviewer returns NULL for invalid review ID|ics368", {
-  ensureTestFolder()
+test_that("createReviewer returns NULL for invalid review ID|ics368,ics2045", {
   allUsers <- get("REV_USERS", envir = globalenv())
   result <- improveR::createReviewer(
     ident = "non-existent-review-id",
@@ -346,8 +384,7 @@ test_that("createReviewer returns NULL for invalid review ID|ics368", {
   expect_null(result)
 })
 
-test_that("deleteReviewer returns FALSE for invalid review ID|ics369", {
-  ensureTestFolder()
+test_that("deleteReviewer returns FALSE for invalid review ID|ics369,ics2045", {
   result <- improveR::deleteReviewer(
     ident = "non-existent-review-id",
     reviewerId = "non-existent-reviewer-id"
@@ -355,8 +392,7 @@ test_that("deleteReviewer returns FALSE for invalid review ID|ics369", {
   expect_false(result)
 })
 
-test_that("createReviewEntry returns NULL for invalid review ID|ics1541", {
-  ensureTestFolder()
+test_that("createReviewEntry returns NULL for invalid review ID|ics1541,ics2045", {
   testFile <- get("REV_FILE", envir = globalenv())
   result <- improveR::createReviewEntry(
     ident = "non-existent-review-id",
@@ -365,10 +401,10 @@ test_that("createReviewEntry returns NULL for invalid review ID|ics1541", {
   expect_null(result)
 })
 
-test_that("deleteReviewEntry returns FALSE for invalid review ID|ics1542", {
-  ensureTestFolder()
+test_that("deleteReviewEntry returns FALSE for invalid review ID|ics1542,ics2045", {
   result <- improveR::deleteReviewEntry(
-    ident = "non-existent-review-id"
+    ident = "non-existent-review-id",
+    reviewEntryIds = list("non-existent-entry-id")
   )
   expect_false(result)
 })

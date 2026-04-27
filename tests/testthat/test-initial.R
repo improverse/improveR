@@ -136,6 +136,63 @@ test_that("general file setup", {
   })
 # })
 
+# loadResourceFromServer | ics1084
+test_that("loadResourceFromServer loads by resourceId, entityId, entityVersionId, returns POSIX dates|ics1084", {
+  TEST_FOLDER <- improveR:::baseFilesSetup()
+  folder <- loadResource(TEST_FOLDER)
+
+  # by resourceId
+  byResId <- improveR::loadResourceFromServer(folder$resourceId)
+  expect_false(is.null(byResId))
+  expect_equal(byResId$resourceId, folder$resourceId)
+
+  # by entityId
+  byEntId <- improveR::loadResourceFromServer(folder$entityId)
+  expect_false(is.null(byEntId))
+  expect_equal(byEntId$entityId, folder$entityId)
+
+  # by entityVersionId
+  byEntVerId <- improveR::loadResourceFromServer(folder$entityVersionId)
+  expect_false(is.null(byEntVerId))
+  expect_equal(byEntVerId$entityVersionId, folder$entityVersionId)
+
+  # dates are POSIX via convertImproveTimestampToPosix
+  expect_true(inherits(byResId$createdAtDate, "POSIXct"))
+
+  # id 0 yields a virtual root
+  root <- improveR::loadResourceFromServer("0")
+  expect_false(is.null(root))
+  expect_equal(root$resourceId, "0")
+  expect_equal(root$nodeType, "Folder")
+  expect_equal(root$path, "/")
+
+  # list input returns a merged dataframe with one row per id
+  byList <- improveR::loadResourceFromServer(list(folder$resourceId, folder$resourceId))
+  expect_false(is.null(byList))
+  expect_true(is.data.frame(byList))
+  expect_gte(nrow(byList), 2)
+})
+
+# getParent | ics1088
+test_that("getParent returns parent resourceId, root for top-level|ics1088", {
+  TEST_FOLDER <- improveR:::baseFilesSetup()
+  parentFolder <- loadResource(TEST_FOLDER)
+  child <- improveR::createFolder(targetIdent = TEST_FOLDER,
+                                  folderName = paste0("getParentProbe-", format(Sys.time(), "%Y%m%d%H%M%S")))
+  on.exit(tryCatch(delete(child$resourceId), error = function(e) NULL), add = TRUE)
+
+  parentId <- improveR::getParent(child$resourceId)
+  expect_equal(parentId, parentFolder$resourceId)
+
+  # Also works with entityId input
+  parentIdFromEnt <- improveR::getParent(child$entityId)
+  expect_equal(parentIdFromEnt, parentFolder$resourceId)
+
+  # Root resource has no parentId — getParent returns 0 per spec
+  rootParent <- improveR::getParent("0")
+  expect_equal(rootParent, 0)
+})
+
 # httptest::with_mock_dir("normalisePath",{
   test_that("normalise path|ics1089", {
     TEST_FOLDER <- improveR:::baseFilesSetup()
@@ -193,6 +250,15 @@ test_that("general file setup", {
   test_that("load multiple audit trails|ics1097", {
     TEST_FOLDER <- improveR:::baseFilesSetup()
     folder <- loadResource(TEST_FOLDER)
+
+    # Create a fresh, uniquely-named child folder inside this test so the
+    # assertion targets a resource whose full lifecycle is owned by the test
+    # (no dependence on row order or pre-existing audit-trail state).
+    freshChildName <- paste0("auditTrailProbe-", format(Sys.time(), "%Y%m%d%H%M%S"))
+    freshChild <- createFolder(targetIdent = TEST_FOLDER, folderName = freshChildName)
+    expect_false(is.null(freshChild))
+    on.exit(tryCatch(delete(freshChild$resourceId), error = function(e) NULL), add = TRUE)
+
     children <- loadChildResources(folder)
     expect_equal(children$type,"child")
     expect_equal(children$resourceId,folder$resourceId)
@@ -206,19 +272,21 @@ test_that("general file setup", {
     childResourcesNumber <- nrow(childResources)
     auditTrails <- loadAuditTrail(childResources)
 
-    #auditTrails <- improveR:::mergeDataframeList(auditTrails)
-
     expect_equal(childResourcesNumber,nrow(auditTrails))
 
-    childResource <- childResources[2,]
+    # Target the fresh child by entityId (invariant across renames),
+    # not by row index or by current resourceName.
+    childRow <- childResources[childResources$entityId == freshChild$entityId, ]
+    expect_equal(nrow(childRow), 1)
 
-    childTrail <- auditTrails[auditTrails$entityId==childResource$entityId,]
+    childTrail <- auditTrails[auditTrails$entityId == freshChild$entityId, ]
+    expect_equal(nrow(childTrail), 1)
     childTrailData <- childTrail$data[[1]]
 
-    withoutChildren <- childTrailData[childTrailData$resourceName==childResource$name,]
-    expect_gte(nrow(withoutChildren),0)
-    expect_equal(unique(withoutChildren$entityId),childResource$entityId)
-    expect_true("create" %in% withoutChildren$operation)
+    ownEvents <- childTrailData[childTrailData$entityId == freshChild$entityId, ]
+    expect_gt(nrow(ownEvents), 0)
+    expect_equal(unique(ownEvents$entityId), freshChild$entityId)
+    expect_true("create" %in% ownEvents$operation)
   })
 # })
 

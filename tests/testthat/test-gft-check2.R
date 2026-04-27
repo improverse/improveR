@@ -171,7 +171,7 @@ test_that("GFT2-02: move file to subfolder|ics1139", {
 # ===========================================================================
 # Lock / Unlock (Checkout / Checkin cycle) | ics472
 # ===========================================================================
-test_that("GFT2-03: lock, update content, and unlock file|ics472", {
+test_that("GFT2-03: lock, update content, and unlock file|ics472,ics2049,ics1210", {
   skip_if(is.null(GFT2$FILE1_PATH), "No test file 1")
   skip_if(is.null(GFT2$TMP_DIR), "No temp dir")
 
@@ -307,7 +307,7 @@ test_that("GFT2-09: remove favorite link|ics1800", {
 # ===========================================================================
 # Audit trail | ics472
 # ===========================================================================
-test_that("GFT2-10: audit trail has entries for test folder|ics472", {
+test_that("GFT2-10: audit trail has entries for test folder|ics472,ics1097", {
   skip_if(is.null(GFT2$ROOT_PATH), "No GFT2 root folder")
 
   audit <- tryCatch(

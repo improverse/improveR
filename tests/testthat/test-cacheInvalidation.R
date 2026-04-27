@@ -51,7 +51,7 @@ test_that("setup cache invalidation test environment", {
 # ---------------------------------------------------------------------------
 # lock/unlock cache invalidation
 # ---------------------------------------------------------------------------
-test_that("lockResource invalidates cache so loadResource shows locked state", {
+test_that("lockResource invalidates cache so loadResource shows locked state|ics1091,ics2049", {
   ensureTestFolder()
   testFile <- get("TEST_FILE_CI", envir = globalenv())
 
@@ -73,7 +73,7 @@ test_that("lockResource invalidates cache so loadResource shows locked state", {
   cat("Lock cache invalidation verified: lockedByName =", freshRes$lockedByName, "\n")
 })
 
-test_that("unlockResource invalidates cache so loadResource shows unlocked state", {
+test_that("unlockResource invalidates cache so loadResource shows unlocked state|ics1091,ics2049", {
   ensureTestFolder()
   testFile <- get("TEST_FILE_CI", envir = globalenv())
 
@@ -94,7 +94,7 @@ test_that("unlockResource invalidates cache so loadResource shows unlocked state
 # ---------------------------------------------------------------------------
 # finish/reopen cache invalidation
 # ---------------------------------------------------------------------------
-test_that("finishResource invalidates cache and loadResource succeeds after finish", {
+test_that("finishResource invalidates cache and loadResource succeeds after finish|ics1091", {
   ensureTestFolder()
   testFile <- get("TEST_FILE_CI", envir = globalenv())
 
@@ -116,7 +116,7 @@ test_that("finishResource invalidates cache and loadResource succeeds after fini
   cat("Finish cache invalidation verified: loadResource returned fresh data\n")
 })
 
-test_that("reopenResource invalidates cache and loadResource succeeds after reopen", {
+test_that("reopenResource invalidates cache and loadResource succeeds after reopen|ics1091", {
   ensureTestFolder()
   testFile <- get("TEST_FILE_CI", envir = globalenv())
 
@@ -136,7 +136,7 @@ test_that("reopenResource invalidates cache and loadResource succeeds after reop
 # ---------------------------------------------------------------------------
 # create/delete child cache invalidation
 # ---------------------------------------------------------------------------
-test_that("createFile invalidates child cache so loadChildResources sees new file", {
+test_that("createFile invalidates child cache so loadChildResources sees new file|ics1091,ics1085,ics1102", {
   ensureTestFolder()
   testFolder <- get("TEST_FOLDER_CI", envir = globalenv())
 
@@ -160,7 +160,7 @@ test_that("createFile invalidates child cache so loadChildResources sees new fil
   cat("Create child cache invalidation verified:", countBefore, "->", countAfter, "children\n")
 })
 
-test_that("delete invalidates child cache so loadChildResources no longer sees file", {
+test_that("delete invalidates child cache so loadChildResources no longer sees file|ics1091,ics1085,ics1139", {
   ensureTestFolder()
   testFolder <- get("TEST_FOLDER_CI", envir = globalenv())
   childFile <- get("CHILD_FILE_CI", envir = globalenv())
@@ -242,6 +242,86 @@ test_that("pushCli invalidates cache for pushed resource", {
 
   # Note: NOT calling finishRun() — this test only verifies push cache invalidation,
   # not step execution. finishRun() would block waiting for server-side execution.
+})
+
+# ---------------------------------------------------------------------------
+# updateFileContent cache invalidation
+# ---------------------------------------------------------------------------
+test_that("updateFileContent invalidates file download cache so getTextString returns new content|ics1091,ics1210,ics1141", {
+  ensureTestFolder()
+  testFolder <- get("TEST_FOLDER_CI", envir = globalenv())
+
+  # Create a test file with initial content
+  initialContent <- "initial content for cache test"
+  tmpFile <- tempfile(fileext = ".txt")
+  writeLines(initialContent, tmpFile)
+  on.exit(unlink(tmpFile), add = TRUE)
+
+  testFile <- improveR::createFile(
+    targetIdent = testFolder$resourceId,
+    fileName = "cache-content-test.txt",
+    localPath = tmpFile
+  )
+  expect_false(is.null(testFile))
+
+  # Load text to populate the "text" folder cache
+  text1 <- improveR::getTextString(testFile)
+  expect_equal(text1$data, initialContent)
+
+  # Update content on server
+  updatedContent <- "updated content for cache test"
+  tmpFile2 <- tempfile(fileext = ".txt")
+  writeLines(updatedContent, tmpFile2)
+  on.exit(unlink(tmpFile2), add = TRUE)
+
+  improveR::updateFileContent(testFile, localPath = tmpFile2)
+
+  # getTextString should return updated content (cache was invalidated)
+  text2 <- improveR::getTextString(testFile)
+  expect_equal(text2$data, updatedContent)
+  cat("updateFileContent cache invalidation verified: content changed from initial to updated\n")
+
+  # Cleanup
+  improveR::delete(testFile$resourceId)
+})
+
+# ---------------------------------------------------------------------------
+# refreshFile cross-cache invalidation
+# ---------------------------------------------------------------------------
+test_that("refreshFile invalidates all file caches including text folder cache|ics1091", {
+  ensureTestFolder()
+  testFolder <- get("TEST_FOLDER_CI", envir = globalenv())
+
+  # Create a test file
+  content <- "content for refresh cache test"
+  tmpFile <- tempfile(fileext = ".txt")
+  writeLines(content, tmpFile)
+  on.exit(unlink(tmpFile), add = TRUE)
+
+  testFile <- improveR::createFile(
+    targetIdent = testFolder$resourceId,
+    fileName = "cache-refresh-test.txt",
+    localPath = tmpFile
+  )
+  expect_false(is.null(testFile))
+
+  # Load via getTextString to populate "text" cache (filePath="text", addIdToName=TRUE)
+  text1 <- improveR::getTextString(testFile)
+  expect_false(is.null(text1))
+  expect_equal(text1$data, content)
+
+  # refreshFile with default filePath="." should also invalidate the "text" cache
+  refreshed <- improveR::refreshFile(testFile)
+  expect_false(is.null(refreshed))
+
+  # getTextString should still work (re-downloads to "text" folder)
+  text2 <- improveR::getTextString(testFile)
+  expect_false(is.null(text2))
+  expect_equal(text2$data, content)
+  cat("refreshFile cross-cache invalidation verified: getTextString works after refreshFile\n")
+
+  # Cleanup
+  improveR::delete(testFile$resourceId)
 })
 
 # ---------------------------------------------------------------------------

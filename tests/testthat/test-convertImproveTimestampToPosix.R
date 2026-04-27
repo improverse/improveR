@@ -1,4 +1,4 @@
-test_that("Does convertImproveTimestampToPosix convert a timestamp to a POSIXct object?", {
+test_that("Does convertImproveTimestampToPosix convert a timestamp to a POSIXct object?|ics1083", {
 
   timestamp_1 <- "1736324938243"
   timestamp_2 <- "1736339372152"

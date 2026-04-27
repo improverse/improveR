@@ -322,7 +322,7 @@ library(magrittr)
 #})
 
 
-test_that("subfolder in step inventory|ics1140,ics1213,ics1214", {
+test_that("subfolder in step inventory|ics1140,ics1213,ics1214,ics1219,ics1210", {
   # Ensure TEST_FOLDER exists (for when test is run individually)
   TEST_FOLDER <- ensureTestFolder()
 
@@ -800,7 +800,7 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
   #expect_true(all(args$argumentValue %in% argsCompare$argumentValue))
 })
 
-test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220", {
+test_that("test full workflow|ics1140,ics1211,ics1212,ics1213,ics1214,ics1220,ics1219,ics2048", {
   TEST_FOLDER <- ensureTestFolder()
   # Skip workflow import tests in version 4.3 due to compatibility issues
   # repoVersion <- getRepositoryVersion()
@@ -1074,7 +1074,7 @@ test_that("remoteFile names are loaded correctly|ics1213", {
 })
 
 
-test_that("terminate running step|ics1140", {
+test_that("terminate running step|ics1140,ics2047", {
   #TEST_FOLDER <- ensureTestFolder()
 
   # Create a test tree

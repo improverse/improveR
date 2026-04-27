@@ -128,7 +128,7 @@ test_that("GFT3-setup: connect and create test folder with files", {
 #       loadRelationTypes() is currently non-functional (returns NULL).
 #       We attempt to get relation types via REST directly.
 # ===========================================================================
-test_that("GFT3-01: create and read resource relation|ics1044", {
+test_that("GFT3-01: create and read resource relation|ics1044,ics1697,ics1698,ics1701", {
   skip_if(is.null(GFT3$FILE_A_RES), "No file A")
   skip_if(is.null(GFT3$FILE_B_RES), "No file B")
 
@@ -168,7 +168,53 @@ test_that("GFT3-01: create and read resource relation|ics1044", {
   cat("Created and verified relation:", GFT3$RELATION_ID, "\n")
 })
 
-test_that("GFT3-02: delete resource relation|ics1044", {
+test_that("GFT3-01b: update resource relation|ics1044,ics1702", {
+  skip_if(is.null(GFT3$FILE_A_RES), "No file A")
+  skip_if(is.null(GFT3$RELATION_ID), "No relation created in GFT3-01")
+
+  # Need a second relation type distinct from the one used in GFT3-01.
+  relTypes <- improveR::loadRelationTypes()
+  skip_if(is.null(relTypes) || nrow(relTypes) < 2,
+          "Need at least 2 relation types on server for update test")
+  # Pick a different type than the one used by GFT3-01
+  usedRelTypeId <- relTypes$id[1]
+  newRelTypeId <- relTypes$id[2]
+  cat("Updating relation to type:", relTypes$name[2], "(", newRelTypeId, ")\n")
+
+  updated <- tryCatch(
+    improveR::updateResourceRelation(
+      ident = GFT3$FILE_A_PATH,
+      relationId = GFT3$RELATION_ID,
+      newRelationTypeId = newRelTypeId,
+      newDescription = "GFT3 test relation (updated)"
+    ),
+    error = function(e) {
+      cat("updateResourceRelation error:", e$message, "\n")
+      NULL
+    }
+  )
+  skip_if(is.null(updated), "updateResourceRelation failed")
+
+  # updateResourceRelation returns the refreshed list of relations.
+  # The server may replace the relation (new id) rather than mutate in place,
+  # so we assert on the (type, description, target) tuple instead of on id.
+  expect_true(is.data.frame(updated))
+  matchingRow <- updated[!is.na(updated$relationTypeId) &
+                           updated$relationTypeId == newRelTypeId &
+                           !is.na(updated$description) &
+                           updated$description == "GFT3 test relation (updated)" &
+                           !is.na(updated$targetResourceId) &
+                           updated$targetResourceId == GFT3$FILE_B_RES$resourceId, ]
+  expect_equal(nrow(matchingRow), 1,
+               info = "Exactly one relation should carry the new type and description")
+
+  # Remember the current id so GFT3-02 (delete) can find it even if it changed.
+  if (nrow(matchingRow) == 1) {
+    GFT3$RELATION_ID <- matchingRow$id
+  }
+})
+
+test_that("GFT3-02: delete resource relation|ics1044,ics1698,ics1703", {
   skip_if(is.null(GFT3$FILE_A_RES), "No file A")
   skip_if(is.null(GFT3$RELATION_ID), "No relation created")
 
@@ -193,7 +239,7 @@ test_that("GFT3-02: delete resource relation|ics1044", {
 # ===========================================================================
 # Permissions / Rights Management | ccs6, ccs82
 # ===========================================================================
-test_that("GFT3-03: read resource permissions (ACL entries)|ccs6", {
+test_that("GFT3-03: read resource permissions (ACL entries)|ccs6,ics2044", {
   skip_if(is.null(GFT3$ROOT_PATH), "No GFT3 root folder")
 
   perms <- improveR::getResourcePermissions(GFT3$ROOT_PATH)
@@ -209,7 +255,7 @@ test_that("GFT3-03: read resource permissions (ACL entries)|ccs6", {
               info = "Permissions should be NULL or a data frame")
 })
 
-test_that("GFT3-04: read effective rights for admin user|ccs6", {
+test_that("GFT3-04: read effective rights for admin user|ccs6,ics2044", {
   skip_if(is.null(GFT3$ROOT_PATH), "No GFT3 root folder")
   skip_if(is.null(GFT3$ADMIN_USER_ID), "No admin user ID")
 
@@ -226,7 +272,7 @@ test_that("GFT3-04: read effective rights for admin user|ccs6", {
   cat("Effective rights: modify=", rights$modify, "\n")
 })
 
-test_that("GFT3-05: set ACL entry on test folder for a group|ccs6", {
+test_that("GFT3-05: set ACL entry on test folder for a group|ccs6,ics2043,ics2044", {
   skip_if(is.null(GFT3$ROOT_PATH), "No GFT3 root folder")
 
   # Get all users to find a test user (non-admin)
@@ -285,7 +331,7 @@ test_that("GFT3-05: set ACL entry on test folder for a group|ccs6", {
   cat("Set read-only ACL for group on folder, ACL id:", GFT3$ACL_ID, "\n")
 })
 
-test_that("GFT3-06: verify effective rights for test user|ccs6", {
+test_that("GFT3-06: verify effective rights for test user|ccs6,ics2044", {
   skip_if(is.null(GFT3$ROOT_PATH), "No GFT3 root folder")
   skip_if(is.null(GFT3$TEST_USER), "No test user")
 
@@ -334,7 +380,7 @@ test_that("GFT3-07: finish and reopen resource|ics1810,ics1811", {
 # ===========================================================================
 # Delete resource | ics472
 # ===========================================================================
-test_that("GFT3-08: delete file and verify it is gone|ics472", {
+test_that("GFT3-08: delete file and verify it is gone|ics472,ics1139", {
   skip_if(is.null(GFT3$FILE_B_PATH), "No file B")
 
   # delete() takes only the resource identifier, no comment parameter
