@@ -103,6 +103,72 @@ setProcessVariables <- function(stepId, processId,processType="main",name="Main"
 }
 
 
+#' Update a Single Process Property on a Live Step
+#'
+#' Reads the current process state from the server, sets the specified key to
+#' the new value, and writes the complete process back. This read-modify-write
+#' approach ensures that existing properties (toolArgs, runserverId, etc.) are
+#' not lost.
+#'
+#' @param stepIdent Step identifier (path, resourceId, entityId, or dataframe).
+#' @param processName Character. Name of the process (e.g. \code{"Main"}).
+#' @param key Character. Property name to set (e.g. \code{"checkoutIncludePatterns"}).
+#' @param value The value to set.
+#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @returns The refreshed process dataframe for the step, invisibly.
+#' @export
+updateProcessProperty <- function(stepIdent, processName, key, value, from = pwd()) {
+  improveEditable()
+  step <- loadResource(stepIdent, from)
+  if (is.null(step)) {
+    log_warn("Step not found:", stepIdent)
+    return(invisible(NULL))
+  }
+
+  # GET the current process data as raw JSON so we preserve all fields
+  result <- authenticatedREST(
+    "/resources/{stepId}/processes",
+    urlParams = list(stepId = step$resourceId),
+    restType = "GET"
+  )
+  if (is.null(result)) {
+    log_warn("Could not load processes for step:", step$resourceId)
+    return(invisible(NULL))
+  }
+  allProcesses <- httr::content(result)
+
+  # Find the target process by name
+  targetIdx <- NULL
+  for (i in seq_along(allProcesses)) {
+    if (identical(allProcesses[[i]]$name, processName)) {
+      targetIdx <- i
+      break
+    }
+  }
+  if (is.null(targetIdx)) {
+    log_warn("Process '", processName, "' not found on step:", step$resourceId)
+    return(invisible(NULL))
+  }
+
+  processData <- allProcesses[[targetIdx]]
+  processId <- processData$id
+
+  # Set the property on the raw list (preserves all other fields)
+  processData$id <- NULL  # server rejects id in the PUT body
+  processData[[key]] <- value
+
+  # PUT back the complete process
+  authenticatedREST(
+    "/resources/{stepId}/processes/{processId}",
+    urlParams = list(stepId = step$resourceId, processId = processId),
+    data = processData,
+    restType = "PUT"
+  )
+
+  result <- refreshProcessesForStep(step$resourceId)
+  invisible(result)
+}
+
 replaceTF <- function(str) {
   if (str=="TRUE") {
     return("true")

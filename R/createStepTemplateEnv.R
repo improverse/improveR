@@ -465,6 +465,31 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     invisible(env)
   }
 
+  env$setStepKeyStep <- function(value = TRUE) {
+    env$setStepValue("keyStep", value)
+    invisible(env)
+  }
+
+  env$setStepBaseModel <- function(value = TRUE) {
+    env$setStepValue("baseModel", value)
+    invisible(env)
+  }
+
+  env$setStepFullModel <- function(value = TRUE) {
+    env$setStepValue("fullModel", value)
+    invisible(env)
+  }
+
+  env$setStepFinalModel <- function(value = TRUE) {
+    env$setStepValue("finalModel", value)
+    invisible(env)
+  }
+
+  env$setStepReferenceModel <- function(value = TRUE) {
+    env$setStepValue("referenceModel", value)
+    invisible(env)
+  }
+
   env$setStepBreakpoint <- function(breakpoint = TRUE) {
     env$setStepValue("breakpoint", breakpoint)
     invisible(env)

@@ -341,10 +341,33 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     }
   }
 
-  if (!is.null(conf()$stepId) & !is.na(conf()$stepId)) {
+  if (!is.null(conf()$stepId) & !is.na(conf()$stepId) & conf()$stepId != "") {
     rootStep <- loadResource(conf()$stepId)
     assign(x = "pwd", value = rootStep, envir = cacheEnv)
   }
+
+  # Discover repoPrefix when no stepId is provided.
+  # Query /resources to get any resource and extract the prefix from its entityId.
+  if (repoPrefix() == "" && !cacheEnv$offline) {
+    tryCatch({
+      probeResult <- authenticatedREST("/resources", restType = "GET")
+      if (!is.null(probeResult)) {
+        probeContent <- httr::content(probeResult)
+        items <- if (is.list(probeContent) && length(probeContent) > 0) probeContent else NULL
+        if (!is.null(items)) {
+          firstEntityId <- if (is.list(items[[1]])) items[[1]]$entityId else NULL
+          if (!is.null(firstEntityId) && grepl(":", firstEntityId, fixed = TRUE)) {
+            prefix <- substr(firstEntityId, 1, regexpr(":", firstEntityId, fixed = TRUE))
+            cacheEnv$discoveredRepoPrefix <- prefix
+            log_info(paste0("Discovered repoPrefix: ", prefix))
+          }
+        }
+      }
+    }, error = function(e) {
+      log_warn(paste0("Could not discover repoPrefix: ", e$message))
+    })
+  }
+
   log_info(paste0("repoUrl: ", conf()$repoUrl))
   log_info(paste0("runWorkspace: ", conf()$runWorkspace))
   setRootPath(getwd())
@@ -438,7 +461,20 @@ lastIndexOf <- function(haystack, needle) {
   return(posList[length(posList)])
 }
 
+#' Get the Repository Entity ID Prefix
+#'
+#' Returns the prefix used for entity IDs on the connected repository
+#' (e.g. \code{"hc4310:"}). When no step ID is available, the prefix is
+#' auto-discovered during \code{\link{improveConnect}}.
+#'
+#' @returns Character string with the prefix (including trailing colon),
+#'   or \code{""} if not available.
+#' @export
 repoPrefix <- function() {
+  discovered <- get0("discoveredRepoPrefix", envir = cacheEnv)
+  if (!is.null(discovered) && discovered != "") {
+    return(discovered)
+  }
   if (is.null(conf()$stepId) | lastIndexOf(conf()$stepId, ":") == -1) {
     return("")
   }
