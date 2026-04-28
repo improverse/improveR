@@ -53,7 +53,7 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
 library(magrittr)
 
 
-test_that("parameterize workflow - change dataset in initial step|ics1213,imr166", {
+test_that("parameterize workflow - change dataset in initial step|ics1213,ics2048,imr166", {
   TEST_FOLDER <- ensureTestFolder()
 
   cat("\n=== BUILDING DMG WORKFLOW ===\n")
@@ -180,7 +180,7 @@ test_that("parameterize workflow - change dataset in initial step|ics1213,imr166
 })
 
 
-test_that("parameterize workflow using declarative API|ics1213,imr166", {
+test_that("parameterize workflow using declarative API|ics1213,ics2048,imr166", {
   TEST_FOLDER <- ensureTestFolder()
 
   cat("\n=== BUILDING DMG WORKFLOW FOR DECLARATIVE API TEST ===\n")
@@ -327,7 +327,7 @@ test_that("parameterize workflow using declarative API|ics1213,imr166", {
 })
 
 
-test_that("workflow template JSON serialization and deserialization|ics1213,imr166", {
+test_that("workflow template JSON serialization and deserialization|ics1213,ics2048,imr166", {
   TEST_FOLDER <- ensureTestFolder()
 
   cat("\n=== BUILDING WORKFLOW FOR JSON TEST ===\n")
@@ -487,7 +487,7 @@ test_that("workflow template JSON serialization and deserialization|ics1213,imr1
 })
 
 
-test_that("parameterize workflow with local files|ics1213,imr166", {
+test_that("parameterize workflow with local files|ics1213,ics2048,imr166", {
   TEST_FOLDER <- ensureTestFolder()
 
   cat("\n=== Creating test tree ===\n")

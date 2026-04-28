@@ -49,7 +49,7 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
 }
 
 
-test_that("test for attaching step to itself", {
+test_that("test for attaching step to itself|ics1225,ics2046,ics1205", {
   TEST_FOLDER <- ensureTestFolder()
 
   testTree <- improveR::createAnalysisTree(

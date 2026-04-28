@@ -1,7 +1,7 @@
 # Unit tests for workflowExecutionOrder
 # These are fast, local tests — no server connection needed.
 
-test_that("Linear chain of 3 steps orders correctly", {
+test_that("Linear chain of 3 steps orders correctly|ics1231", {
   plan <- data.frame(
     fullName = c("Step1", "Step2", "Step3"),
     dependencies = c(NA, "Step1", "Step2"),
@@ -13,7 +13,7 @@ test_that("Linear chain of 3 steps orders correctly", {
   expect_equal(result$fullName, c("Step1", "Step2", "Step3"))
 })
 
-test_that("Branching: one source, two consumers", {
+test_that("Branching: one source, two consumers|ics1231", {
   plan <- data.frame(
     fullName = c("Source", "BranchA", "BranchB"),
     dependencies = c(NA, "Source", "Source"),
@@ -26,7 +26,7 @@ test_that("Branching: one source, two consumers", {
   expect_setequal(result$fullName[2:3], c("BranchA", "BranchB"))
 })
 
-test_that("Diamond pattern: source -> A,B -> merge", {
+test_that("Diamond pattern: source -> A,B -> merge|ics1231", {
   plan <- data.frame(
     fullName = c("Source", "BranchA", "BranchB", "Merge"),
     dependencies = c(NA, "Source", "Source", "BranchA,BranchB"),
@@ -41,7 +41,7 @@ test_that("Diamond pattern: source -> A,B -> merge", {
   expect_setequal(result$fullName[2:3], c("BranchA", "BranchB"))
 })
 
-test_that("All independent steps (no dependencies)", {
+test_that("All independent steps (no dependencies)|ics1231", {
   plan <- data.frame(
     fullName = c("A", "B", "C", "D", "E"),
     dependencies = rep(NA, 5),
@@ -53,7 +53,7 @@ test_that("All independent steps (no dependencies)", {
   expect_setequal(result$fullName, c("A", "B", "C", "D", "E"))
 })
 
-test_that("Single step works", {
+test_that("Single step works|ics1231", {
   plan <- data.frame(
     fullName = "OnlyStep",
     dependencies = NA,
@@ -65,7 +65,7 @@ test_that("Single step works", {
   expect_equal(result$fullName, "OnlyStep")
 })
 
-test_that("Missing dependencies column is treated as no dependencies", {
+test_that("Missing dependencies column is treated as no dependencies|ics1231", {
   plan <- data.frame(
     fullName = c("A", "B"),
     stringsAsFactors = FALSE
@@ -74,7 +74,7 @@ test_that("Missing dependencies column is treated as no dependencies", {
   expect_equal(nrow(result), 2)
 })
 
-test_that("Missing usage column is handled", {
+test_that("Missing usage column is handled|ics1231", {
   plan <- data.frame(
     fullName = c("A", "B"),
     dependencies = c(NA, NA),
@@ -86,7 +86,7 @@ test_that("Missing usage column is handled", {
 
 # --- Circular dependency detection ---
 
-test_that("Pure cycle (all steps have deps) returns NULL", {
+test_that("Pure cycle (all steps have deps) returns NULL|ics1231", {
   plan <- data.frame(
     fullName = c("A", "B"),
     dependencies = c("B", "A"),
@@ -98,7 +98,7 @@ test_that("Pure cycle (all steps have deps) returns NULL", {
   expect_null(result)
 })
 
-test_that("Three-step cycle returns NULL", {
+test_that("Three-step cycle returns NULL|ics1231", {
   plan <- data.frame(
     fullName = c("A", "B", "C"),
     dependencies = c("C", "A", "B"),
@@ -109,7 +109,7 @@ test_that("Three-step cycle returns NULL", {
   expect_null(result)
 })
 
-test_that("Partial cycle: reachable root + stuck subgraph errors", {
+test_that("Partial cycle: reachable root + stuck subgraph errors|ics1231", {
   # Step1 has no deps. Step2 and Step3 form a cycle.
   plan <- data.frame(
     fullName = c("Step1", "Step2", "Step3"),
@@ -123,7 +123,7 @@ test_that("Partial cycle: reachable root + stuck subgraph errors", {
   )
 })
 
-test_that("Partial cycle error message includes stuck step names", {
+test_that("Partial cycle error message includes stuck step names|ics1231", {
   plan <- data.frame(
     fullName = c("Root", "CycleA", "CycleB"),
     dependencies = c(NA, "CycleB", "CycleA"),
@@ -138,7 +138,7 @@ test_that("Partial cycle error message includes stuck step names", {
 
 # --- Scale: large workflows ---
 
-test_that("Large linear chain (600 steps) completes without false cycle warning", {
+test_that("Large linear chain (600 steps) completes without false cycle warning|ics1231", {
   n <- 600
   fullNames <- paste0("Step", seq_len(n))
   deps <- c(NA, fullNames[1:(n-1)])
@@ -154,7 +154,7 @@ test_that("Large linear chain (600 steps) completes without false cycle warning"
   expect_equal(result$fullName, fullNames)
 })
 
-test_that("Large wide workflow (1000 independent steps) works", {
+test_that("Large wide workflow (1000 independent steps) works|ics1231", {
   n <- 1000
   plan <- data.frame(
     fullName = paste0("Step", seq_len(n)),
@@ -166,7 +166,7 @@ test_that("Large wide workflow (1000 independent steps) works", {
   expect_equal(nrow(result), n)
 })
 
-test_that("Large branching workflow (source + 500 consumers) works", {
+test_that("Large branching workflow (source + 500 consumers) works|ics1231", {
   n <- 500
   consumers <- paste0("Consumer", seq_len(n))
   plan <- data.frame(

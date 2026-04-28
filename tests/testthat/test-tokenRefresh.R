@@ -1,4 +1,4 @@
-test_that("token refresh plugin works when token expires", {
+test_that("token refresh plugin works when token expires|ics1081", {
   # Skip if improveRtestsupport is not available
   skip_if_not(requireNamespace("improveRtestsupport", quietly = TRUE),
               "improveRtestsupport not available")
@@ -71,7 +71,7 @@ test_that("token refresh plugin works when token expires", {
   }
 })
 
-test_that("manual token refresh via plugin works", {
+test_that("manual token refresh via plugin works|ics1081", {
   # Skip if improveRtestsupport is not available
   skip_if_not(requireNamespace("improveRtestsupport", quietly = TRUE),
               "improveRtestsupport not available")

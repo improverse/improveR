@@ -1,5 +1,5 @@
 # Test Review Lifecycle Functions
-# Tests: getReviewById, acceptReview, declineReview, changeReviewStatus
+# Tests: getReviewById, acceptReviewInvitation, declineReviewInvitation, changeReviewStatus
 #
 # Review state machine: Open -> Reviewing -> Accepted/Declined
 # accept/decline require "Reviewing" state, which needs changeReviewStatus.
@@ -104,10 +104,10 @@ test_that("getReviewById retrieves a review|ics1528", {
 })
 
 # ---------------------------------------------------------------------------
-# acceptReview | ics1476
+# acceptReviewInvitation | ics1476
 # Transition: Open -> Reviewing -> Accepted
 # ---------------------------------------------------------------------------
-test_that("acceptReview accepts a review|ics1476", {
+test_that("acceptReviewInvitation accepts a review|ics1476,ics2045", {
   skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
   skip_if(!hasConnectAs(), "connectAs not available")
   testFolder <- get("REVLC_FOLDER", envir = globalenv())
@@ -127,7 +127,7 @@ test_that("acceptReview accepts a review|ics1476", {
   improveRtestsupport::connectAs("test1")
   improveR::setEditable(TRUE)
 
-  result <- improveR::acceptReview(reviewData, comment = "automated accept by test1")
+  result <- improveR::acceptReviewInvitation(reviewData, comment = "automated accept by test1")
   expect_true(result)
   cat("Accepted review:", reviewData$resourceId, "\n")
 
@@ -136,10 +136,10 @@ test_that("acceptReview accepts a review|ics1476", {
 })
 
 # ---------------------------------------------------------------------------
-# declineReview | ics1477
+# declineReviewInvitation | ics1477
 # Transition: Open -> Reviewing -> Declined
 # ---------------------------------------------------------------------------
-test_that("declineReview declines a review|ics1477", {
+test_that("declineReviewInvitation declines a review|ics1477,ics2045", {
   skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
   skip_if(!hasConnectAs(), "connectAs not available")
   testFolder <- get("REVLC_FOLDER", envir = globalenv())
@@ -157,7 +157,7 @@ test_that("declineReview declines a review|ics1477", {
   improveRtestsupport::connectAs("test1")
   improveR::setEditable(TRUE)
 
-  result <- improveR::declineReview(reviewData, comment = "automated decline by test1")
+  result <- improveR::declineReviewInvitation(reviewData, comment = "automated decline by test1")
   expect_true(result)
   cat("Declined review:", reviewData$resourceId, "\n")
 
@@ -167,7 +167,7 @@ test_that("declineReview declines a review|ics1477", {
 # ---------------------------------------------------------------------------
 # changeReviewStatus | ccs27
 # ---------------------------------------------------------------------------
-test_that("changeReviewStatus Open to Reviewing|ccs27", {
+test_that("changeReviewStatus Open to Reviewing|ccs27,ics2045", {
   skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
   testFolder <- get("REVLC_FOLDER", envir = globalenv())
   testFile <- get("REVLC_FILE", envir = globalenv())
@@ -183,7 +183,7 @@ test_that("changeReviewStatus Open to Reviewing|ccs27", {
   cat("Changed review to Reviewing:", reviewData$resourceId, "\n")
 })
 
-test_that("changeReviewStatus Reviewing to Accepted via accept|ccs27", {
+test_that("changeReviewStatus Reviewing to Accepted via accept|ccs27,ics2045", {
   skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
   skip_if(!hasConnectAs(), "connectAs not available")
   testFolder <- get("REVLC_FOLDER", envir = globalenv())
@@ -206,7 +206,7 @@ test_that("changeReviewStatus Reviewing to Accepted via accept|ccs27", {
   # Accept as test1
   improveRtestsupport::connectAs("test1")
   improveR::setEditable(TRUE)
-  result2 <- improveR::acceptReview(reviewData, comment = "status test accept")
+  result2 <- improveR::acceptReviewInvitation(reviewData, comment = "status test accept")
   expect_true(result2)
   cat("Accepted review via status flow:", reviewData$resourceId, "\n")
 

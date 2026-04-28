@@ -18,7 +18,7 @@
 # })
 
 
-test_that("improveConnected handles uninitialized state correctly", {
+test_that("improveConnected handles uninitialized state correctly|ics1081,ics2050", {
 
   improveDisconnect()
   # expect_false(improveConnected(silent=TRUE))
@@ -40,7 +40,7 @@ test_that("improveConnected handles uninitialized state correctly", {
 # cacheEnv <- improveR::cacheEnv works as intended; currently only kept
 # for documentation purpose
 #improveClose
-test_that("OLD VERSION. improveClose handles file cleanup correctly", {
+test_that("OLD VERSION. improveClose handles file cleanup correctly|ics2050", {
 
   improveR:::setRootPath(getwd())
 
@@ -99,7 +99,7 @@ test_that("OLD VERSION. improveClose handles file cleanup correctly", {
 # the tried approach cacheEnv<-improveR:::cacheEnv is not necessary and in fact is testing
 # something different than intended; it tests the presnece of specific bindings in a "copy" of improveR:::cacheEnv
 # and not in improveR::cacheEnv itself. The approach below takes care of this
-test_that("ALTERNTAIVE - improveClose handles file cleanup correctly", {
+test_that("ALTERNTAIVE - improveClose handles file cleanup correctly|ics2050", {
 
   # improveR:::setRootPath(getwd()) #not needed
 
@@ -145,4 +145,37 @@ test_that("ALTERNTAIVE - improveClose handles file cleanup correctly", {
   expect_false(file.exists(pathFile1))
   expect_false(file.exists(pathFile2))
 
+})
+
+test_that("repoPrefix discovered from root children when stepId missing|ics1081", {
+  improveConnect()
+  setEditable(TRUE)
+
+  originalPrefix <- repoPrefix()
+  skip_if(originalPrefix == "", "No repoPrefix in current session to compare against")
+
+  # Clear stepId to simulate no-step scenario
+  confDf <- conf()
+  savedStepId <- confDf$stepId
+  confDf$stepId <- ""
+  cacheEnv$conf <- confDf
+  cacheEnv$discoveredRepoPrefix <- NULL
+  expect_equal(repoPrefix(), "")
+
+  # Trigger discovery: use the same REST call as the improveConnect code
+  result <- authenticatedREST("/resources", restType = "GET")
+  expect_false(is.null(result))
+  items <- httr::content(result)
+  expect_true(length(items) > 0, info = "Root must have at least one child")
+
+  firstEntityId <- items[[1]]$entityId
+  expect_true(grepl(":", firstEntityId, fixed = TRUE),
+              info = "Child entityId must contain a colon")
+  discoveredPrefix <- substr(firstEntityId, 1, regexpr(":", firstEntityId, fixed = TRUE))
+  expect_equal(discoveredPrefix, originalPrefix)
+  cat("Discovered prefix:", discoveredPrefix, "matches original:", originalPrefix, "\n")
+
+  # Restore
+  confDf$stepId <- savedStepId
+  cacheEnv$conf <- confDf
 })

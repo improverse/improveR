@@ -1,5 +1,5 @@
 #Dataframes
-test_that("getCorrectId returns correct ID for provideded data frames", {
+test_that("getCorrectId returns correct ID for provideded data frames|ics1087", {
 
   dfId <- data.frame(resourceId = "100", details = "txt")
   expect_equal(getCorrectId(dfId), "100")
@@ -15,7 +15,7 @@ test_that("getCorrectId returns correct ID for provideded data frames", {
 #Paths, resourceVersion, fullEntityId,
 ##NOTE Not clear which input reaches last else if condition; 
 
-test_that("getCorrectId returns correct id for provided location, resource (version) id, location ids, and full location", {
+test_that("getCorrectId returns correct id for provided location, resource (version) id, location ids, and full location|ics1087", {
 
 # else if (startsWith(resolveToId, "/") | startsWith(resolveToId, "./") | startsWith(resolveToId, "\\") | startsWith(resolveToId, ".\\")) 
 # = location

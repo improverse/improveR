@@ -75,7 +75,7 @@ test_that("setup permissionsAdvanced test environment", {
 # ---------------------------------------------------------------------------
 # Multiple ACEs on one resource
 # ---------------------------------------------------------------------------
-test_that("multiple ACEs: 3 groups on one resource via replaceResourcePermissions|ics769", {
+test_that("multiple ACEs: 3 groups on one resource via replaceResourcePermissions|ics769,ics2044", {
   PA <- get("PA", envir = globalenv())
   skip_if(is.null(PA$FOLDER), "No test folder")
 
@@ -119,7 +119,7 @@ test_that("multiple ACEs: 3 groups on one resource via replaceResourcePermission
 # ---------------------------------------------------------------------------
 # Mixed inheritance (same group, inherit=FALSE + inherit=TRUE)
 # ---------------------------------------------------------------------------
-test_that("mixed inheritance: same group with different inherit flags", {
+test_that("mixed inheritance: same group with different inherit flags|ics2044", {
   PA <- get("PA", envir = globalenv())
   skip_if(is.null(PA$FOLDER), "No test folder")
 
@@ -151,7 +151,7 @@ test_that("mixed inheritance: same group with different inherit flags", {
 # ---------------------------------------------------------------------------
 # Inherited ACEs propagating to child resources
 # ---------------------------------------------------------------------------
-test_that("inherited ACEs propagate to child folders", {
+test_that("inherited ACEs propagate to child folders|ics2044", {
   PA <- get("PA", envir = globalenv())
   skip_if(is.null(PA$FOLDER), "No test folder")
   skip_if(is.null(PA$ADMIN_USER), "No admin user")
@@ -183,7 +183,7 @@ test_that("inherited ACEs propagate to child folders", {
 # ---------------------------------------------------------------------------
 # replaceResourcePermissions replace semantics
 # ---------------------------------------------------------------------------
-test_that("replaceResourcePermissions removes entries not in new list", {
+test_that("replaceResourcePermissions removes entries not in new list|ics2044", {
   PA <- get("PA", envir = globalenv())
   skip_if(is.null(PA$FOLDER), "No test folder")
 
@@ -221,7 +221,7 @@ test_that("replaceResourcePermissions removes entries not in new list", {
 # ---------------------------------------------------------------------------
 # updateResourcePermission
 # ---------------------------------------------------------------------------
-test_that("updateResourcePermission modifies existing ACE rights", {
+test_that("updateResourcePermission modifies existing ACE rights|ics2044", {
   PA <- get("PA", envir = globalenv())
   skip_if(is.null(PA$FOLDER), "No test folder")
 
@@ -254,7 +254,7 @@ test_that("updateResourcePermission modifies existing ACE rights", {
 # ---------------------------------------------------------------------------
 # orderNr
 # ---------------------------------------------------------------------------
-test_that("ACE orderNr is respected in getResourcePermissions", {
+test_that("ACE orderNr is respected in getResourcePermissions|ics2044", {
   PA <- get("PA", envir = globalenv())
   skip_if(is.null(PA$FOLDER), "No test folder")
 
@@ -281,7 +281,7 @@ test_that("ACE orderNr is respected in getResourcePermissions", {
 # ---------------------------------------------------------------------------
 # Multi-user ACL verification
 # ---------------------------------------------------------------------------
-test_that("ACL restricts access from test1 perspective", {
+test_that("ACL restricts access from test1 perspective|ics2044", {
   PA <- get("PA", envir = globalenv())
   skip_if(is.null(PA$FOLDER), "No test folder")
   skip_if(!hasConnectAs(), "connectAs not available")
