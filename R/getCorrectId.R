@@ -42,7 +42,7 @@ getCorrectId <- function(resolveToId) {
         log_error("getCorrectId called with non-character value of class:", class(resolveToId))
         stop(paste("resolveToId must be character, got:", class(resolveToId)))
     }
-    if (startsWith(resolveToId, "/") | startsWith(resolveToId, "./") | startsWith(resolveToId, "\\") | startsWith(resolveToId, ".\\")) {
+    if (startsWith(resolveToId, "/") | startsWith(resolveToId, "./") | startsWith(resolveToId, "..") | startsWith(resolveToId, "\\") | startsWith(resolveToId, ".\\")) {
         return(resolveToId)
     } else if (!grepl("=", resolveToId, fixed = T) &&
         !grepl(":", resolveToId, fixed = T) &&
