@@ -51,7 +51,7 @@ loadRelationTypes <- function() {
 #' @export
 unloadRelationTypes <- function() {
   loadRelationTypes()
-  removeFromCache(defaultKeyRelationTypes, "", relationTypesCacheList)
+  removeFromCache(defaultKeyRelationTypes(), "", relationTypesCacheList)
 }
 
 #' Reloads the Relation Types
@@ -67,6 +67,80 @@ refreshRelationTypes <- function() {
 updateRelationTypes <- function(...) {
   .Deprecated("refreshRelationTypes")
   refreshRelationTypes(...)
+}
+
+#' Create a New Relation Type
+#'
+#' Creates a new relation type on the server and refreshes the cached list.
+#'
+#' @param name Character. Display name of the relation type (e.g. "tested by").
+#' @param reverseName Character. Reverse display name (e.g. "tests").
+#' @param description Character. Description of the relation type.
+#' @returns The created relation type as a list (with \code{id}, \code{name},
+#'   \code{reverseName}, \code{description}), or \code{NULL} on failure.
+#' @references ics1694
+#' @export
+createRelationType <- function(name, reverseName, description = "") {
+  improveEditable()
+  result <- authenticatedREST(
+    "configuration/relationTypeLov",
+    data = list(name = name, reverseName = reverseName, description = description),
+    restType = "POST"
+  )
+  if (is.null(result)) {
+    log_warn("Failed to create relation type:", name)
+    return(NULL)
+  }
+  created <- httr::content(result)
+  refreshRelationTypes()
+  return(created)
+}
+
+#' Update an Existing Relation Type
+#'
+#' Updates a relation type on the server and refreshes the cached list.
+#'
+#' @param relationTypeId Character. UUID of the relation type to update.
+#' @param name Character. New display name.
+#' @param reverseName Character. New reverse display name.
+#' @param description Character. New description.
+#' @returns The updated relation type as a list, or \code{NULL} on failure.
+#' @references ics1699
+#' @export
+updateRelationType <- function(relationTypeId, name, reverseName, description = "") {
+  improveEditable()
+  result <- authenticatedREST(
+    "configuration/relationTypeLov/{relationTypeId}",
+    urlParams = list(relationTypeId = relationTypeId),
+    data = list(name = name, reverseName = reverseName, description = description),
+    restType = "PUT"
+  )
+  if (is.null(result)) {
+    log_warn("Failed to update relation type:", relationTypeId)
+    return(NULL)
+  }
+  updated <- httr::content(result)
+  refreshRelationTypes()
+  return(updated)
+}
+
+#' Delete a Relation Type
+#'
+#' Deletes a relation type from the server and refreshes the cached list.
+#'
+#' @param relationTypeId Character. UUID of the relation type to delete.
+#' @returns \code{TRUE} if deleted successfully, \code{FALSE} otherwise.
+#' @references ics1700
+#' @export
+deleteRelationType <- function(relationTypeId) {
+  improveEditable()
+  result <- authenticatedREST(
+    "configuration/relationTypeLov/{relationTypeId}",
+    urlParams = list(relationTypeId = relationTypeId),
+    restType = "DELETE"
+  )
+  refreshRelationTypes()
+  return(!is.null(result))
 }
 
 resourceRelationsCacheList <- list(
