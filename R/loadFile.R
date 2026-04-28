@@ -226,7 +226,19 @@ actualLoadFile <- function(resource,filePath,addIdToName,linkInInventory) {
       }
       log_debug(paste0("download: ",fPath))
       f <- file.create(fPath)
-      f <- file(fPath, "wb")
+      f <- tryCatch(
+        file(fPath, "wb"),
+        error = function(e) {
+          stop(paste0(
+            "Cannot open file for writing: ", fPath,
+            "\n  path length: ", nchar(fPath),
+            "\n  OS: ", Sys.info()[["sysname"]],
+            "\n  dir exists: ", dir.exists(dirname(fPath)),
+            "\n  dir writable: ", file.access(dirname(fPath), mode = 2) == 0,
+            "\n  original error: ", e$message
+          ))
+        }
+      )
       fResult <- authenticatedREST("/revisions/{revisionId}/resources/{resourceId}/content",
                                              list(resourceId=resource$resourceId,
                                                   revisionId=resource$revisionId)
