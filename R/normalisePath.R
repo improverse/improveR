@@ -10,7 +10,7 @@
 #' normalisePath(path = "./../../../lmer/../lmer", startPath = "/0demo/lmer") # NULL
 #' normalisePath(path = "/0demo/lmer", startPath = "/0demo/lmer") # /0demo/lmer
 #' }
-#' @noRd
+#' @export
 normalisePath <- function(path,startPath="/") {
   if(is.data.frame(startPath)) {
     startPath<-startPath$path
