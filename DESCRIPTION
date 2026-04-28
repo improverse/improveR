@@ -40,7 +40,6 @@ Imports:
     properties,
     zip
 Suggests: 
-    httptest,
     testthat (>= 3.0.0),
     devtools,
     lubridate,
