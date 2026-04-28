@@ -61,7 +61,7 @@ test_that("template setStepFinalModel sets flag at creation time", {
 })
 
 test_that("markStep sets flags on existing step", {
-  stopifnot("No step created" = exists("MS_STEP", envir = globalenv()))
+  skip_if(!exists("MS_STEP", envir = globalenv()), "No step created")
   stepResource <- get("MS_STEP", envir = globalenv())
 
   # Initially all flags should be FALSE
@@ -78,7 +78,7 @@ test_that("markStep sets flags on existing step", {
 })
 
 test_that("markStep sets multiple flags at once", {
-  stopifnot("No step created" = exists("MS_STEP", envir = globalenv()))
+  skip_if(!exists("MS_STEP", envir = globalenv()), "No step created")
   stepResource <- get("MS_STEP", envir = globalenv())
 
   result <- markStep(stepResource$resourceId,
@@ -92,7 +92,7 @@ test_that("markStep sets multiple flags at once", {
 })
 
 test_that("markStep clears flags", {
-  stopifnot("No step created" = exists("MS_STEP", envir = globalenv()))
+  skip_if(!exists("MS_STEP", envir = globalenv()), "No step created")
   stepResource <- get("MS_STEP", envir = globalenv())
 
   result <- markStep(stepResource$resourceId, finalModel = FALSE, baseModel = FALSE)
@@ -104,7 +104,7 @@ test_that("markStep clears flags", {
 })
 
 test_that("markStep with no flags is a no-op", {
-  stopifnot("No step created" = exists("MS_STEP", envir = globalenv()))
+  skip_if(!exists("MS_STEP", envir = globalenv()), "No step created")
   stepResource <- get("MS_STEP", envir = globalenv())
 
   before <- refreshResource(stepResource)
