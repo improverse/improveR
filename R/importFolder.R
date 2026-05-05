@@ -298,7 +298,7 @@ importFolder <- function(folderFile, targetFolder, onConflict = c("skip", "overw
                                      "->", mappedRes$name, "(", mappedEntityId, ")"))
                       break
                     }
-                  }, error = function(e) NULL)
+                  }, error = function(e) { log_warn("link resolution failed during importFolder: ", conditionMessage(e)); NULL })
                 }
               }
             }
@@ -315,7 +315,7 @@ importFolder <- function(folderFile, targetFolder, onConflict = c("skip", "overw
                     targetEntityId <- idMapping[[key]]
                     break
                   }
-                }, error = function(e) NULL)
+                }, error = function(e) { log_warn("link resolution failed during importFolder: ", conditionMessage(e)); NULL })
               }
             }
 
