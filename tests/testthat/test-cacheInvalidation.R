@@ -5,18 +5,14 @@
 
 ensureTestFolder <- function() {
   if (!exists("TEST_FOLDER_CI", envir = globalenv())) {
-    tryCatch({
-      improveR::improveConnect()
-      improveR::setEditable(TRUE)
-      basePath <- createFolderPath("cacheInvalidation")
-      testFolder <- improveR::createFolder(
-        targetIdent = basePath,
-        folderName = paste0("test-cache-", format(Sys.time(), "%Y%m%d%H%M%S"))
-      )
-      assign("TEST_FOLDER_CI", testFolder, envir = globalenv())
-    }, error = function(e) {
-      skip(paste("Server not available:", e$message))
-    })
+    improveR::improveConnect()
+    improveR::setEditable(TRUE)
+    basePath <- createFolderPath("cacheInvalidation")
+    testFolder <- improveR::createFolder(
+      targetIdent = basePath,
+      folderName = paste0("test-cache-", format(Sys.time(), "%Y%m%d%H%M%S"))
+    )
+    assign("TEST_FOLDER_CI", testFolder, envir = globalenv())
   }
 }
 
@@ -24,12 +20,8 @@ ensureTestFolder <- function() {
 # Setup
 # ---------------------------------------------------------------------------
 test_that("setup cache invalidation test environment", {
-  tryCatch({
-    improveR::improveConnect()
-    improveR::setEditable(TRUE)
-  }, error = function(e) {
-    skip(paste("Server not available:", e$message))
-  })
+  improveR::improveConnect()
+  improveR::setEditable(TRUE)
 
   basePath <- createFolderPath("cacheInvalidation")
   testFolder <- improveR::createFolder(
@@ -62,7 +54,7 @@ test_that("lockResource invalidates cache so loadResource shows locked state|ics
   # Lock it
   lockResult <- improveR::lockResource(testFile$resourceId)
   if (isFALSE(lockResult)) {
-    skip("lockResource not supported on this server")
+    stop("lockResource not supported on this server")
   }
   expect_true(lockResult)
 
@@ -80,7 +72,7 @@ test_that("unlockResource invalidates cache so loadResource shows unlocked state
   # Unlock it (should be locked from previous test)
   unlockResult <- improveR::unlockResource(testFile$resourceId)
   if (isFALSE(unlockResult)) {
-    skip("unlockResource not supported on this server")
+    stop("unlockResource not supported on this server")
   }
   expect_true(unlockResult)
 
@@ -105,7 +97,7 @@ test_that("finishResource invalidates cache and loadResource succeeds after fini
   # Finish it
   finishResult <- improveR::finishResource(testFile$resourceId)
   if (isFALSE(finishResult)) {
-    skip("finishResource not supported on this server")
+    stop("finishResource not supported on this server")
   }
   expect_true(finishResult)
 
@@ -123,7 +115,7 @@ test_that("reopenResource invalidates cache and loadResource succeeds after reop
   # Reopen (should be finished from previous test)
   reopenResult <- improveR::reopenResource(testFile$resourceId)
   if (isFALSE(reopenResult)) {
-    skip("reopenResource not supported on this server")
+    stop("reopenResource not supported on this server")
   }
   expect_true(reopenResult)
 
@@ -193,9 +185,11 @@ test_that("pushCli invalidates cache for pushed resource", {
   r_tool <- Sys.getenv("R_TOOL")
   r_tool_instance <- Sys.getenv("R_TOOL_INSTANCE")
 
-  if (r_runserver == "" || r_tool == "" || r_tool_instance == "") {
-    skip("R tool environment variables not set")
-  }
+  stopifnot(
+    "R_RUNSERVER env var must be set"      = r_runserver != "",
+    "R_TOOL env var must be set"           = r_tool      != "",
+    "R_TOOL_INSTANCE env var must be set"  = r_tool_instance != ""
+  )
 
   # Create a tree and step
   testTree <- improveR::createAnalysisTree(testFolder, "CacheTestTree")
@@ -218,7 +212,7 @@ test_that("pushCli invalidates cache for pushed resource", {
   }
   stepResource <- improveR::loadResource(stepEntityId)
   if (is.null(stepResource)) {
-    skip("Could not load realised step resource")
+    stop("Could not load realised step resource")
   }
 
   # Clone and push a file

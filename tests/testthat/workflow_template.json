@@ -3,16 +3,16 @@
   "parameters": [
     {
       "name": "inputData",
-      "stepPattern": "JSON DMG L1/Step 1/370231",
+      "stepPattern": "JSON DMG L1/Step 1/410978",
       "property": "remoteFile",
       "target": "./data.csv",
       "required": true,
       "defaultValue": null,
-      "value": "hc4310:FI-369999"
+      "value": "hc4310:FI-410792"
     },
     {
       "name": "processingDesc",
-      "stepPattern": "JSON DMG L1/Step 2/370235",
+      "stepPattern": "JSON DMG L1/Step 2/410982",
       "property": "description",
       "target": {},
       "required": false,
@@ -22,10 +22,10 @@
   ],
   "workflow": [
     {
-      "handle": "13ed54bd-0ece-45d8-baa2-a3ad7c6b8c16",
+      "handle": "b39d9e82-551a-4983-a28f-f987ef8e600c",
       "processes": [
         {
-          "handle": "13ed54bd-0ece-45d8-baa2-a3ad7c6b8c16",
+          "handle": "b39d9e82-551a-4983-a28f-f987ef8e600c",
           "runserverLabel": "runserver",
           "toolLabel": "R 3_Std",
           "toolInstance": "Rbatch",
@@ -40,51 +40,51 @@
           "gridArguments": []
         }
       ],
-      "treeIdent": "2D47F73E390D48158C310711289A3B22",
+      "treeIdent": "FFC6A21FFE90416184F1B4D5CA3DD1F7",
       "treeName": "JSON DMG L1",
       "treePath": "/Projects/Tests/runFiles/steps",
       "description": "Initial JSON",
       "rationale": "data input",
-      "sourceEntityId": "hc4310:ST-370231",
+      "sourceEntityId": "hc4310:ST-410978",
       "sourceName": "Step 1",
       "remoteFiles": [
         {
-          "stepHandle": "13ed54bd-0ece-45d8-baa2-a3ad7c6b8c16",
-          "ident": "hc4310:FI-369997",
-          "version": "A87A1E171D1443459A9746394618BBAC",
-          "filehash": "3C98718131DB25D8E67182D94F10BF59C727C161184512744F2DC9C14F60A7AD",
-          "maxVersion": "A87A1E171D1443459A9746394618BBAC",
+          "stepHandle": "b39d9e82-551a-4983-a28f-f987ef8e600c",
+          "ident": "hc4310:FI-410792",
+          "version": "2C480184D02E4654AB65163C76C40D6A",
+          "filehash": "127382BB922B06EDA7989B0ED44D9EEF4673511D7DF484C5B2DA0BED06964466",
+          "maxVersion": "2C480184D02E4654AB65163C76C40D6A",
           "asLink": true,
-          "name": "./data.csv"
+          "name": "./DataManipulation.Rmd"
         },
         {
-          "stepHandle": "13ed54bd-0ece-45d8-baa2-a3ad7c6b8c16",
-          "ident": "hc4310:FI-369998",
-          "version": "866B4E076778452BB5CAA58BDEED08AF",
+          "stepHandle": "b39d9e82-551a-4983-a28f-f987ef8e600c",
+          "ident": "hc4310:FI-410791",
+          "version": "C3E94B0D3DB145E480E4FC5AD3A98F80",
           "filehash": "629448AA10E90DC7D9495592F0912C5008436548A9954CBC766E4678EA3D703E",
-          "maxVersion": "866B4E076778452BB5CAA58BDEED08AF",
+          "maxVersion": "C3E94B0D3DB145E480E4FC5AD3A98F80",
           "asLink": true,
           "name": "./DataManipulation.R",
           "variableName": "command-file",
           "variableProcess": "Main"
         },
         {
-          "stepHandle": "13ed54bd-0ece-45d8-baa2-a3ad7c6b8c16",
-          "ident": "hc4310:FI-369999",
-          "version": "EAA501A457B44D9584BFA724EB33BC0C",
-          "filehash": "127382BB922B06EDA7989B0ED44D9EEF4673511D7DF484C5B2DA0BED06964466",
-          "maxVersion": "EAA501A457B44D9584BFA724EB33BC0C",
+          "stepHandle": "b39d9e82-551a-4983-a28f-f987ef8e600c",
+          "ident": "hc4310:FI-410790",
+          "version": "F41E4898AC50437FAB9FBDFC22A43607",
+          "filehash": "3C98718131DB25D8E67182D94F10BF59C727C161184512744F2DC9C14F60A7AD",
+          "maxVersion": "F41E4898AC50437FAB9FBDFC22A43607",
           "asLink": true,
-          "name": "./DataManipulation.Rmd"
+          "name": "./data.csv"
         }
       ],
-      "fullName": "JSON DMG L1/Step 1/370231"
+      "fullName": "JSON DMG L1/Step 1/410978"
     },
     {
-      "handle": "ac5ed41b-435a-43d7-8c5c-b0eed17d7563",
+      "handle": "bb28f5fa-c4a1-4bb4-9112-941786869a96",
       "processes": [
         {
-          "handle": "ac5ed41b-435a-43d7-8c5c-b0eed17d7563",
+          "handle": "bb28f5fa-c4a1-4bb4-9112-941786869a96",
           "runserverLabel": "runserver",
           "toolLabel": "R 3_Std",
           "toolInstance": "Rbatch",
@@ -99,48 +99,48 @@
           "gridArguments": []
         }
       ],
-      "treeIdent": "2D47F73E390D48158C310711289A3B22",
+      "treeIdent": "FFC6A21FFE90416184F1B4D5CA3DD1F7",
       "treeName": "JSON DMG L1",
       "treePath": "/Projects/Tests/runFiles/steps",
       "description": "Process JSON",
       "rationale": "data processing",
-      "sourceEntityId": "hc4310:ST-370235",
+      "sourceEntityId": "hc4310:ST-410982",
       "sourceName": "Step 2",
       "remoteFiles": [
         {
-          "stepHandle": "ac5ed41b-435a-43d7-8c5c-b0eed17d7563",
-          "ident": "hc4310:FI-369999",
-          "version": "EAA501A457B44D9584BFA724EB33BC0C",
+          "stepHandle": "bb28f5fa-c4a1-4bb4-9112-941786869a96",
+          "ident": "hc4310:FI-410792",
+          "version": "2C480184D02E4654AB65163C76C40D6A",
           "filehash": "127382BB922B06EDA7989B0ED44D9EEF4673511D7DF484C5B2DA0BED06964466",
-          "maxVersion": "EAA501A457B44D9584BFA724EB33BC0C",
+          "maxVersion": "2C480184D02E4654AB65163C76C40D6A",
           "asLink": true,
           "name": "./DataManipulation.Rmd"
         },
         {
-          "stepHandle": "ac5ed41b-435a-43d7-8c5c-b0eed17d7563",
-          "ident": "hc4310:FI-369998",
-          "version": "866B4E076778452BB5CAA58BDEED08AF",
+          "stepHandle": "bb28f5fa-c4a1-4bb4-9112-941786869a96",
+          "ident": "hc4310:FI-411068",
+          "version": "D20B6AF453E44F8BA59F000CD8B80B14",
+          "filehash": "3C98718131DB25D8E67182D94F10BF59C727C161184512744F2DC9C14F60A7AD",
+          "maxVersion": "D20B6AF453E44F8BA59F000CD8B80B14",
+          "asLink": true,
+          "name": "./data.csv",
+          "sourceStep": "JSON DMG L1/Step 1/410978",
+          "sourceInventoryPath": "chapter15_example_cleaned.rds",
+          "targetStep": "JSON DMG L1/Step 2/410982"
+        },
+        {
+          "stepHandle": "bb28f5fa-c4a1-4bb4-9112-941786869a96",
+          "ident": "hc4310:FI-410791",
+          "version": "C3E94B0D3DB145E480E4FC5AD3A98F80",
           "filehash": "629448AA10E90DC7D9495592F0912C5008436548A9954CBC766E4678EA3D703E",
-          "maxVersion": "866B4E076778452BB5CAA58BDEED08AF",
+          "maxVersion": "C3E94B0D3DB145E480E4FC5AD3A98F80",
           "asLink": true,
           "name": "./DataManipulation.R",
           "variableName": "command-file",
           "variableProcess": "Main"
-        },
-        {
-          "stepHandle": "ac5ed41b-435a-43d7-8c5c-b0eed17d7563",
-          "ident": "hc4310:FI-370330",
-          "version": "E6D62B8747064E818ED9A85FD312FBC6",
-          "filehash": "3C98718131DB25D8E67182D94F10BF59C727C161184512744F2DC9C14F60A7AD",
-          "maxVersion": "E6D62B8747064E818ED9A85FD312FBC6",
-          "asLink": true,
-          "name": "./data.csv",
-          "sourceStep": "JSON DMG L1/Step 1/370231",
-          "sourceInventoryPath": "chapter15_example_cleaned.rds",
-          "targetStep": "JSON DMG L1/Step 2/370235"
         }
       ],
-      "fullName": "JSON DMG L1/Step 2/370235"
+      "fullName": "JSON DMG L1/Step 2/410982"
     }
   ]
 }

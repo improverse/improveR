@@ -7,8 +7,10 @@
 
 Sys.setenv(TEST_NAME = "loadReview")
 
-setupLoadReview <- function() {
-  Sys.setenv(TEST_NAME = "loadReview")
+# -----------------------------------------------------------------------------
+# Setup — run once, cache result for all tests
+# -----------------------------------------------------------------------------
+test_that("setup loadReview test environment|ics1208", {
   improveR::improveConnect()
   improveR::setEditable(TRUE)
 
@@ -53,19 +55,18 @@ setupLoadReview <- function() {
     )
   }
 
-  list(
+  expect_false(is.null(testFolder))
+  assign("LRV_CTX", list(
     testFolder = testFolder,
     testFile = testFile,
     reviewerId = reviewerId,
     reviewData = reviewData
-  )
-}
+  ), envir = globalenv())
+})
 
 test_that("loadReviewers loads reviewers by resourceId with caching|ics1208", {
-  ctx <- setupLoadReview()
-  on.exit(tryCatch(improveR::delete(ctx$testFolder$resourceId),
-                   error = function(e) NULL), add = TRUE)
-  skip_if(is.null(ctx$reviewData), "createReview failed (no reviewer available)")
+  ctx <- get("LRV_CTX", envir = globalenv())
+  stopifnot("createReview failed (no reviewer available)" = !is.null(ctx$reviewData))
 
   reviewers <- improveR::loadReviewers(ctx$reviewData$resourceId)
   expect_false(is.null(reviewers))
@@ -79,10 +80,8 @@ test_that("loadReviewers loads reviewers by resourceId with caching|ics1208", {
 })
 
 test_that("loadReviewers accepts entityId and path identifiers|ics1208", {
-  ctx <- setupLoadReview()
-  on.exit(tryCatch(improveR::delete(ctx$testFolder$resourceId),
-                   error = function(e) NULL), add = TRUE)
-  skip_if(is.null(ctx$reviewData), "createReview failed")
+  ctx <- get("LRV_CTX", envir = globalenv())
+  stopifnot("createReview failed" = !is.null(ctx$reviewData))
 
   byEntity <- improveR::loadReviewers(ctx$reviewData$entityId)
   expect_false(is.null(byEntity))
@@ -92,10 +91,8 @@ test_that("loadReviewers accepts entityId and path identifiers|ics1208", {
 })
 
 test_that("loadReviewEntries returns review entries|ics1208", {
-  ctx <- setupLoadReview()
-  on.exit(tryCatch(improveR::delete(ctx$testFolder$resourceId),
-                   error = function(e) NULL), add = TRUE)
-  skip_if(is.null(ctx$reviewData), "createReview failed")
+  ctx <- get("LRV_CTX", envir = globalenv())
+  stopifnot("createReview failed" = !is.null(ctx$reviewData))
 
   entries <- improveR::loadReviewEntries(ctx$reviewData$resourceId)
   expect_false(is.null(entries))
@@ -105,14 +102,14 @@ test_that("loadReviewEntries returns review entries|ics1208", {
 })
 
 test_that("loadReviewComments returns (possibly empty) comments|ics1208", {
-  ctx <- setupLoadReview()
-  on.exit(tryCatch(improveR::delete(ctx$testFolder$resourceId),
-                   error = function(e) NULL), add = TRUE)
-  skip_if(is.null(ctx$reviewData), "createReview failed")
+  ctx <- get("LRV_CTX", envir = globalenv())
+  stopifnot("createReview failed" = !is.null(ctx$reviewData))
 
   # Add one review-level comment so the frame is non-null
   improveR::createReviewComment(ctx$reviewData$resourceId,
-                                comment = "lrv test comment")
+                                resourceIdent = ctx$testFile$resourceId,
+                                comment = "lrv test comment",
+                                commentType = "COMMENT")
 
   comments <- improveR::loadReviewComments(ctx$reviewData$resourceId)
   expect_false(is.null(comments))

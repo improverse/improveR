@@ -53,7 +53,7 @@ cleanExportArtifacts <- function(exportName) {
 test_that("Setup onConflict test environment", {
   Sys.setenv(IMPROVER_TEST_REPLAY = "T")
   if (!improveConnected()) {
-    tryCatch(improveConnect(), error = function(e) {})
+    improveConnect()
   }
   setEditable(TRUE)
   folder <- workflowFilesSetup()
@@ -307,9 +307,11 @@ test_that("OC7: Re-import with skip does not duplicate tree steps", {
   r_tool <- Sys.getenv("R_TOOL")
   r_tool_instance <- Sys.getenv("R_TOOL_INSTANCE")
 
-  if (r_runserver == "" || r_tool == "" || r_tool_instance == "") {
-    skip("R tool environment variables not set")
-  }
+  stopifnot(
+    "R_RUNSERVER env var must be set"      = r_runserver != "",
+    "R_TOOL env var must be set"           = r_tool      != "",
+    "R_TOOL_INSTANCE env var must be set"  = r_tool_instance != ""
+  )
 
   # Create source with a tree and step
   src <- createFolder(TEST_FOLDER, "OC7_Source")

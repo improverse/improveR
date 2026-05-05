@@ -152,8 +152,7 @@ test_that("repoPrefix discovered from root children when stepId missing|ics1081"
   setEditable(TRUE)
 
   originalPrefix <- repoPrefix()
-  skip_if(originalPrefix == "", "No repoPrefix in current session to compare against")
-
+  stopifnot("No repoPrefix in current session to compare against" = !(originalPrefix == ""))
   # Clear stepId to simulate no-step scenario
   confDf <- conf()
   savedStepId <- confDf$stepId

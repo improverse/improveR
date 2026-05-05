@@ -6,8 +6,10 @@
 
 Sys.setenv(TEST_NAME = "adminMetrics")
 
-setupAdminMetrics <- function() {
-  Sys.setenv(TEST_NAME = "adminMetrics")
+# -----------------------------------------------------------------------------
+# Setup — run once, cache result for all tests
+# -----------------------------------------------------------------------------
+test_that("setup adminMetrics test environment|ics1142", {
   improveR::improveConnect()
   improveR::setEditable(TRUE)
   basePath <- createFolderPath("adminMetrics")
@@ -16,8 +18,9 @@ setupAdminMetrics <- function() {
     folderName = paste0("am-", format(Sys.time(), "%Y%m%d%H%M%S")),
     comment = "adminMetrics test setup"
   )
-  testFolder
-}
+  expect_false(is.null(testFolder))
+  assign("AM_TEST_FOLDER", testFolder, envir = globalenv())
+})
 
 # -----------------------------------------------------------------------------
 # users() — returns a data frame of all users
@@ -81,7 +84,7 @@ test_that("userAuditTrail is exported per spec|ics1142", {
 # getFullFolderAuditTrail — recursive folder audit trail, no caching per spec
 # -----------------------------------------------------------------------------
 test_that("getFullFolderAuditTrail returns entries for folder and descendants|ics1142", {
-  testFolder <- setupAdminMetrics()
+  testFolder <- get("AM_TEST_FOLDER", envir = globalenv())
   on.exit(tryCatch(improveR::delete(testFolder$resourceId),
                    error = function(e) NULL), add = TRUE)
 
@@ -105,9 +108,7 @@ test_that("getFullFolderAuditTrail returns entries for folder and descendants|ic
 })
 
 test_that("getFullFolderAuditTrail is not cached (fresh each call per spec)|ics1142", {
-  testFolder <- setupAdminMetrics()
-  on.exit(tryCatch(improveR::delete(testFolder$resourceId),
-                   error = function(e) NULL), add = TRUE)
+  testFolder <- get("AM_TEST_FOLDER", envir = globalenv())
 
   before <- improveR::getFullFolderAuditTrail(testFolder$resourceId)
   beforeRows <- if (is.null(before)) 0 else nrow(before)
@@ -124,9 +125,7 @@ test_that("getFullFolderAuditTrail is not cached (fresh each call per spec)|ics1
 })
 
 test_that("getFullFolderAuditTrail excludes read operations by default|ics1142", {
-  testFolder <- setupAdminMetrics()
-  on.exit(tryCatch(improveR::delete(testFolder$resourceId),
-                   error = function(e) NULL), add = TRUE)
+  testFolder <- get("AM_TEST_FOLDER", envir = globalenv())
 
   default <- improveR::getFullFolderAuditTrail(testFolder$resourceId)
   expect_false(is.null(default))

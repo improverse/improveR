@@ -62,7 +62,7 @@ folderRoundTrip <- function(sourceFolder, exportName, importFolderName) {
 test_that("Setup", {
   Sys.setenv(IMPROVER_TEST_REPLAY = "T")
   if (!improveConnected()) {
-    tryCatch(improveConnect(), error = function(e) {})
+    improveConnect()
   }
   setEditable(TRUE)
   TEST_FOLDER <- workflowFilesSetup()

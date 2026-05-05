@@ -3,19 +3,15 @@
 
 ensureTestFolder <- function() {
   if (!exists("TEST_FOLDER", envir = globalenv())) {
-    tryCatch({
-      improveR::improveConnect()
-      improveR::setEditable(TRUE)
-      basePath <- createFolderPath("resourceLifecycle")
-      testFolder <- improveR::createFolder(
-        targetIdent = basePath,
-        folderName = paste0("test-reslc-", format(Sys.time(), "%Y%m%d%H%M%S")),
-        comment = "resource lifecycle test setup"
-      )
-      assign("TEST_FOLDER", testFolder, envir = globalenv())
-    }, error = function(e) {
-      skip(paste("Server not available:", e$message))
-    })
+    improveR::improveConnect()
+    improveR::setEditable(TRUE)
+    basePath <- createFolderPath("resourceLifecycle")
+    testFolder <- improveR::createFolder(
+      targetIdent = basePath,
+      folderName = paste0("test-reslc-", format(Sys.time(), "%Y%m%d%H%M%S")),
+      comment = "resource lifecycle test setup"
+    )
+    assign("TEST_FOLDER", testFolder, envir = globalenv())
   }
 }
 
@@ -23,12 +19,8 @@ ensureTestFolder <- function() {
 # Setup
 # ---------------------------------------------------------------------------
 test_that("setup resource lifecycle test environment", {
-  tryCatch({
-    improveR::improveConnect()
-    improveR::setEditable(TRUE)
-  }, error = function(e) {
-    skip(paste("Server not available:", e$message))
-  })
+  improveR::improveConnect()
+  improveR::setEditable(TRUE)
 
   basePath <- createFolderPath("resourceLifecycle")
   testFolder <- improveR::createFolder(
@@ -57,7 +49,7 @@ test_that("finishResource finishes a resource|ics1810", {
 
   result <- improveR::finishResource(testFile$resourceId)
   if (isFALSE(result)) {
-    skip("finishResource not supported on this server")
+    stop("finishResource not supported on this server")
   }
   expect_true(result)
   cat("Finished resource:", testFile$resourceId, "\n")
@@ -72,7 +64,7 @@ test_that("reopenResource reopens a finished resource|ics1811", {
 
   result <- improveR::reopenResource(testFile$resourceId)
   if (isFALSE(result)) {
-    skip("reopenResource not supported on this server")
+    stop("reopenResource not supported on this server")
   }
   expect_true(result)
   cat("Reopened resource:", testFile$resourceId, "\n")

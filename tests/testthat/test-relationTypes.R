@@ -35,7 +35,7 @@ test_that("createRelationType creates a new type visible in loadRelationTypes|ic
 })
 
 test_that("createRelationType is idempotent (same name returns existing)|ics1694", {
-  skip_if(!exists("RT_CREATED_NAME", envir = globalenv()), "No type created")
+  stopifnot("No type created" = exists("RT_CREATED_NAME", envir = globalenv()))
   typeName <- get("RT_CREATED_NAME", envir = globalenv())
   originalId <- get("RT_CREATED_ID", envir = globalenv())
 
@@ -58,7 +58,7 @@ test_that("createRelationType is idempotent (same name returns existing)|ics1694
 # updateRelationType — server does not support PUT on configuration/relationTypeLov/{id} yet.
 # Uncomment when the endpoint is available.
 # test_that("updateRelationType changes name and description|ics1699,ics1697", {
-#   skip_if(!exists("RT_CREATED_ID", envir = globalenv()), "No type created")
+#   stopifnot("No type created" = exists("RT_CREATED_ID", envir = globalenv()))
 #   rtId <- get("RT_CREATED_ID", envir = globalenv())
 #
 #   newName <- paste0("updated-", format(Sys.time(), "%H%M%S"))
@@ -70,7 +70,7 @@ test_that("createRelationType is idempotent (same name returns existing)|ics1694
 #     reverseName = newReverse,
 #     description = "updated by automated test"
 #   )
-#   skip_if(is.null(updated), "updateRelationType returned NULL (endpoint may not support PUT)")
+#   stopifnot("updateRelationType returned NULL (endpoint may not support PUT)" = !is.null(updated))
 #
 #   # Verify the change via loadRelationTypes
 #   allTypes <- improveR::refreshRelationTypes()
@@ -82,7 +82,7 @@ test_that("createRelationType is idempotent (same name returns existing)|ics1694
 # })
 
 test_that("deleteRelationType removes type from loadRelationTypes|ics1700,ics1697", {
-  skip_if(!exists("RT_CREATED_ID", envir = globalenv()), "No type created")
+  stopifnot("No type created" = exists("RT_CREATED_ID", envir = globalenv()))
   rtId <- get("RT_CREATED_ID", envir = globalenv())
 
   result <- improveR::deleteRelationType(rtId)

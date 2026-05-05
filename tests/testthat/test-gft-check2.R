@@ -26,12 +26,8 @@ GFT2 <- new.env(parent = emptyenv())
 # Setup
 # ---------------------------------------------------------------------------
 test_that("GFT2-setup: connect and create test folder with files", {
-  tryCatch({
-    improveR::improveConnect()
-    improveR::setEditable(TRUE)
-  }, error = function(e) {
-    skip(paste("Server not available:", e$message))
-  })
+  improveR::improveConnect()
+  improveR::setEditable(TRUE)
 
   basePath <- Sys.getenv("TEST_FOLDER", "/Projects/Tests")
   baseRes <- improveR::loadResource(basePath)
@@ -50,7 +46,7 @@ test_that("GFT2-setup: connect and create test folder with files", {
     }
     baseRes <- improveR::loadResource(basePath)
     if (is.null(baseRes)) {
-      skip(paste("Could not create TEST_FOLDER:", basePath))
+      stop(paste("Could not create TEST_FOLDER:", basePath))
     }
   }
 
@@ -112,7 +108,7 @@ test_that("GFT2-setup: connect and create test folder with files", {
 # Copy file | ics1139
 # ===========================================================================
 test_that("GFT2-01: copy file to same folder|ics1139", {
-  skip_if(is.null(GFT2$FILE1_PATH), "No test file 1")
+  stopifnot("No test file 1" = !is.null(GFT2$FILE1_PATH))
 
   result <- improveR::copy(
     sources = GFT2$FILE1_PATH,
@@ -141,8 +137,8 @@ test_that("GFT2-01: copy file to same folder|ics1139", {
 # Move file | ics1139
 # ===========================================================================
 test_that("GFT2-02: move file to subfolder|ics1139", {
-  skip_if(is.null(GFT2$FILE2_PATH), "No test file 2")
-  skip_if(is.null(GFT2$MOVE_TARGET_PATH), "No move target folder")
+  stopifnot("No test file 2" = !is.null(GFT2$FILE2_PATH))
+  stopifnot("No move target folder" = !is.null(GFT2$MOVE_TARGET_PATH))
 
   result <- improveR::move(
     sources = GFT2$FILE2_PATH,
@@ -172,8 +168,8 @@ test_that("GFT2-02: move file to subfolder|ics1139", {
 # Lock / Unlock (Checkout / Checkin cycle) | ics472
 # ===========================================================================
 test_that("GFT2-03: lock, update content, and unlock file|ics472,ics2049,ics1210", {
-  skip_if(is.null(GFT2$FILE1_PATH), "No test file 1")
-  skip_if(is.null(GFT2$TMP_DIR), "No temp dir")
+  stopifnot("No test file 1" = !is.null(GFT2$FILE1_PATH))
+  stopifnot("No temp dir" = !is.null(GFT2$TMP_DIR))
 
   # Lock (checkout)
   locked <- improveR::lockResource(GFT2$FILE1_PATH)
@@ -208,12 +204,11 @@ test_that("GFT2-03: lock, update content, and unlock file|ics472,ics2049,ics1210
 # File version history | ics472
 # ===========================================================================
 test_that("GFT2-04: verify file has multiple versions after edit|ics472", {
-  skip_if(is.null(GFT2$FILE1_PATH), "No test file 1")
+  stopifnot("No test file 1" = !is.null(GFT2$FILE1_PATH))
 
   improveR::refreshResource(GFT2$FILE1_PATH)
   history <- improveR::loadHistory(GFT2$FILE1_PATH)
-  skip_if(is.null(history) || is.null(history$data) || length(history$data) == 0,
-          "History not available")
+  stopifnot("History not available" = !(is.null(history) || is.null(history$data) || length(history$data) == 0))
 
   revisions <- history$data[[1]]
   expect_true(is.data.frame(revisions), info = "Revisions should be a data frame")
@@ -226,13 +221,13 @@ test_that("GFT2-04: verify file has multiple versions after edit|ics472", {
 # Search / Query | ics472
 # ===========================================================================
 test_that("GFT2-05: search for file by name returns correct result|ics472", {
-  skip_if(is.null(GFT2$FILE1_PATH), "No test file 1")
+  stopifnot("No test file 1" = !is.null(GFT2$FILE1_PATH))
 
   results <- tryCatch(
     improveR::query("name='test_file1.txt'"),
     error = function(e) NULL
   )
-  skip_if(is.null(results), "query() not available on this server")
+  stopifnot("query() not available on this server" = !is.null(results))
 
   expect_true(is.data.frame(results), info = "Query should return a data frame")
   expect_true(nrow(results) >= 1,
@@ -246,13 +241,13 @@ test_that("GFT2-05: search for file by name returns correct result|ics472", {
 # Favorites | ics1799-1806
 # ===========================================================================
 test_that("GFT2-06: add file to favorites and verify it appears|ics1803,ics1799", {
-  skip_if(is.null(GFT2$FILE1_RES), "No test file 1")
+  stopifnot("No test file 1" = !is.null(GFT2$FILE1_RES))
 
   result <- improveR::addFavoriteLink(
     targetIdent = GFT2$FILE1_RES$resourceId,
     name = "GFT2-favorite"
   )
-  skip_if(is.null(result), "addFavoriteLink not supported on this server")
+  stopifnot("addFavoriteLink not supported on this server" = !is.null(result))
 
   expect_true(!is.null(result$resourceId),
               info = "Favorite link should have a resourceId")
@@ -269,7 +264,7 @@ test_that("GFT2-06: add file to favorites and verify it appears|ics1803,ics1799"
 
 test_that("GFT2-07: list favorite children at top level|ics1801", {
   children <- improveR::loadFavoriteChildren()
-  skip_if(is.null(children), "loadFavoriteChildren not supported")
+  stopifnot("loadFavoriteChildren not supported" = !is.null(children))
 
   expect_true(is.data.frame(children), info = "Favorite children should be a data frame")
   expect_true(nrow(children) >= 1,
@@ -283,7 +278,7 @@ test_that("GFT2-08: create and remove favorites folder|ics1805,ics1800", {
     name = "GFT2-folder",
     comment = "GFT2 favorites folder test"
   )
-  skip_if(is.null(result), "createFavoriteFolder not supported on this server")
+  stopifnot("createFavoriteFolder not supported on this server" = !is.null(result))
 
   expect_true(!is.null(result$resourceId),
               info = "Favorites folder should have a resourceId")
@@ -297,7 +292,7 @@ test_that("GFT2-08: create and remove favorites folder|ics1805,ics1800", {
 })
 
 test_that("GFT2-09: remove favorite link|ics1800", {
-  skip_if(is.null(GFT2$FAV_ID), "No favorite created")
+  stopifnot("No favorite created" = !is.null(GFT2$FAV_ID))
 
   removed <- improveR::removeFavorite(GFT2$FAV_ID)
   expect_true(removed, info = "removeFavorite should return TRUE")
@@ -308,14 +303,13 @@ test_that("GFT2-09: remove favorite link|ics1800", {
 # Audit trail | ics472
 # ===========================================================================
 test_that("GFT2-10: audit trail has entries for test folder|ics472,ics1097", {
-  skip_if(is.null(GFT2$ROOT_PATH), "No GFT2 root folder")
+  stopifnot("No GFT2 root folder" = !is.null(GFT2$ROOT_PATH))
 
   audit <- tryCatch(
     improveR::loadAuditTrail(GFT2$ROOT_PATH),
     error = function(e) NULL
   )
-  skip_if(is.null(audit) || is.null(audit$data) || length(audit$data) == 0,
-          "Audit trail not available")
+  stopifnot("Audit trail not available" = !(is.null(audit) || is.null(audit$data) || length(audit$data) == 0))
 
   entries <- audit$data[[1]]
   expect_true(is.data.frame(entries), info = "Audit entries should be a data frame")
@@ -331,7 +325,7 @@ test_that("GFT2-10: audit trail has entries for test folder|ics472,ics1097", {
 # ===========================================================================
 test_that("GFT2-11: get latest revision returns valid revision|ccs10", {
   rev <- improveR::getLatestRevision()
-  skip_if(is.null(rev), "getLatestRevision not supported")
+  stopifnot("getLatestRevision not supported" = !is.null(rev))
 
   expect_true(is.list(rev), info = "Revision should be a list")
   expect_false(is.null(rev$id), info = "Revision should have an id")
@@ -343,7 +337,7 @@ test_that("GFT2-11: get latest revision returns valid revision|ccs10", {
 # Cleanup
 # ===========================================================================
 test_that("GFT2-cleanup: delete test folder and verify", {
-  skip_if(is.null(GFT2$ROOT_PATH), "No GFT2 root folder to clean up")
+  stopifnot("No GFT2 root folder to clean up" = !is.null(GFT2$ROOT_PATH))
 
   result <- improveR::delete(GFT2$ROOT_PATH)
   expect_true(result, info = "Deletion of GFT2 root folder should succeed")

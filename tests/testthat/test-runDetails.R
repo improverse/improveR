@@ -16,14 +16,10 @@ rBatchStep <- function(testTree) {
 
 ensureTestFolder <- function() {
   if (!exists("TEST_FOLDER", envir = globalenv())) {
-    tryCatch({
-      improveR::improveConnect()
-      improveR::setEditable(TRUE)
-      TEST_FOLDER <- improveR:::workflowFilesSetup()
-      assign("TEST_FOLDER", TEST_FOLDER, envir = globalenv())
-    }, error = function(e) {
-      skip(paste("Server not available:", e$message))
-    })
+    improveR::improveConnect()
+    improveR::setEditable(TRUE)
+    TEST_FOLDER <- improveR:::workflowFilesSetup()
+    assign("TEST_FOLDER", TEST_FOLDER, envir = globalenv())
   }
 }
 
@@ -31,27 +27,17 @@ ensureTestFolder <- function() {
 # Setup: Create a step and run it to FINISHED state
 # ---------------------------------------------------------------------------
 test_that("setup run details test environment", {
-  tryCatch({
-    improveR::improveConnect()
-    improveR::setEditable(TRUE)
-  }, error = function(e) {
-    skip(paste("Server not available:", e$message))
-  })
+  improveR::improveConnect()
+  improveR::setEditable(TRUE)
 
-  # Check R tool env vars are set
-  if (Sys.getenv("R_RUNSERVER") == "" ||
-      Sys.getenv("R_TOOL") == "" ||
-      Sys.getenv("R_TOOL_INSTANCE") == "") {
-    skip("R_RUNSERVER, R_TOOL, R_TOOL_INSTANCE not set")
-  }
-
-  # Create test folder with workflow files
-  TEST_FOLDER <- tryCatch(
-    improveR:::workflowFilesSetup(),
-    error = function(e) {
-      skip(paste("workflowFilesSetup failed:", e$message))
-    }
+  # R tool env vars are required preconditions; fail loudly if missing.
+  stopifnot(
+    "R_RUNSERVER env var must be set" = Sys.getenv("R_RUNSERVER") != "",
+    "R_TOOL env var must be set"      = Sys.getenv("R_TOOL") != "",
+    "R_TOOL_INSTANCE env var must be set" = Sys.getenv("R_TOOL_INSTANCE") != ""
   )
+
+  TEST_FOLDER <- improveR:::workflowFilesSetup()
   assign("TEST_FOLDER", TEST_FOLDER, envir = globalenv())
 
   # Create analysis tree and step
@@ -109,7 +95,7 @@ test_that("getLatestRun retrieves the latest run|ics1329", {
 
   result <- improveR::getLatestRun(stepRes$resourceId, processId)
   if (is.null(result)) {
-    skip("getLatestRun returned NULL")
+    stop("getLatestRun returned NULL")
   }
   expect_true(is.data.frame(result))
   cat("Latest run retrieved for process:", processId, "\n")
@@ -128,7 +114,7 @@ test_that("getRun retrieves a specific run|ics1330", {
 
   result <- improveR::getRun(stepRes$resourceId, processId, runId)
   if (is.null(result)) {
-    skip("getRun returned NULL")
+    stop("getRun returned NULL")
   }
   expect_true(is.data.frame(result))
   cat("Run retrieved:", runId, "\n")
