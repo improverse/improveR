@@ -4,11 +4,18 @@
 \alias{runStepResource}
 \title{Run a Step Resource}
 \usage{
-runStepResource(ident)
+runStepResource(ident, resetInventory = FALSE, filesToKeep = NULL)
 }
 \arguments{
 \item{ident}{A step identifier. Can be the step's path, resource (version) id,
 full entity (version) id, or short entity (version) id.}
+
+\item{resetInventory}{Logical. If \code{TRUE}, the server resets the step's
+inventory before running. Defaults to \code{FALSE} (backwards compatible).}
+
+\item{filesToKeep}{Character vector. Resource GUIDs of inventory items to
+keep when \code{resetInventory = TRUE}. Ignored when \code{resetInventory}
+is \code{FALSE}. Defaults to \code{NULL} (keep nothing / reset all).}
 }
 \value{
 The step identifier, returned invisibly.

@@ -15,16 +15,64 @@ cliPath <- function(unpack = TRUE) {
   return(improveRcontributions::cliPath(unpack))
 }
 
-#' Execute CLI Command
-#'
-#' Executes a CLI command using the appropriate CLI executable.
-#'
-#' @param cliString A string representing the CLI command to execute.
+#' Detect CLI mode and version
 #' @noRd
-executeCli <- function(cliString) {
-  shellFile <- cliPath()
-  result <- system(paste(shellFile,cliString))
-  print(result)
+detectCli <- function() {
+  path <- tryCatch(cliPath(), error = function(e) NULL)
+  if (is.null(path)) {
+    cliEnv$cliMode <- "none"
+    cliEnv$cliVersion <- NULL
+    return(invisible(NULL))
+  }
+  if (grepl("-jar", path, fixed = TRUE)) {
+    cliEnv$cliMode <- "jar"
+  } else {
+    cliEnv$cliMode <- "legacy_binary"
+  }
+  # Try to get version
+  ver <- tryCatch({
+    out <- system(paste(path, "--version"), intern = TRUE, ignore.stderr = TRUE)
+    m <- regmatches(out, regexpr("\\d+\\.\\d+\\.\\d+", out))
+    if (length(m) > 0) m[1] else NULL
+  }, error = function(e) NULL)
+  cliEnv$cliVersion <- ver
+  invisible(NULL)
+}
+
+#' Reset CLI detection state
+#' @noRd
+resetCliDetection <- function() {
+  cliEnv$cliMode <- NULL
+  cliEnv$cliVersion <- NULL
+  # Also reset the cached path in improveRcontributions
+  tryCatch(improveRcontributions::cliEnv$cliPath <- NULL, error = function(e) NULL)
+}
+
+#' Get CLI mode
+#' @noRd
+cliMode <- function() {
+  if (is.null(cliEnv$cliMode)) detectCli()
+  cliEnv$cliMode
+}
+
+#' Get detected CLI version
+#' @noRd
+cliDetectedVersion <- function() {
+  if (is.null(cliEnv$cliMode)) detectCli()
+  cliEnv$cliVersion
+}
+
+#' Check if picocli (new jar CLI) is available
+#' @noRd
+hasPicocli <- function() {
+  cliMode() == "jar"
+}
+
+#' Get CLI profile name
+#' @noRd
+cliProfileName <- function() {
+  checkInit()
+  cliEnv$userProfile
 }
 
 #' Get CICO API URL
@@ -66,11 +114,9 @@ configureUserProfile <- function(userProfile = NULL) {
     userProfile <- paste0("improveR_", urlHash)
   }
 
-  # Add -checkCertificates false when secure=FALSE
-  checkCertificates <- ""
-  if (!is.null(cacheEnv$secure) && cacheEnv$secure == FALSE) {
-    checkCertificates <- " -checkCertificates false"
-  }
+  # The standalone jar requires -checkCertificates to be set explicitly
+  checkCert <- if (!is.null(cacheEnv$secure) && cacheEnv$secure == FALSE) "false" else "true"
+  checkCertificates <- paste0(" -checkCertificates ", checkCert)
 
   command <- glue::glue("userProfile configure -userProfile {userProfile} -apiURL {apiURL}{checkCertificates}")
   executeCli(command)

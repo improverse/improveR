@@ -4,7 +4,13 @@
 \alias{updateToolParameter}
 \title{Update a Tool Parameter Value}
 \usage{
-updateToolParameter(runserverId, instanceId, parameterId, value)
+updateToolParameter(
+  runserverId,
+  instanceId,
+  parameterId,
+  value,
+  parameterLovId = NULL
+)
 }
 \arguments{
 \item{runserverId}{Character. The ID of the runserver.}
@@ -14,6 +20,9 @@ updateToolParameter(runserverId, instanceId, parameterId, value)
 \item{parameterId}{Character. The ID of the parameter to update.}
 
 \item{value}{Character. The new parameter value.}
+
+\item{parameterLovId}{Character or NULL. The parameter LOV ID. If NULL, the
+existing parameter is fetched to determine it.}
 }
 \value{
 A list with the updated parameter details, or \code{NULL} on failure.

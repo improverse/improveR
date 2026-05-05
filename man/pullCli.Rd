@@ -4,10 +4,12 @@
 \alias{pullCli}
 \title{Pull CLI}
 \usage{
-pullCli(localPath)
+pullCli(localPath, preview = FALSE)
 }
 \arguments{
 \item{localPath}{The local repository path.}
+
+\item{preview}{Logical. If TRUE, only preview what would be pulled.}
 }
 \description{
 Pulls changes from the CLI. After pulling, the resource cache is invalidated
