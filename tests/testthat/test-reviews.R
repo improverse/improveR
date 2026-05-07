@@ -256,9 +256,7 @@ test_that("createReviewComment adds comment visible in getReviewComments|ics1536
   improveR::setEditable(TRUE)
   accepted <- improveR::acceptReviewInvitation(review, comment = "accepting for comment test")
   reconnectAsAdmin()
-  if (!accepted) {
-    skip("Reviewer could not accept invitation for comment test")
-  }
+  stopifnot("acceptReviewInvitation returned FALSE — comment-test prerequisite failed" = isTRUE(accepted))
 
   improveR::changeReviewStatus(review, "Reviewing")
   improveR::refreshResource(review$resourceId)

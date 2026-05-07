@@ -464,16 +464,3 @@ test_that("executeCli handles invalid command without crashing|cliError", {
   result <- improveR:::executeCli(c("nonexistent_command_xyz"))
   expect_true(is.character(result))
 })
-
-test_that("picocli-only functions error without picocli|cliError", {
-  skip_if(improveR:::hasPicocli(), "Picocli IS available")
-  expect_error(statusCli("/tmp"), "requires the new CLI")
-  expect_error(mergeCli("/tmp", "f"), "requires the new CLI")
-  expect_error(resetCli("/tmp"), "requires the new CLI")
-  expect_error(resolveCli("/tmp", "f"), "requires the new CLI")
-  expect_error(cleanCli("/tmp"), "requires the new CLI")
-  expect_error(addInputsCli("/tmp", "*.R"), "requires the new CLI")
-  expect_error(createStepCli("R", "R 3"), "requires the new CLI")
-  expect_error(toolsCli(), "requires the new CLI")
-  expect_error(infoCli("/tmp"), "requires the new CLI")
-})

@@ -159,32 +159,45 @@ test_that("getTextString returns text data as a character string|ics1141", {
 })
 
 # -----------------------------------------------------------------------------
-# showGraphics / includeGraphics / showHTML — exercise the descriptor paths
+# showGraphics / includeGraphics / showHTML — render-side wrappers.
+# show*/include* return rendered output (Markdown string, knitr object,
+# htmltools tagList); the on-disk descriptor lives on getGraphics()/getHTML().
 # -----------------------------------------------------------------------------
-test_that("showGraphics returns a graphics descriptor|ics1141", {
+test_that("showGraphics renders Markdown and getGraphics descriptor has a usable path|ics1141", {
   baseFilePath <- setupGetTests()
   imgPath <- paste0(baseFilePath, "/rgetGRAPH/uploads.png")
 
-  desc <- improveR::showGraphics(imgPath)
+  fig <- improveR::showGraphics(imgPath)
+  expect_true(is.character(fig))
+  expect_true(nchar(fig) > 0)
+
+  desc <- improveR::getGraphics(imgPath)
   expect_false(is.null(desc))
   expect_true(!is.null(desc$path))
   expect_true(file.exists(desc$path))
 })
 
-test_that("includeGraphics returns a graphics descriptor|ics1141", {
+test_that("includeGraphics returns a knitr image and the descriptor has a usable path|ics1141", {
   baseFilePath <- setupGetTests()
   imgPath <- paste0(baseFilePath, "/rgetGRAPH/uploads.png")
 
-  desc <- improveR::includeGraphics(imgPath)
-  expect_false(is.null(desc))
+  fig <- improveR::includeGraphics(imgPath)
+  expect_false(is.null(fig))
+  expect_true(inherits(fig, "knit_image_paths"))
+
+  desc <- improveR::getGraphics(imgPath)
   expect_true(!is.null(desc$path))
 })
 
-test_that("showHTML returns an HTML descriptor|ics1141", {
+test_that("showHTML returns an htmltools tag list and getHTML descriptor has a usable path|ics1141", {
   baseFilePath <- setupGetTests()
   htmlPath <- paste0(baseFilePath, "/rgetHTML/htmlExample.html")
 
-  desc <- improveR::showHTML(htmlPath)
+  out <- improveR::showHTML(htmlPath)
+  expect_false(is.null(out))
+  expect_true(inherits(out, "shiny.tag.list") || inherits(out, "shiny.tag"))
+
+  desc <- improveR::getHTML(htmlPath)
   expect_false(is.null(desc))
   expect_true(!is.null(desc$path))
   expect_true(file.exists(desc$path))
