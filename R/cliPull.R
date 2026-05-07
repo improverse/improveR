@@ -15,7 +15,7 @@ pullCli <- function(localPath, preview = FALSE) {
   accessToken <- conf()$reqToken
 
   if (hasPicocli()) {
-    args <- picoArgs("pull",
+    args <- c("pull",
               "--access-token", accessToken,
               "-C", localPath)
     if (preview) args <- c(args, "--preview")

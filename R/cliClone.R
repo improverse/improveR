@@ -18,7 +18,7 @@ cloneCli <- function(ident, localPath) {
   accessToken <- conf()$reqToken
 
   if (hasPicocli()) {
-    args <- picoArgs("clone",
+    args <- c("clone",
               "--access-token", accessToken,
               "--profile", cliProfileName(),
               "-C", localPath,

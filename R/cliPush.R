@@ -25,7 +25,7 @@ pushCli <- function(localPath, comment = NULL, force = FALSE, preview = FALSE,
   token <- conf()$reqToken
 
   if (hasPicocli()) {
-    args <- picoArgs("push",
+    args <- c("push",
               "--access-token", token,
               "-C", localPath)
     if (!is.null(comment)) args <- c(args, "-m", comment)
