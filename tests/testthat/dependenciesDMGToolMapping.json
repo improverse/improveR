@@ -1,9 +1,0 @@
-[
-  {
-    "key": "runserver:::R 3_Std:::Rbatch:::TRUE",
-    "runserverLabel": "runserver",
-    "toolLabel": "R 3_Std",
-    "toolInstance": "Rbatch",
-    "gridTool": true
-  }
-]

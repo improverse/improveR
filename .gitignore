@@ -15,3 +15,14 @@ inst/doc
 # Large binary CLI files (should be in improveRcontributions only)
 inst/*.tar
 inst/improve-cli-*
+
+# Test scratch files — created by tests in tests/testthat/ during runs.
+# Tracking them caused them to be unpacked into the runserver step's
+# inventory and marked as read-only links, breaking subsequent writes.
+tests/testthat/workflow_template.json
+tests/testthat/improve.json
+tests/testthat/dependenciesDMG.zip
+tests/testthat/dependenciesDMGLinkMapping.json
+tests/testthat/dependenciesDMGToolMapping.json
+tests/testthat/testCLink
+tests/testthat/testCLink2
