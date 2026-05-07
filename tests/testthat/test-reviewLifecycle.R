@@ -49,7 +49,7 @@ createTestReview <- function(name, testFolder, testFile, test1UserId) {
 # Setup
 # ---------------------------------------------------------------------------
 test_that("setup review lifecycle test environment", {
-  skip_if(!hasConnectAs(), "connectAs not available - need multi-user support")
+  stopifnot("multi-user testbed required (hasConnectAs() must be TRUE)" = hasConnectAs())
 
   tryCatch({
     improveR::improveConnect()
@@ -79,7 +79,7 @@ test_that("setup review lifecycle test environment", {
   expect_false(is.null(allUsers))
 
   test1Id <- getTest1UserId(allUsers)
-  skip_if(is.null(test1Id), "test1 user not found on this server")
+  stopifnot("test1 user not found on this server" = !is.null(test1Id))
   assign("REVLC_TEST1_ID", test1Id, envir = globalenv())
 
   # Create a review as admin with test1 as reviewer
@@ -94,7 +94,7 @@ test_that("setup review lifecycle test environment", {
 # getReviewById | ics1528
 # ---------------------------------------------------------------------------
 test_that("getReviewById retrieves a review|ics1528", {
-  skip_if(!exists("REVLC_REVIEW", envir = globalenv()), "No review created")
+  stopifnot("No review created" = exists("REVLC_REVIEW", envir = globalenv()))
   review <- get("REVLC_REVIEW", envir = globalenv())
 
   result <- improveR::getReviewById(review)
@@ -108,8 +108,8 @@ test_that("getReviewById retrieves a review|ics1528", {
 # Transition: Open -> Reviewing -> Accepted
 # ---------------------------------------------------------------------------
 test_that("acceptReviewInvitation accepts a review|ics1476,ics2045", {
-  skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
-  skip_if(!hasConnectAs(), "connectAs not available")
+  stopifnot("No test folder" = exists("REVLC_FOLDER", envir = globalenv()))
+  stopifnot("multi-user testbed required (hasConnectAs() must be TRUE)" = hasConnectAs())
   testFolder <- get("REVLC_FOLDER", envir = globalenv())
   testFile <- get("REVLC_FILE", envir = globalenv())
   test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
@@ -140,8 +140,8 @@ test_that("acceptReviewInvitation accepts a review|ics1476,ics2045", {
 # Transition: Open -> Reviewing -> Declined
 # ---------------------------------------------------------------------------
 test_that("declineReviewInvitation declines a review|ics1477,ics2045", {
-  skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
-  skip_if(!hasConnectAs(), "connectAs not available")
+  stopifnot("No test folder" = exists("REVLC_FOLDER", envir = globalenv()))
+  stopifnot("multi-user testbed required (hasConnectAs() must be TRUE)" = hasConnectAs())
   testFolder <- get("REVLC_FOLDER", envir = globalenv())
   testFile <- get("REVLC_FILE", envir = globalenv())
   test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
@@ -168,7 +168,7 @@ test_that("declineReviewInvitation declines a review|ics1477,ics2045", {
 # changeReviewStatus | ccs27
 # ---------------------------------------------------------------------------
 test_that("changeReviewStatus Open to Reviewing|ccs27,ics2045", {
-  skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
+  stopifnot("No test folder" = exists("REVLC_FOLDER", envir = globalenv()))
   testFolder <- get("REVLC_FOLDER", envir = globalenv())
   testFile <- get("REVLC_FILE", envir = globalenv())
   test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
@@ -184,8 +184,8 @@ test_that("changeReviewStatus Open to Reviewing|ccs27,ics2045", {
 })
 
 test_that("changeReviewStatus Reviewing to Accepted via accept|ccs27,ics2045", {
-  skip_if(!exists("REVLC_FOLDER", envir = globalenv()), "No test folder")
-  skip_if(!hasConnectAs(), "connectAs not available")
+  stopifnot("No test folder" = exists("REVLC_FOLDER", envir = globalenv()))
+  stopifnot("multi-user testbed required (hasConnectAs() must be TRUE)" = hasConnectAs())
   testFolder <- get("REVLC_FOLDER", envir = globalenv())
   testFile <- get("REVLC_FILE", envir = globalenv())
   test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
