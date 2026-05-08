@@ -7,6 +7,25 @@
 
 Sys.setenv(TEST_NAME = "loadReview")
 
+# Multi-user helpers — used by the comment-creation test which needs to
+# accept-as-reviewer and then transition the review to "Reviewing" before
+# createReviewComment passes its validateReviewState gate.
+hasConnectAs <- function() {
+  "improveRtestsupport" %in% loadedNamespaces() &&
+    exists("connectAs", envir = asNamespace("improveRtestsupport"))
+}
+
+reconnectAsAdmin <- function() {
+  tryCatch({
+    improveRtestsupport::connectAs("admin")
+    improveR::setEditable(TRUE)
+  }, error = function(e) {
+    improveR::clearConnectionData(includeRepoData = FALSE)
+    improveR::improveConnect()
+    improveR::setEditable(TRUE)
+  })
+}
+
 setupLoadReview <- function() {
   Sys.setenv(TEST_NAME = "loadReview")
   improveR::improveConnect()
@@ -110,11 +129,25 @@ test_that("loadReviewComments returns (possibly empty) comments|ics1208", {
                    error = function(e) NULL), add = TRUE)
   stopifnot("createReview failed" = !is.null(ctx$reviewData))
 
-  # Add one review-level comment so the frame is non-null
-  improveR::createReviewComment(ctx$reviewData$resourceId,
-                                resourceIdent = ctx$testFile$resourceId,
-                                comment = "lrv test comment",
-                                commentType = "GENERAL")
+  # createReviewComment requires reviewStatus == "Reviewing" (validateReviewState
+  # enforces it). Transition the review out of the default state and verify the
+  # comment was actually persisted before reading it back.
+  stopifnot("multi-user testbed required (hasConnectAs() must be TRUE)" = hasConnectAs())
+  improveRtestsupport::connectAs("test1")
+  improveR::setEditable(TRUE)
+  accepted <- improveR::acceptReviewInvitation(ctx$reviewData$resourceId,
+                                               comment = "accept for loadReviewComments test")
+  reconnectAsAdmin()
+  stopifnot("acceptReviewInvitation returned FALSE" = isTRUE(accepted))
+
+  improveR::changeReviewStatus(ctx$reviewData$resourceId, "Reviewing")
+  improveR::refreshResource(ctx$reviewData$resourceId)
+
+  created <- improveR::createReviewComment(ctx$reviewData$resourceId,
+                                           resourceIdent = ctx$testFile$resourceId,
+                                           comment = "lrv test comment",
+                                           commentType = "GENERAL")
+  stopifnot("createReviewComment returned NULL — comment was not created" = !is.null(created))
 
   comments <- improveR::loadReviewComments(ctx$reviewData$resourceId)
   expect_false(is.null(comments))
