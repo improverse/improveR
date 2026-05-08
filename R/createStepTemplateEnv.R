@@ -144,26 +144,9 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       fileName <- pathParts[length(pathParts)]
       folderParts <- pathParts[-length(pathParts)]
 
-      # Walk the folder path, creating as needed
-      currentTarget <- newStep
-      for (folderName in folderParts) {
-        children <- loadChildResources(currentTarget)
-        if (!is.null(children) && nrow(children) > 0) {
-          folder <- children[children$name == folderName, ]
-        } else {
-          folder <- data.frame()
-        }
-        if (nrow(folder) == 1 && folder$nodeType != "Folder") {
-          log_warn(folderName, "already exists but not as folder")
-          return()
-        }
-        if (nrow(folder) == 1) {
-          currentTarget <- folder
-        } else {
-          currentTarget <- createFolder(currentTarget, folderName = folderName)
-        }
-      }
-      createTarget <- currentTarget
+      resolved <- resolveFolderPath(newStep, folderParts)
+      if (is.null(resolved)) return()
+      createTarget <- resolved
     }
 
     if (!("variableName" %in% names(filePrep))) {
@@ -1031,24 +1014,11 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
         fileName <- pathParts[length(pathParts)]
         folderParts <- pathParts[-length(pathParts)]
 
-        # Walk the folder path, creating as needed
-        currentTarget <- newStep
-        for (folderName in folderParts) {
-          children <- loadChildResources(currentTarget)
-          if (!is.null(children) && nrow(children) > 0) {
-            folder <- children[children$name == folderName, ]
-          } else {
-            folder <- data.frame()
-          }
-          if (nrow(folder) == 1 && folder$nodeType != "Folder") {
-            log_error(folderName, "already exists but not as folder")
-            stop()
-          }
-          if (nrow(folder) == 1) {
-            currentTarget <- folder
-          } else {
-            currentTarget <- createFolder(currentTarget, folderName = folderName)
-          }
+        currentTarget <- resolveFolderPath(newStep, folderParts)
+        if (is.null(currentTarget)) {
+          log_error(paste(folderParts, collapse = "/"),
+                    "could not be resolved as folder path")
+          stop()
         }
         move(file.path(newStep$path, moveResource), currentTarget, fileName)
       }

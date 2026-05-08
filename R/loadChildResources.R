@@ -136,6 +136,68 @@ appendToChildResourcesCache <- function(parent, newChild) {
   invisible(NULL)
 }
 
+#' Walk a folder path under a parent resource, resolving each segment to the
+#' existing child folder or creating it when missing. Used by realise() when
+#' assembling a step's input/output file tree: a single step can have many
+#' files landing in the same subfolder, and re-walking the path for every
+#' file pays the loadChildResources + existence-check cost per file.
+#'
+#' Two layers of speedup vs the previous inlined walk:
+#'   1. Existence check now reads $data[[1]]$name (the child names) instead of
+#'      the resultFrame's $name column (the parent's name) — the previous
+#'      inlined version always saw 0 matches and fell through to createFolder
+#'      every time, which itself did the lookup, found the existing folder,
+#'      logged "already exists" and returned. So 2 server-side checks per file
+#'      per segment plus log spam.
+#'   2. A session-level resolution cache keyed by (parent entityId, segment)
+#'      keeps walked-and-resolved targets across calls, so the second file in
+#'      the same subfolder pays nothing for the walk.
+#'
+#' @param parent  A 1-row resource data.frame (the start of the walk).
+#' @param folderParts Character vector of folder names in path order.
+#' @return The resolved (or newly created) leaf-folder resource, or NULL if
+#'   any segment exists with a non-Folder nodeType.
+#' @noRd
+resolveFolderPath <- function(parent, folderParts) {
+  if (is.null(cacheEnv$.folderResolutions)) {
+    cacheEnv$.folderResolutions <- new.env(parent = emptyenv())
+  }
+  folderResCache <- cacheEnv$.folderResolutions
+
+  currentTarget <- parent
+  for (folderName in folderParts) {
+    cacheKey <- paste0(currentTarget$entityId, ":", folderName)
+    cached <- get0(cacheKey, envir = folderResCache)
+    if (!is.null(cached)) {
+      currentTarget <- cached
+      next
+    }
+
+    childrenResult <- loadChildResources(currentTarget)
+    childrenDf <- if (!is.null(childrenResult)) childrenResult$data[[1]] else NULL
+    folder <- if (!is.null(childrenDf) && nrow(childrenDf) > 0) {
+                childrenDf[childrenDf$name == folderName, , drop = FALSE]
+              } else {
+                data.frame()
+              }
+
+    if (nrow(folder) == 1 && folder$nodeType != "Folder") {
+      log_warn(folderName, "already exists in", currentTarget$path, "but not as folder")
+      return(NULL)
+    }
+
+    currentTarget <- if (nrow(folder) == 1) {
+                       folder
+                     } else {
+                       createFolder(currentTarget, folderName = folderName)
+                     }
+    if (is.null(currentTarget)) return(NULL)
+
+    assign(cacheKey, currentTarget, envir = folderResCache)
+  }
+  return(currentTarget)
+}
+
 #' Refresh Child Resources from Server
 #'
 #' Clears cached child resources data and reloads fresh data from the server.
