@@ -241,6 +241,22 @@ getToolInstances <- function() {
 
       return(runServerTools)
     })
+    # Defensive check: if the build chain (loadAllTools -> actualLoadToolsForRunserver
+    # -> per-runserver byNotEmptyAsDf) produced a frame without the columns the
+    # mutate needs, log what we DO have so the next failure is diagnosable
+    # instead of just "Column categoryName not found in .data" 50 frames deep.
+    expected_cols <- c("categoryName","toolName","name","label")
+    missing_cols <- setdiff(expected_cols, names(runserverTools))
+    if (length(missing_cols) > 0) {
+      log_warn("getToolInstances: runserverTools is missing columns ",
+               paste(missing_cols, collapse = ", "),
+               " — present columns: ",
+               if (is.null(runserverTools)) "<NULL>" else paste(names(runserverTools), collapse = ", "),
+               " — nrow: ",
+               if (is.null(runserverTools)) "NA" else nrow(runserverTools),
+               ". Returning empty toolInstances; caller will retry on next access.")
+      return(new.env())
+    }
     runserverTools <- dplyr::mutate(runserverTools,fullName=paste(.data$categoryName,.data$toolName,.data$name,.data$label))
     toolInstanceEnv <- new.env()
     x <- byNotEmpty(runserverTools,function(runserverTool) {
