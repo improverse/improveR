@@ -58,7 +58,6 @@ ensureTestFolder <- function() {
 
 
 
-# httptest::with_mock_dir("checkIfMetadataDefinitionsExist", {
   test_that("check if metadata definitions exist|ics1096", {
     cat("\n=== DIAGNOSTIC: Starting first test - check if metadata definitions exist ===\n")
     TEST_FOLDER <- ensureTestFolder()
@@ -79,7 +78,6 @@ ensureTestFolder <- function() {
   })
 # })
 
-# httptest::with_mock_dir("createLoadUpdateAndDeleteMetadataForOneFolder", {
   test_that("create, load, update and delete metadata for one folder|ics1096,ics1137", {
     cat("\n=== DIAGNOSTIC: Starting test - create, load, update metadata ===\n")
     TEST_FOLDER <- ensureTestFolder()
@@ -166,7 +164,6 @@ ensureTestFolder <- function() {
   })
 # })
 
-# httptest::with_mock_dir("addAndDeleteBulkMetadataForOneFolder", {
   test_that("add and delete bulk metadata for one folder|ics1096,ics1137", {
     TEST_FOLDER <- ensureTestFolder()
     metadatafolder <- loadResource("./metadata", TEST_FOLDER)
@@ -222,7 +219,6 @@ ensureTestFolder <- function() {
   })
 # })
 
-# httptest::with_mock_dir("metadataOnMultipleResourcesAtOnce", {
   test_that("metadata on multiple resources at once|ics1096,ics1137", {
     cat("\n=== DIAGNOSTIC: Starting metadata on multiple resources test ===\n")
     TEST_FOLDER <- ensureTestFolder()
@@ -379,7 +375,6 @@ ensureTestFolder <- function() {
   })
 #})
 
-#httptest::with_mock_dir("addAndDeleteBulkMetadataForMultipleFiles", {
   test_that("add and delete bulk metadata for multiple files|ics1096,ics1137", {
     TEST_FOLDER <- ensureTestFolder()
     metadatafolder <- loadResource("./metadata", TEST_FOLDER)
