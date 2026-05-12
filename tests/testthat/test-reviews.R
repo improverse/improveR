@@ -144,14 +144,28 @@ test_that("createReviewer adds a reviewer visible in getReviewers|ics368,ics2045
 test_that("deleteReviewer removes reviewer from getReviewers|ics369,ics2045", {
   stopifnot("No review created" = exists("REV_REVIEW", envir = globalenv()))
   stopifnot("No reviewer added" = exists("REV_REVIEWER", envir = globalenv()))
+  stopifnot("No REV_TEST1_ID for safe deletion" = exists("REV_TEST1_ID", envir = globalenv()))
   review <- get("REV_REVIEW", envir = globalenv())
+  test1Id <- get("REV_TEST1_ID", envir = globalenv())
 
   reviewersBefore <- improveR::getReviewers(review)
   expect_true(is.data.frame(reviewersBefore))
-  skip_if(nrow(reviewersBefore) < 2, "Need at least 2 reviewers to test delete")
+  stopifnot("Need at least 2 reviewers to test delete" = nrow(reviewersBefore) >= 2)
 
   countBefore <- nrow(reviewersBefore)
-  reviewerToDelete <- reviewersBefore$id[nrow(reviewersBefore)]
+
+  # Pick a reviewer that is NOT test1. The downstream test_thats
+  # (createReviewComment, approve/reset/reject workflow) connect as test1
+  # and call acceptReviewInvitation; if we delete test1 here those tests
+  # fail with "acceptReviewInvitation returned FALSE" because the server
+  # rejects accept calls from a user who is no longer a reviewer. The
+  # previous logic targeted reviewersBefore$id[nrow(...)] — the last row
+  # — which is unstable: the server does not guarantee reviewer ordering,
+  # so the same test ran green in some suites and red in others depending
+  # on which row came back last. Find a non-test1 reviewer explicitly.
+  candidates <- reviewersBefore[reviewersBefore$userId != test1Id, , drop = FALSE]
+  stopifnot("No non-test1 reviewer available to delete safely" = nrow(candidates) >= 1)
+  reviewerToDelete <- candidates$id[1]
 
   result <- improveR::deleteReviewer(review, reviewerToDelete)
   expect_true(result)
@@ -160,9 +174,11 @@ test_that("deleteReviewer removes reviewer from getReviewers|ics369,ics2045", {
   reviewersAfter <- improveR::getReviewers(review)
   expect_equal(nrow(reviewersAfter), countBefore - 1,
                info = "Reviewer count should decrease by 1")
-  # Verify: deleted reviewer is gone
+  # Verify: deleted reviewer is gone, test1 still in the list
   expect_false(reviewerToDelete %in% reviewersAfter$id,
                info = "Deleted reviewer should not appear in list")
+  expect_true(test1Id %in% reviewersAfter$userId,
+              info = "test1 must remain a reviewer for downstream tests")
 })
 
 # ---------------------------------------------------------------------------
