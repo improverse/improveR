@@ -92,7 +92,6 @@ loadChildResources <- function(ident,from=pwd()) {
 #' @export
 unloadChildResources <- function(ident) {
   res <- loadResource(ident)
-  loadChildResources(res$resourceId)
   removeFromCache(res$resourceId,"",childResourceCacheList)
 }
 

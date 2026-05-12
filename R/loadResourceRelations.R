@@ -50,7 +50,6 @@ loadRelationTypes <- function() {
 #' Unloads All Relation Types
 #' @export
 unloadRelationTypes <- function() {
-  loadRelationTypes()
   removeFromCache(defaultKeyRelationTypes(), "", relationTypesCacheList)
 }
 
@@ -199,7 +198,6 @@ loadResourceRelations <- function(ident, from = pwd()) {
 #' @export
 unloadResourceRelations <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
-  loadResourceRelations(resourceId)
   removeFromCache(resourceId, "", resourceRelationsCacheList)
 }
 

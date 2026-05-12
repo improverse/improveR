@@ -54,7 +54,6 @@ unloadProcessesForStep <- function(stepIdent) {
   if (is.null(step)) {
     return(NULL)
   }
-  loadProcessesForStep(step)
   removeFromCache(step$resourceId,"",processesForStepsCacheList)
 }
 
@@ -132,7 +131,6 @@ actualLoadProcessGridArguments <- function(processId) {
 #' @references ics1218
 #' @noRd
 unloadProcessGridArguments <- function(processId) {
-  loadProcessGridArguments(processId)
   removeFromCache(processId,"",processGridArgumentsCacheList)
 }
 
@@ -188,7 +186,6 @@ actualLoadProcessVariables <- function(processId) {
 #' @references ics1218
 #' @noRd
 unloadProcessVariables <- function(processId) {
-  loadProcessVariables(processId)
   removeFromCache(processId,"",processVariablesCacheList)
 }
 
@@ -244,7 +241,6 @@ actualLoadProcessRuns <- function(processId) {
 #' @references ics1218
 #' @noRd
 unloadProcessRuns <- function(processId) {
-  loadProcessRuns(processId)
   removeFromCache(processId,"",processRunsCacheList)
 }
 

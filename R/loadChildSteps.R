@@ -91,7 +91,6 @@ loadChildSteps <- function(ident,from=pwd()) {
 #' @export
 unloadChildSteps <- function(ident) {
   res <- loadResource(ident)
-  loadChildSteps(res$resourceId)
   removeFromCache(res$resourceId,"",childStepCacheList)
 }
 

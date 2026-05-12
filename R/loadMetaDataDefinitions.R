@@ -43,7 +43,6 @@ loadMetaDataDefinitions <- function(scope="Improve Client") {
 #' @references ics1137
 #' @export
 unloadMetaDataDefinitions <- function(scope="Improve Client") {
-  loadMetaDataDefinitions(scope)
   removeFromCache(scope,"",metadataDefinitionsCacheList)
 }
 

@@ -29,7 +29,6 @@ loadFullChildResources <- function(ident,from=pwd()) {
 #' @export
 unloadFullChildResources <- function(ident) {
   res <- loadResource(ident)
-  loadFullChildResources(res$resourceId)
   removeFromCache(res$resourceId,"",fullChildResourceCacheList)
 }
 

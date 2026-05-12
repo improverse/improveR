@@ -28,7 +28,6 @@ loadMetaData <- function(ident,from=pwd()) {
 unloadMetaData <- function(ident) {
   res <- loadResource(ident)
   if (!is.null(res)) {
-    m<-loadMetaData(ident)
     removeFromCache(res$resourceId,"",metadataResourceCacheList)
   }
 }
