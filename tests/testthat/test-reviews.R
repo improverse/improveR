@@ -163,7 +163,14 @@ test_that("deleteReviewer removes reviewer from getReviewers|ics369,ics2045", {
   # — which is unstable: the server does not guarantee reviewer ordering,
   # so the same test ran green in some suites and red in others depending
   # on which row came back last. Find a non-test1 reviewer explicitly.
-  candidates <- reviewersBefore[reviewersBefore$userId != test1Id, , drop = FALSE]
+  # The server reports the user id under either "user.id" or "userId"
+  # depending on REST flattening — mirror the dispatch in
+  # validateDuplicateReviewer() so this test works on both shapes.
+  userIdCol <- if ("user.id" %in% colnames(reviewersBefore)) "user.id"
+               else if ("userId" %in% colnames(reviewersBefore)) "userId"
+               else NULL
+  stopifnot("getReviewers result has no user.id / userId column" = !is.null(userIdCol))
+  candidates <- reviewersBefore[reviewersBefore[[userIdCol]] != test1Id, , drop = FALSE]
   stopifnot("No non-test1 reviewer available to delete safely" = nrow(candidates) >= 1)
   reviewerToDelete <- candidates$id[1]
 
@@ -177,7 +184,7 @@ test_that("deleteReviewer removes reviewer from getReviewers|ics369,ics2045", {
   # Verify: deleted reviewer is gone, test1 still in the list
   expect_false(reviewerToDelete %in% reviewersAfter$id,
                info = "Deleted reviewer should not appear in list")
-  expect_true(test1Id %in% reviewersAfter$userId,
+  expect_true(test1Id %in% reviewersAfter[[userIdCol]],
               info = "test1 must remain a reviewer for downstream tests")
 })
 
