@@ -81,6 +81,15 @@ updateRelationTypes <- function(...) {
 #' @export
 createRelationType <- function(name, reverseName, description = "") {
   improveEditable()
+  # Idempotent on name: server rejects duplicates, so check the existing list
+  # and return the matching record if one is already registered (ics1694).
+  existing <- loadRelationTypes()
+  if (!is.null(existing) && "name" %in% colnames(existing)) {
+    match <- existing[existing$name == name, , drop = FALSE]
+    if (nrow(match) > 0) {
+      return(as.list(match[1, ]))
+    }
+  }
   result <- authenticatedREST(
     "configuration/relationTypeLov",
     data = list(name = name, reverseName = reverseName, description = description),
