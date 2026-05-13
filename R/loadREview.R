@@ -129,7 +129,6 @@ loadReviewers <- function(ident, from = pwd()) {
 #' @export
 unloadReviewers <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
-  loadReviewers(resourceId)
   removeFromCache(resourceId, "", reviewersCacheList)
 }
 
@@ -215,7 +214,6 @@ loadReviewEntries <- function(ident, from = pwd()) {
 #' @export
 unloadReviewEntries <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
-  loadReviewEntries(resourceId)
   removeFromCache(resourceId, "", reviewEntriesCacheList)
 }
 
@@ -296,7 +294,6 @@ loadReviewComments <- function(ident, from = pwd()) {
 #' @export
 unloadReviewComments <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
-  loadReviewComments(resourceId)
   removeFromCache(resourceId, "", reviewCommentsCacheList)
 }
 

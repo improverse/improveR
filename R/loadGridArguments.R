@@ -32,7 +32,6 @@ actualLoadGridArguments <- function(gridProvider) {
 #' @references ics1216
 #' @noRd
 unloadGridArguments <- function(gridProvider) {
-  loadToolsForRunserver(gridProvider)
   removeFromCache(gridProvider,"",gridArgumentsCacheList)
 }
 

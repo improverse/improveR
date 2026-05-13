@@ -57,7 +57,6 @@ loadRunserver <- function(label) {
 #' @references ics1226
 #' @noRd
 unloadRunservers <- function() {
-  loadRunservers()
   removeFromCache(defaultKey,"",runserversCacheList)
 }
 
@@ -179,7 +178,6 @@ actualLoadToolsForRunserver <- function(runserverId) {
 #' @references ics1227
 #' @noRd
 unloadToolsForRunserver <- function(runserverId) {
-  loadToolsForRunserver(runserverId)
   removeFromCache(runserverId,"",runserverToolsCacheList)
 }
 

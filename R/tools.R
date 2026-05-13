@@ -31,7 +31,6 @@ loadToolCategories <- function() {
 #' @references ics1229
 #' @noRd
 unloadToolCategories <- function() {
-  loadToolCategories()
   removeFromCache(defaultKey,"",toolCategoriesCacheList)
 }
 
@@ -90,7 +89,6 @@ actualLoadToolsForCategory <- function(categoryId) {
 #' @references ics1230
 #' @noRd
 unloadToolsForCategory <- function(categoryId) {
-  loadToolsForCategory(categoryId)
   removeFromCache(categoryId,"",runserverToolsCacheList)
 }
 

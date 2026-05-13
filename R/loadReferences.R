@@ -29,7 +29,6 @@ loadReferences <- function(ident,from=pwd()) {
 #' @export
 unloadReferences <- function(ident) {
   res <- loadResource(ident)
-  r <- loadReferences(res)
   removeFromCache(res$resourceId,"",referencesResourceCacheList)
 }
 
