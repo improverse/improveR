@@ -115,7 +115,7 @@ updateToolsForCategory <- function(...) {
 loadAllTools <- function() {
   categories <- loadToolCategories()
   allTools <- NULL
-  if (nrow(categories)>0) {
+  if (!is.null(categories) && nrow(categories) > 0) {
     for (i in 1:nrow(categories)) {
       category <- categories[i,]
       tools <- loadToolsForCategory(category$id)
@@ -129,6 +129,23 @@ loadAllTools <- function() {
         }
       }
     }
+  }
+  # Downstream (actualLoadToolsForRunserver -> getToolInstances) renames
+  # columns and then mutates on `categoryName`. If allTools is NULL the
+  # column-rename calls are silent no-ops, the merge produces 0 columns, and
+  # the mutate fires "Column categoryName not found" many stack frames later.
+  # Return an empty frame with the expected columns so the shape contract is
+  # preserved and a real diagnostic can surface upstream if no tools at all
+  # were collected.
+  if (is.null(allTools)) {
+    log_warn("loadAllTools: no tools collected from any category — returning empty frame")
+    allTools <- data.frame(
+      id = character(0),
+      name = character(0),
+      categoryName = character(0),
+      categoryIdentifier = character(0),
+      stringsAsFactors = FALSE
+    )
   }
   return(allTools)
 }
