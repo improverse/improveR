@@ -56,11 +56,18 @@ clearConnectionData <- function(includeRepoData=F) {
   if (includeRepoData) {
     Sys.setenv(IMPROVER_STEP="")
     Sys.setenv(IMPROVER_REPO_URL="")
+    # IMPROVER_REFRESH_TOKEN is a long-lived OAuth credential. Wipe it only
+    # when the caller is doing a full identity reset (logout, switching
+    # repos, etc.). Soft-clear paths — runner between-file reconnects,
+    # improveRtestsupport's connectAs handoff, intra-session token refresh
+    # recovery — must preserve it so the next improveConnect can mint a
+    # fresh access token without spawning a device-code flow that requires
+    # human interaction (which is impossible in a non-interactive suite).
+    Sys.setenv(IMPROVER_REFRESH_TOKEN="")
   }
   Sys.setenv(IMPROVER_USER="")
   Sys.setenv(IMPROVER_PASSWORD="")
   Sys.setenv(IMPROVER_TOKEN="")
-  Sys.setenv(IMPROVER_REFRESH_TOKEN="")
   # Reset CLI user profile so configureUserProfile() re-evaluates on next connect
   cliEnv$userProfile <- NULL
   improveDisconnect()
