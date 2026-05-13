@@ -122,6 +122,13 @@ createLink <- function(linkContainer,links,linkName="") {
                                                 data=data,
                                                 restType = "POST")
 
+      # Invalidate before the path-based loadResource: it walks via
+      # loadChildResources which is cached, and a stale cache (without the
+      # just-created link) makes the lookup return NULL. Once the POST
+      # response shape is verified (the new link's resourceId), this should
+      # switch to loadResource(parsedResult$resourceId) + warm-cache append
+      # like createGeneric does, but the safe-correctness path here is to
+      # nuke the cache and let the next load fetch fresh.
       unloadChildResources(target)
       unloadFullChildResources(target)
       unloadReferences(links)

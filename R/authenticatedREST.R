@@ -5,6 +5,25 @@ REST_FUNCTIONS <- list(POST="httr::POST",
 
 restEnv <- new.env()
 restEnv$lastRestError <- NULL
+restEnv$httpHandle <- NULL
+restEnv$httpHandleBase <- NULL
+
+#' Reuse a single httr/curl handle across REST calls so the underlying TCP+TLS
+#' connection stays open. httr has an automatic handle_pool keyed by hostname,
+#' but passing an explicit handle is more deterministic — without it we have
+#' seen new TCP/TLS handshakes added to short bulk-create paths (e.g. realise()
+#' uploading 100+ inputFiles to a freshly created step). Handle is recreated
+#' if the repository base URL changes (e.g. after re-connect to a different
+#' server) so a stale handle never bleeds across sessions.
+#' @noRd
+getOrCreateRestHandle <- function(baseUrl) {
+  if (is.null(restEnv$httpHandle) ||
+      !identical(restEnv$httpHandleBase, baseUrl)) {
+    restEnv$httpHandle <- httr::handle(baseUrl)
+    restEnv$httpHandleBase <- baseUrl
+  }
+  return(restEnv$httpHandle)
+}
 
 timing <- function(name) {
   #log_info(paste(
@@ -98,6 +117,7 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
   }
 
   result <- NULL
+  reuseHandle <- getOrCreateRestHandle(conf()$repoUrl)
   if (!is.na(conf()$reqToken) && !is.null(conf()$reqToken)) {
     log_debug("TokenAuth")
     if (!grepl("refreshToken",fullUrl)) {
@@ -110,7 +130,8 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     result <- restFunction(fullUrl, body = data,
                            httr::add_headers('Authorization' = paste0("Bearer ",conf()$reqToken)),
                                              encode=encode,
-                                             'Content-Type' = contentType)
+                                             'Content-Type' = contentType,
+                           handle = reuseHandle)
 
 
   } else {
@@ -118,7 +139,8 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     result <- restFunction(fullUrl, body = data,
                            httr::authenticate(conf()$user,conf()$password),
                            encode=encode,
-                           'Content-Type' = contentType)
+                           'Content-Type' = contentType,
+                           handle = reuseHandle)
   }
   if ((result$status_code>=200 && result$status_code<300)) {
     log_debug(result$status_code, fullUrl)
