@@ -33,7 +33,7 @@ test_that("createToolCategory creates a new category|ccs32,ics1673", {
 })
 
 test_that("loadToolCategories returns the created category|ics1229", {
-  skip_if(!exists("TM_CATEGORY", envir = globalenv()), "No category created")
+  stopifnot("No category created" = exists("TM_CATEGORY", envir = globalenv()))
   cat <- get("TM_CATEGORY", envir = globalenv())
 
   # Use direct REST call — loadToolCategories() may return cached data
@@ -45,7 +45,7 @@ test_that("loadToolCategories returns the created category|ics1229", {
 })
 
 test_that("renameToolCategory updates the name|ccs33,ics1675", {
-  skip_if(!exists("TM_CATEGORY", envir = globalenv()), "No category created")
+  stopifnot("No category created" = exists("TM_CATEGORY", envir = globalenv()))
   cat <- get("TM_CATEGORY", envir = globalenv())
 
   newName <- paste0(cat$name, "-renamed")
@@ -63,7 +63,7 @@ test_that("renameToolCategory updates the name|ccs33,ics1675", {
 # Tools (within a category)
 # ---------------------------------------------------------------------------
 test_that("createTool creates a tool in a category|ccs35,ics1688", {
-  skip_if(!exists("TM_CATEGORY", envir = globalenv()), "No category created")
+  stopifnot("No category created" = exists("TM_CATEGORY", envir = globalenv()))
   cat <- get("TM_CATEGORY", envir = globalenv())
 
   toolName <- paste0("test-tool-", format(Sys.time(), "%H%M%S"))
@@ -75,8 +75,8 @@ test_that("createTool creates a tool in a category|ccs35,ics1688", {
 })
 
 test_that("createTool is idempotent|ccs35,ics1688", {
-  skip_if(!exists("TM_CATEGORY", envir = globalenv()), "No category created")
-  skip_if(!exists("TM_TOOL", envir = globalenv()), "No tool created")
+  stopifnot("No category created" = exists("TM_CATEGORY", envir = globalenv()))
+  stopifnot("No tool created" = exists("TM_TOOL", envir = globalenv()))
   cat <- get("TM_CATEGORY", envir = globalenv())
   tool <- get("TM_TOOL", envir = globalenv())
 
@@ -87,8 +87,8 @@ test_that("createTool is idempotent|ccs35,ics1688", {
 })
 
 test_that("loadToolsForCategory returns the created tool|ics1230", {
-  skip_if(!exists("TM_CATEGORY", envir = globalenv()), "No category created")
-  skip_if(!exists("TM_TOOL", envir = globalenv()), "No tool created")
+  stopifnot("No category created" = exists("TM_CATEGORY", envir = globalenv()))
+  stopifnot("No tool created" = exists("TM_TOOL", envir = globalenv()))
   cat <- get("TM_CATEGORY", envir = globalenv())
   tool <- get("TM_TOOL", envir = globalenv())
 
@@ -103,7 +103,7 @@ test_that("loadToolsForCategory returns the created tool|ics1230", {
 # Tool Instances (on a runserver)
 # ---------------------------------------------------------------------------
 test_that("createToolInstance creates instance on runserver|ccs36,ics1691", {
-  skip_if(!exists("TM_TOOL", envir = globalenv()), "No tool created")
+  stopifnot("No tool created" = exists("TM_TOOL", envir = globalenv()))
   tool <- get("TM_TOOL", envir = globalenv())
 
   # Get a runserver (loadRunservers is internal, available via load_all)
@@ -130,8 +130,8 @@ test_that("createToolInstance creates instance on runserver|ccs36,ics1691", {
 })
 
 test_that("createToolInstance is idempotent|ccs36,ics1691", {
-  skip_if(!exists("TM_INSTANCE", envir = globalenv()), "No instance created")
-  skip_if(!exists("TM_RUNSERVER", envir = globalenv()), "No runserver")
+  stopifnot("No instance created" = exists("TM_INSTANCE", envir = globalenv()))
+  stopifnot("No runserver" = exists("TM_RUNSERVER", envir = globalenv()))
   tool <- get("TM_TOOL", envir = globalenv())
   inst <- get("TM_INSTANCE", envir = globalenv())
   rs <- get("TM_RUNSERVER", envir = globalenv())
@@ -148,8 +148,8 @@ test_that("createToolInstance is idempotent|ccs36,ics1691", {
 })
 
 test_that("updateToolInstance updates command|ccs37,ics1692", {
-  skip_if(!exists("TM_INSTANCE", envir = globalenv()), "No instance created")
-  skip_if(!exists("TM_RUNSERVER", envir = globalenv()), "No runserver")
+  stopifnot("No instance created" = exists("TM_INSTANCE", envir = globalenv()))
+  stopifnot("No runserver" = exists("TM_RUNSERVER", envir = globalenv()))
   inst <- get("TM_INSTANCE", envir = globalenv())
   rs <- get("TM_RUNSERVER", envir = globalenv())
 
@@ -162,8 +162,8 @@ test_that("updateToolInstance updates command|ccs37,ics1692", {
 # Tool Parameters
 # ---------------------------------------------------------------------------
 test_that("createToolParameter creates a parameter|ccs38", {
-  skip_if(!exists("TM_INSTANCE", envir = globalenv()), "No instance created")
-  skip_if(!exists("TM_RUNSERVER", envir = globalenv()), "No runserver")
+  stopifnot("No instance created" = exists("TM_INSTANCE", envir = globalenv()))
+  stopifnot("No runserver" = exists("TM_RUNSERVER", envir = globalenv()))
   inst <- get("TM_INSTANCE", envir = globalenv())
   rs <- get("TM_RUNSERVER", envir = globalenv())
 
@@ -184,9 +184,9 @@ test_that("createToolParameter creates a parameter|ccs38", {
 })
 
 test_that("updateToolParameter updates value|ccs39", {
-  skip_if(!exists("TM_PARAM", envir = globalenv()), "No parameter created")
-  skip_if(!exists("TM_INSTANCE", envir = globalenv()), "No instance")
-  skip_if(!exists("TM_RUNSERVER", envir = globalenv()), "No runserver")
+  stopifnot("No parameter created" = exists("TM_PARAM", envir = globalenv()))
+  stopifnot("No instance" = exists("TM_INSTANCE", envir = globalenv()))
+  stopifnot("No runserver" = exists("TM_RUNSERVER", envir = globalenv()))
   param <- get("TM_PARAM", envir = globalenv())
   inst <- get("TM_INSTANCE", envir = globalenv())
   rs <- get("TM_RUNSERVER", envir = globalenv())

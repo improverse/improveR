@@ -1,7 +1,6 @@
 
 Sys.setenv(TEST_NAME="modify-copymovedelete")
 
-httptest::with_mock_dir("prepare-modify-copymovedelete", {
   test_that("createTestFolder", {
     Sys.setenv(IMPROVER_TEST_REPLAY = "T")
     improveConnect()
@@ -15,7 +14,6 @@ httptest::with_mock_dir("prepare-modify-copymovedelete", {
   print(Sys.getenv("TEST_FOLDER"))
   print(Sys.getenv("IMPROVER_STEP"))
   ##
-})
 
 # Helper function to ensure TEST_FOLDER exists when running tests individually
 ensureTestFolder <- function() {
@@ -34,7 +32,6 @@ FAKE_ENTITY_ID <- "wrongrepo:wrongID"
 FAKE_LONG_ENTITY_ID <- "http://wrongURL:8843/?path=wrongrepo:wrongID"
 FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
 
-httptest::with_mock_dir("modifyNonExisting", {
   test_that("modify non existing|ics1139", {
     TEST_FOLDER <- ensureTestFolder()
     expectedMessage1 <- glue::glue(
@@ -72,9 +69,7 @@ httptest::with_mock_dir("modifyNonExisting", {
       message %in% c(expectedMessage1, expectedMessage2, expectedMessage3)
     )
   })
-})
 
-httptest::with_mock_dir("modifyToNonExisting", {
   test_that("modify to non existing|ics1139", {
     TEST_FOLDER <- ensureTestFolder()
     expectedMessage <- "Target {id} does not exist, could not {func}"
@@ -96,9 +91,7 @@ httptest::with_mock_dir("modifyToNonExisting", {
     message <- improveLastLogMessage("WARN")
     expect_equal(message, glue::glue(expectedMessage))
   })
-})
 
-httptest::with_mock_dir("invalidTargetNamesAndComments", {
   test_that("invalid target names and comments|ics1139", {
     TEST_FOLDER <- ensureTestFolder()
     expectedMessage <- "name needs to be of type character"
@@ -130,9 +123,7 @@ httptest::with_mock_dir("invalidTargetNamesAndComments", {
     message <- improveLastLogMessage("WARN")
     expect_equal(message, glue::glue(expectedMessage))
   })
-})
 
-# httptest::with_mock_dir("noOverwrite", {
   test_that("no overwrite|ics1139", {
     TEST_FOLDER <- ensureTestFolder()
     expectedMessage <- "{TEST_FOLDER}/tbOverwritten already exists, cannot {func}"
@@ -205,7 +196,6 @@ modifyToTarget <- function(s,t) {
   expect_equal(message,glue::glue(expectedMessage))
 }
 
-httptest::with_mock_dir("modifyToWrongTarget", {
   test_that("modify to wrong target|ics1139", {
     TEST_FOLDER <- ensureTestFolder()
     Sys.setenv(improver.logfile = "improver.log")
@@ -271,9 +261,7 @@ httptest::with_mock_dir("modifyToWrongTarget", {
     modifyToTarget(testExtLink, testLink)
     modifyToTarget(testExtLink, testExtLink)
   })
-})
 
-httptest::with_mock_dir("deleteLinksAfterDeletion", {
   test_that("delete links after deletion|ics1139", {
     Sys.setenv(improver.logfile = "improver.log")
     improveConnect()
@@ -315,7 +303,6 @@ httptest::with_mock_dir("deleteLinksAfterDeletion", {
     expect_false(file.exists(withPrefix$data[[1]]))
     expect_false(file.exists(withOutPrefix$data[[1]]))
   })
-})
 
 
 

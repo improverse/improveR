@@ -110,7 +110,6 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
 }
 
 
-#httptest::with_mock_dir("prepare-runSteps",{
   test_that("createTestFolder", {
     cat("\n=== CREATE TEST FOLDER TEST ===\n")
     Sys.setenv(IMPROVER_TEST_REPLAY="T")
@@ -148,7 +147,6 @@ mockStep <- function(tree, dataSet, name, description, dataSet2 = NULL, dataSet3
 
 library(magrittr)
 
-#httptest::with_mock_dir("checkRunservers", {
   test_that("check runservers|ics1216,ics1226,ics1227,ics1229,ics1230", {
     nonmem_runserver <- Sys.getenv("NONMEM_RUNSERVER")
     nonmem_tool <- Sys.getenv("NONMEM_TOOL")
@@ -198,7 +196,6 @@ library(magrittr)
 #})
 
 
-#httptest::with_mock_dir("loadChildSteps", {
   test_that("load Child steps|ics1140,ics1205,ics1209,ics1225", {
     # Ensure TEST_FOLDER exists (for when test is run individually)
     TEST_FOLDER <- ensureTestFolder()

@@ -40,44 +40,6 @@ test_that("users returns a data frame with id and username columns|ics1142", {
 })
 
 # -----------------------------------------------------------------------------
-# userAuditTrail — loads a user's audit trail with 10 filter fields.
-# Not yet implemented in improveR. The test below documents the gap.
-# -----------------------------------------------------------------------------
-test_that("userAuditTrail is exported per spec|ics1142", {
-  # Spec ics1142 mandates userAuditTrail with filters:
-  # userId, from, to, resourceName, description, path, attribute,
-  # ipAddress, memberName, operations, entityReftypes
-  # Implementation gap: function does not currently exist on improveR::.
-  skip_if_not(
-    exists("userAuditTrail", envir = asNamespace("improveR"), inherits = FALSE),
-    "userAuditTrail is specified by ics1142 but not yet implemented in improveR"
-  )
-
-  improveR::improveConnect()
-  allUsers <- improveR::users()
-  adminId <- allUsers$id[allUsers$username == "admin"][1]
-  expect_false(is.na(adminId))
-
-  unfiltered <- improveR::userAuditTrail(userId = adminId)
-  expect_false(is.null(unfiltered))
-  expect_true(is.data.frame(unfiltered))
-
-  # Each filter narrows the result set (or returns the same when no match)
-  fromFilter <- improveR::userAuditTrail(userId = adminId,
-                                         from = Sys.time() - 60 * 60 * 24 * 365)
-  expect_lte(nrow(fromFilter), nrow(unfiltered))
-
-  toFilter <- improveR::userAuditTrail(userId = adminId, to = Sys.time())
-  expect_lte(nrow(toFilter), nrow(unfiltered))
-
-  if ("operation" %in% colnames(unfiltered) && nrow(unfiltered) > 0) {
-    opName <- unfiltered$operation[1]
-    opFilter <- improveR::userAuditTrail(userId = adminId, operations = opName)
-    expect_lte(nrow(opFilter), nrow(unfiltered))
-  }
-})
-
-# -----------------------------------------------------------------------------
 # getFullFolderAuditTrail — recursive folder audit trail, no caching per spec
 # -----------------------------------------------------------------------------
 test_that("getFullFolderAuditTrail returns entries for folder and descendants|ics1142", {

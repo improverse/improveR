@@ -68,7 +68,7 @@ test_that("setup review test environment", {
 # Verify: review can be loaded back and has correct name and entries
 # ---------------------------------------------------------------------------
 test_that("createReview creates a review with correct name and entry|ics1527,ics2045", {
-  skip_if(!exists("REV_FOLDER", envir = globalenv()), "No test folder")
+  stopifnot("No test folder" = exists("REV_FOLDER", envir = globalenv()))
   testFile <- get("REV_FILE", envir = globalenv())
   testFolder <- get("REV_FOLDER", envir = globalenv())
   test1Id <- get("REV_TEST1_ID", envir = globalenv())
@@ -85,7 +85,7 @@ test_that("createReview creates a review with correct name and entry|ics1527,ics
     dueDate = format(Sys.Date() + 30, "%Y-%m-%d")
   )
 
-  if (is.null(result)) skip("Review creation not supported on this server")
+  if (is.null(result)) stop("Review creation not supported on this server")
 
   # Verify: load review back by ID and check name
   loaded <- improveR::getReviewById(result)
@@ -107,7 +107,7 @@ test_that("createReview creates a review with correct name and entry|ics1527,ics
 # Verify: reviewer appears in getReviewers after being added
 # ---------------------------------------------------------------------------
 test_that("createReviewer adds a reviewer visible in getReviewers|ics368,ics2045", {
-  skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
+  stopifnot("No review created" = exists("REV_REVIEW", envir = globalenv()))
   review <- get("REV_REVIEW", envir = globalenv())
   allUsers <- get("REV_USERS", envir = globalenv())
 
@@ -126,7 +126,7 @@ test_that("createReviewer adds a reviewer visible in getReviewers|ics368,ics2045
     userId = allUsers$id[otherIdx[1]],
     username = allUsers$username[otherIdx[1]]
   )
-  if (is.null(result)) skip("createReviewer not supported or duplicate reviewer")
+  if (is.null(result)) stop("createReviewer not supported or duplicate reviewer")
 
   # Verify: reviewer count increased
   reviewersAfter <- improveR::getReviewers(review)
@@ -142,16 +142,37 @@ test_that("createReviewer adds a reviewer visible in getReviewers|ics368,ics2045
 # Verify: reviewer disappears from getReviewers after deletion
 # ---------------------------------------------------------------------------
 test_that("deleteReviewer removes reviewer from getReviewers|ics369,ics2045", {
-  skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
-  skip_if(!exists("REV_REVIEWER", envir = globalenv()), "No reviewer added")
+  stopifnot("No review created" = exists("REV_REVIEW", envir = globalenv()))
+  stopifnot("No reviewer added" = exists("REV_REVIEWER", envir = globalenv()))
+  stopifnot("No REV_TEST1_ID for safe deletion" = exists("REV_TEST1_ID", envir = globalenv()))
   review <- get("REV_REVIEW", envir = globalenv())
+  test1Id <- get("REV_TEST1_ID", envir = globalenv())
 
   reviewersBefore <- improveR::getReviewers(review)
   expect_true(is.data.frame(reviewersBefore))
-  skip_if(nrow(reviewersBefore) < 2, "Need at least 2 reviewers to test delete")
+  stopifnot("Need at least 2 reviewers to test delete" = nrow(reviewersBefore) >= 2)
 
   countBefore <- nrow(reviewersBefore)
-  reviewerToDelete <- reviewersBefore$id[nrow(reviewersBefore)]
+
+  # Pick a reviewer that is NOT test1. The downstream test_thats
+  # (createReviewComment, approve/reset/reject workflow) connect as test1
+  # and call acceptReviewInvitation; if we delete test1 here those tests
+  # fail with "acceptReviewInvitation returned FALSE" because the server
+  # rejects accept calls from a user who is no longer a reviewer. The
+  # previous logic targeted reviewersBefore$id[nrow(...)] — the last row
+  # — which is unstable: the server does not guarantee reviewer ordering,
+  # so the same test ran green in some suites and red in others depending
+  # on which row came back last. Find a non-test1 reviewer explicitly.
+  # The server reports the user id under either "user.id" or "userId"
+  # depending on REST flattening — mirror the dispatch in
+  # validateDuplicateReviewer() so this test works on both shapes.
+  userIdCol <- if ("user.id" %in% colnames(reviewersBefore)) "user.id"
+               else if ("userId" %in% colnames(reviewersBefore)) "userId"
+               else NULL
+  stopifnot("getReviewers result has no user.id / userId column" = !is.null(userIdCol))
+  candidates <- reviewersBefore[reviewersBefore[[userIdCol]] != test1Id, , drop = FALSE]
+  stopifnot("No non-test1 reviewer available to delete safely" = nrow(candidates) >= 1)
+  reviewerToDelete <- candidates$id[1]
 
   result <- improveR::deleteReviewer(review, reviewerToDelete)
   expect_true(result)
@@ -160,9 +181,11 @@ test_that("deleteReviewer removes reviewer from getReviewers|ics369,ics2045", {
   reviewersAfter <- improveR::getReviewers(review)
   expect_equal(nrow(reviewersAfter), countBefore - 1,
                info = "Reviewer count should decrease by 1")
-  # Verify: deleted reviewer is gone
+  # Verify: deleted reviewer is gone, test1 still in the list
   expect_false(reviewerToDelete %in% reviewersAfter$id,
                info = "Deleted reviewer should not appear in list")
+  expect_true(test1Id %in% reviewersAfter[[userIdCol]],
+              info = "test1 must remain a reviewer for downstream tests")
 })
 
 # ---------------------------------------------------------------------------
@@ -170,7 +193,7 @@ test_that("deleteReviewer removes reviewer from getReviewers|ics369,ics2045", {
 # Verify: entry count increases and new entry contains the file
 # ---------------------------------------------------------------------------
 test_that("createReviewEntry adds entry visible in getReviewEntries|ics1541,ics2045", {
-  skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
+  stopifnot("No review created" = exists("REV_REVIEW", envir = globalenv()))
   review <- get("REV_REVIEW", envir = globalenv())
   testFolder <- get("REV_FOLDER", envir = globalenv())
 
@@ -204,7 +227,7 @@ test_that("createReviewEntry adds entry visible in getReviewEntries|ics1541,ics2
 # Verify: selective deletion — one entry removed, other remains
 # ---------------------------------------------------------------------------
 test_that("deleteReviewEntry removes specific entry, keeps others|ics1542,ics2045", {
-  skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
+  stopifnot("No review created" = exists("REV_REVIEW", envir = globalenv()))
   review <- get("REV_REVIEW", envir = globalenv())
   testFolder <- get("REV_FOLDER", envir = globalenv())
 
@@ -246,8 +269,8 @@ test_that("deleteReviewEntry removes specific entry, keeps others|ics1542,ics204
 # Verify: comment appears in getReviewComments
 # ---------------------------------------------------------------------------
 test_that("createReviewComment adds comment visible in getReviewComments|ics1536,ics2045", {
-  skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
-  skip_if(!hasConnectAs(), "connectAs not available")
+  stopifnot("No review created" = exists("REV_REVIEW", envir = globalenv()))
+  stopifnot("multi-user testbed required (hasConnectAs() must be TRUE)" = hasConnectAs())
   review <- get("REV_REVIEW", envir = globalenv())
   testFile <- get("REV_FILE", envir = globalenv())
 
@@ -256,9 +279,7 @@ test_that("createReviewComment adds comment visible in getReviewComments|ics1536
   improveR::setEditable(TRUE)
   accepted <- improveR::acceptReviewInvitation(review, comment = "accepting for comment test")
   reconnectAsAdmin()
-  if (!accepted) {
-    skip("Reviewer could not accept invitation for comment test")
-  }
+  stopifnot("acceptReviewInvitation returned FALSE — comment-test prerequisite failed" = isTRUE(accepted))
 
   improveR::changeReviewStatus(review, "Reviewing")
   improveR::refreshResource(review$resourceId)
@@ -279,7 +300,7 @@ test_that("createReviewComment adds comment visible in getReviewComments|ics1536
 
   if (is.null(result)) {
     reconnectAsAdmin()
-    skip("createReviewComment not supported on this server")
+    stop("createReviewComment not supported on this server")
   }
 
   # Verify: comment appears in list
@@ -296,8 +317,8 @@ test_that("createReviewComment adds comment visible in getReviewComments|ics1536
 # Verify: entry status changes after approval
 # ---------------------------------------------------------------------------
 test_that("approve, reset, reject entry workflow|ics1545,ics1547,ics1546", {
-  skip_if(!exists("REV_REVIEW", envir = globalenv()), "No review created")
-  skip_if(!hasConnectAs(), "connectAs not available")
+  stopifnot("No review created" = exists("REV_REVIEW", envir = globalenv()))
+  stopifnot("multi-user testbed required (hasConnectAs() must be TRUE)" = hasConnectAs())
   review <- get("REV_REVIEW", envir = globalenv())
 
   # Reviewer should already have accepted invitation from the comment test.

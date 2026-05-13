@@ -133,7 +133,7 @@ test_that("setup resetInventory test environment", {
 # Run 1: script produces output_v1.txt
 # ---------------------------------------------------------------------------
 test_that("run 1: step produces output_v1|ics2047", {
-  skip_if(!exists("RI_STEP", envir = globalenv()), "No step created")
+  stopifnot("No step created" = exists("RI_STEP", envir = globalenv()))
   stepResource <- get("RI_STEP", envir = globalenv())
 
   improveR::runStepResource(stepResource$resourceId)
@@ -167,7 +167,7 @@ test_that("run 1: step produces output_v1|ics2047", {
 # Update command file inside step to produce output_v2.txt, normal rerun
 # ---------------------------------------------------------------------------
 test_that("run 2 (normal): both output_v1 and output_v2|ics2047", {
-  skip_if(!exists("RI_STEP", envir = globalenv()), "No step created")
+  stopifnot("No step created" = exists("RI_STEP", envir = globalenv()))
   stepResource <- get("RI_STEP", envir = globalenv())
 
   # Update the command file IN the step inventory directly
@@ -194,7 +194,7 @@ test_that("run 2 (normal): both output_v1 and output_v2|ics2047", {
 # Run 3: resetInventory → only output_v2 survives
 # ---------------------------------------------------------------------------
 test_that("run 3 (resetInventory): only output_v2, v1 is gone|ics2047", {
-  skip_if(!exists("RI_STEP", envir = globalenv()), "No step created")
+  stopifnot("No step created" = exists("RI_STEP", envir = globalenv()))
   stepResource <- get("RI_STEP", envir = globalenv())
 
   # Rerun with reset — wipes inventory before run
@@ -212,7 +212,7 @@ test_that("run 3 (resetInventory): only output_v2, v1 is gone|ics2047", {
 # Run 4: restore both, then resetInventory + filesToKeep(v2)
 # ---------------------------------------------------------------------------
 test_that("run 4 (resetInventory + filesToKeep): v2 preserved|ics2047", {
-  skip_if(!exists("RI_STEP", envir = globalenv()), "No step created")
+  stopifnot("No step created" = exists("RI_STEP", envir = globalenv()))
   stepResource <- get("RI_STEP", envir = globalenv())
 
   # Update command file IN step inventory to produce BOTH v1 and v2
