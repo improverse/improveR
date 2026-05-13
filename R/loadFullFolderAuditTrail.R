@@ -8,8 +8,10 @@
 #' @export
 getFullFolderAuditTrail <- function(ident,from=pwd(),includeReadAccess=FALSE) {
 
-  #resource <- loadResource(ident)
-  auditTrails <- loadAuditTrail(ident)$data[[1]]
+  # Bypass auditTrail cache: recursive collection across many folders
+  # would otherwise blow up memory (ics1142: fresh each call per spec).
+  resource <- loadResource(ident, from = from)
+  auditTrails <- actualLoadAuditTrail(resource)
   auditTrails<-collectFolderAuditTrails(ident,auditTrails)
   if (!includeReadAccess) {
     auditTrails<-auditTrails[auditTrails$operation!="read",]
@@ -48,7 +50,7 @@ collectFolderAuditTrails <- function(ident, auditTrails) {
         auditTrails<-mergeDataframeList(list(newTrail,auditTrails))
       }
     }
-    newTrail <- loadAuditTrail(ident)$data[[1]]
+    newTrail <- actualLoadAuditTrail(loadResource(ident))
     auditTrails<- mergeDataframeList(list(auditTrails,newTrail))
   }
   return(auditTrails)
