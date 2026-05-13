@@ -363,7 +363,7 @@ delete <- function(res) {
 #runStatus of steps should only be collected if steps are actually relevant; not for files and links
 resNodeType <- loadResource(res)$nodeType
 
-if (!is.null(resNodeType) && !resNodeType %in% c("File", "Link")) {
+if (!is.null(resNodeType) && !resNodeType %in% c("File", "Link", "Review")) {
   stepStatus <- checkRunStatus(
     res,
     verbose = TRUE,
@@ -405,6 +405,7 @@ singleUpdateFileContent <- function(ident,localPath,comment) {
     return(NULL)
   }
   res <- httr::content(fResult)
+  invalidateAllFileCaches(resource)
   resource <- refreshResource(res[[1]]$resourceId)
   return(resource)
 }

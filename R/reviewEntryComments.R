@@ -5,7 +5,7 @@
 validateEntry <- function(reviewId, entryId) {
   reviewEntries <- refreshReviewEntries(reviewId)
   if (is.null(reviewEntries) || nrow(reviewEntries) == 0) {
-    log_error("No reviewer exists for the review with the id:", reviewId)
+    log_error("No review entries exist for the review with the id:", reviewId)
     return(FALSE)
   } else if (!"id" %in% colnames(reviewEntries)) {
     log_error("The 'id' column does not exist in the 'reviewEntries' data frame")

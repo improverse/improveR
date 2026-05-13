@@ -138,9 +138,12 @@ actualLoadChildResources <- function(resource) {
     result <- authenticatedREST("/resources")
   }
   if (is.null(result)) {
-    return(NULL)
+    return(data.frame())
   }
   cont <- httr::content(result)
+  if (is.null(cont) || length(cont) == 0) {
+    return(data.frame())
+  }
   df <- mergeListToDataframe(cont)
   df <-convertDates(df)
   return(df)

@@ -112,7 +112,9 @@ test_that("loadReviewComments returns (possibly empty) comments|ics1208", {
 
   # Add one review-level comment so the frame is non-null
   improveR::createReviewComment(ctx$reviewData$resourceId,
-                                comment = "lrv test comment")
+                                resourceIdent = ctx$testFile$resourceId,
+                                comment = "lrv test comment",
+                                commentType = "GENERAL")
 
   comments <- improveR::loadReviewComments(ctx$reviewData$resourceId)
   expect_false(is.null(comments))

@@ -30,12 +30,8 @@ PA <- new.env(parent = emptyenv())
 # Setup
 # ---------------------------------------------------------------------------
 test_that("setup permissionsAdvanced test environment", {
-  tryCatch({
-    improveR::improveConnect()
-    improveR::setEditable(TRUE)
-  }, error = function(e) {
-    skip(paste("Server not available:", e$message))
-  })
+  improveR::improveConnect()
+  improveR::setEditable(TRUE)
 
   basePath <- createFolderPath("permissionsAdvanced")
   testFolder <- improveR::createFolder(
@@ -77,7 +73,7 @@ test_that("setup permissionsAdvanced test environment", {
 # ---------------------------------------------------------------------------
 test_that("multiple ACEs: 3 groups on one resource via replaceResourcePermissions|ics769,ics2044", {
   PA <- get("PA", envir = globalenv())
-  skip_if(is.null(PA$FOLDER), "No test folder")
+  stopifnot("No test folder" = !is.null(PA$FOLDER))
 
   aclEntries <- list(
     list(memberId = PA$GROUP_ADMIN$id, visible = TRUE, read = TRUE,
@@ -90,7 +86,7 @@ test_that("multiple ACEs: 3 groups on one resource via replaceResourcePermission
 
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
   if (is.null(result)) {
-    skip("replaceResourcePermissions not supported on this server")
+    stop("replaceResourcePermissions not supported on this server")
   }
 
   acl <- improveR::getResourcePermissions(PA$FOLDER_PATH)
@@ -121,7 +117,7 @@ test_that("multiple ACEs: 3 groups on one resource via replaceResourcePermission
 # ---------------------------------------------------------------------------
 test_that("mixed inheritance: same group with different inherit flags|ics2044", {
   PA <- get("PA", envir = globalenv())
-  skip_if(is.null(PA$FOLDER), "No test folder")
+  stopifnot("No test folder" = !is.null(PA$FOLDER))
 
   # Root protection pattern: read-only without inherit + full with inherit
   aclEntries <- list(
@@ -133,7 +129,7 @@ test_that("mixed inheritance: same group with different inherit flags|ics2044", 
 
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
   if (is.null(result)) {
-    skip("replaceResourcePermissions not supported")
+    stop("replaceResourcePermissions not supported")
   }
 
   acl <- improveR::getResourcePermissions(PA$FOLDER_PATH)
@@ -153,8 +149,8 @@ test_that("mixed inheritance: same group with different inherit flags|ics2044", 
 # ---------------------------------------------------------------------------
 test_that("inherited ACEs propagate to child folders|ics2044", {
   PA <- get("PA", envir = globalenv())
-  skip_if(is.null(PA$FOLDER), "No test folder")
-  skip_if(is.null(PA$ADMIN_USER), "No admin user")
+  stopifnot("No test folder" = !is.null(PA$FOLDER))
+  stopifnot("No admin user" = !is.null(PA$ADMIN_USER))
 
   # Set inheritable ACL on parent
   aclEntries <- list(
@@ -163,7 +159,7 @@ test_that("inherited ACEs propagate to child folders|ics2044", {
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
   if (is.null(result)) {
-    skip("replaceResourcePermissions not supported")
+    stop("replaceResourcePermissions not supported")
   }
 
   # Create child folder
@@ -185,7 +181,7 @@ test_that("inherited ACEs propagate to child folders|ics2044", {
 # ---------------------------------------------------------------------------
 test_that("replaceResourcePermissions removes entries not in new list|ics2044", {
   PA <- get("PA", envir = globalenv())
-  skip_if(is.null(PA$FOLDER), "No test folder")
+  stopifnot("No test folder" = !is.null(PA$FOLDER))
 
   # Set 3 entries
   aclEntries3 <- list(
@@ -197,7 +193,7 @@ test_that("replaceResourcePermissions removes entries not in new list|ics2044", 
          modify = TRUE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries3)
-  if (is.null(result)) skip("replaceResourcePermissions not supported")
+  if (is.null(result)) stop("replaceResourcePermissions not supported")
 
   acl3 <- improveR::getResourcePermissions(PA$FOLDER_PATH)
   expect_equal(nrow(acl3), 3)
@@ -223,7 +219,7 @@ test_that("replaceResourcePermissions removes entries not in new list|ics2044", 
 # ---------------------------------------------------------------------------
 test_that("updateResourcePermission modifies existing ACE rights|ics2044", {
   PA <- get("PA", envir = globalenv())
-  skip_if(is.null(PA$FOLDER), "No test folder")
+  stopifnot("No test folder" = !is.null(PA$FOLDER))
 
   # Set a read-only ACE
   aclEntries <- list(
@@ -231,7 +227,7 @@ test_that("updateResourcePermission modifies existing ACE rights|ics2044", {
          modify = FALSE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
-  if (is.null(result)) skip("replaceResourcePermissions not supported")
+  if (is.null(result)) stop("replaceResourcePermissions not supported")
 
   acl <- improveR::getResourcePermissions(PA$FOLDER_PATH)
   expect_false(acl$modify[1])
@@ -256,7 +252,7 @@ test_that("updateResourcePermission modifies existing ACE rights|ics2044", {
 # ---------------------------------------------------------------------------
 test_that("ACE orderNr is respected in getResourcePermissions|ics2044", {
   PA <- get("PA", envir = globalenv())
-  skip_if(is.null(PA$FOLDER), "No test folder")
+  stopifnot("No test folder" = !is.null(PA$FOLDER))
 
   # Set 2 ACEs with specific ordering
   aclEntries <- list(
@@ -266,7 +262,7 @@ test_that("ACE orderNr is respected in getResourcePermissions|ics2044", {
          modify = TRUE, changeRights = TRUE, inherit = TRUE, rightsArea = 1L)
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
-  if (is.null(result)) skip("replaceResourcePermissions not supported")
+  if (is.null(result)) stop("replaceResourcePermissions not supported")
 
   acl <- improveR::getResourcePermissions(PA$FOLDER_PATH)
   expect_equal(nrow(acl), 2)
@@ -283,9 +279,9 @@ test_that("ACE orderNr is respected in getResourcePermissions|ics2044", {
 # ---------------------------------------------------------------------------
 test_that("ACL restricts access from test1 perspective|ics2044", {
   PA <- get("PA", envir = globalenv())
-  skip_if(is.null(PA$FOLDER), "No test folder")
-  skip_if(!hasConnectAs(), "connectAs not available")
-  skip_if(is.null(PA$TEST1_USER), "test1 user not available")
+  stopifnot("No test folder" = !is.null(PA$FOLDER))
+  stopifnot("multi-user testbed required (hasConnectAs() must be TRUE)" = hasConnectAs())
+  stopifnot("test1 user not available" = !is.null(PA$TEST1_USER))
 
   # Set ACL: readonly group (test1) gets read-only, no modify
   aclEntries <- list(
@@ -295,7 +291,7 @@ test_that("ACL restricts access from test1 perspective|ics2044", {
          modify = FALSE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
-  if (is.null(result)) skip("replaceResourcePermissions not supported")
+  if (is.null(result)) stop("replaceResourcePermissions not supported")
 
   # Switch to test1
   improveRtestsupport::connectAs("test1")

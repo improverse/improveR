@@ -732,7 +732,7 @@ importStepsInOrder <- function(orderedWorkflow, workflowTemplate, importWF, impo
             srcStepName <- internalRemoteFiles$sourceStep[irf]
             srcRow <- importWF[importWF$fullName == srcStepName, ]
             if (nrow(srcRow) > 0 && !is.na(srcRow$newEntityId[1])) {
-              srcStep <- tryCatch(loadResource(srcRow$newEntityId[1]), error = function(e) NULL)
+              srcStep <- tryCatch(loadResource(srcRow$newEntityId[1]), error = function(e) { log_warn("loadResource failed during export/import: ", conditionMessage(e)); NULL })
               if (!is.null(srcStep)) {
                 srcInv <- getStepResourceInventory(srcStep, recurse = TRUE, update = TRUE)$data[[1]]
                 searchName <- internalRemoteFiles$sourceInventoryPath[irf]

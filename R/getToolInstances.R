@@ -40,6 +40,14 @@ toolInstanceCache <- new.env()
 #' @export
 resetToolInstances <- function() {
   rm(list=ls(envir = toolInstanceCache),envir = toolInstanceCache)
+  # Also clear the runserver tools cache — otherwise loadToolsForRunserver
+  # returns stale data and newly created tool instances are missing.
+  tryCatch({
+    if (exists("runserverToolsCache", envir = cacheEnv)) {
+      cache <- get("runserverToolsCache", envir = cacheEnv)
+      rm(list = ls(envir = cache), envir = cache)
+    }
+  }, error = function(e) {})
 }
 
 getGridValues <- function() {
@@ -158,7 +166,7 @@ getToolInstances <- function() {
           # Check if we have the expected columns for the join
           if ("parameterLovId" %in% names(toolParameters) && "id" %in% names(parameters)) {
             # Perform the join and select the needed columns
-            joined <- dplyr::inner_join(parameters, toolParameters, by = c("id" = "parameterLovId"))
+            joined <- dplyr::left_join(toolParameters, parameters, by = c("parameterLovId" = "id"))
 
             # Check which columns exist in the joined result
             available_cols <- intersect(c("lovType", "name", "description", "value"), names(joined))

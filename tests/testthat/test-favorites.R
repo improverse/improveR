@@ -4,19 +4,15 @@
 
 ensureTestFolder <- function() {
   if (!exists("TEST_FOLDER", envir = globalenv())) {
-    tryCatch({
-      improveR::improveConnect()
-      improveR::setEditable(TRUE)
-      basePath <- createFolderPath("favorites")
-      testFolder <- improveR::createFolder(
-        targetIdent = basePath,
-        folderName = paste0("test-favorites-", format(Sys.time(), "%Y%m%d%H%M%S")),
-        comment = "favorites test setup"
-      )
-      assign("TEST_FOLDER", testFolder, envir = globalenv())
-    }, error = function(e) {
-      skip(paste("Server not available:", e$message))
-    })
+    improveR::improveConnect()
+    improveR::setEditable(TRUE)
+    basePath <- createFolderPath("favorites")
+    testFolder <- improveR::createFolder(
+      targetIdent = basePath,
+      folderName = paste0("test-favorites-", format(Sys.time(), "%Y%m%d%H%M%S")),
+      comment = "favorites test setup"
+    )
+    assign("TEST_FOLDER", testFolder, envir = globalenv())
   }
 }
 
@@ -24,12 +20,8 @@ ensureTestFolder <- function() {
 # Setup
 # ---------------------------------------------------------------------------
 test_that("setup favorites test environment", {
-  tryCatch({
-    improveR::improveConnect()
-    improveR::setEditable(TRUE)
-  }, error = function(e) {
-    skip(paste("Server not available:", e$message))
-  })
+  improveR::improveConnect()
+  improveR::setEditable(TRUE)
 
   basePath <- createFolderPath("favorites")
   testFolder <- improveR::createFolder(
@@ -68,7 +60,7 @@ test_that("createFavoriteFolder creates a folder in favorites|ics1805", {
   folderName <- paste0("TestFavFolder-", format(Sys.time(), "%H%M%S"))
   result <- improveR::createFavoriteFolder(name = folderName)
   if (is.null(result)) {
-    skip("createFavoriteFolder not supported on this server")
+    stop("createFavoriteFolder not supported on this server")
   }
   expect_false(is.null(result))
   assign("FAV_FOLDER", result, envir = globalenv())
@@ -87,7 +79,7 @@ test_that("addFavoriteLink adds a link to favorites|ics1803", {
     name = "fav-link-test"
   )
   if (is.null(result)) {
-    skip("addFavoriteLink not supported on this server")
+    stop("addFavoriteLink not supported on this server")
   }
   expect_false(is.null(result))
   assign("FAV_LINK", result, envir = globalenv())

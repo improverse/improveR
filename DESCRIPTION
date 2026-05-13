@@ -1,7 +1,7 @@
 Package: improveR
 Type: Package
 Title: Package to control the user functions of improve
-Version: 4.3.1
+Version: 4.4.2
 Authors@R:
   c(person(given = "Michael",
            family = "Hackl",

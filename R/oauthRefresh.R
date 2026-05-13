@@ -11,7 +11,8 @@
 renewAccessToken <- function () {
     refrToken = Sys.getenv("IMPROVER_REFRESH_TOKEN")
     if (refrToken=="") {
-      stop('Could not find stored refresh token')
+      log_debug("No refresh token available (run-token context), skipping token renewal")
+      return(invisible(NULL))
     }
     storedData = decodeRefreshToken(refrToken)
     authProvider = cacheEnv$authenticationProvider

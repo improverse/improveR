@@ -96,7 +96,7 @@ test_that("wrong type for get functions|ics1141", {
   eId <- analysisTree$entityId
   typ <- analysisTree$nodeType
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message, as.character(glue::glue(expectedMessage)))
 
 
   failed <- getCopy(testFolder)
@@ -104,7 +104,7 @@ test_that("wrong type for get functions|ics1141", {
   eId <- testFolder$entityId
   typ <- testFolder$nodeType
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message, as.character(glue::glue(expectedMessage)))
 
 
   failed <- improveR::getCopy(testStep)
@@ -112,7 +112,7 @@ test_that("wrong type for get functions|ics1141", {
   eId <- testStep$entityId
   typ <- testStep$nodeType
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message, as.character(glue::glue(expectedMessage)))
 
 
   failed <- improveR::getCopy(testExtLink)
@@ -120,7 +120,7 @@ test_that("wrong type for get functions|ics1141", {
   eId <- testExtLink$entityId
   typ <- testExtLink$nodeType
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message, as.character(glue::glue(expectedMessage)))
 #test loadfile mit link
 
   testFile <- updateFileContent(testFile,"improver.log")
@@ -141,7 +141,7 @@ test_that("wrong type for get functions|ics1141", {
   eId <- testExtLink$entityId
   typ <- testExtLink$nodeType
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message, as.character(glue::glue(expectedMessage)))
 
 
   failed <- getFilesFromFolder(testLink)
@@ -149,14 +149,14 @@ test_that("wrong type for get functions|ics1141", {
   eId <- testLink$entityId
   typ <- testLink$nodeType
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message, as.character(glue::glue(expectedMessage)))
 
   failed <- getFilesFromFolder(testFile)
   expect_null(failed)
   eId <- testFile$entityId
   typ <- testFile$nodeType
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message, as.character(glue::glue(expectedMessage)))
 })
 
 
@@ -176,7 +176,7 @@ test_that("multiple resources for getFiles from folder, illegal pattern|ics1141"
   failed <- getFilesFromFolder(folders)
   expect_null(failed)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedMessage))
+  expect_equal(message, as.character(glue::glue(expectedMessage)))
 
   # illegal pattern for getfilesfromfolder
   folderChildren <- getFilesFromFolder(TEST_FOLDER)

@@ -4,14 +4,47 @@
 \alias{pushRunCli}
 \title{Push Run CLI}
 \usage{
-pushRunCli(localPath, command = "Rstudio")
+pushRunCli(
+  localPath,
+  command = "Rstudio",
+  comment = NULL,
+  force = FALSE,
+  preview = FALSE,
+  includeFiles = NULL,
+  excludeFiles = NULL,
+  runserverUrl = NULL,
+  commandArgs = NULL,
+  json = FALSE
+)
 }
 \arguments{
 \item{localPath}{The local repository path.}
 
-\item{command}{The command to run. Default is "Rstudio".}
+\item{command}{The command executable to run. Default is "Rstudio".}
+
+\item{comment}{Optional commit comment.}
+
+\item{force}{Logical. If \code{TRUE}, overwrite remote changes (skip conflict check).}
+
+\item{preview}{Logical. If \code{TRUE}, preview only without writing to the server.}
+
+\item{includeFiles}{Character. Comma-separated glob patterns to include.}
+
+\item{excludeFiles}{Character. Comma-separated glob patterns to exclude.}
+
+\item{runserverUrl}{Character. Runserver URL (defaults to local IP).}
+
+\item{commandArgs}{Character vector. Additional command arguments.
+Use for arguments that start with \code{-}.}
+
+\item{json}{Logical. If \code{TRUE} and picocli is available, requests JSON
+output and returns a parsed R list (useful for \code{preview = TRUE}).}
+}
+\value{
+CLI output: character vector of stdout lines when \code{json = FALSE},
+or a parsed list when \code{json = TRUE}. Returned invisibly.
 }
 \description{
-Pushes and runs a command on the CLI. After pushing, the resource cache is
-invalidated to ensure subsequent queries reflect the updated server state.
+Pushes local changes and creates a run for the cloned step.
+After pushing, the resource cache is invalidated.
 }

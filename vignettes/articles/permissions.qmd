@@ -1,0 +1,137 @@
+---
+title: "Permissions & Access Control"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-title: Contents
+    toc-location: right
+    code-fold: false
+    fontsize: 16px
+    fig-align: left
+knitr:
+    opts_chunk:
+      collapse: true
+      eval: false
+---
+
+## Overview
+
+Access control in improve is group-based. You create groups, add users to them, then assign permissions to groups on resources. Permissions can inherit down the folder hierarchy.
+
+## Groups
+
+### Create and manage groups
+
+```{r}
+library(improveR)
+
+# Create a group
+group <- createGroup("Modelers")
+
+# Add users to the group
+allUsers <- users()
+addGroupUser(group$id, allUsers$id[allUsers$username == "jane"])
+addGroupUser(group$id, allUsers$id[allUsers$username == "bob"])
+
+# Check members
+members <- loadGroupUsers(group$id)
+
+# Remove a member
+removeGroupUser(group$id, allUsers$id[allUsers$username == "bob"])
+
+# Delete a group
+deleteGroup(group$id)
+```
+
+## Setting permissions
+
+Permissions are set on resources (folders, files, analysis trees, steps) for groups. Each permission entry specifies:
+
+| Field | Description |
+|-------|-------------|
+| `visible` | Can see the resource |
+| `read` | Can read content |
+| `modify` | Can modify content |
+| `changeRights` | Can change permissions |
+| `inherit` | Propagates to child resources |
+
+### Single permission
+
+```{r}
+# Grant read access to a folder
+setResourcePermission(folder,
+  memberId = group$id,
+  visible = TRUE, read = TRUE,
+  modify = FALSE, changeRights = FALSE)
+```
+
+### Multiple permissions at once
+
+```{r}
+# Set multiple permissions (replaces all existing)
+replaceResourcePermissions(folder, list(
+  list(memberId = adminGroup$id,
+       visible = TRUE, read = TRUE, modify = TRUE,
+       changeRights = TRUE, inherit = TRUE, rightsArea = 1L),
+  list(memberId = readonlyGroup$id,
+       visible = TRUE, read = TRUE, modify = FALSE,
+       changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
+))
+```
+
+### Update and remove
+
+```{r}
+# Read current permissions
+acl <- getResourcePermissions(folder)
+
+# Update a specific entry
+updateResourcePermission(folder,
+  aclEntryId = acl$id[1],
+  modify = TRUE)  # grant modify to first entry
+
+# Remove a specific entry
+removeResourcePermission(folder, acl$id[2])
+```
+
+## Inheritance
+
+When `inherit = TRUE`, child folders and files receive the same permissions.
+
+```{r}
+# Parent folder: full access, inherited
+replaceResourcePermissions(parentFolder, list(
+  list(memberId = group$id,
+       visible = TRUE, read = TRUE, modify = TRUE,
+       changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
+))
+
+# Child folder automatically gets the same permissions
+childPerms <- effectiveUserPermissions(childFolder)
+```
+
+When `inherit = FALSE`, the permission applies only to the resource itself:
+
+```{r}
+# Read-only at root level, not inherited to children
+replaceResourcePermissions(rootFolder, list(
+  list(memberId = group$id,
+       visible = TRUE, read = TRUE, modify = FALSE,
+       changeRights = FALSE, inherit = FALSE, rightsArea = 1L)
+))
+
+# Children do NOT get this permission
+```
+
+## Checking effective permissions
+
+```{r}
+# What permissions does a specific user have?
+rights <- effectiveRights(folder, memberId = userId)
+rights$read    # TRUE/FALSE
+rights$modify  # TRUE/FALSE
+
+# All effective permissions on a resource
+perms <- effectiveUserPermissions(folder)
+```

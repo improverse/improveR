@@ -1,0 +1,106 @@
+---
+title: "Metadata"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-title: Contents
+    toc-location: right
+    code-fold: false
+    fontsize: 16px
+    fig-align: left
+knitr:
+    opts_chunk:
+      collapse: true
+      eval: false
+---
+
+## Overview
+
+Metadata in improve attaches structured information to resources — compounds, indications, dates, and other domain-specific attributes. Metadata definitions are configured by administrators; users assign values to resources.
+
+## Metadata definitions
+
+Definitions describe what metadata fields are available and their types.
+
+```{r}
+library(improveR)
+
+# Load all available metadata definitions
+definitions <- loadMetaDataDefinitions()
+
+# Each definition has a name and type
+definitions[, c("name", "metadataType")]
+#          name metadataType
+# 1    Compound         TEXT
+# 2  Indication          LOV
+# 3 ProgramStart        DATE
+```
+
+Types:
+
+| Type | Description |
+|------|-------------|
+| `TEXT` | Free text value |
+| `LOV` | List of values (pick from predefined options) |
+| `DATE` | Date value |
+
+## Adding metadata to a resource
+
+```{r}
+# Text value
+addMetaDate(folder, "Compound", value = "Aspirin")
+
+# List of values (must match a predefined option)
+addMetaDate(folder, "Indication", value = "Pain")
+
+# Date value
+addMetaDate(folder, "ProgramStart", value = lubridate::ymd("2026-01-15"))
+```
+
+## Reading metadata
+
+```{r}
+# Load metadata for a resource
+meta <- loadMetaData(folder)
+
+# Get the data
+metaData <- meta %>% strip()
+
+# Access specific values
+metaData[metaData$descriptorName == "Compound", ]$textValue
+# "Aspirin"
+
+metaData[metaData$descriptorName == "Indication", ]$lovText
+# "Pain"
+
+metaData[metaData$descriptorName == "ProgramStart", ]$dateValueDate
+# "2026-01-15"
+```
+
+## Updating metadata
+
+```{r}
+updateMetaDate(folder, "Compound", "Ibuprofen")
+updateMetaDate(folder, "Indication", "Inflammation")
+updateMetaDate(folder, "ProgramStart", lubridate::ymd("2026-03-01"))
+
+# Refresh to see changes
+meta <- refreshMetaData(folder)
+```
+
+## Deleting metadata
+
+```{r}
+deleteMetaDate(folder, "Compound")
+```
+
+## Bulk operations
+
+```{r}
+# Add multiple metadata values at once
+addBulkMetaDate(folder, list(
+  list(name = "Compound", value = "Aspirin"),
+  list(name = "Indication", value = "Pain")
+))
+```

@@ -285,12 +285,12 @@ exportFolder <- function(folderIdent, exportName, targetFolder = ".") {
 
     } else if (child$nodeType == "Link") {
       # Load full resource to get link target info
-      linkResource <- tryCatch(loadResource(child$resourceId), error = function(e) NULL)
+      linkResource <- tryCatch(loadResource(child$resourceId), error = function(e) { log_warn("loadResource failed during export/import: ", conditionMessage(e)); NULL })
       linkTargetEntityId <- NA_character_
       linkTargetPath <- NA_character_
       if (!is.null(linkResource) && !is.null(linkResource$targetEntityId)) {
         linkTargetEntityId <- linkResource$targetEntityId
-        linkTarget <- tryCatch(loadResource(linkResource$targetEntityId), error = function(e) NULL)
+        linkTarget <- tryCatch(loadResource(linkResource$targetEntityId), error = function(e) { log_warn("loadResource failed during export/import: ", conditionMessage(e)); NULL })
         if (!is.null(linkTarget)) {
           linkTargetPath <- linkTarget$path
         }
@@ -310,7 +310,7 @@ exportFolder <- function(folderIdent, exportName, targetFolder = ".") {
 
     } else if (child$nodeType == "ExtLink") {
       # Load full resource to get URL
-      extLinkResource <- tryCatch(loadResource(child$resourceId), error = function(e) NULL)
+      extLinkResource <- tryCatch(loadResource(child$resourceId), error = function(e) { log_warn("loadResource failed during export/import: ", conditionMessage(e)); NULL })
       extUrl <- NA_character_
       if (!is.null(extLinkResource) && !is.null(extLinkResource$url)) {
         extUrl <- extLinkResource$url
@@ -410,7 +410,7 @@ exportFolder <- function(folderIdent, exportName, targetFolder = ".") {
         for (i in seq_len(nrow(outsideLinks))) {
           # remoteFiles may not have a 'path' column — resolve from ident
           linkIdent <- outsideLinks$ident[i]
-          linkResource <- tryCatch(loadResource(linkIdent), error = function(e) NULL)
+          linkResource <- tryCatch(loadResource(linkIdent), error = function(e) { log_warn("loadResource failed during export/import: ", conditionMessage(e)); NULL })
           linkPath <- if (!is.null(linkResource)) linkResource$path else NULL
           if (!is.null(linkPath) && !is.na(linkPath)) {
             # Check if this link's source path matches any step's resource path
@@ -419,7 +419,7 @@ exportFolder <- function(folderIdent, exportName, targetFolder = ".") {
               otherStep <- unifiedWorkflow$steps[[otherStepName]]
               otherEntityId <- otherStep$stepDf$sourceEntityId
               # Load the other step to get its path
-              otherResource <- tryCatch(loadResource(otherEntityId), error = function(e) NULL)
+              otherResource <- tryCatch(loadResource(otherEntityId), error = function(e) { log_warn("loadResource failed during export/import: ", conditionMessage(e)); NULL })
               if (!is.null(otherResource) && !is.null(otherResource$path) &&
                   startsWith(linkPath, otherResource$path)) {
                 # This is a cross-tree internal link

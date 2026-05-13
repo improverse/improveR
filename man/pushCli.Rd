@@ -4,12 +4,41 @@
 \alias{pushCli}
 \title{Push CLI}
 \usage{
-pushCli(localPath)
+pushCli(
+  localPath,
+  comment = NULL,
+  force = FALSE,
+  preview = FALSE,
+  includeFiles = NULL,
+  excludeFiles = NULL,
+  files = NULL,
+  json = FALSE
+)
 }
 \arguments{
 \item{localPath}{The local repository path.}
+
+\item{comment}{Optional commit comment.}
+
+\item{force}{Logical. If \code{TRUE}, overwrite remote changes (skip conflict check).}
+
+\item{preview}{Logical. If \code{TRUE}, preview only without writing to the server.}
+
+\item{includeFiles}{Character. Comma-separated glob patterns to include.}
+
+\item{excludeFiles}{Character. Comma-separated glob patterns to exclude.}
+
+\item{files}{Character vector. Optional specific file/directory paths to push.}
+
+\item{json}{Logical. If \code{TRUE} and picocli is available, requests JSON
+output and returns a parsed R list (useful for \code{preview = TRUE}).}
+}
+\value{
+CLI output: character vector of stdout lines when \code{json = FALSE},
+or a parsed list when \code{json = TRUE}. Returned invisibly.
 }
 \description{
-Pushes changes to the CLI. After pushing, the resource cache is invalidated
-to ensure subsequent queries reflect the updated server state.
+Pushes local changes to the improve server. After pushing, the resource
+cache is invalidated to ensure subsequent queries reflect the updated
+server state.
 }

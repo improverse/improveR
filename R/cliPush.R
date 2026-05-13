@@ -11,8 +11,8 @@
 #' @param includeFiles Character. Comma-separated glob patterns to include.
 #' @param excludeFiles Character. Comma-separated glob patterns to exclude.
 #' @param files Character vector. Optional specific file/directory paths to push.
-#' @param json Logical. If \code{TRUE} and picocli is available, requests JSON
-#'   output and returns a parsed R list (useful for \code{preview = TRUE}).
+#' @param json Logical. If \code{TRUE}, requests JSON output and returns a
+#'   parsed R list (useful for \code{preview = TRUE}).
 #' @return CLI output: character vector of stdout lines when \code{json = FALSE},
 #'   or a parsed list when \code{json = TRUE}. Returned invisibly.
 #' @export
@@ -25,7 +25,7 @@ pushCli <- function(localPath, comment = NULL, force = FALSE, preview = FALSE,
   token <- conf()$reqToken
 
   if (hasPicocli()) {
-    args <- c("push",
+    args <- picoArgs("push",
               "--access-token", token,
               "-C", localPath)
     if (!is.null(comment)) args <- c(args, "-m", comment)
@@ -35,17 +35,23 @@ pushCli <- function(localPath, comment = NULL, force = FALSE, preview = FALSE,
     if (!is.null(excludeFiles)) args <- c(args, "--exclude-files", paste(excludeFiles, collapse = ","))
     if (!is.null(files)) args <- c(args, files)
   } else {
-    warnLegacyIgnored(comment = comment, force = force, preview = preview,
-                      includeFiles = includeFiles, excludeFiles = excludeFiles,
-                      files = files, caller = "pushCli")
     args <- c("push",
               "-accessToken", token,
               "-repository", localPath)
+    if (!is.null(comment)) args <- c(args, "-comment", comment)
+    if (!is.null(includeFiles)) args <- c(args, "-includeFiles", paste(includeFiles, collapse = ","))
+    if (!is.null(excludeFiles)) args <- c(args, "-excludeFiles", paste(excludeFiles, collapse = ","))
   }
   output <- executeCli(args, json = json)
 
   if (!preview) {
-    resource <- tryCatch(getLocalRepoResource(localPath), error = function(e) NULL)
+    resource <- tryCatch(getLocalRepoResource(localPath),
+                         error = function(e) {
+                           log_warn("pushCli: could not read local repo info for '", localPath,
+                                    "': ", conditionMessage(e),
+                                    ". Cache invalidation skipped — subsequent reads may return stale data.")
+                           NULL
+                         })
     if (!is.null(resource)) {
       unloadResource(resource$resourceId)
       unloadChildResources(resource$resourceId)

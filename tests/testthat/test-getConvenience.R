@@ -65,8 +65,8 @@ test_that("getData parses csv files|ics1141", {
   desc <- improveR::getData(csvPath)
   expect_false(is.null(desc))
   expect_true(!is.null(desc$data))
-  expect_true(is.data.frame(desc$data))
-  expect_gt(nrow(desc$data), 0)
+  expect_true(is.data.frame(desc$data[[1]]))
+  expect_gt(nrow(desc$data[[1]]), 0)
 })
 
 test_that("getData parses xlsx files|ics1141", {
@@ -76,7 +76,7 @@ test_that("getData parses xlsx files|ics1141", {
   desc <- improveR::getData(xlsxPath)
   expect_false(is.null(desc))
   expect_true(!is.null(desc$data))
-  expect_true(is.data.frame(desc$data))
+  expect_true(is.data.frame(desc$data[[1]]))
 })
 
 test_that("getData accepts a custom parser|ics1141", {
@@ -87,8 +87,8 @@ test_that("getData accepts a custom parser|ics1141", {
   customParser <- function(path, ...) length(readLines(path, warn = FALSE))
   desc <- improveR::getData(csvPath, parser = customParser)
   expect_false(is.null(desc))
-  expect_true(is.numeric(desc$data))
-  expect_gt(desc$data, 0)
+  expect_true(is.numeric(desc$data[[1]]))
+  expect_gt(desc$data[[1]], 0)
 })
 
 # -----------------------------------------------------------------------------

@@ -6,6 +6,15 @@
 #' @export
 createContentCache <- function(localPath) {
   checkInit()
-  command <- glue::glue("contentCache create -location {localPath} -userProfile {cliEnv$userProfile}")
-  executeCli(command)
+
+  if (hasPicocli()) {
+    args <- c("cache", "create",
+              "--profile", cliEnv$userProfile,
+              "-C", localPath)
+  } else {
+    args <- c("contentCache", "create",
+              "-location", localPath,
+              "-userProfile", cliEnv$userProfile)
+  }
+  executeCli(args)
 }

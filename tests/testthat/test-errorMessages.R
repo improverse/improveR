@@ -57,7 +57,7 @@ test_that("not connected|ics1081", {
   TEST_FOLDER <- ensureTestFolder()
   FAKE_PATH <- getFakePath()
   checkConnected <- function(func){
-    expectedMessage <- "improveConnect was not called or an error was thrown while connecting"
+    expectedMessage <- "No connection detected. improveConnect was not called or an error occurred during connection."
     expectedError <- "not connected"
     tryCatch({
       resource <- func(FAKE_RES_ID)
@@ -142,7 +142,7 @@ test_that("not connected|ics1081", {
 
 
   ###queries
-  expectedMessage <- "improveConnect was not called or an error was thrown while connecting"
+  expectedMessage <- "No connection detected. improveConnect was not called or an error occurred during connection."
   expectedError <- "not connected"
 
   tryCatch({

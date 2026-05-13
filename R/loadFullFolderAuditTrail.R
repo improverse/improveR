@@ -45,11 +45,11 @@ collectFolderAuditTrails <- function(ident, auditTrails) {
       for(i in 1:nrow(childFiles)) {
         f <- childFiles[i,]
         newTrail <- collectFolderAuditTrails(f$resourceId,auditTrails)
-        auditTrails<-mergeListToDataframe(list(newTrail,auditTrails))
+        auditTrails<-mergeDataframeList(list(newTrail,auditTrails))
       }
     }
     newTrail <- loadAuditTrail(ident)$data[[1]]
-    auditTrails<- mergeListToDataframe(list(auditTrails,newTrail))
+    auditTrails<- mergeDataframeList(list(auditTrails,newTrail))
   }
   return(auditTrails)
 }

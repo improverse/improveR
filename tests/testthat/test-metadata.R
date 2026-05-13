@@ -355,7 +355,7 @@ ensureTestFolder <- function() {
                   info = paste("Date difference is", date_diff, "days.",
                               "Actual:", actual_date, "Expected:", expected_date))
     } else {
-      skip("Date metadata not properly stored/retrieved - skipping date comparison")
+      stop("Date metadata not properly stored/retrieved by the server (programStartData missing dateValueDate). This is a real bug — fix the server-side date metadata roundtrip rather than re-adding a skip.")
     }
 
     cat("\n=== DIAGNOSTIC: Deleting metadata ===\n")
