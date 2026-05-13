@@ -300,7 +300,6 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
 
   if (!is.na(conf()$reqToken) && !is.null(conf()$reqToken) && conf()$reqToken != "") {
     log_info("Using run token authentication")
-    log_info(paste0("Token: ", conf()$reqToken))
   } else {
     log_info("OAuth authentication completed")
   }
