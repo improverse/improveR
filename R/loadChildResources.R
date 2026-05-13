@@ -95,6 +95,47 @@ unloadChildResources <- function(ident) {
   removeFromCache(res$resourceId,"",childResourceCacheList)
 }
 
+#' Incrementally append a freshly created child resource to the parent's cached
+#' children list. Used by createFolder/createFile/createLink to keep the cache
+#' warm during bulk creation: each successful create previously called
+#' unloadChildResources() which then forced the next createX in the loop to
+#' re-fetch the children list from the server. For a step with N input files
+#' that becomes O(N) round trips with N up to ~100s in real reports — the
+#' existence-check overhead alone took ~60s for a PopPk render, blocking the
+#' MCP transport timeout. With incremental update the cache stays consistent,
+#' the next existence check sees the freshly-added child immediately, and the
+#' bulk-create cost drops to a single initial load.
+#'
+#' If the parent has no cached entry, this is a no-op — the next loadChildResources
+#' will fetch fresh from the server (correct behaviour, just no acceleration).
+#'
+#' @noRd
+appendToChildResourcesCache <- function(parent, newChild) {
+  if (is.null(parent) || is.null(newChild)) return(invisible(NULL))
+  if (!is.data.frame(parent) || nrow(parent) != 1) return(invisible(NULL))
+  if (!is.data.frame(newChild) || nrow(newChild) != 1) return(invisible(NULL))
+
+  existing <- searchInCache(childResourceCacheList, parent$resourceId)
+  if (is.null(existing)) {
+    return(invisible(NULL))
+  }
+
+  childrenDf <- existing$data[[1]]
+  if (is.null(childrenDf)) childrenDf <- data.frame()
+
+  if (nrow(childrenDf) > 0 &&
+      "resourceId" %in% names(childrenDf) &&
+      !is.null(newChild$resourceId) &&
+      newChild$resourceId %in% childrenDf$resourceId) {
+    return(invisible(NULL))
+  }
+
+  childrenDf <- plyr::rbind.fill(childrenDf, newChild)
+  existing$data <- list(childrenDf)
+  writeToCache(existing, childResourceCacheList, NULL)
+  invisible(NULL)
+}
+
 #' Refresh Child Resources from Server
 #'
 #' Clears cached child resources data and reloads fresh data from the server.

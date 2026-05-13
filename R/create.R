@@ -243,8 +243,14 @@ createGeneric <- function(targetIdent,folderName,type,url="",comment) {
           return(NULL)
         }
         parsedResult <- httr::content(result)
-        unloadChildResources(target)
         res <- loadResource(parsedResult$resourceId)
+        appendToChildResourcesCache(target, res)
+        # The fullChild cache returns more per-child fields than loadResource
+        # produces (e.g. runStatus), so an append-with-NAs would silently
+        # mislead callers. Invalidate so the next loadFullChildResources()
+        # refreshes from the server — one round trip on demand, not in the
+        # hot path of bulk creates.
+        unloadFullChildResources(target)
         return(res)
       }
     } else {
@@ -289,8 +295,9 @@ createGenericFile <- function(targetIdent,folderName,type,localPath,comment) {
 
 
       parsedResult <- httr::content(result)
-      unloadChildResources(target)
       res <- loadResource(parsedResult$resourceId)
+      appendToChildResourcesCache(target, res)
+      unloadFullChildResources(target)
       return(res)
     }
   } else {

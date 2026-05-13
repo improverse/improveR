@@ -67,7 +67,8 @@
 #'
 #' @references ics1141
 #' @export
-getGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="") {
+getGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",refresh = FALSE) {
+  if (refresh) .refreshGetCaches(ident, from)
   return(
     getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T,caption = caption,description=description,folderName = "graphics",func=getDesc)
   )
@@ -105,8 +106,8 @@ getGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="
 #' @references ics1141
 #' @export
 
-showGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",includeCaption=T,includeDescription=T) {
-  graphicsObject <- getGraphics(ident=ident,from = from,addAsLink = addAsLink,caption = caption,description=description)
+showGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",includeCaption=T,includeDescription=T,refresh = FALSE) {
+  graphicsObject <- getGraphics(ident=ident,from = from,addAsLink = addAsLink,caption = caption,description=description, refresh = refresh)
   if (is.null(graphicsObject$path)) {
     if (length(graphicsObject)==0) {
       log_error("No picture found")
@@ -116,7 +117,7 @@ showGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description=
     figString <-""
     for (i in 1:length(graphicsObject)) {
       figString <- paste(figString,
-                         showGraphics(graphicsObject[i][[1]]$resource,addAsLink = addAsLink,caption = caption,description=description),
+                         showGraphics(graphicsObject[i][[1]]$resource,addAsLink = addAsLink,caption = caption,description=description, refresh = refresh),
                          sep="\n\n")
     }
     return(figString)
@@ -178,8 +179,8 @@ showGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description=
 #' @references ics1141
 #' @export
 
-includeGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",includeCaption=T,includeDescription=T,...) {
-  graphicsObject <- getGraphics(ident=ident,from = from,addAsLink = addAsLink,caption = caption,description=description)
+includeGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",includeCaption=T,includeDescription=T,refresh = FALSE,...) {
+  graphicsObject <- getGraphics(ident=ident,from = from,addAsLink = addAsLink,caption = caption,description=description, refresh = refresh)
   if (is.null(graphicsObject$path)) {
     log_error("No or more than one pictures found")
     log_error(ident)

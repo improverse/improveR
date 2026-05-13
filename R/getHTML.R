@@ -67,7 +67,8 @@
 #'
 #' @references ics1141
 #' @export
-getHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="") {
+getHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="",refresh = FALSE) {
+  if (refresh) .refreshGetCaches(ident, from)
   return(
     getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T,caption = caption,description="",folderName = "HTML",func=getDesc)
   )
@@ -84,8 +85,8 @@ getHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="") {
 #' @references ics1141
 #' @export
 
-showHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="",includeCaption=T) {
-  graphicsObject <- getHTML(ident=ident,from = from,addAsLink = addAsLink,caption = caption)
+showHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="",includeCaption=T,refresh = FALSE) {
+  graphicsObject <- getHTML(ident=ident,from = from,addAsLink = addAsLink,caption = caption, refresh = refresh)
   if (is.null(graphicsObject$path)) {
     if (length(graphicsObject)==0) {
       log_error("No HTML object found")
@@ -95,7 +96,7 @@ showHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="",includeCaption=T
     figString <-""
     for (i in 1:length(graphicsObject)) {
       figString <- paste(figString,
-                         showHTML(graphicsObject[i][[1]]$resource,addAsLink = addAsLink,caption = caption),
+                         showHTML(graphicsObject[i][[1]]$resource,addAsLink = addAsLink,caption = caption, refresh = refresh),
                          sep="\n\n")
     }
     return(figString)

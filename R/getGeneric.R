@@ -10,7 +10,8 @@
 #' @param addIdToName By default, T prepends the entity ID to the name to avoid collisions.
 #' @references ics1141
 #' @export
-getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",folderName = "data",addIdToName = T) {
+getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",folderName = "data",addIdToName = T,refresh = FALSE) {
+  if (refresh) .refreshGetCaches(ident, from)
   return(
     getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = addIdToName,caption = caption,description=description,folderName = folderName,func=getDesc)
   )
@@ -25,7 +26,8 @@ getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",fo
 #' @param description By default, the filename is the description; alternative text can be provided here.
 #' @references ics1141
 #' @export
-getCopy <- function(ident,from=pwd(),caption="",description="") {
+getCopy <- function(ident,from=pwd(),caption="",description="",refresh = FALSE) {
+  if (refresh) .refreshGetCaches(ident, from)
   return(
     getAbstract(ident=ident,from = from,addAsLink = F,addIdToName=F,caption = caption,description=description,folderName = ".",func=getDesc)
   )
@@ -218,5 +220,20 @@ resetStep <- function() {
       unlink(fol,recursive = T)
     }
   })
+}
+
+#' Invalidate file + resource caches for a single ident. Used by the
+#' `refresh = TRUE` path of getFile / getCopy / getGraphics / getHTML /
+#' getData / getTextString / getR so the next loadFile() in getAbstract
+#' downloads fresh content rather than returning a stale cached copy.
+#' @noRd
+.refreshGetCaches <- function(ident, from = pwd()) {
+  tryCatch({
+    invalidateAllFileCaches(ident, from)
+    unloadResource(ident, from)
+  }, error = function(e) {
+    log_warn("refresh: cache invalidation failed: ", conditionMessage(e))
+  })
+  invisible(NULL)
 }
 
