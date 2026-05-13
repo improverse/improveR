@@ -29,7 +29,7 @@ pushRunCli <- function(localPath, command = "Rstudio", comment = NULL,
   token <- conf()$reqToken
 
   if (hasPicocli()) {
-    args <- picoArgs("push", "run",
+    args <- c("push", "run",
               "--access-token", token,
               "-C", localPath,
               "--command", command)

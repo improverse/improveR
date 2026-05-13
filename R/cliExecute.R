@@ -30,6 +30,16 @@ executeCli <- function(args, json = FALSE) {
   if (length(args) > 1 || json) {
     if (json) args <- c(args, "--json")
 
+    # The CLI 4.5 JAR ships with two surfaces: a legacy positional parser and
+    # a picocli flag parser. Subcommands like `clone`, `push`, `status`, `diff`,
+    # `cache` exist in both, but the picocli flags (--access-token, -C, --profile,
+    # --include-files, etc.) are only recognised under the picocli surface, which
+    # is gated behind a global `--pico` switch. Inject it here so every call site
+    # whose `if (hasPicocli())` branch was taken actually reaches that surface.
+    if (hasPicocli()) {
+      args <- c("--pico", args)
+    }
+
     # cliPath() returns a compound string, e.g. "java -jar /path/to.jar".
     # Split on whitespace to extract the executable and its fixed base args,
     # then pass user args as a separate vector so system2() quotes them
