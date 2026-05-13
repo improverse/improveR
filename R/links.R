@@ -85,6 +85,27 @@ createLink <- function(linkContainer,links,linkName="") {
     log_warn("LinkTarget does not exist")
     return(NULL)
   }
+  # If the caller passed an existing Link as the resource to link (e.g.
+  # iv_link_tree iterating children of a folder and re-linking each child
+  # without distinguishing between Files and Links it encounters),
+  # dereference to the underlying target. Otherwise the server creates a
+  # Link -> Link -> real-resource chain, which inflates the inventory
+  # graph and breaks if the intermediate Link is later moved or removed.
+  # iv_link_tree already resolves on the client side; doing it here means
+  # callers do not have to. The field on a loaded Link is targetEntityId
+  # (see e.g. createStepTemplateEnv.R:538, getStep.R:399, exportFolder.R:291,
+  # exportImportUtils.R:983 — the convention across the package).
+  if (!is.null(links$nodeType) &&
+      nrow(links) == 1 &&
+      links$nodeType == "Link" &&
+      "targetEntityId" %in% colnames(links) &&
+      !is.na(links$targetEntityId) &&
+      nchar(as.character(links$targetEntityId)) > 0) {
+    resolved <- loadResource(links$targetEntityId)
+    if (!is.null(resolved)) {
+      links <- resolved
+    }
+  }
   if (nrow(target)>1) {
     return(Map(function(targ) {
       return(createLink(targ,links,linkName))
