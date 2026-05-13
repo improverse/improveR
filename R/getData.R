@@ -106,7 +106,8 @@
 #'
 #' @references ics1141
 #' @export
-getData <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",parser=NULL,...) {
+getData <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",parser=NULL,refresh = FALSE,...) {
+  if (refresh) .refreshGetCaches(ident, from)
   return(
     getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T, caption = caption,description=description,folderName = "data",func=getDataByResource,parser=parser,...)
   )
@@ -165,7 +166,8 @@ getData <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",pa
 #'
 #' @references ics1141
 #' @export
-getTextString <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",...) {
+getTextString <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",refresh = FALSE,...) {
+  if (refresh) .refreshGetCaches(ident, from)
   return(
     getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T,caption = caption,description=description,folderName = "text",func = getTextByResource,...)
   )

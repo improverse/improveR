@@ -63,7 +63,8 @@
 #'
 #' @references ics1141
 #' @export
-getR <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="") {
+getR <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",refresh = FALSE) {
+  if (refresh) .refreshGetCaches(ident, from)
   return(
     getAbstract(
       ident = ident,
@@ -108,9 +109,9 @@ getR <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="") {
 #'
 #' @references ics1141
 #' @export
-sourceR <- function(ident,from=pwd(),addAsLink=TRUE) {
+sourceR <- function(ident,from=pwd(),addAsLink=TRUE,refresh = FALSE) {
 
-  rObject <- getR(ident=ident,from = from,addAsLink = addAsLink)
+  rObject <- getR(ident=ident,from = from,addAsLink = addAsLink, refresh = refresh)
   if (is.null(rObject$path)) {
     if (length(rObject)==0) {
       log_error("No R script found")
@@ -118,7 +119,7 @@ sourceR <- function(ident,from=pwd(),addAsLink=TRUE) {
       return()
     }
     for (i in 1:length(rObject)) {
-        sourceR(rObject[i][[1]]$resource,addAsLink = addAsLink)
+        sourceR(rObject[i][[1]]$resource,addAsLink = addAsLink, refresh = refresh)
     }
   }  else {
 
