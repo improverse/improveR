@@ -134,7 +134,7 @@ test_that("load with wrong reference|ics1081", {
   processes <- loadProcessesForStep(TEST_FOLDER)
   expect_null(processes)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message, glue::glue(expectedMessage))
+  expect_equal(message,as.character(glue::glue(expectedMessage)))
 
   expectedMessage <- "no process found for the process id: FAKE_LABEL  please note, process can only be loaded via process ID if it has been once loaded via the step."
   processes <- loadProcessesForStepById(FAKE_LABEL)
@@ -191,7 +191,7 @@ test_that("load with wrong reference|ics1081", {
   tool <- loadToolForRunserver(runserverId = runserver$id, toolName = fakeTool)
   expect_null(tool)
   message <- improveLastLogMessage("ERROR")
-  expect_equal(message, glue::glue(expectedMessage))
+  expect_equal(message,as.character(glue::glue(expectedMessage)))
 
   tool <- loadToolForRunserver(runserverId = runserver$id, toolInstanceName = nonmem_tool_instance)
   expect_equal(tool$name, nonmem_tool_instance)
@@ -210,13 +210,13 @@ test_that("load with wrong reference|ics1081", {
   tool <- loadToolForRunserver(runserverId = runserver$id, toolName = toolName, toolInstanceName = toolInstanceName)
   expect_null(tool)
   message <- improveLastLogMessage("ERROR")
-  expect_equal(message, glue::glue(expectedMessage))
+  expect_equal(message,as.character(glue::glue(expectedMessage)))
 
   toolName <- nonmem_tool
   toolInstanceName <- FAKE_LABEL
   tool <- loadToolForRunserver(runserverId = runserver$id, toolName = toolName, toolInstanceName = toolInstanceName)
   expect_null(tool)
   message <- improveLastLogMessage("ERROR")
-  expect_equal(message, glue::glue(expectedMessage))
+  expect_equal(message,as.character(glue::glue(expectedMessage)))
 })
 
