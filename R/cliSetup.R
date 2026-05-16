@@ -44,8 +44,11 @@ detectCli <- function() {
 resetCliDetection <- function() {
   cliEnv$cliMode <- NULL
   cliEnv$cliVersion <- NULL
-  # Also reset the cached path in improveRcontributions
-  tryCatch(improveRcontributions::cliEnv$cliPath <- NULL, error = function(e) NULL)
+  # Also reset the cached path in improveRcontributions. Use assign() rather
+  # than `pkg::env$slot <- value` because R CMD check parses the latter as a
+  # call to a non-existent `::<-` operator and flags it as an undefined global.
+  tryCatch(assign("cliPath", NULL, envir = improveRcontributions::cliEnv),
+           error = function(e) NULL)
 }
 
 #' Get CLI mode

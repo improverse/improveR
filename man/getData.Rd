@@ -11,6 +11,7 @@ getData(
   caption = "",
   description = "",
   parser = NULL,
+  refresh = FALSE,
   ...
 )
 }
@@ -36,6 +37,8 @@ the filename}
 
 \item{parser}{Optional custom parsing function that takes a local file path as
 first argument and returns a data frame. Overrides automatic format detection}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 
 \item{...}{Additional arguments passed to the underlying read function:
 \code{readxl::read_excel()}, \code{readRDS()}, \code{haven::read_sas()}, or \code{utils::read.csv()}}

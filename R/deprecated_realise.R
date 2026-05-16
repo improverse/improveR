@@ -247,7 +247,7 @@ createPreparedStep_deprecated <- function(env, prepStep) {
   # Remote files
   remoteFiles <- prepStep$remoteFiles[[1]]
   if (!is.null(remoteFiles) && NROW(remoteFiles) > 0) {
-    remoteFiles <- dplyr::distinct(remoteFiles, name, .keep_all = TRUE)
+    remoteFiles <- dplyr::distinct(remoteFiles, .data$name, .keep_all = TRUE)
   }
   if (!is.null(remoteFiles) && NROW(remoteFiles) > 0) {
     for (i in 1:nrow(remoteFiles)) {

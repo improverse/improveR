@@ -35,6 +35,7 @@ unloadToolCategories <- function() {
 }
 
 #' refreshToolCategories reloads the tool categories from the repository
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1229
 #' @noRd
 refreshToolCategories <- function() {
@@ -94,6 +95,7 @@ unloadToolsForCategory <- function(categoryId) {
 
 #' refreshToolsForCategory reloads the category tools from the repository
 #' @param categoryId categoryId of the category
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1230
 #' @noRd
 refreshToolsForCategory <- function(categoryId) {
@@ -138,7 +140,7 @@ loadAllTools <- function() {
   # preserved and a real diagnostic can surface upstream if no tools at all
   # were collected.
   if (is.null(allTools)) {
-    log_warn("loadAllTools: no tools collected from any category — returning empty frame")
+    log_warn("loadAllTools: no tools collected from any category - returning empty frame")
     allTools <- data.frame(
       id = character(0),
       name = character(0),

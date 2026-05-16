@@ -34,6 +34,7 @@ unloadMetaData <- function(ident) {
 
 #' Refresh Meta Data
 #' @param ident id
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1096
 #' @export
 refreshMetaData <- function(ident) {

@@ -59,6 +59,7 @@ unloadProcessesForStep <- function(stepIdent) {
 
 #' refreshProcessesForStep reloads the processes for a step
 #' @param stepIdent resourceId of the step or the step
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1218
 #' @noRd
 refreshProcessesForStep <- function(stepIdent) {
@@ -136,6 +137,7 @@ unloadProcessGridArguments <- function(processId) {
 
 #' refreshProcessGridArguments reloads the process grid arguments for a process
 #' @param processId id of the process
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1218
 #' @noRd
 refreshProcessGridArguments <- function(processId) {
@@ -191,6 +193,7 @@ unloadProcessVariables <- function(processId) {
 
 #' refreshProcessVariables reloads the process variables for a process
 #' @param processId id of the process
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1218
 #' @noRd
 refreshProcessVariables <- function(processId) {
@@ -245,6 +248,7 @@ unloadProcessRuns <- function(processId) {
 }
 
 #' refreshProcessRuns reloads the process runs for a process
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @param processId id of the process
 #' @references ics1218
 #' @noRd

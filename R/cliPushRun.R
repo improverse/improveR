@@ -60,7 +60,7 @@ pushRunCli <- function(localPath, command = "Rstudio", comment = NULL,
                          error = function(e) {
                            log_warn("pushRunCli: could not read local repo info for '", localPath,
                                     "': ", conditionMessage(e),
-                                    ". Cache invalidation skipped — subsequent reads may return stale data.")
+                                    ". Cache invalidation skipped - subsequent reads may return stale data.")
                            NULL
                          })
     if (!is.null(resource)) {

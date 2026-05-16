@@ -38,6 +38,8 @@ updateResourcePermission(
 \item{orderNr}{Integer or NULL. The ordering priority for this ACL entry. Lower numbers
 are evaluated first. If \code{NULL}, the server default is used.}
 
+\item{rightsArea}{Integer. Rights area identifier on the server. Default \code{1L}.}
+
 \item{from}{Root path for resolving relative paths. Defaults to \code{pwd()}.}
 }
 \value{

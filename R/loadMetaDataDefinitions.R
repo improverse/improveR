@@ -48,6 +48,7 @@ unloadMetaDataDefinitions <- function(scope="Improve Client") {
 
 #' Refresh Meta Data Definitions
 #' @param scope the metadata scope
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1137
 #' @export
 refreshMetaDataDefinitions <- function(scope="Improve Client") {

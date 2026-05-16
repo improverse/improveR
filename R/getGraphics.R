@@ -15,6 +15,7 @@
 #' @param caption Custom caption text. If empty, defaults to entityID and
 #'   lastModified timestamp
 #' @param description Custom description text. If empty, defaults to filename
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #'
 #' @returns A data frame with the following columns:
 #'   \describe{
@@ -94,6 +95,7 @@ getGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="
 #'   in the generated Markdown
 #' @param includeDescription Logical. If \code{TRUE} (default), includes the
 #'   description in the generated Markdown (as title text)
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #'
 #' @returns A character string containing the formatted Markdown syntax:
 #'   \code{![caption](path 'description')}
@@ -167,6 +169,7 @@ showGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description=
 #'   \code{fig.cap} to the caption text
 #' @param includeDescription Logical. If \code{TRUE} (default), prints the
 #'   description text below the image
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @param ... Additional arguments passed to \code{knitr::include_graphics}
 #'
 #' @returns The result of \code{knitr::include_graphics}, which renders the image

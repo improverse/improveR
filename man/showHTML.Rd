@@ -9,7 +9,8 @@ showHTML(
   from = pwd(),
   addAsLink = TRUE,
   caption = "",
-  includeCaption = T
+  includeCaption = T,
+  refresh = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ showHTML(
 \item{caption}{by default entityID and lastModified are the caption, here alternative text can be provided}
 
 \item{includeCaption}{display the caption}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 }
 \description{
 Includes HTML in rMarkdown, creates a string that has to be outputted

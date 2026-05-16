@@ -5,7 +5,7 @@
 #' entityVersionId can be a list.
 #' @param entityVersionId the entity version id of the resource
 #' @param invalidatesReproducibility this flag may only be changed by internal functions.
-#' @seealso [convertImproveTimestampToPosix()],[loadResource()], [loadResourceByPathGeneric()]
+#' @seealso [convertImproveTimestampToPosix()],[loadResource()], `loadResourceByPathGeneric()`
 #' @export
 loadResourceVersionFromServer <- function(entityVersionId,invalidatesReproducibility=T) {
   if (cacheEnv$persistentCaching & cacheEnv$reproducible & invalidatesReproducibility) {

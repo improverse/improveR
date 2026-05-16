@@ -136,6 +136,7 @@ unloadResource <- function(ident,from=pwd()) {
 #' @description Refreshes a resource from the server by clearing cache and reloading.
 #' @param ident id
 #' @param from pwd for relative path
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1090
 #' @export
 refreshResource <- function(ident,from=pwd()) {

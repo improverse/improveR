@@ -57,6 +57,7 @@ unloadReviews <- function() {
 
 #' Reloads the Reviews
 #' @returns A data frame of reviews, or \code{NULL} if none exist.
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics348
 #' @export
 refreshReviews <- function() {
@@ -138,6 +139,7 @@ unloadReviewers <- function(ident, from = pwd()) {
 #'   or a data frame row from \code{loadResource()}.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @returns A data frame of reviewers, or \code{NULL} if none exist.
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1208
 #' @export
 refreshReviewers <- function(ident, from = pwd()) {
@@ -223,6 +225,7 @@ unloadReviewEntries <- function(ident, from = pwd()) {
 #'   or a data frame row from \code{loadResource()}.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @returns A data frame of review entries, or \code{NULL} if none exist.
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1208
 #' @export
 refreshReviewEntries <- function(ident, from = pwd()) {
@@ -302,6 +305,7 @@ unloadReviewComments <- function(ident, from = pwd()) {
 #' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
 #'   or a data frame row from \code{loadResource()}.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @returns A data frame of review comments, or \code{NULL} if none exist.
 #' @references ics1208
 #' @export
@@ -385,6 +389,7 @@ unloadReviewEntryComments <- function(ident, entryId, from = pwd()) {
 #' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
 #'   or a data frame row from \code{loadResource()}.
 #' @param entryId Character. ID (UUID) of the review entry.
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @returns A data frame of review entry comments, or \code{NULL} if none exist.
 #' @references ics1543

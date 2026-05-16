@@ -570,7 +570,7 @@ collectSteps <- function(
     return(allResults)
   }
 
-  usersAll <- dplyr::select(users(), ownedById = id, ownedByName = name)
+  usersAll <- dplyr::select(users(), ownedById = "id", ownedByName = "name")
 
   # Single resource case
   root <- resources
@@ -588,7 +588,7 @@ collectSteps <- function(
     )]
 
     stepInfo <- stepInfo %>%
-      dplyr::left_join(., usersAll, by = c("ownedById" = "ownedById"))
+      dplyr::left_join(usersAll, by = c("ownedById" = "ownedById"))
 
     return(stepInfo)
   }
@@ -768,7 +768,7 @@ checkRunStatus <- function(
   }
 
   breakingSteps <- stepsCollected %>%
-    dplyr::filter(!runStatus %in% c("FINISHED", "INITIAL"))
+    dplyr::filter(!.data$runStatus %in% c("FINISHED", "INITIAL"))
 
   if (nrow(breakingSteps) == 0) {
     if (returnType == "logical") {

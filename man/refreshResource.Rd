@@ -13,6 +13,8 @@ updateResource(...)
 \item{ident}{id}
 
 \item{from}{pwd for relative path}
+
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
 \description{
 Refreshes a resource from the server by clearing cache and reloading.

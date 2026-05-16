@@ -9,6 +9,9 @@ refreshRelationTypes()
 
 updateRelationTypes(...)
 }
+\arguments{
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
+}
 \description{
 Reloads the Relation Types
 }

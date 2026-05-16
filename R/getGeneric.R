@@ -8,6 +8,7 @@
 #' @param description By default, the filename is the description; alternative text can be provided here.
 #' @param folderName By default, `data` is the subfolder in the workspace where the file is created.
 #' @param addIdToName By default, T prepends the entity ID to the name to avoid collisions.
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @references ics1141
 #' @export
 getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",folderName = "data",addIdToName = T,refresh = FALSE) {
@@ -24,6 +25,7 @@ getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",fo
 #' @param from Used for relative paths. By default, pwd is used (initiated with the step that started improveR).
 #' @param caption By default, entity ID and last modified are the caption; alternative text can be provided here.
 #' @param description By default, the filename is the description; alternative text can be provided here.
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @references ics1141
 #' @export
 getCopy <- function(ident,from=pwd(),caption="",description="",refresh = FALSE) {

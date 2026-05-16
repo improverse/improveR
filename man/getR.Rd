@@ -4,7 +4,14 @@
 \alias{getR}
 \title{Get R Script or RDS Object from improve Repository}
 \usage{
-getR(ident, from = pwd(), addAsLink = TRUE, caption = "", description = "")
+getR(
+  ident,
+  from = pwd(),
+  addAsLink = TRUE,
+  caption = "",
+  description = "",
+  refresh = FALSE
+)
 }
 \arguments{
 \item{ident}{Path, resource ID, or entity ID of the R file. Can be a relative
@@ -20,6 +27,8 @@ provenance tracking. Use \code{improveClean()} at workflow end to clean up links
 timestamp}
 
 \item{description}{Custom description text. If empty, defaults to filename}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 }
 \value{
 A data frame with the following columns:

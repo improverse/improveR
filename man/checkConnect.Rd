@@ -6,6 +6,9 @@
 \usage{
 checkConnect(secure = TRUE)
 }
+\arguments{
+\item{secure}{Logical. If TRUE (default), validates the connection by attempting to load IMPROVER_STEP and reconnects on failure. If FALSE, returns FALSE without attempting recovery.}
+}
 \value{
 invisible TRUE if connection is valid, otherwise attempts reconnection
 }

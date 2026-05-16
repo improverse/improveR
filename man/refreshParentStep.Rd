@@ -13,6 +13,8 @@ updateParentStep(...)
 \item{ident}{resourceID, entityId or path to the step.}
 
 \item{from}{path working directory, default is the calling step}
+
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
 \description{
 Refresh Parent Step from Server

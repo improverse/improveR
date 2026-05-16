@@ -18,5 +18,5 @@ The dates are also converted to POSIX dates via convertImproveTimestampToPosix.
 entityVersionId can be a list.
 }
 \seealso{
-\code{\link[=convertImproveTimestampToPosix]{convertImproveTimestampToPosix()}},\code{\link[=loadResource]{loadResource()}}, \code{\link[=loadResourceByPathGeneric]{loadResourceByPathGeneric()}}
+\code{\link[=convertImproveTimestampToPosix]{convertImproveTimestampToPosix()}},\code{\link[=loadResource]{loadResource()}}, \code{loadResourceByPathGeneric()}
 }

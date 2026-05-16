@@ -37,8 +37,8 @@ pushRunCli(
 \item{commandArgs}{Character vector. Additional command arguments.
 Use for arguments that start with \code{-}.}
 
-\item{json}{Logical. If \code{TRUE} and picocli is available, requests JSON
-output and returns a parsed R list (useful for \code{preview = TRUE}).}
+\item{json}{Logical. If \code{TRUE}, requests JSON output and returns a
+parsed R list (useful for \code{preview = TRUE}).}
 }
 \value{
 CLI output: character vector of stdout lines when \code{json = FALSE},

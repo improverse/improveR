@@ -4,16 +4,13 @@
 \alias{cloneCli}
 \title{Clone CLI Resource}
 \usage{
-cloneCli(ident, localPath, process = NULL)
+cloneCli(ident, localPath)
 }
 \arguments{
-\item{ident}{The identifier of the resource to clone (path, entity ID, or resource ID).}
+\item{ident}{The identifier of the resource to clone.}
 
 \item{localPath}{The local path where the resource will be cloned.}
-
-\item{process}{Character. Process name to load/store with the repository.
-Defaults to \code{"main"}.}
 }
 \description{
-Clones a resource from the improve server to a local directory.
+Clones a resource from the CLI.
 }

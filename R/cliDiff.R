@@ -20,7 +20,7 @@
 diffCli <- function(localPath, path, base = FALSE, theirs = FALSE) {
   requirePicocli("diff")
   ver <- cliDetectedVersion()
-  if (!is.null(ver) && compareVersion(ver, "4.5.0") < 0) {
+  if (!is.null(ver) && utils::compareVersion(ver, "4.5.0") < 0) {
     stop(
       "'diff' requires CLI version 4.5.0 or later (detected: ", ver, "). ",
       "Update the improve-cli JAR in improveRcontributions.",

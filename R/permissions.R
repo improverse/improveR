@@ -560,6 +560,7 @@ replaceResourcePermissions <- function(ident, aclEntries, from = pwd()) {
 #' @param inherit Logical. Whether this ACL entry inherits to child resources. Default \code{TRUE}.
 #' @param orderNr Integer or NULL. The ordering priority for this ACL entry. Lower numbers
 #'   are evaluated first. If \code{NULL}, the server default is used.
+#' @param rightsArea Integer. Rights area identifier on the server. Default \code{1L}.
 #' @param from Root path for resolving relative paths. Defaults to \code{pwd()}.
 #'
 #' @returns A list with the updated ACL entry details, or \code{NULL} on failure.

@@ -14,6 +14,8 @@ updateReviewComments(...)
 or a data frame row from \code{loadResource()}.}
 
 \item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
 \value{
 A data frame of review comments, or \code{NULL} if none exist.
