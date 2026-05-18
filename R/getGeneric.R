@@ -14,7 +14,7 @@
 getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",folderName = "data",addIdToName = T,refresh = FALSE) {
   if (refresh) .refreshGetCaches(ident, from)
   return(
-    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = addIdToName,caption = caption,description=description,folderName = folderName,func=getDesc)
+    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = addIdToName,caption = caption,description=description,folderName = folderName,func=getDesc,refresh = refresh)
   )
 }
 
@@ -31,7 +31,7 @@ getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",fo
 getCopy <- function(ident,from=pwd(),caption="",description="",refresh = FALSE) {
   if (refresh) .refreshGetCaches(ident, from)
   return(
-    getAbstract(ident=ident,from = from,addAsLink = F,addIdToName=F,caption = caption,description=description,folderName = ".",func=getDesc)
+    getAbstract(ident=ident,from = from,addAsLink = F,addIdToName=F,caption = caption,description=description,folderName = ".",func=getDesc,refresh = refresh)
   )
 }
 
@@ -111,10 +111,13 @@ getFilesFromFolder <- function(ident, from=pwd(),filePattern="", recurse=F) {
 #' @param description by default filename is the caption, here alternative text can be provided
 #' @param folderName where to store the file
 #' @param func the processing function for this type
+#' @param refresh If TRUE, force a fresh server fetch even if a local
+#'   inventory-mirror copy exists at the pwd-relative path; the stale
+#'   local copy is deleted before the loadFile() call. Defaults to FALSE.
 #' @param ... pass over arguments for the read function
 #' @noRd
 #'
-getAbstract <- function(ident,from=pwd(),addAsLink=TRUE,addIdToName = TRUE,caption="",description="",folderName,func,...) {
+getAbstract <- function(ident,from=pwd(),addAsLink=TRUE,addIdToName = TRUE,caption="",description="",folderName,func,refresh = FALSE,...) {
   resource <- loadResource(ident,from)
   if (is.null(resource) || nrow(resource)==0) {
     ### check offline work
@@ -127,6 +130,18 @@ getAbstract <- function(ident,from=pwd(),addAsLink=TRUE,addIdToName = TRUE,capti
       isLocalFileFromInventory <- F
       if (startsWith(resourceItem$path,pwd()$path)) {
         localPath <- paste0(".",substr(resourceItem$path,nchar(pwd()$path)+1,nchar(resourceItem$path)))
+        # When refresh = TRUE the caller has just dropped server-side caches
+        # via .refreshGetCaches(); the inventory-mirror copy at `localPath`
+        # is outside that bookkeeping and would otherwise short-circuit the
+        # server fetch with stale content. Delete it so the fall-through to
+        # loadFile() below actually runs.
+        if (refresh && file.exists(localPath)) {
+          tryCatch(unlink(localPath, recursive = FALSE),
+                   error = function(e) {
+                     log_warn("getAbstract refresh: could not unlink stale local mirror at ",
+                              localPath, ": ", conditionMessage(e))
+                   })
+        }
         isLocalFileFromInventory<- file.exists(localPath)
         if (isLocalFileFromInventory) {
           resourceItem$data<-localPath

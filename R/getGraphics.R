@@ -71,7 +71,7 @@
 getGraphics <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",refresh = FALSE) {
   if (refresh) .refreshGetCaches(ident, from)
   return(
-    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T,caption = caption,description=description,folderName = "graphics",func=getDesc)
+    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T,caption = caption,description=description,folderName = "graphics",func=getDesc,refresh = refresh)
   )
 }
 

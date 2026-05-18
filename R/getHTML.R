@@ -71,7 +71,7 @@
 getHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="",refresh = FALSE) {
   if (refresh) .refreshGetCaches(ident, from)
   return(
-    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T,caption = caption,description="",folderName = "HTML",func=getDesc)
+    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T,caption = caption,description="",folderName = "HTML",func=getDesc,refresh = refresh)
   )
 }
 
