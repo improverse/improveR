@@ -659,7 +659,7 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   expect_equal(testItem$name,resName)
   expect_equal(testItem$nodeType,"Analysis Tree")
   message <- improveLastLogMessage("INFO")
-  expect_equal(message,glue::glue(expectedAlreadyExists1))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists1)))
 
   #folder
 
@@ -671,7 +671,7 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   expect_equal(testItem$name,resName)
   expect_equal(testItem$nodeType,"Folder")
   message <- improveLastLogMessage("INFO")
-  expect_equal(message,glue::glue(expectedAlreadyExists1))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists1)))
 
   #file
 
@@ -683,7 +683,7 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   expect_equal(testItem$name,resName)
   expect_equal(testItem$nodeType,"File")
   message <- improveLastLogMessage("INFO")
-  expect_equal(message,glue::glue(expectedAlreadyExists1))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists1)))
 
   #link
 
@@ -695,7 +695,7 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   expect_equal(testItem$name,resName)
   expect_equal(testItem$nodeType,"Link")
   message <- improveLastLogMessage("INFO")
-  expect_equal(message,glue::glue(expectedAlreadyExists1))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists1)))
 
   #ExtLink
 
@@ -707,7 +707,7 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   expect_equal(testItem$name,resName)
   expect_equal(testItem$nodeType,"ExtLink")
   message <- improveLastLogMessage("INFO")
-  expect_equal(message,glue::glue(expectedAlreadyExists1))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists1)))
 
   #already exists but other type
 
@@ -718,25 +718,25 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   testItem <- createAnalysisTree(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "file1"
   type <- "File"
   testItem <- createAnalysisTree(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "link1"
   type <- "Link"
   testItem <- createAnalysisTree(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "extlink1"
   type <- "ExtLink"
   testItem <- createAnalysisTree(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
 
   #Folder
 
@@ -745,25 +745,25 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   testItem <- createFolder(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "file1"
   type <- "File"
   testItem <- createFolder(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "link1"
   type <- "Link"
   testItem <- createFolder(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "extlink1"
   type <- "ExtLink"
   testItem <- createFolder(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
 
   #File
 
@@ -772,25 +772,25 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   testItem <- createFile(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "folder1"
   type <- "Folder"
   testItem <- createFile(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "link1"
   type <- "Link"
   testItem <- createFile(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "extlink1"
   type <- "ExtLink"
   testItem <- createFile(TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
 
   #Link
 
@@ -799,25 +799,25 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   testItem <- createLink(TEST_FOLDER,TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "folder1"
   type <- "Folder"
   testItem <- createLink(TEST_FOLDER,TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "file1"
   type <- "File"
   testItem <- createLink(TEST_FOLDER,TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "extlink1"
   type <- "ExtLink"
   testItem <- createLink(TEST_FOLDER,TEST_FOLDER,resName)
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
 
   #ExternalLink
 
@@ -826,25 +826,25 @@ test_that("other create errors|ics1101,ics1102,ics1103,ics1104,ics1138", {
   testItem <- createExternalLink(TEST_FOLDER,resName,url="http://scinteco.com")
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "folder1"
   type <- "Folder"
   testItem <- createExternalLink(TEST_FOLDER,resName,url="http://scinteco.com")
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "file1"
   type <- "File"
   testItem <- createExternalLink(TEST_FOLDER,resName,url="http://scinteco.com")
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
   resName <- "link1"
   type <- "Link"
   testItem <- createExternalLink(TEST_FOLDER,resName,url="http://scinteco.com")
   expect_null(testItem)
   message <- improveLastLogMessage("WARN")
-  expect_equal(message,glue::glue(expectedAlreadyExists2))
+  expect_equal(message,as.character(glue::glue(expectedAlreadyExists2)))
 
   ##########################################illegal local path
 
