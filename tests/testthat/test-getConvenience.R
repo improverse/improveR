@@ -159,6 +159,49 @@ test_that("getTextString returns text data as a character string|ics1141", {
 })
 
 # -----------------------------------------------------------------------------
+# refresh = TRUE must invalidate the inventory-mirror short-circuit (IMR-210)
+# -----------------------------------------------------------------------------
+# getAbstract had a local-file-first shortcut: if a copy of the file existed at
+# the pwd-relative inventory-mirror path, it was used instead of fetching from
+# the server. .refreshGetCaches only invalidated server-side caches and the
+# loadFile-managed copies (in cacheEnv$fileCaches); it never touched the
+# inventory mirror. Result: refresh=TRUE silently became a no-op when an
+# inventory-mirror copy existed (e.g. after a prior CLI checkout). The fix
+# makes getAbstract unlink the mirror before falling through to loadFile when
+# refresh=TRUE.
+test_that("refresh = TRUE invalidates the inventory-mirror short-circuit|ics1141", {
+  baseFilePath <- setupGetTests()
+  txtPath <- paste0(baseFilePath, "/rgetTEXT/sampleText.txt")
+
+  # Resolve where getAbstract would look for an inventory-mirror copy.
+  resource <- improveR::loadResource(txtPath)
+  pwdPath  <- improveR::pwd()$path
+  expect_true(startsWith(resource$path, pwdPath),
+              info = "test prerequisite: resource lives under pwd")
+  mirrorPath <- paste0(".", substr(resource$path, nchar(pwdPath) + 1, nchar(resource$path)))
+
+  # Plant a deliberately-stale inventory-mirror copy at that path.
+  dir.create(dirname(mirrorPath), recursive = TRUE, showWarnings = FALSE)
+  staleMarker <- "STALE_CONTENT_test_refresh_invalidates_mirror"
+  writeLines(staleMarker, mirrorPath)
+  expect_true(file.exists(mirrorPath))
+
+  # Without refresh: the short-circuit reads the stale mirror.
+  descStale <- improveR::getTextString(txtPath)
+  expect_equal(descStale$data, staleMarker,
+               info = "without refresh, the inventory mirror short-circuit returns the stale local content")
+
+  # With refresh = TRUE: the mirror must be unlinked and the function must
+  # return fresh content from the server (which is not the stale marker).
+  descFresh <- improveR::getTextString(txtPath, refresh = TRUE)
+  expect_false(file.exists(mirrorPath),
+               info = "refresh = TRUE must unlink the stale inventory-mirror copy")
+  expect_false(is.null(descFresh))
+  expect_false(identical(descFresh$data, staleMarker),
+               info = "refresh = TRUE must return server content, not the stale local marker")
+})
+
+# -----------------------------------------------------------------------------
 # showGraphics / includeGraphics / showHTML — render-side wrappers.
 # show*/include* return rendered output (Markdown string, knitr object,
 # htmltools tagList); the on-disk descriptor lives on getGraphics()/getHTML().

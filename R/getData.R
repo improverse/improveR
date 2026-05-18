@@ -110,7 +110,7 @@
 getData <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",parser=NULL,refresh = FALSE,...) {
   if (refresh) .refreshGetCaches(ident, from)
   return(
-    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T, caption = caption,description=description,folderName = "data",func=getDataByResource,parser=parser,...)
+    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T, caption = caption,description=description,folderName = "data",func=getDataByResource,parser=parser,refresh = refresh,...)
   )
 }
 
@@ -171,7 +171,7 @@ getData <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",pa
 getTextString <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",refresh = FALSE,...) {
   if (refresh) .refreshGetCaches(ident, from)
   return(
-    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T,caption = caption,description=description,folderName = "text",func = getTextByResource,...)
+    getAbstract(ident=ident,from = from,addAsLink = addAsLink,addIdToName = T,caption = caption,description=description,folderName = "text",func = getTextByResource,refresh = refresh,...)
   )
 }
 

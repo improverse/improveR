@@ -75,7 +75,8 @@ getR <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",refre
       caption = caption,
       description = description,
       folderName = "R",
-      func = getDesc
+      func = getDesc,
+      refresh = refresh
     )
   )
 }
