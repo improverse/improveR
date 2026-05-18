@@ -11,6 +11,8 @@ updateMetaDataDefinitions(...)
 }
 \arguments{
 \item{scope}{the metadata scope}
+
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
 \description{
 Refresh Meta Data Definitions

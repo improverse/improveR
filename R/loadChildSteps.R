@@ -108,6 +108,7 @@ unloadChildSteps <- function(ident) {
 #' \code{\link{loadChildSteps}} for return structure details,
 #' \code{\link{unloadChildSteps}} to only clear cache
 #'
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1205
 #' @export
 refreshChildSteps <- function(ident) {

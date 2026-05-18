@@ -26,13 +26,13 @@ pullCli <- function(localPath, preview = FALSE) {
   }
   executeCli(args)
 
-  # Invalidate caches — pull may reflect server-side changes
+  # Invalidate caches - pull may reflect server-side changes
   if (!preview) {
     resource <- tryCatch(getLocalRepoResource(localPath),
                          error = function(e) {
                            log_warn("pullCli: could not read local repo info for '", localPath,
                                     "': ", conditionMessage(e),
-                                    ". Cache invalidation skipped — subsequent reads may return stale data.")
+                                    ". Cache invalidation skipped - subsequent reads may return stale data.")
                            NULL
                          })
     if (!is.null(resource)) {

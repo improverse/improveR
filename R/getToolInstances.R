@@ -40,7 +40,7 @@ toolInstanceCache <- new.env()
 #' @export
 resetToolInstances <- function() {
   rm(list=ls(envir = toolInstanceCache),envir = toolInstanceCache)
-  # Also clear the runserver tools cache — otherwise loadToolsForRunserver
+  # Also clear the runserver tools cache - otherwise loadToolsForRunserver
   # returns stale data and newly created tool instances are missing.
   tryCatch({
     if (exists("runserverToolsCache", envir = cacheEnv)) {
@@ -250,9 +250,9 @@ getToolInstances <- function() {
     if (length(missing_cols) > 0) {
       log_warn("getToolInstances: runserverTools is missing columns ",
                paste(missing_cols, collapse = ", "),
-               " — present columns: ",
+               " - present columns: ",
                if (is.null(runserverTools)) "<NULL>" else paste(names(runserverTools), collapse = ", "),
-               " — nrow: ",
+               " - nrow: ",
                if (is.null(runserverTools)) "NA" else nrow(runserverTools),
                ". Returning empty toolInstances; caller will retry on next access.")
       return(new.env())

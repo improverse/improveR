@@ -61,6 +61,7 @@ unloadRunservers <- function() {
 }
 
 #' refreshRunservers reloads the runservers from the repository
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1226
 #' @noRd
 refreshRunservers <- function() {
@@ -155,14 +156,6 @@ actualLoadToolsForRunserver <- function(runserverId) {
   colnames(catTools)[colnames(catTools) == 'id'] <- 'toolId'
   colnames(catTools)[colnames(catTools) == 'name'] <- 'toolName'
   
-  #TODO
-  ##remove below
-  catTools %>%
-    dplyr::filter(stringr::str_detect(toolName, stringr::regex("\\bR")))
-  toolsDf %>% dplyr::filter(stringr::str_detect(name, stringr::regex("\\bR"))) #2 R tools present
-  ##remove above
-
-  #browser()
   fullTools <- merge(catTools, toolsDf, by = "toolId") #6 rows get lost
 
   runservers <- loadRunservers()
@@ -183,6 +176,7 @@ unloadToolsForRunserver <- function(runserverId) {
 
 #' refreshToolsForRunserver reloads the runserver tools from the repository
 #' @param runserverId resourceId of the runserver
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1227
 #' @noRd
 refreshToolsForRunserver <- function(runserverId) {

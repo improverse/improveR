@@ -212,6 +212,7 @@ resolveFolderPath <- function(parent, folderParts) {
 #' \code{\link{loadChildResources}} for return structure details,
 #' \code{\link{unloadChildResources}} to only clear cache
 #'
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1085
 #' @export
 refreshChildResources <- function(ident) {

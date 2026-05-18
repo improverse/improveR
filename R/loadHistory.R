@@ -65,6 +65,7 @@ unloadHistory <- function(ident) {
 #' @inheritParams common_ident
 #' @inheritSection common_ident Details ident
 
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1094
 #' @export
 refreshHistory <- function(ident) {
@@ -209,6 +210,7 @@ unloadParentalDescendant <- function(ident) {
 #' refreshParentalDescendant(my_ident)
 #' }
 #'
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @export
 refreshParentalDescendant <- function(ident) {
   unloadParentalDescendant(ident)

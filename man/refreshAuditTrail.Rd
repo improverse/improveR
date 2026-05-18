@@ -12,6 +12,8 @@ updateAuditTrail(...)
 \arguments{
 \item{ident}{The resource identifier - can be a resource ID, entity ID,
 entity version ID, or path.}
+
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
 \value{
 A data frame with updated audit trail data. See \code{\link{loadAuditTrail}}

@@ -23,10 +23,10 @@ executeCli <- function(args, json = FALSE) {
   cliString <- cliPath()
 
   if (is.null(cliString) || nchar(cliString) == 0) {
-    stop("No CLI available — cliPath() returned NULL or empty.", call. = FALSE)
+    stop("No CLI available - cliPath() returned NULL or empty.", call. = FALSE)
   }
 
-  # ── Vector style ─────────────────────────────────────────────────────────
+  # -- Vector style ---------------------------------------------------------
   if (length(args) > 1 || json) {
     if (json) args <- c(args, "--json")
 
@@ -43,7 +43,7 @@ executeCli <- function(args, json = FALSE) {
     # cliPath() returns a compound string, e.g. "java -jar /path/to.jar".
     # Split on whitespace to extract the executable and its fixed base args,
     # then pass user args as a separate vector so system2() quotes them
-    # individually — paths with spaces are handled correctly.
+    # individually - paths with spaces are handled correctly.
     parts    <- strsplit(cliString, " ", fixed = TRUE)[[1]]
     exe      <- parts[1]
     baseArgs <- if (length(parts) > 1) parts[-1] else character(0)
@@ -58,7 +58,7 @@ executeCli <- function(args, json = FALSE) {
     status <- attr(raw, "status")
     if (!is.null(status) && status != 0) {
       log_warn("CLI command failed (exit code ", status, "): ",
-               paste(tail(raw, 5), collapse = "\n"))
+               paste(utils::tail(raw, 5), collapse = "\n"))
     }
 
     if (json) {
@@ -85,12 +85,12 @@ executeCli <- function(args, json = FALSE) {
     return(invisible(raw))
   }
 
-  # ── String style (legacy single-string callers) ───────────────────────────
+  # -- String style (legacy single-string callers) ---------------------------
   result   <- system(paste(cliString, args), intern = TRUE)
   exitCode <- attr(result, "status")
   if (!is.null(exitCode) && exitCode != 0) {
     log_warn("CLI command failed (exit code ", exitCode, "): ",
-             paste(tail(result, 5), collapse = "\n"))
+             paste(utils::tail(result, 5), collapse = "\n"))
   }
   invisible(result)
 }

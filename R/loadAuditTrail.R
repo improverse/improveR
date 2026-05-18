@@ -118,6 +118,7 @@ unloadAuditTrail <- function(ident) {
 #' \code{\link{loadAuditTrail}} for return structure details,
 #' \code{\link{unloadAuditTrail}} to only clear cache
 #'
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1097
 #' @export
 refreshAuditTrail <- function(ident) {

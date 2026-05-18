@@ -21,6 +21,7 @@
 #'   "Source (Entity version ID): <entityVersionId>, Last modified on: <timestamp>"
 #' @param description Custom description text. If empty string (default), uses
 #'   the filename
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @param parser Optional custom parsing function that takes a local file path as
 #'   first argument and returns a data frame. Overrides automatic format detection
 #' @param ... Additional arguments passed to the underlying read function:
@@ -128,6 +129,7 @@ getData <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",pa
 #' @param caption Custom caption text. If empty, defaults to entityID and lastModified
 #'   timestamp
 #' @param description Custom description text. If empty, defaults to filename
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @param ... Additional arguments passed to `readLines()`
 #'
 #' @returns A list object (descriptor) with the following components:

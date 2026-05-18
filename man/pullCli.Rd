@@ -4,22 +4,14 @@
 \alias{pullCli}
 \title{Pull CLI}
 \usage{
-pullCli(localPath, preview = FALSE, json = FALSE)
+pullCli(localPath, preview = FALSE)
 }
 \arguments{
 \item{localPath}{The local repository path.}
 
-\item{preview}{Logical. If \code{TRUE}, preview only without writing locally.}
-
-\item{json}{Logical. If \code{TRUE} and picocli is available, requests JSON
-output and returns a parsed R list (useful for \code{preview = TRUE}).}
-}
-\value{
-CLI output: character vector of stdout lines when \code{json = FALSE},
-or a parsed list when \code{json = TRUE}. Returned invisibly.
+\item{preview}{Logical. If TRUE, only preview what would be pulled.}
 }
 \description{
-Pulls changes from the improve server into the local repository.
-After pulling, the resource cache is invalidated to ensure the
-in-memory state matches what was downloaded.
+Pulls changes from the CLI. After pulling, the resource cache is invalidated
+to ensure the in-memory state matches what was just downloaded.
 }

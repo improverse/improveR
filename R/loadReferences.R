@@ -34,6 +34,7 @@ unloadReferences <- function(ident) {
 
 #' Refresh References
 #' @param ident id
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1206
 #' @export
 refreshReferences <- function(ident) {

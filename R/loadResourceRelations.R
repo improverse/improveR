@@ -54,6 +54,7 @@ unloadRelationTypes <- function() {
 }
 
 #' Reloads the Relation Types
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @export
 refreshRelationTypes <- function() {
   unloadRelationTypes()
@@ -213,6 +214,7 @@ unloadResourceRelations <- function(ident, from = pwd()) {
 #' Reloads the Resource Relations
 #' @param ident Identifier of the resource.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1044
 #' @export
 refreshResourceRelations <- function(ident, from = pwd()) {

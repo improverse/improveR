@@ -11,7 +11,7 @@ getProcessFileVariables(ident, processId)
 full entity (version) id, or short entity (version) id.}
 
 \item{processId}{Identifier of the process (main or sub-process) whose variables
-should be returned. Use \code{\link{loadProcessesForStep}} to discover process ids.}
+should be returned. Use \code{loadProcessesForStep} to discover process ids.}
 }
 \value{
 A data frame with one row per process file variable. Columns include:
@@ -45,6 +45,6 @@ variables <- getProcessFileVariables(
 
 }
 \seealso{
-\code{\link{loadProcessesForStep}} to list available processes,
-\code{\link{createProcessFileVariable}} to create variables
+\code{loadProcessesForStep} to list available processes,
+\code{createProcessFileVariable} to create variables
 }

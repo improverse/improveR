@@ -58,9 +58,9 @@ clearConnectionData <- function(includeRepoData=F) {
     Sys.setenv(IMPROVER_REPO_URL="")
     # IMPROVER_REFRESH_TOKEN is a long-lived OAuth credential. Wipe it only
     # when the caller is doing a full identity reset (logout, switching
-    # repos, etc.). Soft-clear paths — runner between-file reconnects,
+    # repos, etc.). Soft-clear paths - runner between-file reconnects,
     # improveRtestsupport's connectAs handoff, intra-session token refresh
-    # recovery — must preserve it so the next improveConnect can mint a
+    # recovery - must preserve it so the next improveConnect can mint a
     # fresh access token without spawning a device-code flow that requires
     # human interaction (which is impossible in a non-interactive suite).
     Sys.setenv(IMPROVER_REFRESH_TOKEN="")
@@ -313,7 +313,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
   log_info(paste0("StepId: ", conf()$stepId))
 
   # Validate the connection by making a lightweight API call.
-  # This catches stale tokens early — without this check, improveConnect()
+  # This catches stale tokens early - without this check, improveConnect()
   # silently "succeeds" with expired tokens and the user gets no feedback.
   if (!cacheEnv$offline) {
     connectionValid <- tryCatch({
@@ -324,7 +324,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
     if (!connectionValid) {
       isOAuth <- is.null(conf()$reqToken) || is.na(conf()$reqToken) || conf()$reqToken == ""
       if (isOAuth) {
-        log_warn("Connection validation failed — token may be stale. Re-authenticating via OAuth...")
+        log_warn("Connection validation failed - token may be stale. Re-authenticating via OAuth...")
         repoUrl <- Sys.getenv("IMPROVER_REPO_URL")
         stepId <- Sys.getenv("IMPROVER_STEP")
         clearConnectionData()
@@ -335,10 +335,10 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
         return()
       } else {
         if (offlinePossible) {
-          log_warn("Connection validation failed — continuing in offline mode")
+          log_warn("Connection validation failed - continuing in offline mode")
           cacheEnv$offline <- TRUE
         } else {
-          log_error("Connection validation failed — run token appears to be invalid.")
+          log_error("Connection validation failed - run token appears to be invalid.")
           log_error("The provided IMPROVER_TOKEN may have expired or the server is unreachable.")
           cacheEnv$initialized <- FALSE
           stop("Connection validation failed: run token is invalid or server is unreachable")
@@ -411,6 +411,7 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
 #'
 #' @description Checks if the current connection is still valid by attempting to load the IMPROVER_STEP resource.
 #' If the connection is invalid, it clears connection data and attempts to reconnect.
+#' @param secure Logical. If TRUE (default), validates the connection by attempting to load IMPROVER_STEP and reconnects on failure. If FALSE, returns FALSE without attempting recovery.
 #' @return invisible TRUE if connection is valid, otherwise attempts reconnection
 #' @export
 checkConnect <- function(secure = TRUE) {

@@ -4,7 +4,7 @@
 \alias{getHTML}
 \title{Get HTML File from improve Repository}
 \usage{
-getHTML(ident, from = pwd(), addAsLink = TRUE, caption = "")
+getHTML(ident, from = pwd(), addAsLink = TRUE, caption = "", refresh = FALSE)
 }
 \arguments{
 \item{ident}{Path, resource ID, or entity ID of the HTML file. Can be a
@@ -19,6 +19,8 @@ links}
 
 \item{caption}{Custom caption text. If empty, defaults to entityID and
 lastModified timestamp}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 }
 \value{
 A data frame with the following columns:

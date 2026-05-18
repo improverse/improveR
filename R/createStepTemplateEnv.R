@@ -51,7 +51,7 @@
 #'
 #' @seealso
 #' \code{\link{getStep}} to retrieve existing steps that can serve as templates,
-#' \code{\link{createStep}} which is called internally by \code{realise()},
+#' \code{createStep} which is called internally by \code{realise()},
 #' \code{\link{importWorkflow}} and \code{\link{exportWorkflow}} for workflow templates
 #'
 #' @examples

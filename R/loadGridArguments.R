@@ -37,6 +37,7 @@ unloadGridArguments <- function(gridProvider) {
 
 #' refreshGridArguments reloads the grid arguments from the repository
 #' @param gridProvider label of the grid provider
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1216
 #' @noRd
 refreshGridArguments <- function(gridProvider) {

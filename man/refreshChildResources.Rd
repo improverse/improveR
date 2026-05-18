@@ -12,6 +12,8 @@ updateChildResources(...)
 \arguments{
 \item{ident}{The resource identifier - can be a resource ID, entity ID,
 entity version ID, or path.}
+
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
 \value{
 A list with updated child resources data. See \code{\link{loadChildResources}}

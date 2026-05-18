@@ -14,6 +14,7 @@
 #' @param caption Custom caption text. If empty, defaults to entityID and lastModified
 #'   timestamp
 #' @param description Custom description text. If empty, defaults to filename
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #'
 #' @returns A data frame with the following columns:
 #'   \describe{
@@ -107,6 +108,7 @@ getR <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",refre
 #' sourceR("analysis/prepare_data.R")
 #' }
 #'
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @references ics1141
 #' @export
 sourceR <- function(ident,from=pwd(),addAsLink=TRUE,refresh = FALSE) {

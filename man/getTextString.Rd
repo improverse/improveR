@@ -10,6 +10,7 @@ getTextString(
   addAsLink = TRUE,
   caption = "",
   description = "",
+  refresh = FALSE,
   ...
 )
 }
@@ -27,6 +28,8 @@ provenance tracking. Use \code{improveClean()} at workflow end to clean up links
 timestamp}
 
 \item{description}{Custom description text. If empty, defaults to filename}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 
 \item{...}{Additional arguments passed to \code{readLines()}}
 }

@@ -7,9 +7,12 @@
 ^\.claude
 ^doc$
 ^Meta$
+^vignettes/\.quarto$
 ^vignettes/articles/\.quarto$
 ^vignettes/articles/*_files$
 ^vignettes/articles$
 ^CLAUDE\.md$
 ^AGENTS\.md$
 ^RELEASE_NOTES$
+^4\.4\.2 test results$
+^tests/testthat/\.import_.*$

@@ -11,6 +11,8 @@ updateParentalDescendant(...)
 }
 \arguments{
 \item{ident}{id}
+
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
 \value{
 Invisibly returns \code{NULL}.

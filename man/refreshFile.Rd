@@ -25,6 +25,8 @@ updateFile(...)
 \item{addIdToName}{Logical; if TRUE the entity id is added to the filename.}
 
 \item{linkInInventory}{Logical; if TRUE, creates a link to the resource in inventory.}
+
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
 \description{
 Retrieves the latest version of the file from the repository.

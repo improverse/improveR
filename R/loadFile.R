@@ -166,6 +166,7 @@ unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
 #' @param filePath Local path where the file is stored (relative to rootPath).
 #' @param addIdToName Logical; if TRUE the entity id is added to the filename.
 #' @param linkInInventory Logical; if TRUE, creates a link to the resource in inventory.
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1099
 #' @export
 refreshFile <- function(ident, from = pwd(), filePath = ".",

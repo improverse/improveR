@@ -46,6 +46,7 @@ unloadParentStep <- function(ident, from=pwd()) {
 #' Refresh Parent Step from Server
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1209
 #' @export
 refreshParentStep <- function(ident, from=pwd()) {

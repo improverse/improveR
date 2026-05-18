@@ -204,7 +204,7 @@ setProcessVariablesList <- function(stepId, processId,processVariables) {
 #' @param ident A step identifier. Can be the step's path, resource (version) id,
 #'   full entity (version) id, or short entity (version) id.
 #' @param processId Identifier of the process (main or sub-process) whose variables
-#'   should be returned. Use \code{\link{loadProcessesForStep}} to discover process ids.
+#'   should be returned. Use \code{loadProcessesForStep} to discover process ids.
 #'
 #' @returns A data frame with one row per process file variable. Columns include:
 #'   \describe{
@@ -222,8 +222,8 @@ setProcessVariablesList <- function(stepId, processId,processVariables) {
 #' type \code{fileRef} point to improve resources, while \code{filePath} variables
 #' reference literal paths for the runserver.
 #'
-#' @seealso \code{\link{loadProcessesForStep}} to list available processes,
-#'   \code{\link{createProcessFileVariable}} to create variables
+#' @seealso \code{loadProcessesForStep} to list available processes,
+#'   \code{createProcessFileVariable} to create variables
 #'
 #' @examples
 #' \dontrun{

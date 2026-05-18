@@ -12,6 +12,7 @@ includeGraphics(
   description = "",
   includeCaption = T,
   includeDescription = T,
+  refresh = FALSE,
   ...
 )
 }
@@ -36,6 +37,8 @@ lastModified timestamp}
 
 \item{includeDescription}{Logical. If \code{TRUE} (default), prints the
 description text below the image}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 
 \item{...}{Additional arguments passed to \code{knitr::include_graphics}}
 }

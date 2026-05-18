@@ -4,7 +4,7 @@
 \alias{sourceR}
 \title{Source R Scripts from improve Repository}
 \usage{
-sourceR(ident, from = pwd(), addAsLink = TRUE)
+sourceR(ident, from = pwd(), addAsLink = TRUE, refresh = FALSE)
 }
 \arguments{
 \item{ident}{Path, resource ID, or entity ID of the R script.}
@@ -13,6 +13,8 @@ sourceR(ident, from = pwd(), addAsLink = TRUE)
 
 \item{addAsLink}{Logical. If \code{TRUE}, creates a link in the inventory for
 provenance tracking. Use \code{improveClean()} at workflow end to clean up links.}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 }
 \value{
 Invisibly returns \code{NULL}. Scripts are sourced for their side effects.

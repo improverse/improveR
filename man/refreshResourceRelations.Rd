@@ -13,6 +13,8 @@ updateResourceRelations(...)
 \item{ident}{Identifier of the resource.}
 
 \item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
+
+\item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
 \description{
 Reloads the Resource Relations

@@ -11,7 +11,8 @@ getFile(
   caption = "",
   description = "",
   folderName = "data",
-  addIdToName = T
+  addIdToName = T,
+  refresh = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ getFile(
 \item{folderName}{By default, \code{data} is the subfolder in the workspace where the file is created.}
 
 \item{addIdToName}{By default, T prepends the entity ID to the name to avoid collisions.}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 }
 \description{
 Get a File Object

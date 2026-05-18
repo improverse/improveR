@@ -14,6 +14,7 @@
 #'   links
 #' @param caption Custom caption text. If empty, defaults to entityID and
 #'   lastModified timestamp
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #'
 #' @returns A data frame with the following columns:
 #'   \describe{
@@ -82,6 +83,7 @@ getHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="",refresh = FALSE) 
 #' @param from used for relative paths, by default pwd is used, which is initiated with the step that started improveR
 #' @param caption by default entityID and lastModified are the caption, here alternative text can be provided
 #' @param includeCaption display the caption
+#' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @references ics1141
 #' @export
 

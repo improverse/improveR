@@ -11,7 +11,8 @@ showGraphics(
   caption = "",
   description = "",
   includeCaption = T,
-  includeDescription = T
+  includeDescription = T,
+  refresh = FALSE
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ in the generated Markdown}
 
 \item{includeDescription}{Logical. If \code{TRUE} (default), includes the
 description in the generated Markdown (as title text)}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 }
 \value{
 A character string containing the formatted Markdown syntax:

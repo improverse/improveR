@@ -4,7 +4,7 @@
 \alias{getCopy}
 \title{Get a Local Copy of a File}
 \usage{
-getCopy(ident, from = pwd(), caption = "", description = "")
+getCopy(ident, from = pwd(), caption = "", description = "", refresh = FALSE)
 }
 \arguments{
 \item{ident}{Path, resource, or entity ID of the file.}
@@ -14,6 +14,8 @@ getCopy(ident, from = pwd(), caption = "", description = "")
 \item{caption}{By default, entity ID and last modified are the caption; alternative text can be provided here.}
 
 \item{description}{By default, the filename is the description; alternative text can be provided here.}
+
+\item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 }
 \description{
 Get a Local Copy of a File

@@ -35,6 +35,7 @@ unloadFullChildResources <- function(ident) {
 
 #' refreshFullChildResources
 #' @param ident id
+#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1085
 #' @export
 refreshFullChildResources <- function(ident) {
