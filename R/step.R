@@ -245,8 +245,7 @@ getProcessFileVariables <- function(ident, processId) {
                                             restType = "GET")
 
   variables <- httr::content(result)
-  variablesDf <- plyr::rbind.fill(lapply(variables,as.data.frame))
-  return(variablesDf)
+  .processVariablesContentToDf(variables)
 }
 
 #' createProcessFileVariable
@@ -275,8 +274,51 @@ createProcessFileVariable <- function(ident, processId,name,variableType,positio
                               restType = "POST")
 
   variables <- httr::content(result)
-  variablesDf <- plyr::rbind.fill(lapply(variables,as.data.frame))
-  return(variablesDf)
+  .processVariablesContentToDf(variables)
+}
+
+#' Convert the parsed JSON body of a process-variable REST response into
+#' a one-row-per-variable data frame with the API field names as columns.
+#'
+#' Tolerates both shapes the server may emit:
+#' \itemize{
+#'   \item POST (single variable created): a flat named list, e.g.
+#'     \code{list(id=..., name=..., variableType=..., position=...,
+#'     valueResourceId=...)}.
+#'   \item GET (zero or more variables): a list of such named lists.
+#' }
+#'
+#' The previous implementation passed both shapes through
+#' \code{plyr::rbind.fill(lapply(variables, as.data.frame))}, which
+#' silently misinterpreted the flat-list case as five rows of one column
+#' (each iteration of \code{lapply} consumed a FIELD, not a row), losing
+#' the column names. Callers that read \code{variables$name} /
+#' \code{variables$id} then got \code{NULL}, and downstream
+#' \code{if (nrow(...) == 0)} guards raised
+#' \code{"argument is of length zero"} on \code{NULL == 0}. This helper
+#' detects the flat-list case and wraps it before flattening.
+#'
+#' @param content Parsed body from \code{httr::content()}.
+#' @return A data frame with one row per variable (zero rows for empty
+#'   responses). Returns \code{NULL} only when the input is itself
+#'   \code{NULL}, preserving the existing contract of
+#'   \code{getProcessFileVariables}.
+#' @noRd
+.processVariablesContentToDf <- function(content) {
+  if (is.null(content)) return(NULL)
+  if (length(content) == 0L) {
+    return(data.frame())
+  }
+  # Detect "flat single object" — all top-level entries are scalar-ish
+  # (length 1, not themselves named lists). The list-of-objects shape
+  # has each entry being a named list of fields.
+  is_flat_object <- !is.null(names(content)) &&
+                    all(nzchar(names(content))) &&
+                    !any(vapply(content, is.list, logical(1)))
+  rows <- if (is_flat_object) list(content) else content
+  do.call(rbind, lapply(rows, function(row) {
+    as.data.frame(row, stringsAsFactors = FALSE)
+  }))
 }
 
 #' Detach Step from Parent
