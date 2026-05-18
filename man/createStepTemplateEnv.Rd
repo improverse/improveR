@@ -57,6 +57,7 @@ Available setter methods include:
 \item \code{addStepRemoteFile(ident, name, asLink, variableName)} - Add input files
 \item \code{removeStepRemoteFile(ident)} - Remove input files
 \item \code{setStepToolInstance(toolInstance)} - Configure execution tool
+\item \code{setStepToolFromInstance(toolInstance)} - Configure runserver, tool, and tool instance in one call from a \code{getToolInstances()} row
 \item And many more for complete step configuration control
 }
 }

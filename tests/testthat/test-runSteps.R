@@ -42,6 +42,84 @@ rBatchStep <- function(testTree) {
 
   return(stepEnv)
 }
+
+# Test: the new shortcut configures runserver+tool+toolInstance in one call
+# from a getToolInstances() row (IMR-211).
+test_that("setStepToolFromInstance configures runserver/tool/toolInstance in one call|ics2072", {
+  testTree <- ensureTestFolder()
+  r_runserver     <- Sys.getenv("R_RUNSERVER")
+  r_tool          <- Sys.getenv("R_TOOL")
+  r_tool_instance <- Sys.getenv("R_TOOL_INSTANCE")
+
+  # Filter getToolInstances() for the R tool defined in .Renviron.
+  tools <- improveR::getToolInstances()
+  matchKeys <- ls(envir = tools)
+  matchKeys <- matchKeys[vapply(matchKeys, function(k) {
+    t <- get(k, envir = tools)
+    identical(t$toolName, r_tool) &&
+      identical(t$name,    r_tool_instance) &&
+      identical(t$label,   r_runserver)
+  }, logical(1))]
+  expect_equal(length(matchKeys), 1,
+               info = paste0("expected exactly one match for R_TOOL=", r_tool,
+                             " R_TOOL_INSTANCE=", r_tool_instance,
+                             " R_RUNSERVER=", r_runserver))
+  rTool <- get(matchKeys, envir = tools)
+
+  # Configure the step template via the new single-call setter.
+  stepEnv <- createStepTemplateEnv(treeIdent = testTree)
+  stepEnv$setStepToolFromInstance(rTool)
+
+  # The three process-row slots must reflect the toolInstance fields.
+  processes <- stepEnv$stepDf$processes[[1]]
+  main <- processes[processes$name == "Main", ]
+  expect_equal(nrow(main), 1)
+  expect_equal(main$runserverLabel, r_runserver)
+  expect_equal(main$toolLabel,      r_tool)
+  expect_equal(main$toolInstance,   r_tool_instance)
+})
+
+# Test: the shortcut produces a process configuration equivalent to the
+# 3-call pattern used by rBatchStep().
+test_that("setStepToolFromInstance matches the 3-call setStepRunserverLabel/Tool/ToolInstance pattern|ics2072", {
+  testTree <- ensureTestFolder()
+  r_runserver     <- Sys.getenv("R_RUNSERVER")
+  r_tool          <- Sys.getenv("R_TOOL")
+  r_tool_instance <- Sys.getenv("R_TOOL_INSTANCE")
+
+  # 3-call pattern (legacy).
+  legacy <- rBatchStep(testTree)
+  legacyMain <- legacy$stepDf$processes[[1]]
+  legacyMain <- legacyMain[legacyMain$name == "Main", ]
+
+  # New shortcut.
+  tools <- improveR::getToolInstances()
+  rTool <- Filter(function(t) {
+    identical(t$toolName, r_tool) &&
+      identical(t$name,    r_tool_instance) &&
+      identical(t$label,   r_runserver)
+  }, as.list(tools))[[1]]
+  shortcut <- createStepTemplateEnv(treeIdent = testTree)
+  shortcut$setStepToolFromInstance(rTool)
+  shortcutMain <- shortcut$stepDf$processes[[1]]
+  shortcutMain <- shortcutMain[shortcutMain$name == "Main", ]
+
+  # The three slots written by either path must agree.
+  expect_equal(shortcutMain$runserverLabel, legacyMain$runserverLabel)
+  expect_equal(shortcutMain$toolLabel,      legacyMain$toolLabel)
+  expect_equal(shortcutMain$toolInstance,   legacyMain$toolInstance)
+})
+
+# Test: defensive validation — passing an object missing required fields
+# raises a clear error rather than silently corrupting the step config.
+test_that("setStepToolFromInstance rejects an object without label/toolName/name|ics2072", {
+  testTree <- ensureTestFolder()
+  stepEnv <- createStepTemplateEnv(treeIdent = testTree)
+  expect_error(
+    stepEnv$setStepToolFromInstance(list(foo = "bar")),
+    regexp = "missing required field"
+  )
+})
 structuralSelect <- function(wfTemplate,withIdent) {
   wfTemplate <- dplyr::select(wfTemplate,processes,description,rationale,remoteFiles)
   wfTemplate <- improveR::byNotEmptyAsDf(wfTemplate,function(wfStep) {

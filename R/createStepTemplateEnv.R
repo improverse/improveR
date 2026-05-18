@@ -46,6 +46,7 @@
 #'   \item \code{addStepRemoteFile(ident, name, asLink, variableName)} - Add input files
 #'   \item \code{removeStepRemoteFile(ident)} - Remove input files
 #'   \item \code{setStepToolInstance(toolInstance)} - Configure execution tool
+#'   \item \code{setStepToolFromInstance(toolInstance)} - Configure runserver, tool, and tool instance in one call from a \code{getToolInstances()} row
 #'   \item And many more for complete step configuration control
 #' }
 #'
@@ -523,6 +524,29 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
 
   env$setStepToolLabel <- function(toolLabel, process = "Main") {
     env$setProcessValue(process, "toolLabel", toolLabel)
+    invisible(env)
+  }
+
+  # Shortcut for the common 3-call pattern. `toolInstance` is a row from
+  # getToolInstances() — i.e. one entry of that environment. It carries
+  # `label` (runserver), `toolName` (tool label), and `name` (tool instance)
+  # which map exactly to the three process-row slots the existing setters
+  # write. Composes the same way as calling setStepRunserverLabel +
+  # setStepToolLabel + setStepToolInstance manually and still triggers
+  # completeToolPresets (because setStepToolInstance does).
+  env$setStepToolFromInstance <- function(toolInstance, process = "Main") {
+    required <- c("label", "toolName", "name")
+    missing <- required[!required %in% names(toolInstance)]
+    if (length(missing) > 0) {
+      stop("setStepToolFromInstance: toolInstance is missing required field(s): ",
+           paste(missing, collapse = ", "),
+           ". Expected a row from getToolInstances() which exposes label / toolName / name.",
+           call. = FALSE)
+    }
+    env$setProcessValue(process, "runserverLabel", toolInstance$label)
+    env$setProcessValue(process, "toolLabel",      toolInstance$toolName)
+    env$setProcessValue(process, "toolInstance",   toolInstance$name)
+    env$completeToolPresets(process)
     invisible(env)
   }
 
