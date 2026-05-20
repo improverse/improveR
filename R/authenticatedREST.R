@@ -75,7 +75,19 @@ clearLastRestError <- function() {
 #'   baseURL from improveConnect /resources/1B1D3B817F424BA594893A5013DBFEEA?isResourceVersion=true
 #'
 #' On success (HTTP 2xx), returns the httr response object.
-#' On failure, returns NULL and stores error details accessible via \code{lastRestError()}.
+#'
+#' On any non-2xx response (including 404, 401, 417, other 4xx, 5xx) returns
+#' NULL — the existing contract callers rely on. Diagnostic detail is
+#' captured on every non-2xx and is accessible via \code{lastRestError()}:
+#' status code, URL, REST method, a snippet of the response body (up to
+#' ~500 chars), and a timestamp. Failures are also logged with the URL +
+#' method + status + body snippet in the message — \code{log_error} for
+#' 5xx, \code{log_warn} for other non-2xx — so the failing call is
+#' identifiable at the log site.
+#'
+#' Callers that need to distinguish "resource absent" (404) from other
+#' failures should check \code{lastRestError()$status_code} after seeing
+#' a NULL return.
 #' @seealso [improveConnect()], [lastRestError()]
 #' @references ics1082
 #' @keywords internal
@@ -90,8 +102,8 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     url <- substr(url,2,nchar(url))
   }
   if (!(restType) %in% names(REST_FUNCTIONS)) {
-    log_error("trying to use an undefined REST method:", restType)
-    setLastRestError(NA, url, restType, "undefined REST method")
+    log_error("trying to use an undefined REST method: ", restType, " (URL: ", url, ")")
+    setLastRestError(NA, url, restType, paste0("undefined REST method '", restType, "'"))
     return(NULL)
   }
   restFunction <- REST_FUNCTIONS[restType][[1]]
@@ -147,20 +159,38 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     clearLastRestError()
     timing("done")
     return(result)
-  } else if (result$status_code==401){
-    log_error("Invalid authentication credentials (token or username/password)")
-    setLastRestError(result$status_code, fullUrl, restType, "Invalid authentication credentials")
-    return(NULL)
-  } else if (result$status_code == 417) {
-    log_error("Resource could not be run")
-    setLastRestError(result$status_code, fullUrl, restType, "Resource could not be run")
-    return(NULL)
-  } else {
-    log_warn(result$status_code, "error when connecting to", fullUrl)
-    setLastRestError(result$status_code, fullUrl, restType,
-                     paste0("HTTP ", result$status_code, " from ", fullUrl))
-    return(NULL)
   }
+  # Non-2xx: contract is to return NULL. We additionally capture the
+  # response body snippet, log the failure with full context (method +
+  # URL + status + body), and record the same in setLastRestError() so
+  # `lastRestError()` exposes WHY a NULL came back.
+  body_snippet <- tryCatch(
+    substr(as.character(httr::content(result, as = "text", encoding = "UTF-8")),
+           1, 500),
+    error = function(e) "<unreadable body>"
+  )
+  if (!nzchar(body_snippet)) body_snippet <- "<empty body>"
+
+  diag <- paste0(restType, " ", fullUrl,
+                 " -> HTTP ", result$status_code, ": ", body_snippet)
+
+  if (result$status_code == 401) {
+    log_error("Invalid authentication credentials (token or username/password) — ", diag)
+    setLastRestError(result$status_code, fullUrl, restType,
+                     paste0("Invalid authentication credentials: ", body_snippet))
+  } else if (result$status_code == 417) {
+    log_error("Resource could not be run — ", diag)
+    setLastRestError(result$status_code, fullUrl, restType,
+                     paste0("Resource could not be run: ", body_snippet))
+  } else if (result$status_code >= 500) {
+    log_error("Server error — ", diag)
+    setLastRestError(result$status_code, fullUrl, restType, diag)
+  } else {
+    # other 4xx (404, 403, 410, 422, …)
+    log_warn(diag)
+    setLastRestError(result$status_code, fullUrl, restType, diag)
+  }
+  return(NULL)
 }
 
 replacePlaceHoldersinURL <- function(url,urlParams) {
