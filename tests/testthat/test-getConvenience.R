@@ -173,6 +173,22 @@ test_that("refresh = TRUE invalidates the inventory-mirror short-circuit|ics1141
   baseFilePath <- setupGetTests()
   txtPath <- paste0(baseFilePath, "/rgetTEXT/sampleText.txt")
 
+  # IMR-215: the production mirror short-circuit at getGeneric.R:130 only
+  # triggers when the resource path startsWith(pwd()$path). The default
+  # pwd is wherever IMPROVER_STEP points (the launch step), which is
+  # generally sibling-to-or-outside the baseFilesSetup tree — so without
+  # pinning pwd here the resource is not under pwd, the production
+  # short-circuit never engages, and the test cannot exercise the
+  # refresh=TRUE invalidation path. Set pwd to baseFilePath for the
+  # test, restore on exit. Capture the cacheEnv reference via
+  # getFromNamespace because `improveR:::cacheEnv$pwd <- ...` inside an
+  # on.exit lazy-eval does not resolve the package symbol in the
+  # testthat-3 test_env.
+  imrCache <- getFromNamespace("cacheEnv", "improveR")
+  prevPwd  <- imrCache$pwd
+  on.exit(imrCache$pwd <- prevPwd, add = TRUE)
+  imrCache$pwd <- improveR::loadResource(baseFilePath)
+
   # Resolve where getAbstract would look for an inventory-mirror copy.
   resource <- improveR::loadResource(txtPath)
   pwdPath  <- improveR::pwd()$path
