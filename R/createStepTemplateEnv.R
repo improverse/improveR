@@ -172,7 +172,12 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       variableId <- as.character(variables[variables$name==filePrep$variableName,]$id)
       if (length(variableId)==0) {
         position=1
-        if (!is.null(variables)) {
+        # IMR-219: getProcessFileVariables returns an empty data.frame (not NULL)
+        # when the step has no variables yet. max(integer(0)) returns -Inf with
+        # a warning; -Inf as `position` then gets POSTed to the server which
+        # rejects it with 4xx, authenticatedREST returns NULL, and the next
+        # caller crashes at httr::content(NULL). Guard with nrow > 0.
+        if (!is.null(variables) && nrow(variables) > 0) {
           position<- max(variables$position)+1
         }
         variable<- createProcessFileVariable(ident = newStep$resourceId,processId = processId,name = filePrep$variableName,variableType = "fileRef",position = position)
@@ -817,7 +822,12 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       env$stepDf$processes[[1]],
       .data$name == processName
     ) #rs source for fullToolName; "R_.2 rbatch runserver"
-    resetToolInstances() #added
+    # IMR-217: do NOT call resetToolInstances() here. The cache is invalidated
+    # explicitly by toolManagement.R (8 sites) on any tool add/update/remove.
+    # The defensive clear here forced a full server tool-category sweep on
+    # every step preparation — 1280+ "no tools found for category" warnings
+    # for one workflowParameterization run and 5-10x runtime per step. Tool
+    # instances change rarely (~ twice a year); caching is the correct shape.
     toolInstances <- getToolInstances()
 
     #browser()

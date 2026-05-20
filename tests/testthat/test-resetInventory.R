@@ -34,15 +34,43 @@ rBatchStep <- function(testTree) {
   return(stepEnv)
 }
 
-waitForStep <- function(ident, timeout = 180) {
-  elapsed <- 0
+# Race-free wait. runStepResource is fire-and-forget (POST then return); the
+# server takes time to transition the step out of the prior FINISHED state.
+# If we poll for runStatus == FINISHED immediately, we may catch the stale
+# pre-trigger FINISHED, return at once, and read an inventory before the new
+# run has produced any outputs. (IMR-214: this hit run 3 on 2026-05-19,
+# the absence of _STDOUT.txt/_STDERR.txt in the post-wait inventory was the
+# tell.)
+#
+# Pass in a `mark` captured *before* the trigger; we only accept FINISHED
+# once we have seen the step's lastModifiedOn change vs the mark. Brief
+# initial sleep gives the server room to begin the transition before our
+# first poll.
+markBeforeRun <- function(stepResource) {
+  resource <- improveR::refreshResource(stepResource$resourceId)
+  list(
+    lastModifiedOn = if (!is.null(resource)) resource$lastModifiedOn else NA,
+    runStatus      = if (!is.null(resource)) resource$runStatus else NA
+  )
+}
+
+waitForStep <- function(ident, mark = NULL, timeout = 180) {
+  Sys.sleep(2)
+  elapsed <- 2
+  step <- NULL
   while (elapsed < timeout) {
     step <- improveR::refreshResource(ident)
-    if (!is.null(step) && step$runStatus == "FINISHED") return(step)
+    if (!is.null(step) && step$runStatus == "FINISHED") {
+      newRunSeen <- is.null(mark) ||
+                    is.na(mark$lastModifiedOn) ||
+                    !identical(step$lastModifiedOn, mark$lastModifiedOn)
+      if (newRunSeen) return(step)
+    }
     Sys.sleep(5)
     elapsed <- elapsed + 5
   }
-  stop(paste("Step did not finish within", timeout, "seconds. Status:", step$runStatus))
+  stop(paste("Step did not finish within", timeout, "seconds. Status:",
+             if (!is.null(step)) step$runStatus else "<no step>"))
 }
 
 getInventory <- function(stepResource) {
@@ -136,8 +164,9 @@ test_that("run 1: step produces output_v1|ics2047", {
   stopifnot("No step created" = exists("RI_STEP", envir = globalenv()))
   stepResource <- get("RI_STEP", envir = globalenv())
 
+  mark <- markBeforeRun(stepResource)
   improveR::runStepResource(stepResource$resourceId)
-  stepResource <- waitForStep(stepResource)
+  stepResource <- waitForStep(stepResource, mark)
   assign("RI_STEP", stepResource, envir = globalenv())
 
   inv <- getInventory(stepResource)
@@ -180,8 +209,9 @@ test_that("run 2 (normal): both output_v1 and output_v2|ics2047", {
   unlink("ri_cmd_v2.R")
 
   # Normal rerun (no reset)
+  mark <- markBeforeRun(stepResource)
   improveR::runStepResource(stepResource$resourceId)
-  stepResource <- waitForStep(stepResource)
+  stepResource <- waitForStep(stepResource, mark)
   assign("RI_STEP", stepResource, envir = globalenv())
 
   inv <- getInventory(stepResource)
@@ -198,8 +228,9 @@ test_that("run 3 (resetInventory): only output_v2, v1 is gone|ics2047", {
   stepResource <- get("RI_STEP", envir = globalenv())
 
   # Rerun with reset — wipes inventory before run
+  mark <- markBeforeRun(stepResource)
   improveR::runStepResource(stepResource$resourceId, resetInventory = TRUE)
-  stepResource <- waitForStep(stepResource)
+  stepResource <- waitForStep(stepResource, mark)
   assign("RI_STEP", stepResource, envir = globalenv())
 
   inv <- getInventory(stepResource)
@@ -224,8 +255,9 @@ test_that("run 4 (resetInventory + filesToKeep): v2 preserved|ics2047", {
   unlink("ri_cmd_both.R")
 
   # Normal run to populate both outputs
+  mark <- markBeforeRun(stepResource)
   improveR::runStepResource(stepResource$resourceId)
-  stepResource <- waitForStep(stepResource)
+  stepResource <- waitForStep(stepResource, mark)
 
   inv <- getInventory(stepResource)
   expect_true("output_v1.txt" %in% inv$name, info = "Need both outputs for filesToKeep test")
@@ -242,10 +274,11 @@ test_that("run 4 (resetInventory + filesToKeep): v2 preserved|ics2047", {
   unlink("ri_cmd_v2b.R")
 
   # Rerun with resetInventory + keep output_v2
+  mark <- markBeforeRun(stepResource)
   improveR::runStepResource(stepResource$resourceId,
                             resetInventory = TRUE,
                             filesToKeep = v2Guid)
-  stepResource <- waitForStep(stepResource)
+  stepResource <- waitForStep(stepResource, mark)
   assign("RI_STEP", stepResource, envir = globalenv())
 
   inv <- getInventory(stepResource)

@@ -316,7 +316,12 @@ createProcessFileVariable <- function(ident, processId,name,variableType,positio
                     all(nzchar(names(content))) &&
                     !any(vapply(content, is.list, logical(1)))
   rows <- if (is_flat_object) list(content) else content
-  do.call(rbind, lapply(rows, function(row) {
+  # rbind.fill tolerates heterogeneous field sets across rows. The server's
+  # GET /processes/{pid}/variables response can return variables with
+  # different optional fields populated (e.g. one variable's valueResourceId
+  # bound, another's not yet) — base::rbind would reject the column-count
+  # mismatch with "numbers of columns of arguments do not match".
+  plyr::rbind.fill(lapply(rows, function(row) {
     as.data.frame(row, stringsAsFactors = FALSE)
   }))
 }
