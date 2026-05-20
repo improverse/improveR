@@ -817,7 +817,12 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
       env$stepDf$processes[[1]],
       .data$name == processName
     ) #rs source for fullToolName; "R_.2 rbatch runserver"
-    resetToolInstances() #added
+    # IMR-217: do NOT call resetToolInstances() here. The cache is invalidated
+    # explicitly by toolManagement.R (8 sites) on any tool add/update/remove.
+    # The defensive clear here forced a full server tool-category sweep on
+    # every step preparation — 1280+ "no tools found for category" warnings
+    # for one workflowParameterization run and 5-10x runtime per step. Tool
+    # instances change rarely (~ twice a year); caching is the correct shape.
     toolInstances <- getToolInstances()
 
     #browser()
