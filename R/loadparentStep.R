@@ -35,6 +35,10 @@ loadParentStep <- function(ident, from=pwd()) {
 #' @param ident resourceID, entityId or path to the step.
 #' @param from path working directory, default is the calling step
 #' @references ics1209
+#' @returns No meaningful value - called for its side effect of dropping the parent step
+#'   of the resource from the cache, so that the next load reads the server. The value
+#'   handed back by the internal cache removal is an implementation detail and must not be
+#'   relied on.
 #' @export
 unloadParentStep <- function(ident, from=pwd()) {
   resource <- loadResource(ident,from)
@@ -48,6 +52,8 @@ unloadParentStep <- function(ident, from=pwd()) {
 #' @param from path working directory, default is the calling step
 #' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1209
+#' @returns The freshly read parent step, in the same shape as [loadParentStep()] - the
+#'   cached copy is dropped first, so the value comes from the server.
 #' @export
 refreshParentStep <- function(ident, from=pwd()) {
   unloadParentStep(ident,from)

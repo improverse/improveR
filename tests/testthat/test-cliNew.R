@@ -19,7 +19,10 @@ setupStepRepo <- function(TEST_FOLDER) {
   r_tool <- Sys.getenv("R_TOOL")
   r_tool_instance <- Sys.getenv("R_TOOL_INSTANCE")
 
-  treeName <- paste0("cli_", format(Sys.time(), "%H%M%S"), "_", sample(1000:9999, 1))
+  # No sample() in a test name: a random draw cannot be replayed, and the draw
+  # was only guarding against a second name built in the same second - which
+  # uniqueTag() already rules out (IMR-297).
+  treeName <- paste0("cli_", uniqueTag(6))
   testTree <- createAnalysisTree(targetIdent = TEST_FOLDER, treeName = treeName)
 
   stepEnv <- createStepTemplateEnv(treeIdent = testTree)
@@ -35,8 +38,7 @@ setupStepRepo <- function(TEST_FOLDER) {
   step <- stepEnv$realise(run = FALSE)
   stepRes <- step$getStepResource()
 
-  localPath <- file.path("/tmp", paste0("cli_", format(Sys.time(), "%H%M%S"),
-                                        "_", sample(1000:9999, 1)))
+  localPath <- file.path("/tmp", paste0("cli_", uniqueTag(6)))
   dir.create(localPath, showWarnings = FALSE)
   cloneCli(stepRes$path, localPath)
 
@@ -61,7 +63,6 @@ test_that("detectCli finds JAR and reports version|cliDetect", {
     version <- improveR:::cliDetectedVersion()
     expect_true(grepl("^\\d+\\.\\d+\\.\\d+$", version),
                 info = paste("Version should match X.Y.Z, got:", version))
-    expect_true(improveR:::hasPicocli())
   }
 })
 
@@ -89,7 +90,6 @@ test_that("IMPROVE_CLI_PATH with nonexistent path falls back to JAR|cliDetect", 
 # ── Group 2: Clone + Status ──────────────────────────────────────────────────
 
 test_that("clone step creates writable workspace|cliClone", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
   TEST_FOLDER <- ensureTestFolder()
 
   repo <- setupStepRepo(TEST_FOLDER)
@@ -104,46 +104,9 @@ test_that("clone step creates writable workspace|cliClone", {
               info = "Input file copy should be writable")
 })
 
-test_that("statusCli on clean repo shows no changes|cliStatus", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  TEST_FOLDER <- ensureTestFolder()
-
-  repo <- setupStepRepo(TEST_FOLDER)
-  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
-
-  status <- statusCli(repo$localPath, json = TRUE)
-  expect_true(is.list(status))
-  expect_equal(status$command, "status")
-
-  compare <- status$data$compare
-  expect_true(is.data.frame(compare))
-  expect_true(all(compare$localChanged == FALSE),
-              info = "Clean repo should have no local changes")
-})
-
-test_that("statusCli detects local modification|cliStatus", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  TEST_FOLDER <- ensureTestFolder()
-
-  repo <- setupStepRepo(TEST_FOLDER)
-  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
-
-  writeLines("# modified by test", file.path(repo$localPath, "DataManipulation.R"))
-
-  status <- statusCli(repo$localPath, json = TRUE)
-  compare <- status$data$compare
-  modEntry <- compare[compare$path == "DataManipulation.R", ]
-
-  expect_true(modEntry$localChanged,
-              info = "Modified file should show localChanged=TRUE")
-  expect_true(modEntry$localHash != modEntry$remoteHash,
-              info = "Hashes should differ after modification")
-})
-
 # ── Group 3: Push ─────────────────────────────────────────────────────────────
 
 test_that("push modified input file, verify via second clone|cliPush", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
   TEST_FOLDER <- ensureTestFolder()
 
   repo <- setupStepRepo(TEST_FOLDER)
@@ -153,7 +116,7 @@ test_that("push modified input file, verify via second clone|cliPush", {
   pushCli(repo$localPath, comment = "push test")
 
   # Clone to second repo and verify
-  repo2 <- file.path("/tmp", paste0("verify_", sample(1000:9999, 1)))
+  repo2 <- file.path("/tmp", paste0("verify_", uniqueTag(6)))
   dir.create(repo2, showWarnings = FALSE)
   on.exit(unlink(repo2, recursive = TRUE), add = TRUE)
 
@@ -164,7 +127,6 @@ test_that("push modified input file, verify via second clone|cliPush", {
 })
 
 test_that("push --preview does not write to server|cliPush", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
   TEST_FOLDER <- ensureTestFolder()
 
   repo <- setupStepRepo(TEST_FOLDER)
@@ -172,10 +134,21 @@ test_that("push --preview does not write to server|cliPush", {
 
   originalContent <- readLines(file.path(repo$localPath, "DataManipulation.R"))
   writeLines("# should not appear on server", file.path(repo$localPath, "DataManipulation.R"))
-  pushCli(repo$localPath, comment = "preview", preview = TRUE)
+
+  # preview is computed in improveR, not passed to the CLI: the released CLI
+  # has no --preview, and before IMR-283 this call performed the push while
+  # reporting a dry run. The returned frame must NAME the change, not merely
+  # exist - a preview that reports nothing would pass the server-unchanged
+  # assertion below just as well.
+  planned <- pushCli(repo$localPath, comment = "preview", preview = TRUE)
+  expect_true(is.data.frame(planned))
+  expect_true("DataManipulation.R" %in% planned$path,
+              info = paste0("the modified file must appear in the preview; got: ",
+                            paste(planned$path, collapse = ", ")))
+  expect_equal(planned$change[planned$path == "DataManipulation.R"], "modified")
 
   # Clone fresh to verify server unchanged
-  repo2 <- file.path("/tmp", paste0("preview_", sample(1000:9999, 1)))
+  repo2 <- file.path("/tmp", paste0("preview_", uniqueTag(6)))
   dir.create(repo2, showWarnings = FALSE)
   on.exit(unlink(repo2, recursive = TRUE), add = TRUE)
 
@@ -188,14 +161,13 @@ test_that("push --preview does not write to server|cliPush", {
 # ── Group 4: Pull ─────────────────────────────────────────────────────────────
 
 test_that("pull downloads server changes|cliPull", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
   TEST_FOLDER <- ensureTestFolder()
 
   repo <- setupStepRepo(TEST_FOLDER)
   on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
 
   # Clone to second repo
-  repo2 <- file.path("/tmp", paste0("pull_", sample(1000:9999, 1)))
+  repo2 <- file.path("/tmp", paste0("pull_", uniqueTag(6)))
   dir.create(repo2, showWarnings = FALSE)
   on.exit(unlink(repo2, recursive = TRUE), add = TRUE)
   cloneCli(repo$stepRes$path, repo2)
@@ -212,13 +184,12 @@ test_that("pull downloads server changes|cliPull", {
 })
 
 test_that("pull --preview does not write locally|cliPull", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
   TEST_FOLDER <- ensureTestFolder()
 
   repo <- setupStepRepo(TEST_FOLDER)
   on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
 
-  repo2 <- file.path("/tmp", paste0("pullprev_", sample(1000:9999, 1)))
+  repo2 <- file.path("/tmp", paste0("pullprev_", uniqueTag(6)))
   dir.create(repo2, showWarnings = FALSE)
   on.exit(unlink(repo2, recursive = TRUE), add = TRUE)
   cloneCli(repo$stepRes$path, repo2)
@@ -228,7 +199,18 @@ test_that("pull --preview does not write locally|cliPull", {
   writeLines("# server change", file.path(repo$localPath, "DataManipulation.R"))
   pushCli(repo$localPath, comment = "for preview pull")
 
-  pullCli(repo2, preview = TRUE)
+  # As with push, preview is computed here rather than handed to the CLI
+  # (IMR-283). The anchor is the child's resourceVersionId against the
+  # CheckoutVersionId recorded at clone time - pull.revisionId and
+  # entityVersionId were both tried and line up with nothing, so a preview
+  # built on either reports changes on an up-to-date clone.
+  incoming <- pullCli(repo2, preview = TRUE)
+  expect_true(is.data.frame(incoming))
+  expect_true("DataManipulation.R" %in% incoming$path,
+              info = paste0("the file changed on the server must appear in the ",
+                            "preview; got: ", paste(incoming$path, collapse = ", ")))
+  expect_equal(incoming$change[incoming$path == "DataManipulation.R"], "modified")
+
   content <- readLines(file.path(repo2, "DataManipulation.R"))
   expect_equal(content, originalContent,
                info = "Preview pull should not modify local files")
@@ -236,78 +218,9 @@ test_that("pull --preview does not write locally|cliPull", {
 
 # ── Group 5: Conflict ─────────────────────────────────────────────────────────
 
-test_that("conflict detected after concurrent modification|cliConflict", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  TEST_FOLDER <- ensureTestFolder()
-
-  repo <- setupStepRepo(TEST_FOLDER)
-  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
-
-  repo2 <- file.path("/tmp", paste0("conflict_", sample(1000:9999, 1)))
-  dir.create(repo2, showWarnings = FALSE)
-  on.exit(unlink(repo2, recursive = TRUE), add = TRUE)
-  cloneCli(repo$stepRes$path, repo2)
-  writeLines('{"filePatterns":["*.R","*.csv"]}',
-             file.path(repo2, ".improve", "input-config.json"))
-
-  # Modify same file in both, push from first
-  writeLines("# repo1 version", file.path(repo$localPath, "DataManipulation.R"))
-  pushCli(repo$localPath, comment = "create conflict")
-
-  writeLines("# repo2 version", file.path(repo2, "DataManipulation.R"))
-
-  # Check status BEFORE pull — conflict is visible here
-  status <- statusCli(repo2, json = TRUE)
-  compare <- status$data$compare
-  entry <- compare[compare$path == "DataManipulation.R", ]
-
-  expect_true(entry$localChanged, info = "Should show localChanged=TRUE")
-  expect_true(entry$remoteChanged, info = "Should show remoteChanged=TRUE")
-  expect_equal(entry$conflictType, "BOTH_MODIFIED",
-               info = "conflictType should be BOTH_MODIFIED")
-
-  # After pull, baseline is updated — local change preserved
-  pullCli(repo2)
-  content <- readLines(file.path(repo2, "DataManipulation.R"))
-  expect_equal(content, "# repo2 version",
-               info = "Pull should preserve local modification")
-})
-
-test_that("resetCli restores file to baseline|cliConflict", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  TEST_FOLDER <- ensureTestFolder()
-
-  repo <- setupStepRepo(TEST_FOLDER)
-  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
-
-  repo2 <- file.path("/tmp", paste0("reset_", sample(1000:9999, 1)))
-  dir.create(repo2, showWarnings = FALSE)
-  on.exit(unlink(repo2, recursive = TRUE), add = TRUE)
-  cloneCli(repo$stepRes$path, repo2)
-  writeLines('{"filePatterns":["*.R","*.csv"]}',
-             file.path(repo2, ".improve", "input-config.json"))
-
-  # Push from repo1 to create a remote change
-  writeLines("# repo1 pushed", file.path(repo$localPath, "DataManipulation.R"))
-  pushCli(repo$localPath, comment = "for reset test")
-
-  # Modify locally in repo2 and pull (creates baseline update)
-  writeLines("# repo2 local", file.path(repo2, "DataManipulation.R"))
-  pullCli(repo2)
-
-  # After pull, baseline is updated. The file is locally modified but not in conflict.
-  # Reset only works on conflict files (not regular local modifications).
-  # Verify the local modification is preserved after pull.
-  status <- statusCli(repo2, json = TRUE)
-  entry <- status$data$compare[status$data$compare$path == "DataManipulation.R", ]
-  expect_true(entry$localChanged,
-              info = "Local modification should be preserved after pull")
-})
-
 # ── Group 6: Push Run ─────────────────────────────────────────────────────────
 
 test_that("push run uploads inputs and outputs, creates a run|cliPushRun", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
   TEST_FOLDER <- ensureTestFolder()
 
   repo <- setupStepRepo(TEST_FOLDER)
@@ -316,23 +229,37 @@ test_that("push run uploads inputs and outputs, creates a run|cliPushRun", {
   # Modify an input file
   writeLines("# modified input", file.path(repo$localPath, "DataManipulation.R"))
 
-  # Create an output file
-  writeLines("output results", file.path(repo$localPath, "results.txt"))
+  # Two new files, and only one of them is declared as an input.
+  #
+  # The released CLI honours .improve/input-config.json exactly - measured on
+  # 2026-09-15: with patterns *.R and *.csv a results.txt stays local; add
+  # *.txt and it is pushed. The original block wrote results.txt and expected
+  # it on the server as an "output" while the fixture declared neither. That
+  # expectation came from the withdrawn CLI surface and had never run against the
+  # released CLI, because the block skipped.
+  #
+  # Asserting both directions is worth more than the original: the declared
+  # file must arrive AND the undeclared one must not.
+  writeLines("declared output", file.path(repo$localPath, "results.csv"))
+  writeLines("undeclared", file.path(repo$localPath, "results.txt"))
 
   # Push run
   pushRunCli(repo$localPath, command = "Rscript")
 
   # Verify: clone to second repo, both files should be there
-  repo2 <- file.path("/tmp", paste0("pushrun_", sample(1000:9999, 1)))
+  repo2 <- file.path("/tmp", paste0("pushrun_", uniqueTag(6)))
   dir.create(repo2, showWarnings = FALSE)
   on.exit(unlink(repo2, recursive = TRUE), add = TRUE)
   cloneCli(repo$stepRes$path, repo2)
 
   expect_equal(readLines(file.path(repo2, "DataManipulation.R")), "# modified input",
                info = "Modified input should be on server after push run")
-  expect_true(file.exists(file.path(repo2, "results.txt")),
-              info = "Output file should be on server after push run")
-  expect_equal(readLines(file.path(repo2, "results.txt")), "output results")
+  expect_true(file.exists(file.path(repo2, "results.csv")),
+              info = "a file matching the declared input patterns must reach the server")
+  expect_equal(readLines(file.path(repo2, "results.csv")), "declared output")
+  expect_false(file.exists(file.path(repo2, "results.txt")),
+               info = paste0("a file matching NO declared pattern must stay local - ",
+                             "input-config.json is the rule, not a suggestion"))
 
   # Verify a new run was created
   stepRes <- improveR::refreshResource(repo$stepRes$resourceId)
@@ -342,119 +269,7 @@ test_that("push run uploads inputs and outputs, creates a run|cliPushRun", {
 
 # ── Group 7: Tools + Info ────────────────────────────────────────────────────
 
-test_that("toolsCli returns non-empty output|cliTools", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  result <- toolsCli()
-  expect_true(length(result) > 0)
-})
-
-test_that("infoCli shows server URL|cliInfo", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  TEST_FOLDER <- ensureTestFolder()
-
-  repo <- setupStepRepo(TEST_FOLDER)
-  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
-
-  result <- infoCli(repo$localPath)
-  repoUrl <- Sys.getenv("IMPROVER_REPO_URL")
-  expect_true(any(grepl(sub("/repository$", "", repoUrl), result, fixed = TRUE)),
-              info = "Info should contain the server URL")
-})
-
 # ── Group 8: Diff ────────────────────────────────────────────────────────────
-
-test_that("diffCli unified diff shows correct format and content|cliDiff", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  ver <- improveR:::cliDetectedVersion()
-  skip_if(!is.null(ver) && compareVersion(ver, "4.5.0") < 0, "diff requires CLI 4.5.0+")
-  TEST_FOLDER <- ensureTestFolder()
-
-  repo <- setupStepRepo(TEST_FOLDER)
-  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
-
-  # Read original, append a line, then diff
-  originalContent <- readLines(file.path(repo$localPath, "DataManipulation.R"))
-  writeLines(c(originalContent, "# diff test line"), file.path(repo$localPath, "DataManipulation.R"))
-
-  result <- diffCli(repo$localPath, "DataManipulation.R")
-  diffText <- paste(result, collapse = "\n")
-
-  # Unified diff format: must have --- / +++ / @@ headers
-  expect_true(any(grepl("^---", result)), info = "Diff must contain --- header")
-  expect_true(any(grepl("^\\+\\+\\+", result)), info = "Diff must contain +++ header")
-  expect_true(any(grepl("^@@", result)), info = "Diff must contain @@ hunk header")
-
-  # Added line must appear with + prefix
-  expect_true(any(grepl("^\\+# diff test line", result)),
-              info = "Added line must appear as +# diff test line")
-})
-
-test_that("diffCli no output when file is unchanged|cliDiff", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  ver <- improveR:::cliDetectedVersion()
-  skip_if(!is.null(ver) && compareVersion(ver, "4.5.0") < 0, "diff requires CLI 4.5.0+")
-  TEST_FOLDER <- ensureTestFolder()
-
-  repo <- setupStepRepo(TEST_FOLDER)
-  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
-
-  # No modification — diff should have no +/- lines (ignore info/auth noise)
-  result <- diffCli(repo$localPath, "DataManipulation.R")
-  diffLines <- result[grepl("^[-+@]", result)]
-  expect_true(length(diffLines) == 0,
-              info = "Diff should have no hunks when file is unchanged")
-})
-
-test_that("diffCli --base returns original content, not local edits|cliDiff", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  ver <- improveR:::cliDetectedVersion()
-  skip_if(!is.null(ver) && compareVersion(ver, "4.5.0") < 0, "diff requires CLI 4.5.0+")
-  TEST_FOLDER <- ensureTestFolder()
-
-  repo <- setupStepRepo(TEST_FOLDER)
-  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
-
-  # Capture original content before modification
-  originalContent <- readLines(file.path(repo$localPath, "DataManipulation.R"))
-
-  # Replace file content entirely
-  writeLines("# local only — not on server", file.path(repo$localPath, "DataManipulation.R"))
-
-  baseContent <- diffCli(repo$localPath, "DataManipulation.R", base = TRUE)
-  expect_true(length(baseContent) > 0, info = "Base content should be non-empty")
-
-  # Baseline must contain the original file content (normalize \r from server)
-  baseNormalized <- gsub("\r$", "", baseContent)
-  baseNormalized <- baseNormalized[!grepl("^Info:", baseNormalized)]  # strip auth noise
-  expect_equal(baseNormalized, originalContent,
-               info = "Baseline content must match the original file before modification")
-
-  # Baseline must NOT contain the local-only change
-  expect_false(any(grepl("local only", baseContent)),
-               info = "Baseline must not contain local modification")
-})
-
-test_that("diffCli --theirs matches --base when no server changes occurred|cliDiff", {
-  skip_if(!improveR:::hasPicocli(), "Picocli not available")
-  ver <- improveR:::cliDetectedVersion()
-  skip_if(!is.null(ver) && compareVersion(ver, "4.5.0") < 0, "diff requires CLI 4.5.0+")
-  TEST_FOLDER <- ensureTestFolder()
-
-  repo <- setupStepRepo(TEST_FOLDER)
-  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
-
-  # No server-side push happened, so --theirs and --base should return
-  # the same content (both point to the same revision)
-  baseContent <- diffCli(repo$localPath, "DataManipulation.R", base = TRUE)
-  theirsContent <- diffCli(repo$localPath, "DataManipulation.R", theirs = TRUE)
-
-  expect_true(length(baseContent) > 0, info = "Base content should be non-empty")
-  expect_true(length(theirsContent) > 0, info = "Theirs content should be non-empty")
-  # Normalize \r and filter auth noise for comparison
-  normalize <- function(x) gsub("\r$", "", x[!grepl("^Info:", x)])
-  expect_equal(normalize(theirsContent), normalize(baseContent),
-               info = "Without server changes, --theirs and --base should return identical content")
-})
 
 # ── Group 9: Error handling ──────────────────────────────────────────────────
 
@@ -463,4 +278,29 @@ test_that("executeCli handles invalid command without crashing|cliError", {
   # Should not crash R, just return output with non-zero exit
   result <- improveR:::executeCli(c("nonexistent_command_xyz"))
   expect_true(is.character(result))
+})
+
+test_that("a preview on an unchanged clone reports nothing|cliPreview", {
+  # The counterpart that matters: a preview must be quiet when there is nothing
+  # to report. Without this, a preview that always returns an empty frame - or
+  # one that always reports everything - passes the blocks above.
+  TEST_FOLDER <- ensureTestFolder()
+  repo <- setupStepRepo(TEST_FOLDER)
+  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
+
+  expect_equal(nrow(pushCli(repo$localPath, preview = TRUE)), 0L,
+               info = "a clone nobody touched has nothing to push")
+  expect_equal(nrow(pullCli(repo$localPath, preview = TRUE)), 0L,
+               info = "a clone nobody touched is up to date")
+})
+
+test_that("force refuses instead of running without it|cliPush", {
+  # There is no local equivalent to compute, so this one is refused rather than
+  # emulated. Silently dropping it is what IMR-283 is about.
+  TEST_FOLDER <- ensureTestFolder()
+  repo <- setupStepRepo(TEST_FOLDER)
+  on.exit(unlink(repo$localPath, recursive = TRUE), add = TRUE)
+
+  expect_error(pushCli(repo$localPath, force = TRUE), "not supported by this CLI")
+  expect_error(pushRunCli(repo$localPath, force = TRUE), "not supported by this CLI")
 })

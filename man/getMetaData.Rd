@@ -11,6 +11,13 @@ getMetaData(ident, from = pwd())
 
 \item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
 }
+\value{
+A data frame with one row per metadata entry and a fixed column order,
+starting with \code{descriptorName}, \code{value} and \code{descriptorType}. \code{value} carries the
+entry as text, taken from the column that matches its type - \code{textValue}, \code{lovText},
+\code{numValue}, or \code{dateValue} converted to a POSIX date. \code{NULL} when the resource has no
+metadata.
+}
 \description{
 Gets a Metadata Data Frame
 }

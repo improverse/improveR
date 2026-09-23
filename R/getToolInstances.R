@@ -152,7 +152,7 @@ getToolInstances <- function() {
         #####parameters
         toolParameterResult<-authenticatedREST("/configuration/runservers/{runserverId}/tools/{toolId}/parameters",
                                                          urlParams = list(runserverId=runserverTool$runserverId,toolId=runserverTool$id))
-        toolParameterContent <- httr::content(toolParameterResult)
+        toolParameterContent <- restContent(toolParameterResult, "loadToolParameters")
         toolParameters <- mergeListToDataframe(toolParameterContent)
 
         # Check if toolParameters is empty or null
@@ -195,7 +195,7 @@ getToolInstances <- function() {
             gridArgumentDefinitions <- loadGridArguments(runserverTool$gridProvider)
             gridArgumentResult<-authenticatedREST("/configuration/runservers/{runserverId}/tools/{toolId}/gridArguments",
                                                             urlParams = list(runserverId=runserverTool$runserverId,toolId=runserverTool$id))
-            gridArguments <- mergeListToDataframe(httr::content(gridArgumentResult))
+            gridArguments <- mergeListToDataframe(restContent(gridArgumentResult, "loadGridArgumentDefinitions"))
 
             # Only process if both dataframes have data
             if (!is.null(gridArguments) && nrow(gridArguments) > 0 &&

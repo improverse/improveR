@@ -43,6 +43,9 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
     expectedMessage3 <- "NO resource was deleted." #mesage was included into improveR::delete when reviewing function committ: af4b521b3345e14a638ab69081abaad389f71fa3
 
     Sys.setenv(improver.logfile = "improver.log")
+    # start each block from an empty log so the assertions do not depend on
+    # which test files ran before (IMR-260)
+    file.create("improver.log")
     improveConnect()
     tf <- createFolder(TEST_FOLDER)
 
@@ -50,21 +53,21 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
 
     failed <- copy(id, FAKE_ENTITY_ID)
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_true(
       message %in% c(glue::glue(expectedMessage1), glue::glue(expectedMessage2))
     )
 
     failed <- move(id, FAKE_ENTITY_ID)
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_true(
       message %in% c(glue::glue(expectedMessage1), glue::glue(expectedMessage2))
     )
 
     failed <- delete(id)
     expect_false(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_true(
       message %in% c(expectedMessage1, expectedMessage2, expectedMessage3)
     )
@@ -75,6 +78,9 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
     expectedMessage <- "Target {id} does not exist, could not {func}"
 
     Sys.setenv(improver.logfile = "improver.log")
+    # start each block from an empty log so the assertions do not depend on
+    # which test files ran before (IMR-260)
+    file.create("improver.log")
     improveConnect()
     createFolder(TEST_FOLDER)
 
@@ -82,13 +88,13 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
     func <- "copy"
     failed <- copy(TEST_FOLDER, id)
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_equal(message, glue::glue(expectedMessage))
 
     func <- "move"
     failed <- move(TEST_FOLDER, id)
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_equal(message, glue::glue(expectedMessage))
   })
 
@@ -97,30 +103,33 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
     expectedMessage <- "name needs to be of type character"
 
     Sys.setenv(improver.logfile = "improver.log")
+    # start each block from an empty log so the assertions do not depend on
+    # which test files ran before (IMR-260)
+    file.create("improver.log")
     improveConnect()
     createFolder(TEST_FOLDER)
 
     id <- FAKE_RES_ID
     failed <- copy(TEST_FOLDER, id, targetName = 23)
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_equal(message, glue::glue(expectedMessage))
 
     failed <- move(TEST_FOLDER, id, targetName = data.frame())
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_equal(message, glue::glue(expectedMessage))
 
     expectedMessage <- "comment needs to be of type character"
     id <- FAKE_RES_ID
     failed <- copy(TEST_FOLDER, id, comment = 23)
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_equal(message, glue::glue(expectedMessage))
 
     failed <- move(TEST_FOLDER, id, comment = data.frame())
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_equal(message, glue::glue(expectedMessage))
   })
 
@@ -129,6 +138,9 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
     expectedMessage <- "{TEST_FOLDER}/tbOverwritten already exists, cannot {func}"
 
     Sys.setenv(improver.logfile = "improver.log")
+    # start each block from an empty log so the assertions do not depend on
+    # which test files ran before (IMR-260)
+    file.create("improver.log")
     improveConnect()
     createFolder(TEST_FOLDER)
 
@@ -153,7 +165,7 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
       overwrite = F
     )
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_equal(message, glue::glue(expectedMessage))
     func <- "move"
     failed <- move(
@@ -163,7 +175,7 @@ FAKE_PATH <- paste0(TEST_FOLDER, "/FAKE")
       overwrite = F
     )
     expect_null(failed)
-    message <- improveLastLogMessage("WARN")
+    message <- improveLastLogMessage("WARNING")
     expect_equal(message, glue::glue(expectedMessage))
     moveFile <- move(
       sourceFile,
@@ -187,18 +199,21 @@ modifyToTarget <- function(s,t) {
 
   failed <- copy(s,t)
   expect_null(failed)
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message,glue::glue(expectedMessage))
 
   failed <- move(s,t)
   expect_null(failed)
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message,glue::glue(expectedMessage))
 }
 
   test_that("modify to wrong target|ics1139", {
     TEST_FOLDER <- ensureTestFolder()
     Sys.setenv(improver.logfile = "improver.log")
+    # start each block from an empty log so the assertions do not depend on
+    # which test files ran before (IMR-260)
+    file.create("improver.log")
     improveConnect()
     createFolder(TEST_FOLDER)
 
@@ -264,6 +279,9 @@ modifyToTarget <- function(s,t) {
 
   test_that("delete links after deletion|ics1139", {
     Sys.setenv(improver.logfile = "improver.log")
+    # start each block from an empty log so the assertions do not depend on
+    # which test files ran before (IMR-260)
+    file.create("improver.log")
     improveConnect()
     TEST_FOLDER <- ensureTestFolder()
     createFolder(TEST_FOLDER)

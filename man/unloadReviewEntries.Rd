@@ -12,6 +12,12 @@ or a data frame row from \code{loadResource()}.}
 
 \item{from}{Base path for resolving relative paths. Defaults to \code{pwd()}.}
 }
+\value{
+No meaningful value - called for its side effect of dropping the entries of
+the review from the cache, so that the next load reads the server. The value handed
+back by the internal cache removal is an implementation detail and must not be relied
+on.
+}
 \description{
 Unloads the Review Entries for a Review
 }

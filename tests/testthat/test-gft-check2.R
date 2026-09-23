@@ -54,7 +54,7 @@ test_that("GFT2-setup: connect and create test folder with files", {
     }
   }
 
-  ts <- format(Sys.time(), "%Y%m%d%H%M%S")
+  ts <- uniqueTag()
   folder <- improveR::createFolder(
     targetIdent = basePath,
     folderName = paste0("gft-check2-", ts),
@@ -252,7 +252,7 @@ test_that("GFT2-06: add file to favorites and verify it appears|ics1803,ics1799"
     targetIdent = GFT2$FILE1_RES$resourceId,
     name = "GFT2-favorite"
   )
-  stopifnot("addFavoriteLink not supported on this server" = !is.null(result))
+  requireServerCall(result, "addFavoriteLink")
 
   expect_true(!is.null(result$resourceId),
               info = "Favorite link should have a resourceId")
@@ -269,7 +269,7 @@ test_that("GFT2-06: add file to favorites and verify it appears|ics1803,ics1799"
 
 test_that("GFT2-07: list favorite children at top level|ics1801", {
   children <- improveR::loadFavoriteChildren()
-  stopifnot("loadFavoriteChildren not supported" = !is.null(children))
+  requireServerCall(children, "loadFavoriteChildren")
 
   expect_true(is.data.frame(children), info = "Favorite children should be a data frame")
   expect_true(nrow(children) >= 1,
@@ -283,7 +283,7 @@ test_that("GFT2-08: create and remove favorites folder|ics1805,ics1800", {
     name = "GFT2-folder",
     comment = "GFT2 favorites folder test"
   )
-  stopifnot("createFavoriteFolder not supported on this server" = !is.null(result))
+  requireServerCall(result, "createFavoriteFolder")
 
   expect_true(!is.null(result$resourceId),
               info = "Favorites folder should have a resourceId")
@@ -331,7 +331,7 @@ test_that("GFT2-10: audit trail has entries for test folder|ics472,ics1097", {
 # ===========================================================================
 test_that("GFT2-11: get latest revision returns valid revision|ccs10", {
   rev <- improveR::getLatestRevision()
-  stopifnot("getLatestRevision not supported" = !is.null(rev))
+  requireServerCall(rev, "getLatestRevision")
 
   expect_true(is.list(rev), info = "Revision should be a list")
   expect_false(is.null(rev$id), info = "Revision should have an id")

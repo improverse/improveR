@@ -133,119 +133,6 @@ loadGroupUsers <- function(groupId) {
                      urlParams = list(groupId = groupId)))
 }
 
-#' Get Users by Role
-#'
-#' Retrieves users assigned to a specific role on a resource. Roles are
-#' identified by group name prefixes (e.g. \code{"OWN_"} for owners,
-#' \code{"COL_"} for collaborators, \code{"RDO_"} for read-only).
-#'
-#' @param ident Identifier of the resource. Can be a path, resource ID, or entity ID.
-#' @param rolePrefix Character. The group name prefix that identifies the role.
-#' @param from Root path for resolving relative paths. Defaults to \code{pwd()}.
-#'
-#' @returns A data frame of users matching the role.
-#'   Returns \code{NULL} if the resource cannot be found.
-#'   Returns \code{NULL} if no users match the role.
-#'
-#' @examples
-#' \dontrun{
-#' owners <- getUsersByRole("/Projects/MyProject", "OWN_")
-#' }
-#' @seealso \code{\link{getOwners}}, \code{\link{getCollaborators}}, \code{\link{getReadOnly}}
-#' @export
-getUsersByRole <- function(ident, rolePrefix, from = pwd()) {
-  acls <- getResourcePermissions(ident, from)
-  if (is.null(acls)) {
-    log_warn("getUsersByRole: cannot retrieve permissions for resource:", ident)
-    return(NULL)
-  }
-  if (nrow(acls) == 0) {
-    log_warn("getUsersByRole: no ACL entries found for resource:", ident)
-    return(NULL)
-  }
-
-  members <- unique(acls$memberId)
-
-  filtered <- lapply(members, function(member) {
-    group <- loadGroup(member)
-    if (!is.null(group) && !is.null(group$name) && startsWith(group$name, rolePrefix)) {
-      return(member)
-    }
-    return(NULL)
-  })
-
-  filtered <- filtered[!sapply(filtered, is.null)]
-  if (length(filtered) > 0) {
-    groupUsers <- loadGroupUsers(filtered[[1]])
-    return(groupUsers)
-  }
-  log_warn("getUsersByRole: no groups matching role prefix:", rolePrefix, "for resource:", ident)
-  return(NULL)
-}
-
-#' Get Resource Owners
-#'
-#' Convenience wrapper around \code{\link{getUsersByRole}} that retrieves
-#' users assigned as owners of a resource.
-#'
-#' @param ident Identifier of the resource. Can be a path, resource ID, or entity ID.
-#' @param from Root path for resolving relative paths. Defaults to \code{pwd()}.
-#'
-#' @returns A data frame of owner users. Returns \code{NULL} if the resource
-#'   cannot be found. Returns \code{NULL} if there are no owners.
-#'
-#' @examples
-#' \dontrun{
-#' owners <- getOwners("/Projects/MyProject")
-#' }
-#' @seealso \code{\link{getCollaborators}}, \code{\link{getReadOnly}}, \code{\link{getUsersByRole}}
-#' @export
-getOwners <- function(ident, from = pwd()) {
-  return(getUsersByRole(ident, "OWN_", from))
-}
-
-#' Get Resource Collaborators
-#'
-#' Convenience wrapper around \code{\link{getUsersByRole}} that retrieves
-#' users assigned as collaborators of a resource.
-#'
-#' @param ident Identifier of the resource. Can be a path, resource ID, or entity ID.
-#' @param from Root path for resolving relative paths. Defaults to \code{pwd()}.
-#'
-#' @returns A data frame of collaborator users. Returns \code{NULL} if the resource
-#'   cannot be found. Returns \code{NULL} if there are no collaborators.
-#'
-#' @examples
-#' \dontrun{
-#' collabs <- getCollaborators("/Projects/MyProject")
-#' }
-#' @seealso \code{\link{getOwners}}, \code{\link{getReadOnly}}, \code{\link{getUsersByRole}}
-#' @export
-getCollaborators <- function(ident, from = pwd()) {
-  return(getUsersByRole(ident, "COL_", from))
-}
-
-#' Get Read-Only Users
-#'
-#' Convenience wrapper around \code{\link{getUsersByRole}} that retrieves
-#' users assigned as read-only members of a resource.
-#'
-#' @param ident Identifier of the resource. Can be a path, resource ID, or entity ID.
-#' @param from Root path for resolving relative paths. Defaults to \code{pwd()}.
-#'
-#' @returns A data frame of read-only users. Returns \code{NULL} if the resource
-#'   cannot be found. Returns \code{NULL} if there are no read-only users.
-#'
-#' @examples
-#' \dontrun{
-#' readers <- getReadOnly("/Projects/MyProject")
-#' }
-#' @seealso \code{\link{getOwners}}, \code{\link{getCollaborators}}, \code{\link{getUsersByRole}}
-#' @export
-getReadOnly <- function(ident, from = pwd()) {
-  return(getUsersByRole(ident, "RDO_", from))
-}
-
 # ---------------------------------------------------------------------------
 # Write operations: Groups
 # ---------------------------------------------------------------------------
@@ -421,8 +308,18 @@ addSubgroup <- function(parentGroupId, childGroupId) {
 #' @param modify Logical. Whether the member can modify the content.
 #' @param changeRights Logical. Whether the member can change permissions.
 #' @param inherit Logical. Whether this ACL entry inherits to child resources. Default \code{TRUE}.
-#' @param orderNr Integer. The ordering priority for this ACL entry. Lower numbers
-#'   are evaluated first. Must be unique per resource. Default \code{1}.
+#' @param orderNr Integer. The evaluation order of this ACL entry. Entries are
+#'   evaluated from the lowest number upwards and \strong{the first entry that
+#'   matches decides} - it is not a most-permissive-wins rule. A user who is in
+#'   two groups with conflicting entries gets the right from whichever entry has
+#'   the lower \code{orderNr}.
+#'
+#'   Must be unique per resource, and the server enforces it: an entry whose
+#'   \code{orderNr} is already taken on that resource is refused, and this
+#'   function returns \code{NULL}.
+#'
+#'   Measured against repository 4315 on 2026-09-18 (IMR-305); see
+#'   \code{test-permissionOrder.R}. Default \code{1}.
 #' @param rightsArea Integer. The rights area: 1 = Primary, 2 = Publish. Default \code{1}.
 #' @param from Root path for resolving relative paths. Defaults to \code{pwd()}.
 #'
@@ -477,7 +374,9 @@ setResourcePermission <- function(ident, memberId, visible = TRUE, read = TRUE,
 #' Atomically replaces the entire ACL for a resource. All entries in the list
 #' replace the current ACL. Existing entries not present are deleted, entries
 #' matched by \code{id} are updated, entries without an \code{id} are created.
-#' The position in the list determines \code{orderNr} (starting at 1).
+#' The position in the list determines \code{orderNr} (starting at 1), and that
+#' number is the evaluation order: the first entry in the list is evaluated
+#' first and, where two entries disagree about the same user, decides.
 #'
 #' This endpoint is confirmed working on server 4.4.1-16 and is the most
 #' reliable way to set permissions.
@@ -558,8 +457,11 @@ replaceResourcePermissions <- function(ident, aclEntries, from = pwd()) {
 #' @param modify Logical. Whether the member can modify the content.
 #' @param changeRights Logical. Whether the member can change permissions.
 #' @param inherit Logical. Whether this ACL entry inherits to child resources. Default \code{TRUE}.
-#' @param orderNr Integer or NULL. The ordering priority for this ACL entry. Lower numbers
-#'   are evaluated first. If \code{NULL}, the server default is used.
+#' @param orderNr Integer or NULL. The evaluation order of this ACL entry.
+#'   Entries are evaluated from the lowest number upwards and the first entry
+#'   that matches decides. Must be unique per resource; the server refuses a
+#'   duplicate. If \code{NULL}, the server default is used. See
+#'   \code{\link{setResourcePermission}} for the measured behaviour.
 #' @param rightsArea Integer. Rights area identifier on the server. Default \code{1L}.
 #' @param from Root path for resolving relative paths. Defaults to \code{pwd()}.
 #'

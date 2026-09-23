@@ -174,7 +174,7 @@ test_that("getParent returns parent resourceId, root for top-level|ics1088", {
   TEST_FOLDER <- improveR:::baseFilesSetup()
   parentFolder <- loadResource(TEST_FOLDER)
   child <- improveR::createFolder(targetIdent = TEST_FOLDER,
-                                  folderName = paste0("getParentProbe-", format(Sys.time(), "%Y%m%d%H%M%S")))
+                                  folderName = paste0("getParentProbe-", uniqueTag()))
   on.exit(tryCatch(delete(child$resourceId), error = function(e) NULL), add = TRUE)
 
   parentId <- improveR::getParent(child$resourceId)
@@ -247,7 +247,7 @@ test_that("getParent returns parent resourceId, root for top-level|ics1088", {
     # Create a fresh, uniquely-named child folder inside this test so the
     # assertion targets a resource whose full lifecycle is owned by the test
     # (no dependence on row order or pre-existing audit-trail state).
-    freshChildName <- paste0("auditTrailProbe-", format(Sys.time(), "%Y%m%d%H%M%S"))
+    freshChildName <- paste0("auditTrailProbe-", uniqueTag())
     freshChild <- createFolder(targetIdent = TEST_FOLDER, folderName = freshChildName)
     expect_false(is.null(freshChild))
     on.exit(tryCatch(delete(freshChild$resourceId), error = function(e) NULL), add = TRUE)

@@ -11,18 +11,15 @@ hasConnectAs <- function() {
     exists("connectAs", envir = asNamespace("improveRtestsupport"))
 }
 
-reconnectAsAdmin <- function() {
-  tryCatch({
-    improveRtestsupport::connectAs("admin")
-    improveR::setEditable(TRUE)
-  }, error = function(e) {
-    # Fallback: reconnect normally
-    improveR::clearConnectionData(includeRepoData = FALSE)
-    Sys.setenv(IMPROVER_TOKEN = "", IMPROVER_REFRESH_TOKEN = "")
-    Sys.setenv(IMPROVER_TEST_USERNAME = "admin", IMPROVER_TEST_PASSWORD = "admin")
-    improveRtestsupport::improveConnect()
-    improveR::setEditable(TRUE)
-  })
+# Reconnects as the identity the run was started with, not as a hardcoded
+# "admin". The previous version called connectAs("admin") - whose password
+# argument defaulted to the username - and its error branch set
+# IMPROVER_TEST_USERNAME/PASSWORD to "admin"/"admin" directly. Both put
+# credentials in test code, and both made the outcome of this file depend on
+# which file had run before it (IMR-267).
+reconnectAsRunUser <- function() {
+  improveRtestsupport::connectAsRunUser()
+  improveR::setEditable(TRUE)
 }
 
 # Helper: find the test1 user ID from the users list
@@ -41,7 +38,7 @@ createTestReview <- function(name, testFolder, testFile, test1UserId) {
     templateId = NULL,
     resourceIds = list(testFile$resourceId),
     reviewerIds = list(test1UserId),
-    dueDate = format(Sys.Date() + 30, "%Y-%m-%d")
+    dueDate = format(runDate() + 30, "%Y-%m-%d")
   )
 }
 
@@ -61,7 +58,7 @@ test_that("setup review lifecycle test environment", {
   basePath <- createFolderPath("reviewLifecycle")
   testFolder <- improveR::createFolder(
     targetIdent = basePath,
-    folderName = paste0("test-reviewlc-", format(Sys.time(), "%Y%m%d%H%M%S")),
+    folderName = paste0("test-reviewlc-", uniqueTag()),
     comment = "review lifecycle test setup"
   )
   expect_false(is.null(testFolder))
@@ -83,7 +80,7 @@ test_that("setup review lifecycle test environment", {
   assign("REVLC_TEST1_ID", test1Id, envir = globalenv())
 
   # Create a review as admin with test1 as reviewer
-  reviewName <- paste0("LCReview-", format(Sys.time(), "%H%M%S"))
+  reviewName <- paste0("LCReview-", uniqueTag(6))
   reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
   expect_false(is.null(reviewData))
   assign("REVLC_REVIEW", reviewData, envir = globalenv())
@@ -115,7 +112,7 @@ test_that("acceptReviewInvitation accepts a review|ics1476,ics2045", {
   test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
 
   # Create a fresh review for accept test
-  reviewName <- paste0("AcceptReview-", format(Sys.time(), "%H%M%S"))
+  reviewName <- paste0("AcceptReview-", uniqueTag(6))
   reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
   expect_false(is.null(reviewData))
 
@@ -132,7 +129,7 @@ test_that("acceptReviewInvitation accepts a review|ics1476,ics2045", {
   cat("Accepted review:", reviewData$resourceId, "\n")
 
   # Switch back to admin
-  reconnectAsAdmin()
+  reconnectAsRunUser()
 })
 
 # ---------------------------------------------------------------------------
@@ -146,7 +143,7 @@ test_that("declineReviewInvitation declines a review|ics1477,ics2045", {
   testFile <- get("REVLC_FILE", envir = globalenv())
   test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
 
-  reviewName <- paste0("DeclineReview-", format(Sys.time(), "%H%M%S"))
+  reviewName <- paste0("DeclineReview-", uniqueTag(6))
   reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
   expect_false(is.null(reviewData))
 
@@ -161,7 +158,7 @@ test_that("declineReviewInvitation declines a review|ics1477,ics2045", {
   expect_true(result)
   cat("Declined review:", reviewData$resourceId, "\n")
 
-  reconnectAsAdmin()
+  reconnectAsRunUser()
 })
 
 # ---------------------------------------------------------------------------
@@ -173,7 +170,7 @@ test_that("changeReviewStatus Open to Reviewing|ccs27,ics2045", {
   testFile <- get("REVLC_FILE", envir = globalenv())
   test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
 
-  reviewName <- paste0("StatusReview1-", format(Sys.time(), "%H%M%S"))
+  reviewName <- paste0("StatusReview1-", uniqueTag(6))
   reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
   expect_false(is.null(reviewData))
 
@@ -190,7 +187,7 @@ test_that("changeReviewStatus Reviewing to Accepted via accept|ccs27,ics2045", {
   testFile <- get("REVLC_FILE", envir = globalenv())
   test1Id <- get("REVLC_TEST1_ID", envir = globalenv())
 
-  reviewName <- paste0("StatusReview2-", format(Sys.time(), "%H%M%S"))
+  reviewName <- paste0("StatusReview2-", uniqueTag(6))
   reviewData <- createTestReview(reviewName, testFolder, testFile, test1Id)
   expect_false(is.null(reviewData))
 
@@ -210,7 +207,7 @@ test_that("changeReviewStatus Reviewing to Accepted via accept|ccs27,ics2045", {
   expect_true(result2)
   cat("Accepted review via status flow:", reviewData$resourceId, "\n")
 
-  reconnectAsAdmin()
+  reconnectAsRunUser()
 })
 
 # ---------------------------------------------------------------------------
@@ -219,7 +216,7 @@ test_that("changeReviewStatus Reviewing to Accepted via accept|ccs27,ics2045", {
 test_that("cleanup review lifecycle test environment", {
   # Ensure we're admin
   if (hasConnectAs()) {
-    tryCatch(reconnectAsAdmin(), error = function(e) NULL)
+    tryCatch(reconnectAsRunUser(), error = function(e) NULL)
   }
   if (exists("REVLC_FOLDER", envir = globalenv())) {
     testFolder <- get("REVLC_FOLDER", envir = globalenv())

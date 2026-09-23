@@ -9,6 +9,11 @@ strip(data)
 \arguments{
 \item{data}{a data frame with a nested data frame in $data}
 }
+\value{
+The nested data frame in \verb{$data} - the sub-entities themselves, without the
+one-row wrapper the load functions put around them. Returns \code{NULL} when \code{data} carries
+no \code{data} column.
+}
 \description{
 strip removes the information data frame around subentities like meta data, history, children, or audittrail.
 }

@@ -11,6 +11,12 @@ cloneCli(ident, localPath)
 
 \item{localPath}{The local path where the resource will be cloned.}
 }
+\value{
+The CLI's output, invisibly: a character vector of the lines it wrote to
+stdout and stderr. A non-zero exit code is logged as a warning, not raised, so a
+returned value is no proof that the clone succeeded - check the local path.
+Stops with an error when \code{ident} does not exist in the repository.
+}
 \description{
 Clones a resource from the CLI.
 }

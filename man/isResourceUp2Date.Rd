@@ -11,6 +11,18 @@ isResourceUp2Date(ident, from = pwd())
 
 \item{from}{pwd for relative path}
 }
+\value{
+A single \code{TRUE} or \code{FALSE} - never a zero-length value. \code{TRUE}
+unconditionally for an entity version id, because a version cannot change.
+Stops with an error, naming the ident and the REST status, when \code{ident}
+resolves to no resource, to more than one, or when the server read fails
+after the local one succeeded (IMR-287). In a session connected with
+\code{persistentCaching = TRUE} the call reads the server directly and therefore
+marks the session non-reproducible (ics1091).
+}
 \description{
-Checks if resource is up to date.
+Checks whether the cached resource is the version the server holds.
+}
+\references{
+ics1090
 }

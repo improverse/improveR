@@ -7,9 +7,14 @@
 loadMetaDataDefinition(name, scope = "Improve Client")
 }
 \arguments{
-\item{name, }{name of the meta data definition}
+\item{name}{name of the meta data definition}
 
 \item{scope}{the metadata scope}
+}
+\value{
+The single row of \code{\link[=loadMetaDataDefinitions]{loadMetaDataDefinitions()}} whose \code{name} matches, as a data
+frame. A name that does not exist in the scope yields a data frame with zero rows, not
+\code{NULL}.
 }
 \description{
 Loads One Meta Data Definitions By Name For A Scope, The Default Scope Is "Improve Client"

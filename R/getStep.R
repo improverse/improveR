@@ -13,21 +13,48 @@
 #'
 #' @param ident Identifier of the source step to use as a template.
 #'
-#' @returns A new step environment containing the template configuration.
+#' @returns A step template environment carrying the source step's configuration -
+#'   its processes, runserver, tool, tool instance and arguments - ready to be
+#'   changed and realised into a new step. Stops with an error, naming the ident
+#'   and the reason, when `ident` does not resolve, is not a step, or has no
+#'   selected process to take a configuration from (IMR-288).
 #'
 #' @references ics1213
 #' @seealso \code{\link{getStep}}, \code{\link{createStepTemplateEnv}}
 #' @export
 getStepTemplate <- function(ident) {
-  transforStepToTemplate(getStep(ident))
+  identText <- paste(utils::head(as.character(ident), 3), collapse = ", ")
 
+  resource <- loadResource(ident)
+  if (is.null(resource) || nrow(resource) == 0) {
+    err <- tryCatch(lastRestError(), error = function(e) NULL)
+    stop(sprintf("getStepTemplate: '%s' does not resolve to a resource - %s",
+                 identText,
+                 if (is.null(err)) "improveR recorded no REST error"
+                 else sprintf("HTTP %s on %s %s", err$status_code, err$method, err$url)),
+         call. = FALSE)
+  }
+  if (nrow(resource) > 1) {
+    stop(sprintf("getStepTemplate: '%s' resolves to %d resources; it takes exactly one",
+                 identText, nrow(resource)), call. = FALSE)
+  }
+  if (!isTRUE(resource$nodeType == "Step")) {
+    stop(sprintf("getStepTemplate: '%s' is a %s, not a step", identText,
+                 if (is.null(resource$nodeType)) "resource of unknown type" else resource$nodeType),
+         call. = FALSE)
+  }
 
-}
+  # getStepDf answers a failed inventory read, and a step without any selected
+  # process, with NULL. Passing that on is how the previous version turned a
+  # server problem into an error about something else (IMR-287, IMR-288).
+  stepDf <- getStepDf(ident)
+  if (is.null(stepDf)) {
+    stop(sprintf(paste0("getStepTemplate: the configuration of '%s' could not be read. ",
+                        "Either its inventory did not load, or it has no selected process ",
+                        "to take a configuration from."), identText), call. = FALSE)
+  }
 
-transforStepToTemplate <- function(stepEnv) {
-  stepTemplateSource <- system.file("_stepTemplate.R", package = "improveR")
-  source(stepTemplateSource,local=stepEnv)
-  return(stepEnv)
+  createStepTemplateEnv(stepDf = stepDf)
 }
 
 
@@ -165,9 +192,7 @@ getStepDf <- function(ident) {
   stepHandle <- uuid::UUIDgenerate()
 
   #notRun
-  #ident <- "envhost1.hc.scintecodev.internal-5310:ST-79611"
 
-  #ident <- "envhost1.hc.scintecodev.internal-5310:ST-79162"
   step <- loadResource(ident)
   tree <- loadResource(step$parentId)
   restResult <- authenticatedREST(url = "/resources/{resourceId}",

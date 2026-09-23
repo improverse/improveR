@@ -74,7 +74,7 @@ test_that("setup resetInventory test environment", {
   # Create a dedicated folder for the test with its own command file
   riFolder <- improveR::createFolder(
     targetIdent = TEST_FOLDER,
-    folderName = paste0("ri-", format(Sys.time(), "%Y%m%d%H%M%S")),
+    folderName = paste0("ri-", uniqueTag()),
     comment = "resetInventory test data"
   )
   assign("RI_FOLDER", riFolder, envir = globalenv())
@@ -106,7 +106,7 @@ test_that("setup resetInventory test environment", {
   # Create analysis tree
   testTree <- improveR::createAnalysisTree(
     targetIdent = TEST_FOLDER,
-    treeName = paste0("ResetInvTest-", format(Sys.time(), "%H%M%S"))
+    treeName = paste0("ResetInvTest-", uniqueTag(6))
   )
   expect_false(is.null(testTree))
   assign("RI_TREE", testTree, envir = globalenv())

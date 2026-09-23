@@ -25,34 +25,32 @@ pushRunCli <- function(localPath, command = "Rstudio", comment = NULL,
                        json = FALSE) {
   localPath <- gsub("^['\"]|['\"]$", "", localPath)
   checkInit()
+
+  # As pushCli, and with one addition that matters more here: a preview must
+  # not start a run. The previous code declared preview, dropped it, pushed AND
+  # started the run (IMR-283).
+  if (isTRUE(preview)) {
+    changes <- previewPush(localPath)
+    log_info("push run preview: ", nrow(changes), " change(s) would be sent from ",
+             localPath, "; no run would be started")
+    return(invisible(changes))
+  }
+  if (isTRUE(force)) {
+    stop("pushRunCli(force = TRUE) is not supported by this CLI (version ",
+         cliDetectedVersion(), "): the option is not passed on, and the push ",
+         "would run without it. Call without force (IMR-283).", call. = FALSE)
+  }
+
   renewAccessToken()
   token <- conf()$reqToken
 
-  if (hasPicocli()) {
-    args <- c("push", "run",
-              "--access-token", token,
-              "-C", localPath,
-              "--command", command)
-    if (!is.null(comment)) args <- c(args, "-m", comment)
-    if (force) args <- c(args, "--force")
-    if (preview) args <- c(args, "--preview")
-    if (!is.null(includeFiles)) {
-      args <- c(args, "--include-files", paste(includeFiles, collapse = ","))
-    } else {
-      args <- c(args, "--include-files", "**")
-    }
-    if (!is.null(excludeFiles)) args <- c(args, "--exclude-files", paste(excludeFiles, collapse = ","))
-    if (!is.null(runserverUrl)) args <- c(args, "--runserver-url", runserverUrl)
-    if (!is.null(commandArgs)) args <- c(args, "--", commandArgs)
-  } else {
-    args <- c("push", "run",
-              "-accessToken", token,
-              "-repository", localPath,
-              "-command", command)
-    if (!is.null(includeFiles)) args <- c(args, "-includeFiles", paste(includeFiles, collapse = ","))
-    if (!is.null(excludeFiles)) args <- c(args, "-excludeFiles", paste(excludeFiles, collapse = ","))
-    if (!is.null(commandArgs)) args <- c(args, commandArgs)
-  }
+  args <- c("push", "run",
+            "-accessToken", token,
+            "-repository", localPath,
+            "-command", command)
+  if (!is.null(includeFiles)) args <- c(args, "-includeFiles", paste(includeFiles, collapse = ","))
+  if (!is.null(excludeFiles)) args <- c(args, "-excludeFiles", paste(excludeFiles, collapse = ","))
+  if (!is.null(commandArgs)) args <- c(args, commandArgs)
   output <- executeCli(args, json = json)
 
   if (!preview) {

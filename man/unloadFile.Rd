@@ -15,6 +15,11 @@ unloadFile(ident, from = pwd(), filePath = ".", addIdToName = FALSE)
 
 \item{addIdToName}{logical, if the entityId should be added to the filename}
 }
+\value{
+No meaningful value - called for its side effects: the downloaded copy is
+deleted from the workspace and both the resource and the file content are dropped from
+the cache. Does nothing when \code{ident} resolves to no resource.
+}
 \description{
 Removes a file from cache.
 }

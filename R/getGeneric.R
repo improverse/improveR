@@ -10,6 +10,10 @@
 #' @param addIdToName By default, T prepends the entity ID to the name to avoid collisions.
 #' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @references ics1141
+#' @returns A data frame with one row per file, holding `caption`, `path` (the absolute
+#'   path of the local copy), `entityId`, `name`, `description` and the resource itself in
+#'   `resource`. `NULL` when `ident` resolves to nothing usable - the get functions accept
+#'   only files and links, and anything else is logged and skipped.
 #' @export
 getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",folderName = "data",addIdToName = T,refresh = FALSE) {
   if (refresh) .refreshGetCaches(ident, from)
@@ -27,6 +31,10 @@ getFile <- function(ident,from=pwd(),addAsLink=TRUE,caption="",description="",fo
 #' @param description By default, the filename is the description; alternative text can be provided here.
 #' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @references ics1141
+#' @returns A data frame with one row per file, holding `caption`, `path` (the absolute
+#'   path of the local copy), `entityId`, `name`, `description` and the resource itself in
+#'   `resource`. `NULL` when `ident` resolves to nothing usable - the get functions accept
+#'   only files and links, and anything else is logged and skipped.
 #' @export
 getCopy <- function(ident,from=pwd(),caption="",description="",refresh = FALSE) {
   if (refresh) .refreshGetCaches(ident, from)
@@ -43,6 +51,12 @@ getCopy <- function(ident,from=pwd(),caption="",description="",refresh = FALSE) 
 #' @param filePattern Filter applied to the file name (example: `*.r`).
 #' @param recurse If TRUE, nested folders are also parsed. Defaults to FALSE.
 #' @references ics1141
+#' @returns A data frame of the child resources of node type `File` or `Link`, distinct
+#'   by `resourceId`, in the shape [loadChildResources()] returns. `NULL` in three cases
+#'   that are worth telling apart: `ident` does not resolve to exactly one resource, the
+#'   resource is not a container (folder, step or analysis tree), or `filePattern` is not a
+#'   usable regular expression. An empty folder also yields `NULL`, not a zero-row data
+#'   frame.
 #' @export
 #' @importFrom rlang .data
 getFilesFromFolder <- function(ident, from=pwd(),filePattern="", recurse=F) {

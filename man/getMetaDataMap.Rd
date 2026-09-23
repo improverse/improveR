@@ -11,6 +11,11 @@ getMetaDataMap(ident, from = pwd())
 
 \item{from}{used for relative paths, by default pwd is used, which is initiated with the step that started improveR}
 }
+\value{
+A named list, one entry per metadata descriptor, holding the value as text -
+dates as POSIX values. \code{NULL} when the resource has no metadata, and an empty list
+when it has entries but none of them carries a value.
+}
 \description{
 Loads the Metadata of a Given Resource and Writes It as String Values Into a List
 }

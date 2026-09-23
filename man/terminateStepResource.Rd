@@ -50,7 +50,7 @@ terminateStepResource(ident = "/improve-tutorial/Modeling/Step 1", verbose = TRU
 
 }
 \references{
-ics1140ö
+ics1140
 }
 \seealso{
 \code{\link{runStepResource}} to execute a step,

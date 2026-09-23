@@ -14,6 +14,11 @@ uploadFolder(targetIdent, localFolder, comment = "modified by improveRW")
 
 \item{comment}{Commit comment. Defaults to "modified by improveRW".}
 }
+\value{
+No meaningful value - called for its side effect of creating the folder under
+\code{targetIdent} and filling it, recursively, with what \code{localFolder} holds. When
+\code{localFolder} is not a directory a warning is logged and nothing is created.
+}
 \description{
 Upload a Complete Folder
 Prerequisite: must be a folder.

@@ -417,6 +417,9 @@ singleUpdateFileContent <- function(ident,localPath,comment) {
 #' @param localPath Path to the file with the new content.
 #' @param comment Commit comment. Defaults to "modified by improveRW".
 #' @references ics1210
+#' @returns The refreshed resource after the upload, as [refreshResource()] returns it.
+#'   `NULL` when `ident` resolves to no resource or the upload itself failed. For several
+#'   idents the refreshed resources of all of them, merged.
 #' @export
 updateFileContent <- function(ident,localPath,comment="modified by improveRW") {
   return(
@@ -434,6 +437,9 @@ updateFileContent <- function(ident,localPath,comment="modified by improveRW") {
 #' @param localFolder Path to the local folder to upload.
 #' @param comment Commit comment. Defaults to "modified by improveRW".
 #' @references ics1210
+#' @returns No meaningful value - called for its side effect of creating the folder under
+#'   `targetIdent` and filling it, recursively, with what `localFolder` holds. When
+#'   `localFolder` is not a directory a warning is logged and nothing is created.
 #' @export
 uploadFolder <- function(targetIdent,localFolder,comment="modified by improveRW") {
   if (dir.exists(localFolder)) {

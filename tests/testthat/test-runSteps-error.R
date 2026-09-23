@@ -31,47 +31,50 @@ FAKE_LONG_ENTITY_ID <- "http://wrongURL:8843/?path=wrongrepo:wrongID"
 FAKE_LABEL <- "FAKE_LABEL"
 
 checkConnected <- function(func) {
-  expectedMessage <- "improveConnect was not called or an error was thrown while connecting"
+  # The package logs this text (improveConnect.R:14). The previous expectation
+  # existed nowhere in improveR and went unnoticed because the assertion was
+  # inside a dead finally block (IMR-260).
+  expectedMessage <- "No connection detected. improveConnect was not called or an error occurred during connection."
   expectedError <- "not connected"
-  tryCatch({
-    resource <- func()
-  }, error = function(e) {
-    expect_equal(as.character(e[1]), expectedError)
-  }, finally = function() {
-    message <- improveLastLogMessage("ERROR")
-    expect_equal(message, expectedMessage)
-  })
+  # expect_error() forces the call to fail. The previous tryCatch() form
+  # recorded no expectation at all when no error was raised, and its
+  # finally = function() {...} body never executed (IMR-260).
+  expect_error(func(), expectedError, fixed = TRUE)
+  expect_equal(improveLastLogMessage("ERROR"), expectedMessage)
 }
 
 checkConnectedOneArgument <- function(func) {
-  expectedMessage <- "improveConnect was not called or an error was thrown while connecting"
+  # The package logs this text (improveConnect.R:14). The previous expectation
+  # existed nowhere in improveR and went unnoticed because the assertion was
+  # inside a dead finally block (IMR-260).
+  expectedMessage <- "No connection detected. improveConnect was not called or an error occurred during connection."
   expectedError <- "not connected"
-  tryCatch({
-    resource <- func(FAKE_LABEL)
-  }, error = function(e) {
-    expect_equal(as.character(e[1]), expectedError)
-  }, finally = function() {
-    message <- improveLastLogMessage("ERROR")
-    expect_equal(message, expectedMessage)
-  })
+  # expect_error() forces the call to fail. The previous tryCatch() form
+  # recorded no expectation at all when no error was raised, and its
+  # finally = function() {...} body never executed (IMR-260).
+  expect_error(func(FAKE_LABEL), expectedError, fixed = TRUE)
+  expect_equal(improveLastLogMessage("ERROR"), expectedMessage)
 }
 
 checkConnectedTwoArgument <- function(func) {
-  expectedMessage <- "improveConnect was not called or an error was thrown while connecting"
+  # The package logs this text (improveConnect.R:14). The previous expectation
+  # existed nowhere in improveR and went unnoticed because the assertion was
+  # inside a dead finally block (IMR-260).
+  expectedMessage <- "No connection detected. improveConnect was not called or an error occurred during connection."
   expectedError <- "not connected"
-  tryCatch({
-    resource <- func(FAKE_LABEL, FAKE_LABEL)
-  }, error = function(e) {
-    expect_equal(as.character(e[1]), expectedError)
-  }, finally = function() {
-    message <- improveLastLogMessage("ERROR")
-    expect_equal(message, expectedMessage)
-  })
+  # expect_error() forces the call to fail. The previous tryCatch() form
+  # recorded no expectation at all when no error was raised, and its
+  # finally = function() {...} body never executed (IMR-260).
+  expect_error(func(FAKE_LABEL, FAKE_LABEL), expectedError, fixed = TRUE)
+  expect_equal(improveLastLogMessage("ERROR"), expectedMessage)
 }
 
 test_that("errors in load infrastructure|ics1081", {
   improveDisconnect()
   Sys.setenv(improver.logfile = "improver.log")
+  # start each block from an empty log so the assertions do not depend on
+  # which test files ran before (IMR-260)
+  file.create("improver.log")
   initImproveLogging("INFO")
 
   checkConnected(loadAllTools)
@@ -97,6 +100,9 @@ test_that("errors in load infrastructure|ics1081", {
 
 test_that("load with wrong reference|ics1081", {
   Sys.setenv(improver.logfile = "improver.log")
+  # start each block from an empty log so the assertions do not depend on
+  # which test files ran before (IMR-260)
+  file.create("improver.log")
   improveConnect()
   TEST_FOLDER <- ensureTestFolder()
   testFolder <- createFolder(TEST_FOLDER)
@@ -109,12 +115,12 @@ test_that("load with wrong reference|ics1081", {
 
   gridArguments <- loadGridArguments(FAKE_LABEL)
   expect_null(gridArguments)
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, "no gridArguments for provider FAKE_LABEL")
 
   gridArgumentDefinition <- loadGridArgumentDefinition(FAKE_LABEL, FAKE_LABEL)
   expect_null(gridArgumentDefinition)
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, "no gridArguments for provider FAKE_LABEL")
 
   gridArguments <- loadGridArguments("LSF")
@@ -122,18 +128,18 @@ test_that("load with wrong reference|ics1081", {
 
   gridArgumentDefinition <- loadGridArgumentDefinition("LSF", FAKE_LABEL)
   expect_null(gridArgumentDefinition)
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, "FAKE_LABEL not defined for provider LSF")
 
   processes <- loadProcessesForStep(FAKE_LABEL)
   expect_null(processes)
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, "Resource with ID: FAKE_LABEL could not be loaded")
 
   expectedMessage <- "loadProcessesForStep only possible for type Step. {TEST_FOLDER} is of type Folder"
   processes <- loadProcessesForStep(TEST_FOLDER)
   expect_null(processes)
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message,as.character(glue::glue(expectedMessage)))
 
   expectedMessage <- "no process found for the process id: FAKE_LABEL  please note, process can only be loaded via process ID if it has been once loaded via the step."
@@ -160,18 +166,18 @@ test_that("load with wrong reference|ics1081", {
 
   tools <- loadToolForRunserver(FAKE_LABEL)
   expect_null(tools)
-  message <- improveLastLogMessage("INFO")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, expectedMessage)
 
   tools <- loadToolsForRunserver(FAKE_LABEL)
   expect_null(tools)
-  message <- improveLastLogMessage("INFO")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, expectedMessage)
 
   expectedMessage <- "no tools found for category: FAKE_LABEL"
   tools <- loadToolsForCategory(FAKE_LABEL)
   expect_null(tools)
-  message <- improveLastLogMessage("INFO")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, expectedMessage)
 
   # wrong tool loading

@@ -54,6 +54,11 @@ singleAddMetaDate <- function(ident,descriptorName, value,scope = "Improve Clien
 #' @param value the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist
 #' @param scope the scope for metadata, default "Improve Client"
 #' @references ics1137
+#' @returns The refreshed metadata of the resource, as [refreshMetaData()] returns it: a
+#'   data frame with the metadata table nested in `$data`. `NULL` when `ident` resolves to
+#'   no resource, or is an empty data frame or an empty vector. For several idents the
+#'   refreshed metadata of all of them, merged into one data frame. Note that the value
+#'   reports the state **after** the write, not whether the write itself succeeded.
 #' @export
 addMetaDate <- function(ident,descriptorName, value,scope = "Improve Client") {
   return(
@@ -89,6 +94,11 @@ singleAddBulkMetaDate <- function(ident,descriptorNameValueList, scope="Improve 
 #' @param descriptorNameValueList a list of lists, containing descriptorName and value: this descriptorName has to exist, check in preferences, the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist
 #' @param scope the scope for metadata, default "Improve Client"
 #' @references ics1137
+#' @returns The refreshed metadata of the resource, as [refreshMetaData()] returns it: a
+#'   data frame with the metadata table nested in `$data`. `NULL` when `ident` resolves to
+#'   no resource, or is an empty data frame or an empty vector. For several idents the
+#'   refreshed metadata of all of them, merged into one data frame. Note that the value
+#'   reports the state **after** the write, not whether the write itself succeeded.
 #' @export
 addBulkMetaDate <- function(ident,descriptorNameValueList,scope="Improve Client") {
   return(
@@ -118,6 +128,11 @@ singleDeleteMetaDate <- function(ident,descriptorName) {
 #' @param ident the resource id of the resource this metadata value is attached to
 #' @param descriptorName this descriptorName has to exist, check in preferences
 #' @references ics1137
+#' @returns The refreshed metadata of the resource, as [refreshMetaData()] returns it: a
+#'   data frame with the metadata table nested in `$data`. `NULL` when `ident` resolves to
+#'   no resource, or is an empty data frame or an empty vector. For several idents the
+#'   refreshed metadata of all of them, merged into one data frame. Note that the value
+#'   reports the state **after** the write, not whether the write itself succeeded.
 #' @export
 deleteMetaDate <- function(ident,descriptorName) {
   return(
@@ -165,6 +180,11 @@ singleUpdateMetaDate <- function(ident,descriptorName, value) {
 #' @param descriptorName name of the metadate
 #' @param value the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist
 #' @references ics1137
+#' @returns The refreshed metadata of the resource, as [refreshMetaData()] returns it: a
+#'   data frame with the metadata table nested in `$data`. `NULL` when `ident` resolves to
+#'   no resource, or is an empty data frame or an empty vector. For several idents the
+#'   refreshed metadata of all of them, merged into one data frame. Note that the value
+#'   reports the state **after** the write, not whether the write itself succeeded.
 #' @export
 updateMetaDate <- function(ident,descriptorName, value) {
   return(
@@ -204,6 +224,11 @@ singleUpdateMetaDateById <- function(ident,metadataId, value) {
 #' @param metadataId the meta data update
 #' @param value the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist
 #' @references ics1137
+#' @returns The refreshed metadata of the resource, as [refreshMetaData()] returns it: a
+#'   data frame with the metadata table nested in `$data`. `NULL` when `ident` resolves to
+#'   no resource, or is an empty data frame or an empty vector. For several idents the
+#'   refreshed metadata of all of them, merged into one data frame. Note that the value
+#'   reports the state **after** the write, not whether the write itself succeeded.
 #' @export
 updateMetaDateById <- function(ident,metadataId, value) {
   return(

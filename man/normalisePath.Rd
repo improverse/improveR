@@ -11,6 +11,11 @@ normalisePath(path, startPath = "/")
 
 \item{startPath}{Starting point for relative paths, defaults to /}
 }
+\value{
+The absolute path as a character string, with every \code{.} and \code{..} resolved and
+backslashes turned into forward slashes. \code{NULL} when the path navigates beyond the
+root - that is the documented way of saying "no such path", not an error.
+}
 \description{
 normalisePath converts any path to an absolute path, and eliminates all .. and .
 If a relative path is given, it needs an absolute path as startPath to resolve.

@@ -1144,20 +1144,14 @@ createStepTemplateEnv <- function(treeIdent = NULL, stepDf = NULL, workflow = NU
     invisible(env)
   }
 
-  env$finishRun <- function(runserverName = NULL, runserverToolName = NULL) {
-    toolId <- NULL
-    running <- TRUE
-    while (running) {
-      step <- .template_private$getStepWithoutCache()
-      state <- step$runStatus
-      if (is.null(toolId)) {
-        if (state == "FINISHED") {
-          running <- FALSE
-        } else {
-          Sys.sleep(2)
-        }
-      }
-    }
+  env$finishRun <- function(runserverName = NULL, runserverToolName = NULL,
+                            timeout = defaultFinishRunTimeout(),
+                            pollInterval = 2) {
+    waitForTerminalRunState(
+      fetchState   = function() .template_private$getStepWithoutCache()$runStatus,
+      timeout      = timeout,
+      pollInterval = pollInterval
+    )
     invisible(env)
   }
 

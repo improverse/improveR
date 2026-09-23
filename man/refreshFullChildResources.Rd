@@ -14,6 +14,11 @@ updateFullChildResources(...)
 
 \item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
+\value{
+The freshly read child resources, in the same shape as
+\code{\link[=loadFullChildResources]{loadFullChildResources()}} - the cached copy is dropped first, so the value comes from
+the server.
+}
 \description{
 refreshFullChildResources
 }

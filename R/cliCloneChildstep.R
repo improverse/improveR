@@ -24,21 +24,12 @@ cloneChildstepCli <- function(localSource, localTarget, comment, toolCategory = 
   renewAccessToken()
   token <- conf()$reqToken
 
-  if (hasPicocli()) {
-    args <- c("childstep",
-              "--access-token", token,
-              "-C", localTarget,
-              "--tool-category", toolCategory,
-              "--tool", tool,
-              "-m", comment)
-  } else {
-    args <- c("clone", "childstep",
-              "-accessToken", token,
-              "-sourceRepository", localSource,
-              "-targetRepository", localTarget,
-              "-tool", tool,
-              "-toolCategory", toolCategory,
-              "-comment", comment)
-  }
+  args <- c("clone", "childstep",
+            "-accessToken", token,
+            "-sourceRepository", localSource,
+            "-targetRepository", localTarget,
+            "-tool", tool,
+            "-toolCategory", toolCategory,
+            "-comment", comment)
   executeCli(args)
 }

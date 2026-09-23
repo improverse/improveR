@@ -29,6 +29,12 @@ for CI/CD environments or remote sessions. Can be controlled by environment vari
 
 \item{withCodeVerifier}{if the oauth provider uses pkca code challenge verification}
 }
+\value{
+No meaningful value - called for its side effects: the token, refresh token,
+expiry, repository URL, user and step are written to the environment, and
+\code{\link[=improveConnect]{improveConnect()}} is called with them. \code{FALSE} when \code{repo} is not a character string.
+Stops with \verb{Error authenticating via oauth} when the flow fails.
+}
 \description{
 improveOAuth is used to connect to the repository via oauth.
 }

@@ -15,6 +15,14 @@ getFilesFromFolder(ident, from = pwd(), filePattern = "", recurse = F)
 
 \item{recurse}{If TRUE, nested folders are also parsed. Defaults to FALSE.}
 }
+\value{
+A data frame of the child resources of node type \code{File} or \code{Link}, distinct
+by \code{resourceId}, in the shape \code{\link[=loadChildResources]{loadChildResources()}} returns. \code{NULL} in three cases
+that are worth telling apart: \code{ident} does not resolve to exactly one resource, the
+resource is not a container (folder, step or analysis tree), or \code{filePattern} is not a
+usable regular expression. An empty folder also yields \code{NULL}, not a zero-row data
+frame.
+}
 \description{
 Retrieve a List of Files from a Folder
 }

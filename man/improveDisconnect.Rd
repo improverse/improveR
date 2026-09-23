@@ -9,6 +9,11 @@ improveDisconnect(env = cacheEnv)
 \arguments{
 \item{env}{default is 'cacheEnv'}
 }
+\value{
+No meaningful value - called for its side effect of emptying \code{env}. The
+authentication provider and the \code{editable} flag are the only entries that survive;
+everything else, the caches included, is removed.
+}
 \description{
 improveDisconnect removes all connection information.
 }

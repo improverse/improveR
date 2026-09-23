@@ -845,9 +845,9 @@ test_that("simple nonmem step with all grid combinations|ics1140,ics1222,ics1213
   result <- result[result$name == "cores", ]
   expect_equal(result$textValue, "5")
 
-  result <- setGridArgument(process$id, "start", Sys.time(), update = T)
+  result <- setGridArgument(process$id, "start", runTime(), update = T)
   expect_equal(nrow(result), 3)
-  newTime <- Sys.time()
+  newTime <- runTime()
   result <- setGridArgument(process$id, "start", newTime, update = T)
   expect_equal(nrow(result), 3)
   result <- result[result$name == "start", ]

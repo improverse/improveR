@@ -22,6 +22,12 @@
 #' getCorrectId("my_server:ST-63657") #short entity id
 #' }
 #' @references ics1087
+#' @returns The resolved identifier as a character string: the `resourceId` column for a
+#'   data frame, the part after `=` for a long entity id in URL form (shortened to the
+#'   repository prefix when the host is spelled out), the value prefixed with
+#'   [repoPrefix()] for an entity id without prefix, and the input unchanged for a path or
+#'   a value that already carries a prefix. Stops with an error for `NULL`, an empty value,
+#'   a data frame without `resourceId`, or a non-character value.
 #' @export
 
 getCorrectId <- function(resolveToId) {

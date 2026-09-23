@@ -35,8 +35,11 @@ updateResourcePermission(
 
 \item{inherit}{Logical. Whether this ACL entry inherits to child resources. Default \code{TRUE}.}
 
-\item{orderNr}{Integer or NULL. The ordering priority for this ACL entry. Lower numbers
-are evaluated first. If \code{NULL}, the server default is used.}
+\item{orderNr}{Integer or NULL. The evaluation order of this ACL entry.
+Entries are evaluated from the lowest number upwards and the first entry
+that matches decides. Must be unique per resource; the server refuses a
+duplicate. If \code{NULL}, the server default is used. See
+\code{\link{setResourcePermission}} for the measured behaviour.}
 
 \item{rightsArea}{Integer. Rights area identifier on the server. Default \code{1L}.}
 

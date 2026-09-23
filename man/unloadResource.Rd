@@ -11,6 +11,11 @@ unloadResource(ident, from = pwd())
 
 \item{from}{pwd for relative path}
 }
+\value{
+No meaningful value - called for its side effect of dropping the resource
+from the cache; a version is dropped from the version cache, everything else from the
+resource cache. Does nothing when \code{ident} resolves to no resource.
+}
 \description{
 Unloads a resource.
 }

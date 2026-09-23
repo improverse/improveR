@@ -1,8 +1,13 @@
-Sys.setenv(TEST_NAME="history")
+# The name must match the FILE: the OQ evidence keys on it. It said history
+# while the file is test-loadHistory.R, so every interaction this file made
+# was recorded under a name no test file carries, and the dual-axis record
+# showed loadHistory reaching no server endpoint at all - when it is the file
+# that produced the 504 behind IMR-308 (IMR-312).
+Sys.setenv(TEST_NAME="loadHistory")
 
 # Helper function to ensure TEST_FOLDER exists when running tests individually
 ensureTestFolder <- function() {
-  Sys.setenv(TEST_NAME="history")
+  Sys.setenv(TEST_NAME="loadHistory")
   improveR::setEditable(TRUE) #was moved outside of if clause; otherwise if test folder already exists, tests can't write.
   if (!exists("TEST_FOLDER") || is.null(TEST_FOLDER)) {
     TEST_FOLDER <- improveR:::workflowFilesSetup()

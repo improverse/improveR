@@ -1,2 +1,0 @@
- [1] "id"      "subject" "time"    "conc"    "rate"    "amt"     "age"    
- [8] "sex"     "ht"      "wt"      "bsa"     "lbm"    

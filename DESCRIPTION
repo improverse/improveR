@@ -1,7 +1,7 @@
 Package: improveR
 Type: Package
 Title: Package to control the user functions of improve
-Version: 4.4.2
+Version: 4.4.3
 Authors@R:
   c(person(given = "Michael",
            family = "Hackl",
@@ -43,15 +43,14 @@ Suggests:
     testthat (>= 3.0.0),
     devtools,
     lubridate,
-    callr,
     readxl,
     haven,
     htmltools,
     knitr,
     improveRcontributions,
     rmarkdown,
-    quarto,
-    processx
+    processx,
+    waldo
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Config/Needs/website: quarto

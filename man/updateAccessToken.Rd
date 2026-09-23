@@ -20,6 +20,11 @@ updateAccessToken(
 
 \item{lastAccess}{Character or numeric. Optional last access time}
 }
+\value{
+\code{TRUE}, invisibly. Stops with an error if \code{token} is \code{NULL} or empty.
+\code{IMPROVER_LAST_ACCESS} is always set, to the current time when \code{lastAccess} is not
+given.
+}
 \description{
 Updates the access token in both environment variables and cached configuration
 }

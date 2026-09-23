@@ -11,6 +11,10 @@ metadataResourceCacheList <- createCacheList("metadata")
 #' @param  ident the resource id or the entity id of the resource
 #' @param from used if a relative path is used
 #' @references ics1096
+#' @returns A data frame with one row per resource, carrying `resourceId`, `entityId` and
+#'   the metadata entries nested in `$data` - use [strip()] to unwrap a single one. `NULL`
+#'   when `ident` resolves to no resource. For several idents the result of all of them,
+#'   merged.
 #' @export
 loadMetaData <- function(ident,from=pwd()) {
   return(
@@ -24,6 +28,10 @@ loadMetaData <- function(ident,from=pwd()) {
 #' Unload Meta Data
 #' @param ident id
 #' @references ics1096
+#' @returns No meaningful value - called for its side effect of dropping the metadata of
+#'   the resource from the cache, so that the next load reads the server. The value handed
+#'   back by the internal cache removal is an implementation detail and must not be relied
+#'   on.
 #' @export
 unloadMetaData <- function(ident) {
   res <- loadResource(ident)
@@ -36,6 +44,8 @@ unloadMetaData <- function(ident) {
 #' @param ident id
 #' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1096
+#' @returns The freshly read metadata, in the same shape as [loadMetaData()] - the cached
+#'   copy is dropped first, so the value comes from the server.
 #' @export
 refreshMetaData <- function(ident) {
   unloadMetaData(ident)

@@ -28,6 +28,11 @@ updateFile(...)
 
 \item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
+\value{
+The freshly downloaded file, in the same shape as \code{\link[=loadFile]{loadFile()}}: one row per
+file with the local path in \code{data}. Every file cache for \code{ident} and the resource
+itself are dropped first, so the content comes from the server.
+}
 \description{
 Retrieves the latest version of the file from the repository.
 }

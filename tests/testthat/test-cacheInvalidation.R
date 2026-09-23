@@ -10,7 +10,7 @@ ensureTestFolder <- function() {
     basePath <- createFolderPath("cacheInvalidation")
     testFolder <- improveR::createFolder(
       targetIdent = basePath,
-      folderName = paste0("test-cache-", format(Sys.time(), "%Y%m%d%H%M%S"))
+      folderName = paste0("test-cache-", uniqueTag())
     )
     assign("TEST_FOLDER_CI", testFolder, envir = globalenv())
   }
@@ -26,7 +26,7 @@ test_that("setup cache invalidation test environment", {
   basePath <- createFolderPath("cacheInvalidation")
   testFolder <- improveR::createFolder(
     targetIdent = basePath,
-    folderName = paste0("test-cache-", format(Sys.time(), "%Y%m%d%H%M%S"))
+    folderName = paste0("test-cache-", uniqueTag())
   )
   expect_false(is.null(testFolder))
   assign("TEST_FOLDER_CI", testFolder, envir = globalenv())
@@ -53,9 +53,7 @@ test_that("lockResource invalidates cache so loadResource shows locked state|ics
 
   # Lock it
   lockResult <- improveR::lockResource(testFile$resourceId)
-  if (isFALSE(lockResult)) {
-    stop("lockResource not supported on this server")
-  }
+  requireServerCall(lockResult, "lockResource")
   expect_true(lockResult)
 
   # loadResource should now return locked state (cache was invalidated)
@@ -71,9 +69,7 @@ test_that("unlockResource invalidates cache so loadResource shows unlocked state
 
   # Unlock it (should be locked from previous test)
   unlockResult <- improveR::unlockResource(testFile$resourceId)
-  if (isFALSE(unlockResult)) {
-    stop("unlockResource not supported on this server")
-  }
+  requireServerCall(unlockResult, "unlockResource")
   expect_true(unlockResult)
 
   # loadResource should now return unlocked state
@@ -96,9 +92,7 @@ test_that("finishResource invalidates cache and loadResource succeeds after fini
 
   # Finish it
   finishResult <- improveR::finishResource(testFile$resourceId)
-  if (isFALSE(finishResult)) {
-    stop("finishResource not supported on this server")
-  }
+  requireServerCall(finishResult, "finishResource")
   expect_true(finishResult)
 
   # Cache was invalidated by unloadResource inside finishResource.
@@ -114,9 +108,7 @@ test_that("reopenResource invalidates cache and loadResource succeeds after reop
 
   # Reopen (should be finished from previous test)
   reopenResult <- improveR::reopenResource(testFile$resourceId)
-  if (isFALSE(reopenResult)) {
-    stop("reopenResource not supported on this server")
-  }
+  requireServerCall(reopenResult, "reopenResource")
   expect_true(reopenResult)
 
   # Cache was invalidated — verify fresh load works

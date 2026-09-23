@@ -66,6 +66,9 @@ fileResourceVersionCacheList <- list(
 #' @param linkInInventory logical, if TRUE a link to the resource is created in the inventory
 #' @references ics1099
 #' @seealso [convertImproveTimestampToPosix()]
+#' @returns A data frame with one row per file, carrying the resource fields and the
+#'   local path of the downloaded content in `data`. Versions and non-versions are fetched
+#'   separately and returned in one frame. `NULL` when `ident` resolves to no resource.
 #' @export
 loadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE,linkInInventory=FALSE) {
   resources <- loadResource(ident,from)
@@ -136,6 +139,9 @@ unversionLoadFile <- function(resources,from,filePath,addIdToName,...) {
 #' @param filePath local Path where the file should be stored, relative to rootPath, normally wd
 #' @param addIdToName logical, if the entityId should be added to the filename
 #' @references ics1099
+#' @returns No meaningful value - called for its side effects: the downloaded copy is
+#'   deleted from the workspace and both the resource and the file content are dropped from
+#'   the cache. Does nothing when `ident` resolves to no resource.
 #' @export
 unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
   res <- loadResource(ident,from)
@@ -168,6 +174,9 @@ unloadFile <- function(ident,from=pwd(),filePath=".",addIdToName=FALSE) {
 #' @param linkInInventory Logical; if TRUE, creates a link to the resource in inventory.
 #' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1099
+#' @returns The freshly downloaded file, in the same shape as [loadFile()]: one row per
+#'   file with the local path in `data`. Every file cache for `ident` and the resource
+#'   itself are dropped first, so the content comes from the server.
 #' @export
 refreshFile <- function(ident, from = pwd(), filePath = ".",
              addIdToName = FALSE, linkInInventory = FALSE) {
@@ -191,18 +200,45 @@ updateFile <- function(...) {
 #' @inheritSection common_ident Details ident
 
 #' @param from Used if a relative path is used.
+#' @returns A single `TRUE` or `FALSE` - never a zero-length value. `TRUE`
+#'   unconditionally for an entity version id, because a version cannot change.
+#'   Stops with an error, naming the ident and the reason, when `ident` resolves
+#'   to no resource, to more than one, to something that is not a file, or when
+#'   the server read fails after the local one succeeded (IMR-287). In a session
+#'   connected with `persistentCaching = TRUE` the call reads the server directly
+#'   and therefore marks the session non-reproducible (ics1091).
 #' @references ics1099
+#' @returns `TRUE` when the version of the file on the server is the one held locally,
+#'   `FALSE` otherwise. `TRUE` unconditionally for an entity version id - a version cannot
+#'   change. Stops with an error when `ident` resolves to no resource, and when it
+#'   resolves to something that is not a file. In a session connected with
+#'   `persistentCaching = TRUE` the call reads the server directly and therefore marks
+#'   the session non-reproducible (ics1091).
 #' @export
 isFileUp2Date <- function(ident,from=pwd()) {
-  res <- loadResource(ident,from)
-  if (res$isVersion) {
+  res <- up2DateResolveOne(ident, from, "isFileUp2Date")
+  if (isTRUE(res$isVersion)) {
     log_warn("Versions are always up 2 date")
     log_warn(paste0(ident," is a version ID"))
     return(TRUE)
   }
+  # Checked before loadFile, not after. Downloading the content of a folder
+  # fails inside httr with "is.response(x) is not TRUE", which names neither
+  # the ident nor the mistake (IMR-287).
+  if (!isTRUE(res$nodeType %in% c("File", "Link"))) {
+    stop(sprintf("isFileUp2Date: '%s' is a %s, not a file",
+                 paste(utils::head(as.character(ident), 3), collapse = ", "),
+                 if (is.null(res$nodeType)) "resource of unknown type" else res$nodeType),
+         call. = FALSE)
+  }
   f <- loadFile(ident,from)
-  serverResource <- loadResourceFromServer(res$resourceId)
-  return(serverResource$entityVersionId==f$entityVersionId)
+  if (is.null(f) || is.null(f$entityVersionId) || length(f$entityVersionId) != 1) {
+    stop(sprintf("isFileUp2Date: the content of '%s' could not be loaded - %s",
+                 paste(utils::head(as.character(ident), 3), collapse = ", "),
+                 up2DateRestDetail()), call. = FALSE)
+  }
+  serverVersion <- up2DateServerVersion(res$resourceId, ident, "isFileUp2Date")
+  return(identical(serverVersion, as.character(f$entityVersionId)))
 }
 
 
@@ -273,7 +309,11 @@ actualLoadFile <- function(resource,filePath,addIdToName,linkInInventory) {
                                              list(resourceId=resource$resourceId,
                                                   revisionId=resource$revisionId)
       )
-      fContent <- httr::content(fResult,as="raw")
+      fContent <- restContent(fResult, "loadFileContent", as = "raw")
+      if (is.null(fContent)) {
+        close(f)
+        return(NULL)
+      }
       writeBin(fContent,f)
       close(f)
       if (linkInInventory) {

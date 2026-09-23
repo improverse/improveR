@@ -23,6 +23,11 @@ loadFile(
 
 \item{linkInInventory}{logical, if TRUE a link to the resource is created in the inventory}
 }
+\value{
+A data frame with one row per file, carrying the resource fields and the
+local path of the downloaded content in \code{data}. Versions and non-versions are fetched
+separately and returned in one frame. \code{NULL} when \code{ident} resolves to no resource.
+}
 \description{
 Loads a file by its resourceId, entity ID, or entity version ID.
 Uses caching. The results are returned as a data frame or a list of data frames.

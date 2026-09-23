@@ -6,6 +6,11 @@
 #' @param entityVersionId the entity version id of the resource
 #' @param invalidatesReproducibility this flag may only be changed by internal functions.
 #' @seealso [convertImproveTimestampToPosix()],[loadResource()], `loadResourceByPathGeneric()`
+#' @returns A one-row data frame per version with the resource fields as of that
+#'   revision, dates converted to POSIX and `isVersion` set to `TRUE`. `NULL` when any step
+#'   fails - the entity does not resolve, it has no history, the history is empty, or the
+#'   revision could not be read; each case is logged. For a list of ids the rows of all of
+#'   them, merged.
 #' @export
 loadResourceVersionFromServer <- function(entityVersionId,invalidatesReproducibility=T) {
   if (cacheEnv$persistentCaching & cacheEnv$reproducible & invalidatesReproducibility) {

@@ -7,9 +7,14 @@
 loadMetaDataDefinitionPickList(name, scope = "Improve Client")
 }
 \arguments{
-\item{name, }{name of the meta data definition}
+\item{name}{name of the meta data definition}
 
 \item{scope}{the metadata scope}
+}
+\value{
+The pick list values of the definition - the \code{categoryValues} entry of the
+matching row. Only meaningful for a definition of type \code{LOV}; for a name that does not
+exist in the scope the call fails, because there is no row to take the values from.
 }
 \description{
 Loads One Meta Data Definition Picklist Values By Name For A Scope, The Default Scope Is "Improve Client"

@@ -11,7 +11,7 @@ test_that("setup relation types test", {
 })
 
 test_that("createRelationType creates a new type visible in loadRelationTypes|ics1694,ics1697", {
-  typeName <- paste0("testType-", format(Sys.time(), "%H%M%S"))
+  typeName <- paste0("testType-", uniqueTag(6))
   reverseName <- paste0("reverse-", typeName)
 
   created <- improveR::createRelationType(
@@ -48,31 +48,49 @@ test_that("createRelationType is idempotent (same name returns existing)|ics1694
   expect_equal(second$id, originalId)
 })
 
-# updateRelationType — server does not support PUT on configuration/relationTypeLov/{id} yet.
-# Uncomment when the endpoint is available.
-# test_that("updateRelationType changes name and description|ics1699,ics1697", {
-#   stopifnot("No type created" = exists("RT_CREATED_ID", envir = globalenv()))
-#   rtId <- get("RT_CREATED_ID", envir = globalenv())
+# updateRelationType: the server has no PUT on this endpoint, and this block
+# says so as an assertion rather than as a comment (IMR-289).
 #
-#   newName <- paste0("updated-", format(Sys.time(), "%H%M%S"))
-#   newReverse <- paste0("reverse-", newName)
+# It used to be a commented-out test with the note "uncomment when the endpoint
+# is available". A commented-out test asserts nothing and ages silently -
+# nobody would have noticed the day the endpoint appeared. Measured on
+# repository 4.4.5-4 on 2026-09-15: still 405.
 #
-#   updated <- improveR::updateRelationType(
-#     relationTypeId = rtId,
-#     name = newName,
-#     reverseName = newReverse,
-#     description = "updated by automated test"
-#   )
-#   stopifnot("updateRelationType returned NULL (endpoint may not support PUT)" = !is.null(updated))
-#
-#   # Verify the change via loadRelationTypes
-#   allTypes <- improveR::refreshRelationTypes()
-#   expect_false(is.null(allTypes))
-#   row <- allTypes[allTypes$id == rtId, ]
-#   expect_equal(nrow(row), 1)
-#   expect_equal(row$name, newName)
-#   cat("Updated relation type:", rtId, "->", newName, "\n")
-# })
+# Written this way the limitation is in the run record instead of in a comment,
+# and the test FAILS the moment the server gains the endpoint - which is exactly
+# when somebody should look at it.
+
+test_that("updateRelationType is not supported by this server, and says so|ics1699", {
+  stopifnot("No type created" = exists("RT_CREATED_ID", envir = globalenv()))
+  rtId <- get("RT_CREATED_ID", envir = globalenv())
+
+  newName <- paste0("updated-", format(Sys.time(), "%H%M%S"))
+  updated <- improveR::updateRelationType(
+    relationTypeId = rtId,
+    name = newName,
+    reverseName = paste0("reverse-", newName),
+    description = "updated by automated test"
+  )
+
+  expect_null(updated,
+              info = paste0("If this is no longer NULL the server has gained PUT on ",
+                            "configuration/relationTypeLov/{id}. Replace this block with ",
+                            "the positive test: update, refresh, assert name and ",
+                            "reverseName by value (IMR-289)."))
+
+  err <- improveR::lastRestError()
+  expect_false(is.null(err))
+  expect_equal(err$status_code, 405L)
+  expect_equal(err$method, "PUT")
+  expect_true(grepl("relationTypeLov", err$url, fixed = TRUE))
+
+  # And the type is unchanged - a rejected write must not have altered anything.
+  allTypes <- improveR::refreshRelationTypes()
+  expect_false(is.null(allTypes))
+  row <- allTypes[allTypes$id == rtId, ]
+  expect_equal(nrow(row), 1L)
+  expect_false(identical(as.character(row$name), newName))
+})
 
 test_that("deleteRelationType removes type from loadRelationTypes|ics1700,ics1697", {
   stopifnot("No type created" = exists("RT_CREATED_ID", envir = globalenv()))

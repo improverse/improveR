@@ -6,6 +6,10 @@ cacheEnv <- new.env(parent = emptyenv())
 #' @description improveConnected checks if improveConnect was called.
 #' @param silent if TRUE no log message is printed
 #' @seealso [improveConnect()], [improveDisconnect()]
+#' @returns `TRUE` when [improveConnect()] has run in this session, `FALSE` otherwise -
+#'   invisibly in both cases. With `silent = FALSE` (the default) the unconnected case does
+#'   not return at all but stops with `not connected`; only `silent = TRUE` makes this a
+#'   predicate.
 #' @export
 
 improveConnected <- function(silent = FALSE) {
@@ -37,6 +41,9 @@ improveConnected <- function(silent = FALSE) {
 #' @description improveDisconnect removes all connection information.
 #' @param env default is 'cacheEnv'
 #' @seealso [improveConnect()], [improveConnected()]
+#' @returns No meaningful value - called for its side effect of emptying `env`. The
+#'   authentication provider and the `editable` flag are the only entries that survive;
+#'   everything else, the caches included, is removed.
 #' @export
 improveDisconnect <- function(env = cacheEnv) {
   authenticationProvider <- env$authenticationProvider
@@ -51,6 +58,9 @@ improveDisconnect <- function(env = cacheEnv) {
 #' @description deletes repoUrl, stepId, and token from the environment variables and calls improveDisconnect
 #' @param includeRepoData includes the repository URL and the selected step in the clear process
 #' @seealso [improveDisconnect()]
+#' @returns No meaningful value - called for its side effects on the environment
+#'   variables, the CLI user profile and the connection. The value passed through from
+#'   [improveDisconnect()] is an implementation detail and must not be relied on.
 #' @export
 clearConnectionData <- function(includeRepoData=F) {
   if (includeRepoData) {
@@ -409,10 +419,22 @@ improveConnect <- function(logLevel = "INFO", secure = TRUE, offlinePossible = F
 
 #' checkConnect
 #'
-#' @description Checks if the current connection is still valid by attempting to load the IMPROVER_STEP resource.
-#' If the connection is invalid, it clears connection data and attempts to reconnect.
-#' @param secure Logical. If TRUE (default), validates the connection by attempting to load IMPROVER_STEP and reconnects on failure. If FALSE, returns FALSE without attempting recovery.
-#' @return invisible TRUE if connection is valid, otherwise attempts reconnection
+#' @description Makes sure the session is usable: checks whether the connection is
+#' still valid by loading the `IMPROVER_STEP` resource, and rebuilds the connection
+#' if it is not. It always recovers - there is no way to ask for a check without one.
+#' @param secure Logical, passed on to [improveConnect()] when a connection has to be
+#'   established or rebuilt. It is the TLS flag: `FALSE` turns off certificate
+#'   verification. It does **not** control whether recovery is attempted. The previous
+#'   documentation said it did, which meant a caller who wanted a check without
+#'   recovery was told to switch certificate checking off instead (IMR-290).
+#' @returns `TRUE`, invisibly - **always**. Every path through the function returns it:
+#'   the connection was valid, the connection was rebuilt, or there was no connection
+#'   to begin with and one was made. A caller cannot tell those apart from the return
+#'   value, and cannot learn from it that anything failed; a failure to reconnect
+#'   surfaces as an error from [improveConnect()] instead. Whether this function should
+#'   be able to answer `FALSE` is an open question (IMR-290), not an oversight in this
+#'   description.
+#' @seealso [improveConnect()], [improveConnected()]
 #' @export
 checkConnect <- function(secure = TRUE) {
   # First check if we're connected at all
@@ -498,6 +520,9 @@ getRootPath <- function() {
 
 #' improveClose
 #' @description Cleans up everything for checkin.
+#' @returns No meaningful value - called for its side effects: the links recorded in the
+#'   session are deleted from the workspace and the inventory is written back. When no
+#'   links were created nothing happens.
 #' @export
 improveClose <- function() {
   cleaned <- NULL

@@ -32,6 +32,24 @@ restGetAsDf <- function(url,
 
   if (is.null(cont)) return(NULL)
 
+  # A JSON object is ONE thing. An array is a collection of things. This
+  # function could not tell them apart: it handed both to mergeListToDataframe(),
+  # which iterates its argument and turns each element into a row.
+  #
+  # For an array that is right. For an object it iterates the object's FIELDS,
+  # so a response with 14 fields became 14 rows - each one a single-column frame
+  # with a different column name, merged into a frame of 14 rows and 0 columns.
+  # That is what loadFavorites() returned: the function for listing favourites
+  # could not list them, and the caller got a data frame that was not empty and
+  # had nothing in it (IMR-294).
+  #
+  # httr::content() parses a JSON object into a NAMED list and an array into an
+  # unnamed one, which is the difference this reads. An object is wrapped so it
+  # becomes the single row it is.
+  if (length(cont) > 0 && !is.null(names(cont))) {
+    cont <- list(cont)
+  }
+
   df <- if (nested) mergeNestedListToDataframe(cont) else mergeListToDataframe(cont)
 
   if (is.null(df)) return(NULL)

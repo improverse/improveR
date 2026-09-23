@@ -3,6 +3,9 @@
 #' @param ident path, resource or entity ID of the picture
 #' @param from used for relative paths, by default pwd is used, which is initiated with the step that started improveR
 #'
+#' @returns A named list, one entry per metadata descriptor, holding the value as text -
+#'   dates as POSIX values. `NULL` when the resource has no metadata, and an empty list
+#'   when it has entries but none of them carries a value.
 #' @export
 getMetaDataMap <- function(ident,from=pwd()) {
 
@@ -44,6 +47,11 @@ getMetaDataMap <- function(ident,from=pwd()) {
 #' @param ident path, resource or entity ID of the picture
 #' @param from used for relative paths, by default pwd is used, which is initiated with the step that started improveR
 #' @references ics1141
+#' @returns A data frame with one row per metadata entry and a fixed column order,
+#'   starting with `descriptorName`, `value` and `descriptorType`. `value` carries the
+#'   entry as text, taken from the column that matches its type - `textValue`, `lovText`,
+#'   `numValue`, or `dateValue` converted to a POSIX date. `NULL` when the resource has no
+#'   metadata.
 #' @export
 getMetaData <- function(ident,from=pwd()) {
   metaData <- loadMetaData(ident,from = from)

@@ -111,7 +111,7 @@ runStepResource <- function(ident, resetInventory = FALSE, filesToKeep = NULL) {
 #' terminateStepResource(ident = "/improve-tutorial/Modeling/Step 1", verbose = TRUE)
 #' }
 #'
-#' @references ics1140ö
+#' @references ics1140
 #' @export
 terminateStepResource <- function(ident, verbose = FALSE) {
   setEditable()
@@ -122,19 +122,45 @@ terminateStepResource <- function(ident, verbose = FALSE) {
     return(invisible(FALSE))
   }
 
-  if (!is.null(stepToTerminate) && stepToTerminate$runStatus == "RUNNING") {
+  # isTRUE(), not ==. A resource without a runStatus column yields NULL, and
+  # `NULL == "RUNNING"` is logical(0), which && cannot evaluate - the caller
+  # would get "invalid length argument" instead of anything about the step.
+  if (isTRUE(stepToTerminate$runStatus == "RUNNING")) {
     result <- authenticatedREST(
       "resources/{stepId}/terminate",
       urlParams = list(stepId = stepToTerminate$resourceId),
       restType = "POST"
     )
   } else {
-    log_warn(
-      glue::glue(
-        "{stepToTerminate$path} has run status {stepToTerminate$runStatus}.
-      Cannot be terminated."
-      )
-    )
+    # sprintf, not glue. A resource without a runStatus column yields NULL, and
+    # glue recycles to the shortest argument - so the whole message collapsed to
+    # character(0) and log_warn() reported NOTHING. The isTRUE() guard above
+    # stopped the crash and left the caller with silence instead, which is the
+    # worse of the two failures: nothing in the log says the step was not
+    # terminated, or why.
+    status <- stepToTerminate$runStatus
+    statusText <- if (length(status) == 0) "no run status" else as.character(status)[1]
+    log_warn(sprintf("%s has run status %s. Cannot be terminated.",
+                     paste(utils::head(as.character(stepToTerminate$path), 1),
+                           collapse = ""),
+                     statusText))
+    return(invisible(FALSE))
+  }
+
+  # authenticatedREST answers EVERY non-2xx with NULL - its documented contract.
+  # httr::status_code(NULL) has no method and dies with
+  # "no applicable method for 'status_code' applied to an object of class NULL",
+  # naming neither the step, nor the operation, nor the status that occurred -
+  # while lastRestError() is holding all three (IMR-292).
+  #
+  # This is the family IMR-270 swept for and could not see: that audit searched
+  # httr::content(, and this site calls httr::status_code(.
+  if (is.null(result)) {
+    err <- tryCatch(lastRestError(), error = function(e) NULL)
+    detail <- if (is.null(err)) "improveR recorded no REST error" else
+      sprintf("HTTP %s on %s %s", err$status_code, err$method, err$url)
+    log_warn(sprintf("terminateStepResource: the terminate call for '%s' failed - %s",
+                     paste(utils::head(as.character(ident), 3), collapse = ", "), detail))
     return(invisible(FALSE))
   }
 
@@ -209,6 +235,11 @@ terminateStepResource <- function(ident, verbose = FALSE) {
 #'   acknowledged if the step finished with this tool (must be paired with
 #'   \code{runserverName}).
 #'
+#' @param timeout Seconds to wait before giving up. Defaults to
+#'   \code{IMPROVER_FINISHRUN_TIMEOUT} when that holds a positive number, and to
+#'   600 otherwise. Pass \code{Inf} to wait forever. Before IMR-268 there was no
+#'   timeout at all: the wait loop left only on \code{FINISHED}, so a run ending
+#'   \code{FAILED} or \code{TERMINATED} was polled forever.
 #' @returns The step identifier, returned invisibly after the run completes.
 #'
 #' @details
@@ -232,7 +263,8 @@ terminateStepResource <- function(ident, verbose = FALSE) {
 #'
 #' @references ics1140
 #' @export
-finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverToolName=NULL) {
+finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverToolName=NULL,
+                              timeout=defaultFinishRunTimeout()) {
 
   step <- refreshResource(ident,from)
 
@@ -247,11 +279,16 @@ finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverTool
   }
   running<-TRUE
   wrongRun <- ""
+  # Zeitmessung fuer die Wartegrenze (IMR-268). Die Schleife unten verliess
+  # bisher nur FINISHED und pollte einen Lauf mit Endzustand FAILED oder
+  # TERMINATED unbegrenzt weiter - genauso wie env$finishRun() es tat.
+  startedAt <- Sys.time()
+  lastState <- NA_character_
 
   if (!is.null(toolId)) {
     step <- refreshResource(step)
     state<-step$runStatus
-    if (state=="FINISHED") {
+    if (identical(state, "FINISHED")) {
       processes <- actualLoadProcessesForStep(step$resourceId)
       process <- dplyr::filter(processes,.data$processType=="main")
       stepTool <- processes$runserverToolId[1]
@@ -273,8 +310,27 @@ finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverTool
   while(running) {
     step <- refreshResource(step)
     state<-step$runStatus
+    # Endzustand und Zeitgrenze pruefen, bevor irgendetwas mit state gerechnet
+    # wird: bei einem Serverfehler ist step NULL und state damit NULL, und
+    # NULL=="FINISHED" ist logical(0), was if() abweist.
+    if (length(state)==1L && !is.na(state)) {
+      lastState <- state
+      if (state %in% c("FAILED","TERMINATED")) {
+        stop(sprintf("finishRunResource: step ended in state '%s' after %.0f s. It will not finish.",
+                     state, as.numeric(difftime(Sys.time(), startedAt, units="secs"))),
+             call. = FALSE)
+      }
+    }
+    elapsed <- as.numeric(difftime(Sys.time(), startedAt, units="secs"))
+    if (elapsed >= timeout) {
+      stop(sprintf(paste0("finishRunResource: gave up after %.0f s (limit %.0f s). Last run state ",
+                          "was '%s'. Raise IMPROVER_FINISHRUN_TIMEOUT if the step legitimately ",
+                          "needs longer."),
+                   elapsed, timeout, if (is.na(lastState)) "unreadable" else lastState),
+           call. = FALSE)
+    }
     if (is.null(toolId)) {
-      if (state=="FINISHED") {
+      if (identical(state, "FINISHED")) {
         running<-F
       } else {
         Sys.sleep(5)
@@ -287,10 +343,10 @@ finishRunResource <- function(ident,from=pwd(),runserverName=NULL, runserverTool
         run <- actualLoadProcessRuns(process$id)
         run <- run[run$startedAt==max(run$startedAt),]
         currentRun <-run$id
-        if (state=="FINISHED" && toolId==stepTool && currentRun!=wrongRun) {
+        if (identical(state, "FINISHED") && toolId==stepTool && currentRun!=wrongRun) {
           running<-F
         } else {
-          if (toolId!=stepTool && state!="FINISHED") {
+          if (toolId!=stepTool && !identical(state, "FINISHED")) {
             wrongRun <- currentRun
           }
 

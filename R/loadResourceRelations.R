@@ -48,6 +48,9 @@ loadRelationTypes <- function() {
 }
 
 #' Unloads All Relation Types
+#' @returns No meaningful value - called for its side effect of dropping the relation
+#'   types from the cache, so that the next load reads the server. The value handed back by
+#'   the internal cache removal is an implementation detail and must not be relied on.
 #' @export
 unloadRelationTypes <- function() {
   removeFromCache(defaultKeyRelationTypes(), "", relationTypesCacheList)
@@ -55,6 +58,8 @@ unloadRelationTypes <- function() {
 
 #' Reloads the Relation Types
 #' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
+#' @returns The freshly read relation types, in the same shape as [loadRelationTypes()] -
+#'   the cached copy is dropped first, so the value comes from the server.
 #' @export
 refreshRelationTypes <- function() {
   unloadRelationTypes()
@@ -205,6 +210,10 @@ loadResourceRelations <- function(ident, from = pwd()) {
 #' @param ident Identifier of the resource.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1044
+#' @returns No meaningful value - called for its side effect of dropping the relations of
+#'   the resource from the cache, so that the next load reads the server. The value handed
+#'   back by the internal cache removal is an implementation detail and must not be relied
+#'   on.
 #' @export
 unloadResourceRelations <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
@@ -216,6 +225,9 @@ unloadResourceRelations <- function(ident, from = pwd()) {
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1044
+#' @returns The freshly read resource relations, in the same shape as
+#'   [loadResourceRelations()] - the cached copy is dropped first, so the value comes from
+#'   the server.
 #' @export
 refreshResourceRelations <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)

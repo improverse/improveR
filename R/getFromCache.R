@@ -127,6 +127,10 @@ initialiseCache <- function(cacheList) {
 #' its state after calling improveConnect.
 #' @references ics1091
 #' @seealso [improveConnect()]
+#' @returns No meaningful value - called for its side effects: the cache file is deleted,
+#'   `cacheEnv` is emptied, [improveConnect()] is called again with the settings the
+#'   session had, and the session is marked non-reproducible (ics1091). The authentication
+#'   provider and the `editable` flag are carried over.
 #' @export
 resetCache <- function() {
   logLevel<-cacheEnv$logLevel

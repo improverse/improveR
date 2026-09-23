@@ -12,11 +12,13 @@ ensureTestFolder <- function() {
   return(get("TEST_FOLDER", envir = globalenv()))
 }
 
+# Fixture, not a specification check: builds the tree the four ics2058 blocks
+# below operate on. Untagged on purpose (IMR-253 acceptance).
 test_that("setup markStep test", {
   TEST_FOLDER <- ensureTestFolder()
   testTree <- improveR::createAnalysisTree(
     targetIdent = TEST_FOLDER,
-    treeName = paste0("MarkStepTest-", format(Sys.time(), "%H%M%S"))
+    treeName = paste0("MarkStepTest-", uniqueTag(6))
   )
   assign("MS_TREE", testTree, envir = globalenv())
 
@@ -34,6 +36,10 @@ test_that("setup markStep test", {
   cat("Created step:", stepResource$path, "\n")
 })
 
+# NOT ics2058. That specification covers flags on an *existing* step; this
+# block exercises setStepFinalModel() on the template, i.e. createStepTemplateEnv.
+# R/createStepTemplateEnv.R carries no @references at all, so there is no tag to
+# put here yet - reported under IMR-253.
 test_that("template setStepFinalModel sets flag at creation time", {
   TEST_FOLDER <- ensureTestFolder()
   testTree <- get("MS_TREE", envir = globalenv())
@@ -60,7 +66,7 @@ test_that("template setStepFinalModel sets flag at creation time", {
   cat("Pre-flagged step:", step$path, "finalModel:", step$finalModel, "keyStep:", step$keyStep, "\n")
 })
 
-test_that("markStep sets flags on existing step", {
+test_that("markStep sets flags on existing step|ics2058", {
   stopifnot("No step created" = exists("MS_STEP", envir = globalenv()))
   stepResource <- get("MS_STEP", envir = globalenv())
 
@@ -77,7 +83,7 @@ test_that("markStep sets flags on existing step", {
   cat("After markStep(finalModel=TRUE):", result$finalModel, "\n")
 })
 
-test_that("markStep sets multiple flags at once", {
+test_that("markStep sets multiple flags at once|ics2058", {
   stopifnot("No step created" = exists("MS_STEP", envir = globalenv()))
   stepResource <- get("MS_STEP", envir = globalenv())
 
@@ -91,7 +97,7 @@ test_that("markStep sets multiple flags at once", {
   cat("Multiple flags set:", result$keyStep, result$baseModel, result$referenceModel, "\n")
 })
 
-test_that("markStep clears flags", {
+test_that("markStep clears flags|ics2058", {
   stopifnot("No step created" = exists("MS_STEP", envir = globalenv()))
   stepResource <- get("MS_STEP", envir = globalenv())
 
@@ -103,7 +109,7 @@ test_that("markStep clears flags", {
   cat("After clearing:", "finalModel:", result$finalModel, "keyStep:", result$keyStep, "\n")
 })
 
-test_that("markStep with no flags is a no-op", {
+test_that("markStep with no flags is a no-op|ics2058", {
   stopifnot("No step created" = exists("MS_STEP", envir = globalenv()))
   stepResource <- get("MS_STEP", envir = globalenv())
 
@@ -114,6 +120,7 @@ test_that("markStep with no flags is a no-op", {
   expect_equal(before$finalModel, after$finalModel)
 })
 
+# Fixture teardown, untagged on purpose (IMR-253 acceptance).
 test_that("cleanup markStep test", {
   if (exists("MS_TREE", envir = globalenv())) {
     tryCatch(improveR::delete(get("MS_TREE", envir = globalenv())$resourceId),

@@ -1,3 +1,18 @@
+# Die CLI-Erkennung liegt in cliDetect.R, nicht hier.
+#
+# Bis 10.09.2026 war sie doppelt: detectCli(), cliMode(), cliDetectedVersion(),
+# resetCliDetection() und eine weitere, inzwischen entfernte Funktion (IMR-282)
+# gab es in beiden Dateien. DESCRIPTION hat
+# kein Collate, R laedt alphabetisch, cliSetup.R kam nach cliDetect.R - also
+# gewann die aermere Fassung hier und cliDetect.R war vollstaendig toter Code.
+#
+# Gemessen im Qualifizierungsimage vor der Bereinigung:
+#   cliMode()  -> "jar",  cliVersion -> 4.5.0
+# also die unfreigegebene CLI, ohne Hebel das umzustellen: IMPROVE_CLI_PATH kam
+# in der wirksamen Fassung gar nicht vor. Und weil improveRcontributions::cliPath()
+# stets "<java> -jar <jar>" liefert, entschied ein grepl("-jar", path) den Modus -
+# der Zweig "legacy_binary" war unerreichbar (IMR-272).
+
 #' stores all cli related variables during the load time of the package
 #' @noRd
 cliEnv <- new.env()
@@ -15,61 +30,10 @@ cliPath <- function(unpack = TRUE) {
   return(improveRcontributions::cliPath(unpack))
 }
 
-#' Detect CLI mode and version
-#' @noRd
-detectCli <- function() {
-  path <- tryCatch(cliPath(), error = function(e) NULL)
-  if (is.null(path)) {
-    cliEnv$cliMode <- "none"
-    cliEnv$cliVersion <- NULL
-    return(invisible(NULL))
-  }
-  if (grepl("-jar", path, fixed = TRUE)) {
-    cliEnv$cliMode <- "jar"
-  } else {
-    cliEnv$cliMode <- "legacy_binary"
-  }
-  # Try to get version
-  ver <- tryCatch({
-    out <- system(paste(path, "--version"), intern = TRUE, ignore.stderr = TRUE)
-    m <- regmatches(out, regexpr("\\d+\\.\\d+\\.\\d+", out))
-    if (length(m) > 0) m[1] else NULL
-  }, error = function(e) NULL)
-  cliEnv$cliVersion <- ver
-  invisible(NULL)
-}
 
-#' Reset CLI detection state
-#' @noRd
-resetCliDetection <- function() {
-  cliEnv$cliMode <- NULL
-  cliEnv$cliVersion <- NULL
-  # Also reset the cached path in improveRcontributions. Use assign() rather
-  # than `pkg::env$slot <- value` because R CMD check parses the latter as a
-  # call to a non-existent `::<-` operator and flags it as an undefined global.
-  tryCatch(assign("cliPath", NULL, envir = improveRcontributions::cliEnv),
-           error = function(e) NULL)
-}
 
-#' Get CLI mode
-#' @noRd
-cliMode <- function() {
-  if (is.null(cliEnv$cliMode)) detectCli()
-  cliEnv$cliMode
-}
 
-#' Get detected CLI version
-#' @noRd
-cliDetectedVersion <- function() {
-  if (is.null(cliEnv$cliMode)) detectCli()
-  cliEnv$cliVersion
-}
 
-#' Check if picocli (new jar CLI) is available
-#' @noRd
-hasPicocli <- function() {
-  cliMode() == "jar"
-}
 
 #' Get CLI profile name
 #' @noRd

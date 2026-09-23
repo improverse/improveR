@@ -7,12 +7,26 @@
 checkConnect(secure = TRUE)
 }
 \arguments{
-\item{secure}{Logical. If TRUE (default), validates the connection by attempting to load IMPROVER_STEP and reconnects on failure. If FALSE, returns FALSE without attempting recovery.}
+\item{secure}{Logical, passed on to \code{\link[=improveConnect]{improveConnect()}} when a connection has to be
+established or rebuilt. It is the TLS flag: \code{FALSE} turns off certificate
+verification. It does \strong{not} control whether recovery is attempted. The previous
+documentation said it did, which meant a caller who wanted a check without
+recovery was told to switch certificate checking off instead (IMR-290).}
 }
 \value{
-invisible TRUE if connection is valid, otherwise attempts reconnection
+\code{TRUE}, invisibly - \strong{always}. Every path through the function returns it:
+the connection was valid, the connection was rebuilt, or there was no connection
+to begin with and one was made. A caller cannot tell those apart from the return
+value, and cannot learn from it that anything failed; a failure to reconnect
+surfaces as an error from \code{\link[=improveConnect]{improveConnect()}} instead. Whether this function should
+be able to answer \code{FALSE} is an open question (IMR-290), not an oversight in this
+description.
 }
 \description{
-Checks if the current connection is still valid by attempting to load the IMPROVER_STEP resource.
-If the connection is invalid, it clears connection data and attempts to reconnect.
+Makes sure the session is usable: checks whether the connection is
+still valid by loading the \code{IMPROVER_STEP} resource, and rebuilds the connection
+if it is not. It always recovers - there is no way to ask for a check without one.
+}
+\seealso{
+\code{\link[=improveConnect]{improveConnect()}}, \code{\link[=improveConnected]{improveConnected()}}
 }

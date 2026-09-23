@@ -15,6 +15,11 @@ updateFileContent(ident, localPath, comment = "modified by improveRW")
 
 \item{comment}{Commit comment. Defaults to "modified by improveRW".}
 }
+\value{
+The refreshed resource after the upload, as \code{\link[=refreshResource]{refreshResource()}} returns it.
+\code{NULL} when \code{ident} resolves to no resource or the upload itself failed. For several
+idents the refreshed resources of all of them, merged.
+}
 \description{
 Update File Content
 Prerequisite: must be a file.

@@ -8,7 +8,8 @@ finishRunResource(
   ident,
   from = pwd(),
   runserverName = NULL,
-  runserverToolName = NULL
+  runserverToolName = NULL,
+  timeout = defaultFinishRunTimeout()
 )
 }
 \arguments{
@@ -24,6 +25,12 @@ acknowledged if the step finished on this runserver (must be paired with
 \item{runserverToolName}{Optional tool name. When set, completion is only
 acknowledged if the step finished with this tool (must be paired with
 \code{runserverName}).}
+
+\item{timeout}{Seconds to wait before giving up. Defaults to
+\code{IMPROVER_FINISHRUN_TIMEOUT} when that holds a positive number, and to
+600 otherwise. Pass \code{Inf} to wait forever. Before IMR-268 there was no
+timeout at all: the wait loop left only on \code{FINISHED}, so a run ending
+\code{FAILED} or \code{TERMINATED} was polled forever.}
 }
 \value{
 The step identifier, returned invisibly after the run completes.

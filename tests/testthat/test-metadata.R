@@ -265,8 +265,8 @@ ensureTestFolder <- function() {
     result <- addMetaDate(multiFiles, "Indication", value = "Cancer")
     cat("Indication addMetaDate result - class:", class(result), "rows:", ifelse(!is.null(result), nrow(result), "NULL"), "\n")
     
-    cat("Adding ProgramStart with value:", as.character(Sys.Date()), "\n")
-    result <- addMetaDate(multiFiles, "ProgramStart", value = Sys.Date())
+    cat("Adding ProgramStart with value:", as.character(runDate()), "\n")
+    result <- addMetaDate(multiFiles, "ProgramStart", value = runDate())
     cat("ProgramStart addMetaDate result - class:", class(result), "rows:", ifelse(!is.null(result), nrow(result), "NULL"), "\n")
 
     cat("\n=== DIAGNOSTIC: Loading metadata ===\n")
@@ -333,7 +333,7 @@ ensureTestFolder <- function() {
     if (nrow(programStartData) > 0) {
       cat("ProgramStart dateValueDate:", programStartData$dateValueDate, "\n")
       cat("Is NA?:", is.na(programStartData$dateValueDate), "\n")
-      cat("Expected value:", as.character(Sys.Date()), "\n")
+      cat("Expected value:", as.character(runDate()), "\n")
       
       # dateValueDate is already POSIXct, convert to Date for display
       convertedDate <- as.Date(programStartData$dateValueDate)
@@ -343,7 +343,7 @@ ensureTestFolder <- function() {
       # Fix: dateValueDate is already a POSIXct, convert to Date
       # Handle timezone issues by using UTC for both
       actual_date <- as.Date(programStartData$dateValueDate, tz = "UTC")
-      expected_date <- as.Date(as.POSIXct(Sys.Date(), tz = Sys.timezone()), tz = "UTC")
+      expected_date <- as.Date(as.POSIXct(runDate(), tz = Sys.timezone()), tz = "UTC")
       
       # Allow for 1 day difference due to timezone issues
       date_diff <- abs(as.numeric(actual_date - expected_date))

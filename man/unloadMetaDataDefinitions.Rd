@@ -9,6 +9,11 @@ unloadMetaDataDefinitions(scope = "Improve Client")
 \arguments{
 \item{scope}{the metadata scope}
 }
+\value{
+No meaningful value - called for its side effect of dropping the metadata
+definitions of the scope from the cache. They are repository-wide configuration, so
+this affects every later call in the session, not only the caller's.
+}
 \description{
 Unload Meta Data Definitions
 }

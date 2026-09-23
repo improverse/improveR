@@ -9,6 +9,10 @@ improveCloseTunnel(tunnel)
 \arguments{
 \item{tunnel}{A tunnel object returned by \code{\link{improveOpenTunnel}}.}
 }
+\value{
+\code{NULL}, invisibly. Stops with an error if \code{tunnel} is not the object
+\code{\link[=improveOpenTunnel]{improveOpenTunnel()}} returned.
+}
 \description{
 Closes an SSH tunnel previously opened by \code{\link{improveOpenTunnel}}.
 }

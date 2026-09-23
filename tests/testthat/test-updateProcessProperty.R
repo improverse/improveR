@@ -19,7 +19,7 @@ test_that("setup updateProcessProperty test", {
 
   testTree <- improveR::createAnalysisTree(
     targetIdent = TEST_FOLDER,
-    treeName = paste0("UPPTest-", format(Sys.time(), "%H%M%S"))
+    treeName = paste0("UPPTest-", uniqueTag(6))
   )
   assign("UPP_TREE", testTree, envir = globalenv())
 

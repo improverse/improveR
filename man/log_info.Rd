@@ -9,6 +9,12 @@ log_info(...)
 \arguments{
 \item{...}{combines all items to one log message}
 }
+\value{
+No meaningful value - called for its side effect of writing the message.
+Where the log is redirected to a structured list (internal \code{redirectLogs}) the message
+is appended to that list under the current context; otherwise it is handed to the
+\code{logging} package.
+}
 \description{
 Log_info
 }

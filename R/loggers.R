@@ -58,6 +58,10 @@ setLogContext <- function(context) {
 
 #' Log_debug
 #' @param ... combines all items to one log message
+#' @returns No meaningful value - called for its side effect of writing the message.
+#'   Where the log is redirected to a structured list (internal `redirectLogs`) the message
+#'   is appended to that list under the current context; otherwise it is handed to the
+#'   `logging` package.
 #' @export
 log_debug <- function(...) {
   msg <- pasteAndResolveResource(...)
@@ -71,6 +75,10 @@ log_debug <- function(...) {
 
 #' Log_info
 #' @param ... combines all items to one log message
+#' @returns No meaningful value - called for its side effect of writing the message.
+#'   Where the log is redirected to a structured list (internal `redirectLogs`) the message
+#'   is appended to that list under the current context; otherwise it is handed to the
+#'   `logging` package.
 #' @export
 log_info <- function(...) {
   msg <- pasteAndResolveResource(...)
@@ -83,6 +91,10 @@ log_info <- function(...) {
 
 #' Log_warn
 #' @param ... combines all items to one log message
+#' @returns No meaningful value - called for its side effect of writing the message.
+#'   Where the log is redirected to a structured list (internal `redirectLogs`) the message
+#'   is appended to that list under the current context; otherwise it is handed to the
+#'   `logging` package.
 #' @export
 log_warn <- function(...) {
   msg <- pasteAndResolveResource(...)
@@ -95,6 +107,10 @@ log_warn <- function(...) {
 
 #' Log_error
 #' @param ... combines all items to one log message
+#' @returns No meaningful value - called for its side effect of writing the message.
+#'   Where the log is redirected to a structured list (internal `redirectLogs`) the message
+#'   is appended to that list under the current context; otherwise it is handed to the
+#'   `logging` package.
 #' @export
 log_error <- function(...) {
   msg <- pasteAndResolveResource(...)

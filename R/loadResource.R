@@ -120,6 +120,9 @@ internalLoadResourceVersionFromServer <- function(identifier) {
 #' @param ident id
 #' @param from pwd for relative path
 #' @references ics1090
+#' @returns No meaningful value - called for its side effect of dropping the resource
+#'   from the cache; a version is dropped from the version cache, everything else from the
+#'   resource cache. Does nothing when `ident` resolves to no resource.
 #' @export
 unloadResource <- function(ident,from=pwd()) {
   res <- loadResource(ident,from)
@@ -138,6 +141,9 @@ unloadResource <- function(ident,from=pwd()) {
 #' @param from pwd for relative path
 #' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1090
+#' @returns The freshly read resource, in the same shape as [loadResource()]. `NULL` when
+#'   `ident` resolves to no resource - in that case nothing is unloaded and nothing is read
+#'   a second time.
 #' @export
 refreshResource <- function(ident,from=pwd()) {
   res <- loadResource(ident,from)
@@ -157,19 +163,27 @@ updateResource <- function(...) {
 }
 
 #' Is Resource Up2 Date
-#' @description Checks if resource is up to date. 
+#' @description Checks whether the cached resource is the version the server holds.
 #' @param ident id
 #' @param from pwd for relative path
+#' @returns A single `TRUE` or `FALSE` - never a zero-length value. `TRUE`
+#'   unconditionally for an entity version id, because a version cannot change.
+#'   Stops with an error, naming the ident and the REST status, when `ident`
+#'   resolves to no resource, to more than one, or when the server read fails
+#'   after the local one succeeded (IMR-287). In a session connected with
+#'   `persistentCaching = TRUE` the call reads the server directly and therefore
+#'   marks the session non-reproducible (ics1091).
+#' @references ics1090
 #' @export
 isResourceUp2Date <- function(ident,from=pwd()) {
-  res <- loadResource(ident,from)
-  if (res$isVersion) {
+  res <- up2DateResolveOne(ident, from, "isResourceUp2Date")
+  if (isTRUE(res$isVersion)) {
     log_warn("Versions are always up 2 date")
     log_warn(paste0(ident," is a version ID"))
     return(TRUE)
   }
-  serverResource <- loadResourceFromServer(res$resourceId)
-  return(serverResource$entityVersionId==res$entityVersionId)
+  serverVersion <- up2DateServerVersion(res$resourceId, ident, "isResourceUp2Date")
+  return(identical(serverVersion, as.character(res$entityVersionId)))
 }
 
 

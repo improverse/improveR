@@ -26,6 +26,12 @@ showHTML(
 
 \item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 }
+\value{
+An \code{htmltools} tag list holding the HTML file and its caption, ready to be
+printed from an R Markdown chunk. When \code{ident} resolves to several objects, a single
+character string with their rendered output concatenated. \code{NULL} when no HTML object
+was found.
+}
 \description{
 Includes HTML in rMarkdown, creates a string that has to be outputted
 }

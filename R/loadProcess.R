@@ -175,7 +175,7 @@ actualLoadProcessVariables <- function(processId) {
   variableResponse <- authenticatedREST("/resources/{resourceId}/processes/{processId}/variables",
                                                          urlParams = list(resourceId=process$stepId,
                                                                           processId=process$id))
-  variableResponse <- httr::content(variableResponse)
+  variableResponse <- restContent(variableResponse, "loadProcessVariables")
   dfs <- mergeNestedListToDataframe(variableResponse)
   if (is.list(dfs) && length(dfs)==0) {
     return(NULL)

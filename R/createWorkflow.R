@@ -202,7 +202,7 @@ createWorkflow <- function() {
       list(resourceId = loadResource(tree)$resourceId),
       queryParams = list(depth = 2)
     )
-    dmg <- httr::content(dmgResult)
+    dmg <- restContent(dmgResult, "loadDmg")
 
     flattenInventoryEntries <- function(taskInventory) {
       entryList <- lapply(taskInventory, function(inventoryEntry) {

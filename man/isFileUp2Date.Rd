@@ -11,6 +11,22 @@ isFileUp2Date(ident, from = pwd())
 
 \item{from}{Used if a relative path is used.}
 }
+\value{
+A single \code{TRUE} or \code{FALSE} - never a zero-length value. \code{TRUE}
+unconditionally for an entity version id, because a version cannot change.
+Stops with an error, naming the ident and the reason, when \code{ident} resolves
+to no resource, to more than one, to something that is not a file, or when
+the server read fails after the local one succeeded (IMR-287). In a session
+connected with \code{persistentCaching = TRUE} the call reads the server directly
+and therefore marks the session non-reproducible (ics1091).
+
+\code{TRUE} when the version of the file on the server is the one held locally,
+\code{FALSE} otherwise. \code{TRUE} unconditionally for an entity version id - a version cannot
+change. Stops with an error when \code{ident} resolves to no resource, and when it
+resolves to something that is not a file. In a session connected with
+\code{persistentCaching = TRUE} the call reads the server directly and therefore marks
+the session non-reproducible (ics1091).
+}
 \description{
 Checks if a new version of the file exists in the repository.
 }

@@ -13,7 +13,7 @@ setupAdminMetrics <- function() {
   basePath <- createFolderPath("adminMetrics")
   testFolder <- improveR::createFolder(
     targetIdent = basePath,
-    folderName = paste0("am-", format(Sys.time(), "%Y%m%d%H%M%S")),
+    folderName = paste0("am-", uniqueTag()),
     comment = "adminMetrics test setup"
   )
   testFolder

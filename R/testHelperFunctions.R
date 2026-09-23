@@ -1,11 +1,3 @@
-# Checks if httptest (and only httptest) ic currently capturing the results by checking the trace on httr::POST
-
-
-isCapturing <- function() {
-  any(grepl("functionWithTrace",utils::capture.output(httr::POST)))
-}
-
-
 createFolderPath <- function(setupType) {
 
   TEST_FOLDER <- get0(setupType,envir=cacheEnv)
@@ -23,8 +15,24 @@ createFolderPath <- function(setupType) {
 
   folderSegments <- strsplit(path,split = "/",fixed=T)[[1]]
 
-  stepEntity <- loadResource(Sys.getenv("IMPROVER_STEP"))$entityId
-  Sys.setenv(IMPROVER_STEP=stepEntity)
+  # The configured step is the anchor every fixture hangs off. If it does not
+  # resolve, loadResource() returns NULL, NULL$entityId is NULL, and
+  # Sys.setenv() rejects it with "wrong length for argument" - a message that
+  # names neither the variable nor the cause. Seen on 2026-09-14 after the
+  # repository prefix in IMPROVER_STEP went stale (IMR-277).
+  configuredStep <- Sys.getenv("IMPROVER_STEP")
+  stepResource <- loadResource(configuredStep)
+  if (is.null(stepResource) || is.null(stepResource$entityId)) {
+    err <- tryCatch(lastRestError(), error = function(e) NULL)
+    detail <- if (is.null(err)) "improveR recorded no REST error" else
+      sprintf("HTTP %s on %s %s", err$status_code, err$method, err$url)
+    stop(sprintf(paste0("IMPROVER_STEP does not resolve on this server: '%s' - %s\n",
+                        "This is a run configuration problem. Note that the repository ",
+                        "prefix is taken from this value and never checked against the ",
+                        "server (repoPrefix, R/improveConnect.R). See test-preconditions.R."),
+                 configuredStep, detail), call. = FALSE)
+  }
+  Sys.setenv(IMPROVER_STEP = stepResource$entityId)
 
   root <- loadResource("/")
   for (i in 2:length(folderSegments)) {
@@ -42,11 +50,32 @@ emptyFolderSetup <- function() {
 }
 
 
+# TRUE when the folder has no children yet.
+#
+# The two setup functions below used to ask
+#     if (nrow(loadChildResources(path)$data[[1]]) == 0)
+# which is exactly backwards: on an empty folder the loader yields nothing,
+# nrow(NULL) is NULL, and `if (NULL == 0)` aborts with "argument is of length
+# zero". The branch could therefore not handle the one state it exists to
+# detect - it only worked while the folder was already populated, i.e. when its
+# body was not needed.
+#
+# Measured consequence (IMR-271): in the first full grid run on 2026-09-09 the
+# first ten files passed and every later one died here, once something had
+# emptied the folder. The runner clears /Projects/Tests at the start of every
+# run, so a fixture that cannot build from empty makes each run depend on its
+# predecessor.
+# loader is injectable so the condition can be tested without a server.
+isFolderEmpty <- function(folderPath, loader = loadChildResources) {
+  children <- tryCatch(loader(folderPath)$data[[1]], error = function(e) NULL)
+  is.null(children) || NROW(children) == 0
+}
+
 baseFilesSetup <- function() {
 
 
   baseFilePath<-createFolderPath("baseFiles")
-  if (nrow(loadChildResources(baseFilePath)$data[[1]])==0) {
+  if (isFolderEmpty(baseFilePath)) {
     testZip <- system.file("testData.zip", package = "improveR")
     utils::unzip(testZip)
     TEMP_FOLDER_NAME <- "rgetTest"
@@ -89,7 +118,7 @@ workflowFilesSetup <- function() {
 
   runFiles<-createFolderPath("runFiles")
 
-  if (nrow(loadChildResources(runFiles)$data[[1]])==0) {
+  if (isFolderEmpty(runFiles)) {
 
     testZip <- system.file("ExampleWorkflow.zip", package = "improveR")
     utils::unzip(testZip)

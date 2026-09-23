@@ -57,7 +57,7 @@ test_that("SSH tunnel to RStudio|sshTunnel", {
   # Create analysis tree and RStudio step
   testTree <- createAnalysisTree(
     targetIdent = TEST_FOLDER,
-    treeName = paste0("sshTunnelTest_", format(Sys.time(), "%H%M%S"))
+    treeName = paste0("sshTunnelTest_", uniqueTag(6))
   )
 
   stepEnv <- rstudioStep(testTree)

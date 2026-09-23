@@ -9,6 +9,11 @@ loadMetaDataDefinitions(scope = "Improve Client")
 \arguments{
 \item{scope}{the metadata scope}
 }
+\value{
+A data frame of every metadata definition in the scope, one row each, as the
+server returns them. Cached: the second call for the same scope does not reach the
+server.
+}
 \description{
 Loads All Meta Data Definitions For A Scope, The Default Scope Is "Improve Client"
 }

@@ -74,7 +74,7 @@ test_that("GFT1-setup: connect and create test base folder", {
   }
   GFT$BASE_PATH <- basePath
 
-  ts <- format(Sys.time(), "%Y%m%d%H%M%S")
+  ts <- uniqueTag()
   folderName <- paste0("gft-check-", ts)
   folder <- improveR::createFolder(
     targetIdent = basePath,
@@ -115,7 +115,7 @@ test_that("GFT1-02: import test data files into acop|ics472,ics1102", {
   testZip <- system.file("ExampleWorkflow.zip", package = "improveR")
   skip_if(testZip == "", "ExampleWorkflow.zip not found in package")
 
-  tmpDir <- file.path(tempdir(), paste0("gft-import-", format(Sys.time(), "%H%M%S")))
+  tmpDir <- file.path(tempdir(), paste0("gft-import-", uniqueTag(6)))
   dir.create(tmpDir, showWarnings = FALSE, recursive = TRUE)
   utils::unzip(testZip, exdir = tmpDir)
 

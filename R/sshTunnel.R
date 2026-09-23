@@ -522,6 +522,8 @@ improveOpenTunnel <- function(ident, localPort = 8787, browse = TRUE) {
 #'
 #' @seealso \code{\link{improveOpenTunnel}}
 #'
+#' @returns `NULL`, invisibly. Stops with an error if `tunnel` is not the object
+#'   [improveOpenTunnel()] returned.
 #' @export
 improveCloseTunnel <- function(tunnel) {
   if (!is.environment(tunnel) || is.null(tunnel$close)) {

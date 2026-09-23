@@ -9,6 +9,11 @@ clearConnectionData(includeRepoData = F)
 \arguments{
 \item{includeRepoData}{includes the repository URL and the selected step in the clear process}
 }
+\value{
+No meaningful value - called for its side effects on the environment
+variables, the CLI user profile and the connection. The value passed through from
+\code{\link[=improveDisconnect]{improveDisconnect()}} is an implementation detail and must not be relied on.
+}
 \description{
 deletes repoUrl, stepId, and token from the environment variables and calls improveDisconnect
 }

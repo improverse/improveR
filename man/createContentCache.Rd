@@ -9,6 +9,11 @@ createContentCache(localPath)
 \arguments{
 \item{localPath}{The local path for the content cache.}
 }
+\value{
+The CLI's output, invisibly: a character vector of the lines it wrote to
+stdout and stderr. A non-zero exit code is logged as a warning, not raised, so a
+returned value is no proof that the cache was created.
+}
 \description{
 Creates a content cache for the specified location.
 }

@@ -52,7 +52,10 @@ createReviewEntryComment <- function(ident, entryId, comment, from = pwd()) {
   data <- list("comment" = comment)
 
   result <- authenticatedREST("/reviews/{reviewId}/entries/{entryId}/comments", urlParams = list(reviewId = reviewId, entryId = entryId), data = data, restType = "POST")
-  entryComments <- refreshReviewEntryComments(reviewId, entryId)
+  # getReviewEntryComments, not refresh: the family never had a cache, so
+  # refresh was unload (a discarded server call) plus load - two round trips
+  # for one result. The three hollow functions are gone with IMR-278.
+  entryComments <- getReviewEntryComments(reviewId, entryId)
 
   return(entryComments)
 }

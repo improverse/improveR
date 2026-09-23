@@ -21,27 +21,32 @@ pushCli <- function(localPath, comment = NULL, force = FALSE, preview = FALSE,
                     json = FALSE) {
   localPath <- gsub("^['\"]|['\"]$", "", localPath)
   checkInit()
+
+  # preview is answered here and the CLI is never called (IMR-283). The
+  # released CLI has no --preview, and the previous code declared the option,
+  # dropped it, and pushed anyway - a dry run that writes. The clone carries
+  # the hash of every file at checkout, so what a push would send is a local
+  # computation, exact and without touching the server.
+  if (isTRUE(preview)) {
+    changes <- previewPush(localPath)
+    log_info("push preview: ", nrow(changes), " change(s) would be sent from ", localPath)
+    return(invisible(changes))
+  }
+  if (isTRUE(force)) {
+    stop("pushCli(force = TRUE) is not supported by this CLI (version ",
+         cliDetectedVersion(), "): the option is not passed on, and the push ",
+         "would run without it. Call without force (IMR-283).", call. = FALSE)
+  }
+
   renewAccessToken()
   token <- conf()$reqToken
 
-  if (hasPicocli()) {
-    args <- c("push",
-              "--access-token", token,
-              "-C", localPath)
-    if (!is.null(comment)) args <- c(args, "-m", comment)
-    if (force) args <- c(args, "--force")
-    if (preview) args <- c(args, "--preview")
-    if (!is.null(includeFiles)) args <- c(args, "--include-files", paste(includeFiles, collapse = ","))
-    if (!is.null(excludeFiles)) args <- c(args, "--exclude-files", paste(excludeFiles, collapse = ","))
-    if (!is.null(files)) args <- c(args, files)
-  } else {
-    args <- c("push",
-              "-accessToken", token,
-              "-repository", localPath)
-    if (!is.null(comment)) args <- c(args, "-comment", comment)
-    if (!is.null(includeFiles)) args <- c(args, "-includeFiles", paste(includeFiles, collapse = ","))
-    if (!is.null(excludeFiles)) args <- c(args, "-excludeFiles", paste(excludeFiles, collapse = ","))
-  }
+  args <- c("push",
+            "-accessToken", token,
+            "-repository", localPath)
+  if (!is.null(comment)) args <- c(args, "-comment", comment)
+  if (!is.null(includeFiles)) args <- c(args, "-includeFiles", paste(includeFiles, collapse = ","))
+  if (!is.null(excludeFiles)) args <- c(args, "-excludeFiles", paste(excludeFiles, collapse = ","))
   output <- executeCli(args, json = json)
 
   if (!preview) {

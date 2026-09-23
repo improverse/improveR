@@ -32,8 +32,18 @@ setResourcePermission(
 
 \item{inherit}{Logical. Whether this ACL entry inherits to child resources. Default \code{TRUE}.}
 
-\item{orderNr}{Integer. The ordering priority for this ACL entry. Lower numbers
-are evaluated first. Must be unique per resource. Default \code{1}.}
+\item{orderNr}{Integer. The evaluation order of this ACL entry. Entries are
+evaluated from the lowest number upwards and \strong{the first entry that
+matches decides} - it is not a most-permissive-wins rule. A user who is in
+two groups with conflicting entries gets the right from whichever entry has
+the lower \code{orderNr}.
+
+Must be unique per resource, and the server enforces it: an entry whose
+\code{orderNr} is already taken on that resource is refused, and this
+function returns \code{NULL}.
+
+Measured against repository 4315 on 2026-09-18 (IMR-305); see
+\code{test-permissionOrder.R}. Default \code{1}.}
 
 \item{rightsArea}{Integer. The rights area: 1 = Primary, 2 = Publish. Default \code{1}.}
 

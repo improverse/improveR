@@ -49,6 +49,9 @@ loadReviews <- function() {
 
 #' Unloads All Reviews
 #' @references ics348
+#' @returns No meaningful value - called for its side effect of dropping the list of all
+#'   reviews from the cache. Note that the list is loaded once before it is dropped, so the
+#'   call does reach the server.
 #' @export
 unloadReviews <- function() {
   loadReviews()
@@ -94,7 +97,7 @@ getReviewers <- function(ident, from = pwd()) {
   }
   result <- authenticatedREST("/reviews/{resourceId}/reviewers",
                               list(resourceId = review$resourceId))
-  cont <- httr::content(result)
+  cont <- restContent(result, "loadReviewData")
   cont <- cont$elements
   df <- mergeListToDataframe(cont)
   if (is.null(df) || nrow(df) == 0) {
@@ -127,6 +130,10 @@ loadReviewers <- function(ident, from = pwd()) {
 #'   or a data frame row from \code{loadResource()}.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1208
+#' @returns No meaningful value - called for its side effect of dropping the reviewers of
+#'   the review from the cache, so that the next load reads the server. The value handed
+#'   back by the internal cache removal is an implementation detail and must not be relied
+#'   on.
 #' @export
 unloadReviewers <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
@@ -177,7 +184,7 @@ getReviewEntries <- function(ident, from = pwd()) {
   }
   result <- authenticatedREST("/reviews/{resourceId}/entries",
                               list(resourceId = review$resourceId))
-  cont <- httr::content(result)
+  cont <- restContent(result, "loadReviewData")
   cont <- cont$elements
   cont <- lapply(cont, function(entry) {
     resource <- as.data.frame(entry$resource, stringsAsFactors = FALSE)
@@ -213,6 +220,10 @@ loadReviewEntries <- function(ident, from = pwd()) {
 #'   or a data frame row from \code{loadResource()}.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1208
+#' @returns No meaningful value - called for its side effect of dropping the entries of
+#'   the review from the cache, so that the next load reads the server. The value handed
+#'   back by the internal cache removal is an implementation detail and must not be relied
+#'   on.
 #' @export
 unloadReviewEntries <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
@@ -263,7 +274,7 @@ getReviewComments <- function(ident, from = pwd()) {
   }
   result <- authenticatedREST("/reviews/{resourceId}/comments",
                               list(resourceId = review$resourceId))
-  cont <- httr::content(result)
+  cont <- restContent(result, "loadReviewData")
   df <- mergeListToDataframe(cont)
   if (is.null(df) || nrow(df) == 0) {
     return(NULL)
@@ -294,6 +305,10 @@ loadReviewComments <- function(ident, from = pwd()) {
 #'   or a data frame row from \code{loadResource()}.
 #' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
 #' @references ics1208
+#' @returns No meaningful value - called for its side effect of dropping the comments of
+#'   the review from the cache, so that the next load reads the server. The value handed
+#'   back by the internal cache removal is an implementation detail and must not be relied
+#'   on.
 #' @export
 unloadReviewComments <- function(ident, from = pwd()) {
   resourceId <- resolveToResourceId(ident, from)
@@ -323,10 +338,6 @@ updateReviewComments <- function(...) {
   refreshReviewComments(...)
 }
 
-reviewEntryCommentsCacheList <- list(
-  reviewEntryCommentsCache = "resourceId, entryId" # missing "double key"
-)
-
 #' Get Review Entry Comments
 #'
 #' Retrieves all comments for a specific review entry.
@@ -345,64 +356,11 @@ getReviewEntryComments <- function(ident, entryId, from = pwd()) {
   }
   result <- authenticatedREST("/reviews/{resourceId}/entries/{entryId}/comments",
                               list(resourceId = review$resourceId, entryId = entryId))
-  cont <- httr::content(result)
+  cont <- restContent(result, "loadReviewData")
   df <- mergeListToDataframe(cont)
   if (is.null(df) || nrow(df) == 0) {
     return(NULL)
   }
 
   return(df)
-}
-
-#' Loads All The Comments For A Review Entry
-#'
-#' Retrieves all comments for a review entry.
-#'
-#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
-#'   or a data frame row from \code{loadResource()}.
-#' @param entryId Character. ID (UUID) of the review entry.
-#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
-#' @returns A data frame of review entry comments, or \code{NULL} if none exist.
-#' @references ics1543
-#' @export
-loadReviewEntryComments <- function(ident, entryId, from = pwd()) {
-  # reviewComments <- getFromCache(key, getReviewEntryComments, reviewEntryCommentsCacheList, NULL)
-  reviewEntryComments <- getReviewEntryComments(ident, entryId, from)
-  return(reviewEntryComments)
-}
-
-#' Unloads the Comments for a Review Entry
-#'
-#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
-#'   or a data frame row from \code{loadResource()}.
-#' @param entryId Character. ID (UUID) of the review entry.
-#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
-#' @references ics1543
-#' @export
-unloadReviewEntryComments <- function(ident, entryId, from = pwd()) {
-  loadReviewEntryComments(ident, entryId, from)
-  # removeFromCache(key, "", reviewEntryCommentsCacheList)
-}
-
-#' Reloads the Comments for a Review Entry
-#'
-#' @param ident Identifier of the review. Can be a path, resource ID, entity ID,
-#'   or a data frame row from \code{loadResource()}.
-#' @param entryId Character. ID (UUID) of the review entry.
-#' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
-#' @param from Base path for resolving relative paths. Defaults to \code{pwd()}.
-#' @returns A data frame of review entry comments, or \code{NULL} if none exist.
-#' @references ics1543
-#' @export
-refreshReviewEntryComments <- function(ident, entryId, from = pwd()) {
-  unloadReviewEntryComments(ident, entryId, from)
-  res <- loadReviewEntryComments(ident, entryId, from)
-  return(res)
-}
-
-#' @rdname refreshReviewEntryComments
-#' @export
-updateReviewEntryComments <- function(...) {
-  .Deprecated("refreshReviewEntryComments")
-  refreshReviewEntryComments(...)
 }

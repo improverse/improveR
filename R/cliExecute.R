@@ -2,7 +2,7 @@
 #'
 #' Canonical executor for all CLI calls.  Handles two calling styles:
 #'
-#' \strong{Vector style} (preferred, used by all new picocli commands):
+#' \strong{Vector style} (preferred):
 #' \code{args} is a character vector; each element is passed as a separate
 #' argument to \code{system2()}, so paths with spaces are handled correctly
 #' without manual quoting.
@@ -29,16 +29,6 @@ executeCli <- function(args, json = FALSE) {
   # -- Vector style ---------------------------------------------------------
   if (length(args) > 1 || json) {
     if (json) args <- c(args, "--json")
-
-    # The CLI 4.5 JAR ships with two surfaces: a legacy positional parser and
-    # a picocli flag parser. Subcommands like `clone`, `push`, `status`, `diff`,
-    # `cache` exist in both, but the picocli flags (--access-token, -C, --profile,
-    # --include-files, etc.) are only recognised under the picocli surface, which
-    # is gated behind a global `--pico` switch. Inject it here so every call site
-    # whose `if (hasPicocli())` branch was taken actually reaches that surface.
-    if (hasPicocli()) {
-      args <- c("--pico", args)
-    }
 
     # cliPath() returns a compound string, e.g. "java -jar /path/to.jar".
     # Split on whitespace to extract the executable and its fixed base args,
@@ -93,18 +83,4 @@ executeCli <- function(args, json = FALSE) {
              paste(utils::tail(result, 5), collapse = "\n"))
   }
   invisible(result)
-}
-
-#' Warn about legacy-ignored arguments
-#' @noRd
-warnLegacyIgnored <- function(..., caller = "CLI") {
-  dots <- list(...)
-  ignored <- names(dots)[!sapply(dots, function(x) is.null(x) || identical(x, FALSE))]
-  if (length(ignored) > 0) {
-    cli::cli_warn(c(
-      "{caller}() is running against the legacy CLI surface.",
-      "i" = "The following arguments are ignored: {paste(ignored, collapse = ', ')}.",
-      "i" = "Upgrade improveRcontributions to get the new CLI (4.4.2+)."
-    ))
-  }
 }

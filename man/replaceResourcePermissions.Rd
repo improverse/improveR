@@ -23,7 +23,9 @@ A list of the resulting ACL entries, or \code{NULL} on failure.
 Atomically replaces the entire ACL for a resource. All entries in the list
 replace the current ACL. Existing entries not present are deleted, entries
 matched by \code{id} are updated, entries without an \code{id} are created.
-The position in the list determines \code{orderNr} (starting at 1).
+The position in the list determines \code{orderNr} (starting at 1), and that
+number is the evaluation order: the first entry in the list is evaluated
+first and, where two entries disagree about the same user, decides.
 }
 \details{
 This endpoint is confirmed working on server 4.4.1-16 and is the most

@@ -9,6 +9,12 @@ improveConnected(silent = FALSE)
 \arguments{
 \item{silent}{if TRUE no log message is printed}
 }
+\value{
+\code{TRUE} when \code{\link[=improveConnect]{improveConnect()}} has run in this session, \code{FALSE} otherwise -
+invisibly in both cases. With \code{silent = FALSE} (the default) the unconnected case does
+not return at all but stops with \verb{not connected}; only \code{silent = TRUE} makes this a
+predicate.
+}
 \description{
 improveConnected checks if improveConnect was called.
 }

@@ -27,7 +27,7 @@ createStep <- function(treeIdent,parentStepIdent=NULL,toolId=NULL) {
                                               ),
                                               data=data,
                                               restType = "POST")
-    step <- httr::content(result)
+    step <- restContent(result, "createStep")
     #TODO update children ...
     unloadChildResources(treeIdent)
     unloadFullChildResources(treeIdent)
@@ -244,7 +244,7 @@ getProcessFileVariables <- function(ident, processId) {
                                             ),
                                             restType = "GET")
 
-  variables <- httr::content(result)
+  variables <- restContent(result, "loadStepVariables")
   .processVariablesContentToDf(variables)
 }
 
@@ -273,7 +273,7 @@ createProcessFileVariable <- function(ident, processId,name,variableType,positio
                               data=variableData,
                               restType = "POST")
 
-  variables <- httr::content(result)
+  variables <- restContent(result, "loadStepVariables")
   .processVariablesContentToDf(variables)
 }
 

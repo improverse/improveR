@@ -13,6 +13,13 @@ addBulkMetaDate(ident, descriptorNameValueList, scope = "Improve Client")
 
 \item{scope}{the scope for metadata, default "Improve Client"}
 }
+\value{
+The refreshed metadata of the resource, as \code{\link[=refreshMetaData]{refreshMetaData()}} returns it: a
+data frame with the metadata table nested in \verb{$data}. \code{NULL} when \code{ident} resolves to
+no resource, or is an empty data frame or an empty vector. For several idents the
+refreshed metadata of all of them, merged into one data frame. Note that the value
+reports the state \strong{after} the write, not whether the write itself succeeded.
+}
 \description{
 Adds Metadata Value To A Resource, Always Adds, Never Updates
 }

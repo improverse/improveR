@@ -59,7 +59,7 @@ test_that("GFT3-setup: connect and create test folder with files", {
     }
   }
 
-  ts <- format(Sys.time(), "%Y%m%d%H%M%S")
+  ts <- uniqueTag()
   folder <- improveR::createFolder(
     targetIdent = basePath,
     folderName = paste0("gft-check3-", ts),
@@ -291,7 +291,7 @@ test_that("GFT3-05: set ACL entry on test folder for a group|ccs6,ics2043,ics204
   cat("Test user:", GFT3$TEST_USER$username, "(", GFT3$TEST_USER$id, ")\n")
 
   # Create a group for ACL testing
-  groupName <- paste0("gft3-test-", format(Sys.time(), "%H%M%S"))
+  groupName <- paste0("gft3-test-", uniqueTag(6))
   group <- tryCatch(
     improveR::createGroup(groupName),
     error = function(e) NULL
@@ -428,10 +428,11 @@ test_that("GFT3-10: switch to test user and verify limited access|ccs82", {
     improveR::setEditable(TRUE)
     TRUE
   }, error = function(e) {
-    # connectAs tears down the current session even on failure —
-    # reconnect as admin before skipping
+    # connectAs tears down the current session even on failure -
+    # reconnect as the run user before skipping (IMR-267: this used to
+    # reconnect as a hardcoded "admin")
     tryCatch({
-      improveRtestsupport::connectAs("admin")
+      improveRtestsupport::connectAsRunUser()
       improveR::setEditable(TRUE)
     }, error = function(e2) NULL)
     skip(paste("Cannot connect as test user:", e$message))
@@ -470,13 +471,13 @@ test_that("GFT3-10: switch to test user and verify limited access|ccs82", {
   expect_false(is.null(readResult),
                info = "Test user could read the folder (confirming ACL read grant)")
 
-  # Switch back to admin
+  # Switch back to the identity the run was started with (IMR-267)
   tryCatch({
-    improveRtestsupport::connectAs("admin")
+    improveRtestsupport::connectAsRunUser()
     improveR::setEditable(TRUE)
-    cat("Switched back to admin\n")
+    cat("Switched back to run user\n")
   }, error = function(e) {
-    cat("Warning: could not switch back to admin:", e$message, "\n")
+    cat("Warning: could not switch back to run user:", e$message, "\n")
   })
 })
 

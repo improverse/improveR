@@ -16,6 +16,12 @@ loadFullChildResources(ident, from = pwd())
 
 \item{from}{used if a relative path is used}
 }
+\value{
+A data frame with one row per resource, carrying \code{resourceId}, \code{entityId} and
+the child resources, each with their own children nested in \verb{$data} - use \code{\link[=strip]{strip()}} to
+unwrap a single one. \code{NULL} when \code{ident} resolves to no resource. For several idents
+the result of all of them, merged.
+}
 \description{
 arguments:
 }

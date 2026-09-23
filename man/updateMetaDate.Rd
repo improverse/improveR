@@ -13,6 +13,13 @@ updateMetaDate(ident, descriptorName, value)
 
 \item{value}{the value has to match the type of the descriptor. For dates, posix date has to be used, for LOVs the text has to exist}
 }
+\value{
+The refreshed metadata of the resource, as \code{\link[=refreshMetaData]{refreshMetaData()}} returns it: a
+data frame with the metadata table nested in \verb{$data}. \code{NULL} when \code{ident} resolves to
+no resource, or is an empty data frame or an empty vector. For several idents the
+refreshed metadata of all of them, merged into one data frame. Note that the value
+reports the state \strong{after} the write, not whether the write itself succeeded.
+}
 \description{
 Updates Metadata Value To A Resource
 }

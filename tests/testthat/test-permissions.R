@@ -104,10 +104,7 @@ test_that("setResourcePermission creates ACL visible in getResourcePermissions|i
     memberId = group$id, visible = TRUE, read = TRUE,
     modify = FALSE, changeRights = FALSE)
 
-  if (is.null(aclEntry)) {
-    deleteGroup(group$id)
-    stop("setResourcePermission not supported on this server")
-  }
+  requireServerCall(aclEntry, "setResourcePermission", cleanup = function() { deleteGroup(group$id) })
 
   # Verify ACL contains the group
   acl <- getResourcePermissions(TEST_FOLDER)
@@ -139,7 +136,7 @@ test_that("permissions inherit to child folders|ics769,ics2044", {
   TEST_FOLDER <- ensureTestFolder()
 
   # Create hierarchy
-  parentFolder <- createFolder(TEST_FOLDER, paste0("inherit-", sample(1000:9999, 1)))
+  parentFolder <- createFolder(TEST_FOLDER, paste0("inherit-", uniqueTag(6)))
   childFolder <- createFolder(parentFolder$resourceId, "child")
 
   groupName <- paste0("test-inherit-", uuid::UUIDgenerate())
@@ -151,10 +148,7 @@ test_that("permissions inherit to child folders|ics769,ics2044", {
          modify = TRUE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
   putResult <- replaceResourcePermissions(parentFolder$resourceId, aclEntries)
-  if (is.null(putResult)) {
-    deleteGroup(group$id)
-    stop("replaceResourcePermissions not supported")
-  }
+  requireServerCall(putResult, "replaceResourcePermissions", cleanup = function() { deleteGroup(group$id) })
 
   # Verify parent has the permission
   parentAcl <- getResourcePermissions(parentFolder$resourceId)
@@ -182,7 +176,7 @@ test_that("permissions inherit to child folders|ics769,ics2044", {
 test_that("inherit=FALSE does not propagate to children|ics769,ics2044", {
   TEST_FOLDER <- ensureTestFolder()
 
-  parentFolder <- createFolder(TEST_FOLDER, paste0("noinherit-", sample(1000:9999, 1)))
+  parentFolder <- createFolder(TEST_FOLDER, paste0("noinherit-", uniqueTag(6)))
   childFolder <- createFolder(parentFolder$resourceId, "child")
 
   groupName <- paste0("test-noinherit-", uuid::UUIDgenerate())
@@ -194,10 +188,7 @@ test_that("inherit=FALSE does not propagate to children|ics769,ics2044", {
          modify = FALSE, changeRights = FALSE, inherit = FALSE, rightsArea = 1L)
   )
   putResult <- replaceResourcePermissions(parentFolder$resourceId, aclEntries)
-  if (is.null(putResult)) {
-    deleteGroup(group$id)
-    stop("replaceResourcePermissions not supported")
-  }
+  requireServerCall(putResult, "replaceResourcePermissions", cleanup = function() { deleteGroup(group$id) })
 
   # Parent has the permission
   parentAcl <- getResourcePermissions(parentFolder$resourceId)
@@ -232,10 +223,7 @@ test_that("multiple ACL entries on same resource|ics769,ics2044", {
          modify = FALSE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
   putResult <- replaceResourcePermissions(TEST_FOLDER, aclEntries)
-  if (is.null(putResult)) {
-    deleteGroup(group1$id); deleteGroup(group2$id)
-    stop("replaceResourcePermissions not supported")
-  }
+  requireServerCall(putResult, "replaceResourcePermissions", cleanup = function() { deleteGroup(group1$id); deleteGroup(group2$id) })
 
   acl <- getResourcePermissions(TEST_FOLDER)
   expect_true(group1$id %in% acl$memberId, info = "Group1 should be in ACL")
@@ -270,11 +258,7 @@ test_that("effectiveRights returns correct rights for user|ics769,ics2044", {
          modify = TRUE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
   putResult <- replaceResourcePermissions(TEST_FOLDER, aclEntries)
-  if (is.null(putResult)) {
-    removeGroupUser(group$id, adminUser$id[1])
-    deleteGroup(group$id)
-    stop("replaceResourcePermissions not supported")
-  }
+  requireServerCall(putResult, "replaceResourcePermissions", cleanup = function() { removeGroupUser(group$id, adminUser$id[1]); deleteGroup(group$id) })
 
   rights <- effectiveRights(TEST_FOLDER, memberId = adminUser$id[1])
   expect_false(is.null(rights))
@@ -289,65 +273,231 @@ test_that("effectiveRights returns correct rights for user|ics769,ics2044", {
   removeGroupUser(group$id, adminUser$id[1])
   deleteGroup(group$id)
 })
+# --- Rights, asserted by result rather than by shape (IMR-276) -------------
+#
+# The blocks below replace the two role-prefix tests that were removed with
+# getUsersByRole, getOwners, getCollaborators and getReadOnly. Those resolved a
+# member's role from a group NAME beginning with "OWN_", "COL_" or "RDO_" - a
+# convention no repository carries any more. The tests created the prefixed
+# group themselves and then found it again, so what they proved was
+# startsWith(), not a rights concept.
+#
+# What replaces them asserts the right that was granted, on the member it was
+# granted to. The previous style,
+#
+#     expect_true(is.data.frame(perms))
+#     expect_true(nrow(perms) >= 1)
+#
+# passes whether the rights are correct or not.
 
-# --- Role-based lookups ---
+# One helper, so every block below grants against a known member.
+adminMemberId <- function() {
+  allUsers <- improveR::users()
+  expect_false(is.null(allUsers), info = "users() must return the user list")
+  admin <- allUsers[allUsers$username == "admin", ]
+  expect_true(nrow(admin) >= 1, info = "the run identity 'admin' must exist")
+  admin$id[1]
+}
 
-test_that("getOwners returns users from OWN_ group|ics2044", {
+aclFor <- function(perms, memberId) {
+  if (is.null(perms) || nrow(perms) == 0) return(NULL)
+  hit <- perms[perms$memberId == memberId, ]
+  if (nrow(hit) == 0) NULL else hit[1, ]
+}
+
+test_that("setResourcePermission grants exactly the rights asked for|ics2044", {
   TEST_FOLDER <- ensureTestFolder()
-  ownGroupName <- paste0("OWN_test-", uuid::UUIDgenerate())
-  ownGroup <- createGroup(ownGroupName)
-  allUsers <- users()
-  adminUser <- allUsers[allUsers$username == "admin", ]
-  addGroupUser(ownGroup$id, adminUser$id[1])
+  member <- adminMemberId()
 
-  aclEntries <- list(
-    list(memberId = ownGroup$id, visible = TRUE, read = TRUE,
-         modify = TRUE, changeRights = TRUE, inherit = TRUE, rightsArea = 1L)
-  )
-  putResult <- replaceResourcePermissions(TEST_FOLDER, aclEntries)
-  if (is.null(putResult)) {
-    removeGroupUser(ownGroup$id, adminUser$id[1])
-    deleteGroup(ownGroup$id)
-    stop("replaceResourcePermissions not supported")
-  }
+  created <- improveR::setResourcePermission(
+    TEST_FOLDER, memberId = member,
+    visible = TRUE, read = TRUE, modify = FALSE, changeRights = FALSE)
+  requireServerCall(created, "setResourcePermission")
 
-  owners <- getOwners(TEST_FOLDER)
-  expect_true(is.data.frame(owners))
-  expect_true(nrow(owners) >= 1, info = "Should find at least 1 owner")
+  entry <- aclFor(improveR::getResourcePermissions(TEST_FOLDER), member)
+  expect_false(is.null(entry), info = "the granted member must appear in the ACL")
+  expect_true(entry$visible,       info = "visible was granted")
+  expect_true(entry$read,          info = "read was granted")
+  expect_false(entry$modify,       info = "modify was NOT granted and must be FALSE")
+  expect_false(entry$changeRights, info = "changeRights was NOT granted and must be FALSE")
 
-  # Cleanup
-  replaceResourcePermissions(TEST_FOLDER, list())
-  removeGroupUser(ownGroup$id, adminUser$id[1])
-  deleteGroup(ownGroup$id)
+  improveR::replaceResourcePermissions(TEST_FOLDER, list())
 })
 
-test_that("getUsersByRole returns correct users, NULL for missing role|ics2044", {
+test_that("updateResourcePermission changes the flag it is given and leaves the rest|ics2044", {
   TEST_FOLDER <- ensureTestFolder()
-  colGroupName <- paste0("COL_test-", uuid::UUIDgenerate())
-  colGroup <- createGroup(colGroupName)
-  allUsers <- users()
-  adminUser <- allUsers[allUsers$username == "admin", ]
-  addGroupUser(colGroup$id, adminUser$id[1])
+  member <- adminMemberId()
 
-  aclEntries <- list(
-    list(memberId = colGroup$id, visible = TRUE, read = TRUE,
-         modify = TRUE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
+  created <- improveR::setResourcePermission(
+    TEST_FOLDER, memberId = member,
+    visible = TRUE, read = TRUE, modify = FALSE, changeRights = FALSE)
+  requireServerCall(created, "setResourcePermission")
+  before <- aclFor(improveR::getResourcePermissions(TEST_FOLDER), member)
+  expect_false(is.null(before))
+
+  updated <- improveR::updateResourcePermission(
+    TEST_FOLDER, aclId = before$id, memberId = member,
+    visible = TRUE, read = TRUE, modify = TRUE, changeRights = FALSE)
+  requireServerCall(updated, "updateResourcePermission",
+                    cleanup = function() improveR::replaceResourcePermissions(TEST_FOLDER, list()))
+
+  after <- aclFor(improveR::getResourcePermissions(TEST_FOLDER), member)
+  expect_false(is.null(after), info = "the entry must still be there after an update")
+  expect_true(after$modify,        info = "modify was the flag changed, it must now be TRUE")
+  expect_true(after$read,          info = "read was not touched and must still be TRUE")
+  expect_false(after$changeRights, info = "changeRights was not touched and must still be FALSE")
+
+  improveR::replaceResourcePermissions(TEST_FOLDER, list())
+})
+
+test_that("removeResourcePermission removes that entry and only that entry|ics2044", {
+  TEST_FOLDER <- ensureTestFolder()
+  member <- adminMemberId()
+  groupName <- paste0("imr276-", uuid::UUIDgenerate())
+  group <- improveR::createGroup(groupName)
+  requireServerCall(group, "createGroup")
+
+  entries <- list(
+    list(memberId = member,   visible = TRUE, read = TRUE, modify = FALSE,
+         changeRights = FALSE, inherit = TRUE, rightsArea = 1L),
+    list(memberId = group$id, visible = TRUE, read = TRUE, modify = TRUE,
+         changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
-  putResult <- replaceResourcePermissions(TEST_FOLDER, aclEntries)
-  if (is.null(putResult)) {
-    removeGroupUser(colGroup$id, adminUser$id[1])
-    deleteGroup(colGroup$id)
-    stop("replaceResourcePermissions not supported")
-  }
+  requireServerCall(improveR::replaceResourcePermissions(TEST_FOLDER, entries),
+                    "replaceResourcePermissions",
+                    cleanup = function() improveR::deleteGroup(group$id))
 
-  result <- getUsersByRole(TEST_FOLDER, "COL_")
-  expect_true(is.data.frame(result), info = "Should find users for COL_ role")
+  both <- improveR::getResourcePermissions(TEST_FOLDER)
+  expect_equal(nrow(both), 2L, info = "both entries must be present before the removal")
+  victim <- aclFor(both, group$id)
+  expect_false(is.null(victim))
 
-  noRole <- getUsersByRole(TEST_FOLDER, "NONEXISTENT_")
-  expect_null(noRole, info = "Non-existent role should return NULL")
+  expect_true(improveR::removeResourcePermission(TEST_FOLDER, victim$id))
 
-  # Cleanup
-  replaceResourcePermissions(TEST_FOLDER, list())
-  removeGroupUser(colGroup$id, adminUser$id[1])
-  deleteGroup(colGroup$id)
+  left <- improveR::getResourcePermissions(TEST_FOLDER)
+  expect_equal(nrow(left), 1L, info = "exactly one entry must remain")
+  expect_true(is.null(aclFor(left, group$id)), info = "the removed member must be gone")
+  expect_false(is.null(aclFor(left, member)),  info = "the other member must be untouched")
+
+  improveR::replaceResourcePermissions(TEST_FOLDER, list())
+  improveR::deleteGroup(group$id)
+})
+
+test_that("replaceResourcePermissions leaves exactly the set it was given|ics2076", {
+  TEST_FOLDER <- ensureTestFolder()
+  member <- adminMemberId()
+  groupName <- paste0("imr276-", uuid::UUIDgenerate())
+  group <- improveR::createGroup(groupName)
+  requireServerCall(group, "createGroup")
+
+  requireServerCall(
+    improveR::replaceResourcePermissions(TEST_FOLDER, list(
+      list(memberId = member, visible = TRUE, read = TRUE, modify = TRUE,
+           changeRights = TRUE, inherit = TRUE, rightsArea = 1L))),
+    "replaceResourcePermissions",
+    cleanup = function() improveR::deleteGroup(group$id))
+  first <- improveR::getResourcePermissions(TEST_FOLDER)
+  expect_equal(nrow(first), 1L)
+  expect_equal(first$memberId[1], member)
+
+  # Replacing is not adding: the previous entry must be gone afterwards.
+  requireServerCall(
+    improveR::replaceResourcePermissions(TEST_FOLDER, list(
+      list(memberId = group$id, visible = TRUE, read = TRUE, modify = FALSE,
+           changeRights = FALSE, inherit = TRUE, rightsArea = 1L))),
+    "replaceResourcePermissions",
+    cleanup = function() improveR::deleteGroup(group$id))
+  second <- improveR::getResourcePermissions(TEST_FOLDER)
+  expect_equal(nrow(second), 1L, info = "replace must not accumulate entries")
+  expect_equal(second$memberId[1], group$id, info = "the new member must be the only one")
+  expect_true(is.null(aclFor(second, member)), info = "the previous member must be gone")
+
+  # And the empty list clears it.
+  improveR::replaceResourcePermissions(TEST_FOLDER, list())
+  cleared <- improveR::getResourcePermissions(TEST_FOLDER)
+  expect_true(is.null(cleared) || nrow(cleared) == 0,
+              info = "an empty list must clear the ACL")
+
+  improveR::deleteGroup(group$id)
+})
+
+test_that("effectiveRights reports the rights that were actually granted|ics2024", {
+  TEST_FOLDER <- ensureTestFolder()
+  member <- adminMemberId()
+
+  requireServerCall(
+    improveR::replaceResourcePermissions(TEST_FOLDER, list(
+      list(memberId = member, visible = TRUE, read = TRUE, modify = FALSE,
+           changeRights = FALSE, inherit = TRUE, rightsArea = 1L))),
+    "replaceResourcePermissions")
+  readOnly <- improveR::effectiveRights(TEST_FOLDER, memberId = member)
+  requireServerCall(readOnly, "effectiveRights")
+  expect_true(readOnly$read,   info = "read was granted")
+  expect_false(readOnly$modify, info = "modify was not granted")
+
+  requireServerCall(
+    improveR::replaceResourcePermissions(TEST_FOLDER, list(
+      list(memberId = member, visible = TRUE, read = TRUE, modify = TRUE,
+           changeRights = FALSE, inherit = TRUE, rightsArea = 1L))),
+    "replaceResourcePermissions")
+  writable <- improveR::effectiveRights(TEST_FOLDER, memberId = member)
+  requireServerCall(writable, "effectiveRights")
+  expect_true(writable$modify, info = "modify was granted the second time and must follow")
+
+  improveR::replaceResourcePermissions(TEST_FOLDER, list())
+})
+
+test_that("effectiveUserPermissions lists the member that was granted, with its rights|ics2044", {
+  TEST_FOLDER <- ensureTestFolder()
+  member <- adminMemberId()
+
+  requireServerCall(
+    improveR::replaceResourcePermissions(TEST_FOLDER, list(
+      list(memberId = member, visible = TRUE, read = TRUE, modify = TRUE,
+           changeRights = FALSE, inherit = TRUE, rightsArea = 1L))),
+    "replaceResourcePermissions")
+
+  perms <- improveR::effectiveUserPermissions(TEST_FOLDER)
+  requireServerCall(perms, "effectiveUserPermissions")
+  expect_true(is.data.frame(perms))
+
+  # effectiveUserRights resolves groups down to USERS, so the result is keyed by
+  # user and not by the ACL's memberId - the columns arrive flattened as
+  # user.username, user.name, user.role, user.active. Asserting on memberId
+  # finds nothing, which is what the first version of this block did.
+  expect_true("user.username" %in% names(perms),
+              info = "effectiveUserPermissions must report the user it resolved to")
+  expect_true("admin" %in% perms$user.username,
+              info = paste0("the identity the right was granted to must appear in the ",
+                            "effective permissions; got: ",
+                            paste(utils::head(perms$user.username, 5), collapse = ", ")))
+
+  improveR::replaceResourcePermissions(TEST_FOLDER, list())
+})
+
+test_that("effectiveUserPermissions returns NULL for a resource that does not exist|ics2044", {
+  # Path 1 of three. Path 3 - the success case - is the block above.
+  #
+  # Path 2, the REST call returning NULL while the resource loads fine, cannot
+  # be provoked against a healthy server without injecting a fault, and is
+  # deliberately NOT faked here. It is covered by the contract of
+  # authenticatedREST()/restContent() (IMR-270), not from this file.
+  expect_null(improveR::effectiveUserPermissions("/NonExistent/Path/imr276"))
+})
+
+test_that("loadGroups lists a group that was just created, and drops it after deletion|ics2043", {
+  groupName <- paste0("imr276-", uuid::UUIDgenerate())
+  group <- improveR::createGroup(groupName)
+  requireServerCall(group, "createGroup")
+
+  listed <- improveR::loadGroups()
+  requireServerCall(listed, "loadGroups",
+                    cleanup = function() improveR::deleteGroup(group$id))
+  expect_true(groupName %in% listed$name,
+              info = "a group that was just created must appear in loadGroups()")
+
+  expect_true(improveR::deleteGroup(group$id))
+  after <- improveR::loadGroups()
+  expect_false(groupName %in% after$name,
+               info = "a deleted group must no longer appear in loadGroups()")
 })

@@ -11,6 +11,19 @@ pullCli(localPath, preview = FALSE)
 
 \item{preview}{Logical. If TRUE, only preview what would be pulled.}
 }
+\value{
+With \code{preview = TRUE}, a data frame of what a pull would fetch, invisibly:
+one row per file with \code{path} and \code{change} (\code{"added"}, \code{"modified"} or
+\code{"deleted"}), and zero rows when the clone is up to date. The preview is computed
+in improveR from the clone's own baseline and one read of the resource; the CLI is
+not called and nothing is written (IMR-283).
+
+Otherwise the CLI's output, invisibly: a character vector of the lines it wrote to
+stdout and stderr. A non-zero exit code is logged as a warning, not raised, so a
+returned value is no proof that the pull succeeded. The caches for the local
+repository's resource and its children are dropped afterwards; if the repository
+cannot be identified that step is skipped and a warning says so.
+}
 \description{
 Pulls changes from the CLI. After pulling, the resource cache is invalidated
 to ensure the in-memory state matches what was just downloaded.

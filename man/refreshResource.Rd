@@ -16,6 +16,11 @@ updateResource(...)
 
 \item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
+\value{
+The freshly read resource, in the same shape as \code{\link[=loadResource]{loadResource()}}. \code{NULL} when
+\code{ident} resolves to no resource - in that case nothing is unloaded and nothing is read
+a second time.
+}
 \description{
 Refreshes a resource from the server by clearing cache and reloading.
 }

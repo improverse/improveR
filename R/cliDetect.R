@@ -9,6 +9,26 @@
 
 cliInfoEnv <- new.env(parent = emptyenv())
 
+# Asks a CLI executable for its version. Used for the legacy binary, whose
+# version cannot be read off a file name. Returns "unknown" rather than failing:
+# the version is documentation for the evidence package, not a precondition.
+versionFromCli <- function(command) {
+  out <- tryCatch(
+    suppressWarnings(system2(command, "version", stdout = TRUE, stderr = TRUE)),
+    error = function(e) character(0)
+  )
+  m <- regmatches(paste(out, collapse = " "),
+                  regexpr("[0-9]+\\.[0-9]+\\.[0-9]+", paste(out, collapse = " ")))
+  if (length(m) == 1L) m else "unknown"
+}
+
+# Reads the version out of a JAR file name, e.g. improve-cli-4.4.5.jar -> "4.4.5".
+# Returns "unknown" when the name carries none.
+versionFromJarName <- function(jarPath) {
+  m <- regmatches(basename(jarPath), regexpr("[0-9]+\\.[0-9]+\\.[0-9]+", basename(jarPath)))
+  if (length(m) == 1L) m else "unknown"
+}
+
 #' Detect CLI Version and Capabilities
 #'
 #' Called automatically on first CLI use. Checks for the CLI JAR in
@@ -24,75 +44,59 @@ detectCli <- function() {
   if (envPath != "" && file.exists(envPath)) {
     cliInfoEnv$mode <- "legacy_binary"
     cliInfoEnv$binaryPath <- envPath
-    cliInfoEnv$hasPicocli <- FALSE
-    cliInfoEnv$version <- NULL
+    cliInfoEnv$version <- versionFromCli(envPath)
     cliInfoEnv$detected <- TRUE
-    log_info("CLI: legacy binary at ", envPath)
+    log_info("CLI: legacy binary at ", envPath, " v", cliInfoEnv$version)
     return(invisible(NULL))
   }
 
-  # Option 2: JAR from improveRcontributions
+  # Option 2: whatever improveRcontributions::cliPath() offers.
+  #
+  # There used to be an option before this one that called
+  # improveRcontributions::cliJarPath() and ::javaPath() directly. Neither
+  # function exists in that package - not unexported, absent - so both calls
+  # raised, both tryCatch handlers returned NULL, and the branch could never be
+  # taken. It failed silently, because tryCatch(..., error = function(e) NULL)
+  # makes "this function does not exist" indistinguishable from "there is no JAR
+  # installed". Removed in IMR-302; cliPath() reaches the same JAR and is the
+  # supported way in.
+  #
+  # cliPath() does not return a path. It returns a command line, e.g.
+  #   "/usr/bin/java -jar /.../improve-cli-4.5.0.jar"
+  # The previous version passed that straight to file.exists(), which is always
+  # FALSE - so this branch never fired and the whole file was unreachable
+  # (IMR-272). Both shapes are accepted now: a plain executable, and a command
+  # line with a JAR in it.
   if (requireNamespace("improveRcontributions", quietly = TRUE)) {
-    jarPath <- tryCatch(improveRcontributions::cliJarPath(), error = function(e) NULL)
-    javaCmd <- tryCatch(improveRcontributions::javaPath(), error = function(e) NULL)
-
-    if (!is.null(jarPath) && !is.null(javaCmd)) {
-      # Get version
-      versionOut <- tryCatch(
-        system2(javaCmd, c("-jar", jarPath, "version"), stdout = TRUE, stderr = TRUE),
-        error = function(e) ""
-      )
-      version <- sub(".*?(\\d+\\.\\d+\\.\\d+).*", "\\1", paste(versionOut, collapse = " "))
-      if (!grepl("^\\d+\\.\\d+\\.\\d+$", version)) version <- "unknown"
-
-      # Check picocli support
-      hasPico <- FALSE
-      picoOut <- tryCatch(
-        system2(javaCmd, c("-jar", jarPath, "--pico", "--help"), stdout = TRUE, stderr = TRUE),
-        error = function(e) ""
-      )
-      picoExit <- attr(picoOut, "status")
-      if (is.null(picoExit) || picoExit == 0) {
-        hasPico <- any(grepl("imp", picoOut))
+    cliCmd <- tryCatch(improveRcontributions::cliPath(), error = function(e) NULL)
+    if (!is.null(cliCmd) && nzchar(cliCmd)) {
+      jarInCmd <- regmatches(cliCmd, regexpr("[^ ]+\\.jar", cliCmd))
+      if (length(jarInCmd) == 1L && file.exists(jarInCmd)) {
+        # A JAR invoked through some java command - same shape as option 2.
+        cliInfoEnv$mode <- "jar"
+        cliInfoEnv$jarPath <- jarInCmd
+        cliInfoEnv$javaCmd <- sub(" +-jar.*$", "", cliCmd)
+        cliInfoEnv$version <- versionFromJarName(jarInCmd)
+        cliInfoEnv$detected <- TRUE
+        log_info("CLI: JAR ", jarInCmd, " v", cliInfoEnv$version, " (via improveRcontributions)")
+        return(invisible(NULL))
       }
-
-      cliInfoEnv$mode <- "jar"
-      cliInfoEnv$jarPath <- jarPath
-      cliInfoEnv$javaCmd <- javaCmd
-      cliInfoEnv$version <- version
-      cliInfoEnv$hasPicocli <- hasPico
-      cliInfoEnv$detected <- TRUE
-      log_info("CLI: JAR ", jarPath, " v", version, " picocli=", hasPico)
-      return(invisible(NULL))
-    }
-  }
-
-  # Option 3: Legacy binary via cliPath() (old improveRcontributions with platform archives)
-  if (requireNamespace("improveRcontributions", quietly = TRUE)) {
-    legacyPath <- tryCatch(improveRcontributions::cliPath(), error = function(e) NULL)
-    if (!is.null(legacyPath) && file.exists(legacyPath)) {
-      cliInfoEnv$mode <- "legacy_binary"
-      cliInfoEnv$binaryPath <- legacyPath
-      cliInfoEnv$hasPicocli <- FALSE
-      cliInfoEnv$version <- NULL
-      cliInfoEnv$detected <- TRUE
-      log_info("CLI: legacy binary at ", legacyPath)
-      return(invisible(NULL))
+      if (file.exists(cliCmd)) {
+        cliInfoEnv$mode <- "legacy_binary"
+        cliInfoEnv$binaryPath <- cliCmd
+        cliInfoEnv$version <- versionFromCli(cliCmd)
+        cliInfoEnv$detected <- TRUE
+        log_info("CLI: legacy binary at ", cliCmd, " v", cliInfoEnv$version)
+        return(invisible(NULL))
+      }
+      log_warn("improveRcontributions::cliPath() returned something that is neither an ",
+               "existing file nor a command with an existing JAR: ", cliCmd)
     }
   }
 
   cliInfoEnv$detected <- TRUE
   cliInfoEnv$mode <- "none"
-  cliInfoEnv$hasPicocli <- FALSE
   log_warn("No CLI found. Install improveRcontributions or set IMPROVE_CLI_PATH.")
-}
-
-#' Check if Picocli Surface is Available
-#' @return Logical
-#' @noRd
-hasPicocli <- function() {
-  detectCli()
-  cliInfoEnv$hasPicocli
 }
 
 #' Get CLI Mode

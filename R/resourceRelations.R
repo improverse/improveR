@@ -1,19 +1,15 @@
-#' helper function to validate resource existence
-#' @param resourceId id (UUID) of the resource whose existence is to be checked
-#' @noRd
-validateResource <- function(resourceId) {
-  resource <- tryCatch({
-    loadResource(resourceId)
-  }, error = function(e) {
-    return(NULL)
-  })
+# validateResource() liegt in reviews.R, nicht hier.
+#
+# Bis 10.09.2026 stand hier eine zweite Fassung, die loadResource() in tryCatch
+# kapselte und bei einem Fehler FALSE lieferte. DESCRIPTION hat kein Collate, R
+# laedt alphabetisch, reviews.R kommt nach resourceRelations.R - die Fassung
+# hier war also bereits wirkungslos. Das Entfernen aendert zur Laufzeit nichts.
+#
+# Sie war zudem die schlechtere: loadResource() wirft "not connected", wenn die
+# Verbindung fehlt. Gekapselt wurde daraus ein FALSE, und die Aufrufer unten
+# meldeten "The resource with the id: X does not exist" - eine Verbindungs-
+# stoerung als fehlendes Objekt ausgegeben (IMR-273).
 
-  if (is.null(resource)) {
-    log_error("The resource with the id:", resourceId, "does not exist")
-    return(FALSE)
-  }
-  return(TRUE)
-}
 
 #' helper function to validate relation existence
 #' @param resourceId id (UUID) of the resource

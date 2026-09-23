@@ -11,6 +11,13 @@ loadResourceVersionFromServer(entityVersionId, invalidatesReproducibility = T)
 
 \item{invalidatesReproducibility}{this flag may only be changed by internal functions.}
 }
+\value{
+A one-row data frame per version with the resource fields as of that
+revision, dates converted to POSIX and \code{isVersion} set to \code{TRUE}. \code{NULL} when any step
+fails - the entity does not resolve, it has no history, the history is empty, or the
+revision could not be read; each case is logged. For a list of ids the rows of all of
+them, merged.
+}
 \description{
 Loads a resource version directly from the server by the  entity version ID.
 The results are returned as a data frame or a list of data frames.

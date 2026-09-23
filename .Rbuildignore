@@ -16,3 +16,11 @@
 ^RELEASE_NOTES$
 ^4\.4\.2 test results$
 ^tests/testthat/\.import_.*$
+^checks$
+^notes$
+^CAPABILITY_MAPPING\.md$
+^MIGRATION-error-handling\.md$
+^STEP_V2_SPECIFICATION\.md$
+^TODO-improveR-updates\.md$
+^WORKFLOW_API_V2_PROPOSAL\.md$
+^logo\.png$

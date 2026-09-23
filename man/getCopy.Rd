@@ -17,6 +17,12 @@ getCopy(ident, from = pwd(), caption = "", description = "", refresh = FALSE)
 
 \item{refresh}{If TRUE, invalidate cached file content and resource metadata for \code{ident} before fetching. Defaults to FALSE.}
 }
+\value{
+A data frame with one row per file, holding \code{caption}, \code{path} (the absolute
+path of the local copy), \code{entityId}, \code{name}, \code{description} and the resource itself in
+\code{resource}. \code{NULL} when \code{ident} resolves to nothing usable - the get functions accept
+only files and links, and anything else is logged and skipped.
+}
 \description{
 Get a Local Copy of a File
 }

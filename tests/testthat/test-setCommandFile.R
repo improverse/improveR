@@ -35,7 +35,7 @@ ensureTestFolder <- function() {
 # resource df with $resourceId / $entityId, plus the main process row.
 createFreshStep <- function(suffix) {
   TEST_FOLDER <- ensureTestFolder()
-  treeName <- paste0("SCF-", suffix, "-", format(Sys.time(), "%H%M%S"))
+  treeName <- paste0("SCF-", suffix, "-", uniqueTag(6))
   tree <- improveR::createAnalysisTree(
     targetIdent = TEST_FOLDER,
     treeName = treeName

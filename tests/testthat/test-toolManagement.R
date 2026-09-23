@@ -23,7 +23,7 @@ test_that("setup toolManagement test environment", {
 # Tool Categories
 # ---------------------------------------------------------------------------
 test_that("createToolCategory creates a new category|ccs32,ics1673", {
-  catName <- paste0("test-toolmgmt-", format(Sys.time(), "%Y%m%d%H%M%S"))
+  catName <- paste0("test-toolmgmt-", uniqueTag())
   result <- createToolCategory(catName)
   expect_false(is.null(result))
   expect_true(!is.null(result$id))
@@ -66,7 +66,7 @@ test_that("createTool creates a tool in a category|ccs35,ics1688", {
   stopifnot("No category created" = exists("TM_CATEGORY", envir = globalenv()))
   cat <- get("TM_CATEGORY", envir = globalenv())
 
-  toolName <- paste0("test-tool-", format(Sys.time(), "%H%M%S"))
+  toolName <- paste0("test-tool-", uniqueTag(6))
   result <- createTool(cat$id, toolName)
   expect_false(is.null(result))
   expect_true(!is.null(result$id))
@@ -112,7 +112,7 @@ test_that("createToolInstance creates instance on runserver|ccs36,ics1691", {
   rs <- runservers[1, ]
   assign("TM_RUNSERVER", rs, envir = globalenv())
 
-  instanceName <- paste0("test-instance-", format(Sys.time(), "%H%M%S"))
+  instanceName <- paste0("test-instance-", uniqueTag(6))
   result <- createToolInstance(
     runserverId = rs$id,
     toolId = tool$id,

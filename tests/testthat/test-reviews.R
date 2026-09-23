@@ -7,17 +7,15 @@ hasConnectAs <- function() {
     exists("connectAs", envir = asNamespace("improveRtestsupport"))
 }
 
-reconnectAsAdmin <- function() {
-  tryCatch({
-    improveRtestsupport::connectAs("admin")
-    improveR::setEditable(TRUE)
-  }, error = function(e) {
-    improveR::clearConnectionData(includeRepoData = FALSE)
-    Sys.setenv(IMPROVER_TOKEN = "", IMPROVER_REFRESH_TOKEN = "")
-    Sys.setenv(IMPROVER_TEST_USERNAME = "admin", IMPROVER_TEST_PASSWORD = "admin")
-    improveRtestsupport::improveConnect()
-    improveR::setEditable(TRUE)
-  })
+# Reconnects as the identity the run was started with, not as a hardcoded
+# "admin". The previous version called connectAs("admin") - whose password
+# argument defaulted to the username - and its error branch set
+# IMPROVER_TEST_USERNAME/PASSWORD to "admin"/"admin" directly. Both put
+# credentials in test code, and both made the outcome of this file depend on
+# which file had run before it (IMR-267).
+reconnectAsRunUser <- function() {
+  improveRtestsupport::connectAsRunUser()
+  improveR::setEditable(TRUE)
 }
 
 getTest1UserId <- function(allUsers) {
@@ -40,7 +38,7 @@ test_that("setup review test environment", {
   basePath <- createFolderPath("reviews")
   testFolder <- improveR::createFolder(
     targetIdent = basePath,
-    folderName = paste0("test-reviews-", format(Sys.time(), "%Y%m%d%H%M%S")),
+    folderName = paste0("test-reviews-", uniqueTag()),
     comment = "review test setup"
   )
   expect_false(is.null(testFolder))
@@ -74,7 +72,7 @@ test_that("createReview creates a review with correct name and entry|ics1527,ics
   test1Id <- get("REV_TEST1_ID", envir = globalenv())
   reviewerId <- if (!is.null(test1Id)) test1Id else get("REV_USERS", envir = globalenv())$id[1]
 
-  reviewName <- paste0("TestReview-", format(Sys.time(), "%H%M%S"))
+  reviewName <- paste0("TestReview-", uniqueTag(6))
   result <- improveR::createReview(
     name = reviewName,
     parentIdent = testFolder$path,
@@ -82,10 +80,10 @@ test_that("createReview creates a review with correct name and entry|ics1527,ics
     templateId = NULL,
     resourceIds = list(testFile$resourceId),
     reviewerIds = list(reviewerId),
-    dueDate = format(Sys.Date() + 30, "%Y-%m-%d")
+    dueDate = format(runDate() + 30, "%Y-%m-%d")
   )
 
-  if (is.null(result)) stop("Review creation not supported on this server")
+  requireServerCall(result, "createReview")
 
   # Verify: load review back by ID and check name
   loaded <- improveR::getReviewById(result)
@@ -126,7 +124,7 @@ test_that("createReviewer adds a reviewer visible in getReviewers|ics368,ics2045
     userId = allUsers$id[otherIdx[1]],
     username = allUsers$username[otherIdx[1]]
   )
-  if (is.null(result)) stop("createReviewer not supported or duplicate reviewer")
+  requireServerCall(result, "createReviewer")
 
   # Verify: reviewer count increased
   reviewersAfter <- improveR::getReviewers(review)
@@ -202,7 +200,7 @@ test_that("createReviewEntry adds entry visible in getReviewEntries|ics1541,ics2
 
   extraFile <- improveR::createFile(
     targetIdent = testFolder$resourceId,
-    fileName = paste0("entry-test-", sample(1000:9999, 1), ".txt"),
+    fileName = paste0("entry-test-", uniqueTag(6), ".txt"),
     comment = "file for entry test"
   )
   expect_false(is.null(extraFile))
@@ -233,12 +231,12 @@ test_that("deleteReviewEntry removes specific entry, keeps others|ics1542,ics204
 
   fileA <- improveR::createFile(
     targetIdent = testFolder$resourceId,
-    fileName = paste0("del-A-", sample(1000:9999, 1), ".txt"),
+    fileName = paste0("del-A-", uniqueTag(6), ".txt"),
     comment = "delete test A"
   )
   fileB <- improveR::createFile(
     targetIdent = testFolder$resourceId,
-    fileName = paste0("del-B-", sample(1000:9999, 1), ".txt"),
+    fileName = paste0("del-B-", uniqueTag(6), ".txt"),
     comment = "delete test B"
   )
   improveR::createReviewEntry(
@@ -278,7 +276,7 @@ test_that("createReviewComment adds comment visible in getReviewComments|ics1536
   improveRtestsupport::connectAs("test1")
   improveR::setEditable(TRUE)
   accepted <- improveR::acceptReviewInvitation(review, comment = "accepting for comment test")
-  reconnectAsAdmin()
+  reconnectAsRunUser()
   stopifnot("acceptReviewInvitation returned FALSE — comment-test prerequisite failed" = isTRUE(accepted))
 
   improveR::changeReviewStatus(review, "Reviewing")
@@ -290,7 +288,7 @@ test_that("createReviewComment adds comment visible in getReviewComments|ics1536
   improveRtestsupport::connectAs("test1")
   improveR::setEditable(TRUE)
 
-  commentText <- paste0("Test comment ", sample(1000:9999, 1))
+  commentText <- paste0("Test comment ", uniqueTag(6))
   result <- improveR::createReviewComment(
     ident = review,
     resourceIdent = testFile$resourceId,
@@ -298,10 +296,7 @@ test_that("createReviewComment adds comment visible in getReviewComments|ics1536
     commentType = "GENERAL"
   )
 
-  if (is.null(result)) {
-    reconnectAsAdmin()
-    stop("createReviewComment not supported on this server")
-  }
+  requireServerCall(result, "createReviewComment", cleanup = function() reconnectAsRunUser())
 
   # Verify: comment appears in list
   comments <- improveR::getReviewComments(review)
@@ -309,7 +304,7 @@ test_that("createReviewComment adds comment visible in getReviewComments|ics1536
   expect_true(any(grepl(commentText, comments$comment, fixed = TRUE)),
               info = "Created comment text should appear in getReviewComments")
 
-  reconnectAsAdmin()
+  reconnectAsRunUser()
 })
 
 # ---------------------------------------------------------------------------
@@ -376,7 +371,7 @@ test_that("approve, reset, reject entry workflow|ics1545,ics1547,ics1546", {
   expect_equal(rejectedEntry$status, "Rejected",
                info = "Rejected entry should have DECLINED status")
 
-  reconnectAsAdmin()
+  reconnectAsRunUser()
 })
 
 # ---------------------------------------------------------------------------
@@ -390,7 +385,7 @@ test_that("createReview returns NULL for invalid resource IDs|ics1527,ics2045", 
     templateId = NULL,
     resourceIds = list("non-existent-id-00000000"),
     reviewerIds = list(),
-    dueDate = format(Sys.Date() + 30, "%Y-%m-%d")
+    dueDate = format(runDate() + 30, "%Y-%m-%d")
   )
   expect_null(result)
 })

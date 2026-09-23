@@ -141,7 +141,10 @@ exportFolder <- function(folderIdent, exportName, targetFolder = ".") {
               revisionId = fileResource$revisionId
             )
           )
-          fContent <- httr::content(fResult, as = "raw")
+          fContent <- restContent(fResult, "downloadFileContent", as = "raw")
+          if (is.null(fContent)) {
+            stop("no content returned for ", entry$name)
+          }
           writeBin(fContent, targetPath)
           folderStructure[folderStructure$resourceId == entry$resourceId, "fileKey"] <- fileKey
         }

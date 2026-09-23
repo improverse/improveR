@@ -7,6 +7,10 @@
 #' @param resourceId the resource id or the entity id of the resource
 #' @param invalidatesReproducibility this flag may only be changed by internal functions
 #' @seealso [convertImproveTimestampToPosix()]
+#' @returns A one-row data frame per resource with the resource fields, dates converted
+#'   to POSIX, `isVersion` set to `FALSE`, and entity ids completed with the repository
+#'   prefix. The virtual root for `resourceId = "0"`. `NULL` when the resource could not be
+#'   read. For a list of ids the rows of all of them, merged.
 #' @export
 loadResourceFromServer <- function(resourceId,invalidatesReproducibility=T) {
   improveConnected()

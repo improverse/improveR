@@ -13,7 +13,7 @@ test_that("setup resource lifecycle test", {
   basePath <- createFolderPath("resourceLifecycle")
   testFolder <- improveR::createFolder(
     targetIdent = basePath,
-    folderName = paste0("test-reslc-", format(Sys.time(), "%Y%m%d%H%M%S"))
+    folderName = paste0("test-reslc-", uniqueTag())
   )
   expect_false(is.null(testFolder))
   assign("RESLC_FOLDER", testFolder, envir = globalenv())
@@ -32,7 +32,7 @@ test_that("finishResource finishes a single file|ics1810", {
 
   # Finish
   result <- finishResource(testFile$resourceId)
-  skip_if(isFALSE(result), "finishResource not supported")
+  requireServerCall(result, "finishResource")
   expect_true(result)
 
   # Verify finished
@@ -62,7 +62,7 @@ test_that("finishResource on folder finishes all children|ics1810", {
 
   # Finish the parent folder
   result <- finishResource(folder$resourceId)
-  skip_if(isFALSE(result), "finishResource not supported")
+  requireServerCall(result, "finishResource")
 
   # All children should be finished (inherited)
   expect_equal(refreshResource(folder$resourceId)$finishedStatus, "finishedInherited")
@@ -96,7 +96,7 @@ test_that("reopenResource on folder reopens all children|ics1811", {
   folder <- get("RESLC_FOLDER", envir = globalenv())
 
   result <- reopenResource(folder$resourceId)
-  skip_if(isFALSE(result), "reopenResource not supported")
+  requireServerCall(result, "reopenResource")
 
   # All should be unfinished
   expect_equal(refreshResource(folder$resourceId)$finishedStatus, "unfinished")

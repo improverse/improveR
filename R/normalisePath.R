@@ -10,6 +10,9 @@
 #' normalisePath(path = "./../../../lmer/../lmer", startPath = "/0demo/lmer") # NULL
 #' normalisePath(path = "/0demo/lmer", startPath = "/0demo/lmer") # /0demo/lmer
 #' }
+#' @returns The absolute path as a character string, with every `.` and `..` resolved and
+#'   backslashes turned into forward slashes. `NULL` when the path navigates beyond the
+#'   root - that is the documented way of saying "no such path", not an error.
 #' @export
 normalisePath <- function(path,startPath="/") {
   if(is.data.frame(startPath)) {

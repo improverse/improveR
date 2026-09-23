@@ -10,17 +10,15 @@ hasConnectAs <- function() {
     exists("connectAs", envir = asNamespace("improveRtestsupport"))
 }
 
-reconnectAsAdmin <- function() {
-  tryCatch({
-    improveRtestsupport::connectAs("admin")
-    improveR::setEditable(TRUE)
-  }, error = function(e) {
-    improveR::clearConnectionData(includeRepoData = FALSE)
-    Sys.setenv(IMPROVER_TOKEN = "", IMPROVER_REFRESH_TOKEN = "")
-    Sys.setenv(IMPROVER_TEST_USERNAME = "admin", IMPROVER_TEST_PASSWORD = "admin")
-    improveRtestsupport::improveConnect()
-    improveR::setEditable(TRUE)
-  })
+# Reconnects as the identity the run was started with, not as a hardcoded
+# "admin". The previous version called connectAs("admin") - whose password
+# argument defaulted to the username - and its error branch set
+# IMPROVER_TEST_USERNAME/PASSWORD to "admin"/"admin" directly. Both put
+# credentials in test code, and both made the outcome of this file depend on
+# which file had run before it (IMR-267).
+reconnectAsRunUser <- function() {
+  improveRtestsupport::connectAsRunUser()
+  improveR::setEditable(TRUE)
 }
 
 # Store test state in an environment to avoid polluting globalenv
@@ -36,7 +34,7 @@ test_that("setup permissionsAdvanced test environment", {
   basePath <- createFolderPath("permissionsAdvanced")
   testFolder <- improveR::createFolder(
     targetIdent = basePath,
-    folderName = paste0("test-permAdv-", format(Sys.time(), "%Y%m%d%H%M%S")),
+    folderName = paste0("test-permAdv-", uniqueTag()),
     comment = "advanced permissions test"
   )
   expect_false(is.null(testFolder))
@@ -85,9 +83,7 @@ test_that("multiple ACEs: 3 groups on one resource via replaceResourcePermission
   )
 
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
-  if (is.null(result)) {
-    stop("replaceResourcePermissions not supported on this server")
-  }
+  requireServerCall(result, "replaceResourcePermissions")
 
   acl <- improveR::getResourcePermissions(PA$FOLDER_PATH)
   expect_false(is.null(acl))
@@ -128,9 +124,7 @@ test_that("mixed inheritance: same group with different inherit flags|ics2044", 
   )
 
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
-  if (is.null(result)) {
-    stop("replaceResourcePermissions not supported")
-  }
+  requireServerCall(result, "replaceResourcePermissions")
 
   acl <- improveR::getResourcePermissions(PA$FOLDER_PATH)
   expect_false(is.null(acl))
@@ -158,9 +152,7 @@ test_that("inherited ACEs propagate to child folders|ics2044", {
          modify = TRUE, changeRights = TRUE, inherit = TRUE, rightsArea = 1L)
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
-  if (is.null(result)) {
-    stop("replaceResourcePermissions not supported")
-  }
+  requireServerCall(result, "replaceResourcePermissions")
 
   # Create child folder
   childFolder <- improveR::createFolder(PA$FOLDER, "child-inherit-test")
@@ -193,7 +185,7 @@ test_that("replaceResourcePermissions removes entries not in new list|ics2044", 
          modify = TRUE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries3)
-  if (is.null(result)) stop("replaceResourcePermissions not supported")
+  requireServerCall(result, "replaceResourcePermissions")
 
   acl3 <- improveR::getResourcePermissions(PA$FOLDER_PATH)
   expect_equal(nrow(acl3), 3)
@@ -227,7 +219,7 @@ test_that("updateResourcePermission modifies existing ACE rights|ics2044", {
          modify = FALSE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
-  if (is.null(result)) stop("replaceResourcePermissions not supported")
+  requireServerCall(result, "replaceResourcePermissions")
 
   acl <- improveR::getResourcePermissions(PA$FOLDER_PATH)
   expect_false(acl$modify[1])
@@ -250,7 +242,7 @@ test_that("updateResourcePermission modifies existing ACE rights|ics2044", {
 # ---------------------------------------------------------------------------
 # orderNr
 # ---------------------------------------------------------------------------
-test_that("ACE orderNr is respected in getResourcePermissions|ics2044", {
+test_that("replaceResourcePermissions assigns orderNr by list position|ics2044,IMR-305", {
   PA <- get("PA", envir = globalenv())
   stopifnot("No test folder" = !is.null(PA$FOLDER))
 
@@ -262,14 +254,21 @@ test_that("ACE orderNr is respected in getResourcePermissions|ics2044", {
          modify = TRUE, changeRights = TRUE, inherit = TRUE, rightsArea = 1L)
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
-  if (is.null(result)) stop("replaceResourcePermissions not supported")
+  requireServerCall(result, "replaceResourcePermissions")
 
   acl <- improveR::getResourcePermissions(PA$FOLDER_PATH)
   expect_equal(nrow(acl), 2)
-  # replaceResourcePermissions sets orderNr from position in list (1, 2)
   expect_true("orderNr" %in% names(acl))
-  expect_equal(acl$orderNr[1], 1L)
-  expect_equal(acl$orderNr[2], 2L)
+
+  # WHICH member got WHICH number. Asserting only that the sequence is 1,2 - as
+  # this block did until IMR-305 - would hold just as well if the server had
+  # swapped the two entries, because the frame comes back sorted by orderNr.
+  # For two entries "the sequence is 1,2" is very nearly tautological.
+  byMember <- stats::setNames(acl$orderNr, acl$memberId)
+  expect_equal(unname(byMember[PA$GROUP_RO$id]),    1L,
+               info = "the first entry in the list must get orderNr 1")
+  expect_equal(unname(byMember[PA$GROUP_ADMIN$id]), 2L,
+               info = "the second entry in the list must get orderNr 2")
 
   cat("orderNr verified\n")
 })
@@ -291,7 +290,7 @@ test_that("ACL restricts access from test1 perspective|ics2044", {
          modify = FALSE, changeRights = FALSE, inherit = TRUE, rightsArea = 1L)
   )
   result <- improveR::replaceResourcePermissions(PA$FOLDER_PATH, aclEntries)
-  if (is.null(result)) stop("replaceResourcePermissions not supported")
+  requireServerCall(result, "replaceResourcePermissions")
 
   # Switch to test1
   improveRtestsupport::connectAs("test1")
@@ -320,7 +319,7 @@ test_that("ACL restricts access from test1 perspective|ics2044", {
   }
 
   # Switch back to admin
-  reconnectAsAdmin()
+  reconnectAsRunUser()
   expect_true(TRUE)
 })
 
@@ -330,7 +329,7 @@ test_that("ACL restricts access from test1 perspective|ics2044", {
 test_that("cleanup permissionsAdvanced test environment", {
   # Ensure we're admin
   if (hasConnectAs()) {
-    tryCatch(reconnectAsAdmin(), error = function(e) NULL)
+    tryCatch(reconnectAsRunUser(), error = function(e) NULL)
   }
 
   PA <- get("PA", envir = globalenv())

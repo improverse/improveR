@@ -14,6 +14,11 @@ updateMetaDataDefinitions(...)
 
 \item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
+\value{
+The freshly read metadata definitions for the scope, in the same shape as
+\code{\link[=loadMetaDataDefinitions]{loadMetaDataDefinitions()}}. The definitions are repository-wide configuration, so
+this affects every later call in the session, not only the caller's.
+}
 \description{
 Refresh Meta Data Definitions
 }

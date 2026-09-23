@@ -14,6 +14,10 @@ updateMetaData(...)
 
 \item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
+\value{
+The freshly read metadata, in the same shape as \code{\link[=loadMetaData]{loadMetaData()}} - the cached
+copy is dropped first, so the value comes from the server.
+}
 \description{
 Refresh Meta Data
 }

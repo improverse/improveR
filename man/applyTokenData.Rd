@@ -11,6 +11,10 @@ applyTokenData(tokenData)
 IMPROVER_TOKEN, IMPROVER_TOKEN_EXPIRATION, IMPROVER_REFRESH_TOKEN,
 IMPROVER_LAST_ACCESS, IMPROVER_REPO_URL, IMPROVER_USER}
 }
+\value{
+\code{TRUE}, invisibly. Only the fields present in \code{tokenData} are applied; the
+others keep their current value. Stops with an error if \code{tokenData} is not a list.
+}
 \description{
 Applies a complete token data structure to the current session
 }

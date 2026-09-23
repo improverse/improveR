@@ -18,13 +18,17 @@ magrittr::`%>%`
 #' for CI/CD environments or remote sessions. Can be controlled by environment variable IMPROVER_HEADLESS_OAUTH (any non-empty value).
 #' @param withCodeVerifier if the oauth provider uses pkca code challenge verification
 #' @references ics1081
+#' @returns No meaningful value - called for its side effects: the token, refresh token,
+#'   expiry, repository URL, user and step are written to the environment, and
+#'   [improveConnect()] is called with them. `FALSE` when `repo` is not a character string.
+#'   Stops with `Error authenticating via oauth` when the flow fails.
 #' @export
 
 improveOAuth <- function(repo,shortEntityId="/",logLevel="INFO",secure=T,openBrowser=T,withCodeVerifier=T) {
 
 
   if (Sys.getenv("IMPROVER_HEADLESS_OAUTH")!="" ||
-      (Sys.getenv("IMPROVER_TEST_REPLAY")=="T" && (!isCapturing()))) {
+      Sys.getenv("IMPROVER_TEST_REPLAY")=="T") {
     openBrowser=F
     log_info("OAuth headless mode enabled - authentication URL will be displayed in console")
   }
@@ -114,8 +118,11 @@ getAuthenticationProvider <- function(repo) {
 
 #this is the createCodeVerifier function
 createCodeVerifier <- function() {
-  #if we are capturing for replay, we have to have the same code verifier everytime, otherwise the replay wont work
-  if (isCapturing() || Sys.getenv("IMPROVER_TEST_REPLAY")=="T") {
+  # A fixed verifier while recording, because a random one makes the recording
+  # and the replay disagree on every authorization URL. This is one of the three
+  # seams the replay work needed and it stays - it is not specific to any replay
+  # tool, and seven test files set IMPROVER_TEST_REPLAY today.
+  if (Sys.getenv("IMPROVER_TEST_REPLAY")=="T") {
     return(
       "WUsHGZRCV9NGaRfp9RlaMl4NQvLx8TNtrUj5crJYXH7wTJcaxt4ykP7AAJ41kVtICGfmzdUacdACgQ6y5OlTz6bt9CX1Hc5oyb6F6K5ovlPAQ-GuRBdZlOGw4vsoXSas"
     )
@@ -195,10 +202,6 @@ pollToken <- function (authenticationProvider) {
 
   while (authenticationProvider$expires_in>0) {
     startTime<-as.numeric(Sys.time())
-    if (isCapturing()) {
-      print("login within 30 seconds")
-      Sys.sleep(30)
-    }
     pollResult <- hasAuthenticated(authenticationProvider)
     if (pollResult$status_code==200) {
       pollContent <- httr::content(pollResult)

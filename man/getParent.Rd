@@ -7,7 +7,12 @@
 getParent(identifier)
 }
 \arguments{
-\item{identifier, }{ID or resource}
+\item{identifier}{ID or resource}
+}
+\value{
+The \code{parentId} of the resource, and \code{0} when the resource has no parent. Note
+that \code{0} is also what a resource that could not be loaded yields, so the value does
+not distinguish the root from a failed read.
 }
 \description{
 Returns the Parent of Anything Resolved by GetCorrectId

@@ -55,6 +55,10 @@ loadHistory <- function(ident,from=pwd()) {
 #' @inheritSection common_ident Details ident
 
 #' @references ics1094
+#' @returns No meaningful value - called for its side effect of dropping the history of
+#'   the resource from the cache, so that the next load reads the server. The value handed
+#'   back by the internal cache removal is an implementation detail and must not be relied
+#'   on.
 #' @export
 unloadHistory <- function(ident) {
   res <- loadResource(ident)
@@ -67,6 +71,8 @@ unloadHistory <- function(ident) {
 
 #' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1094
+#' @returns The freshly read history, in the same shape as [loadHistory()] - the cached
+#'   copy is dropped first, so the value comes from the server.
 #' @export
 refreshHistory <- function(ident) {
   unloadHistory(ident)

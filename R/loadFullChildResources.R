@@ -13,6 +13,10 @@ fullChildResourceCacheList <- createCacheList("fullchild")
 #' @param  ident the resource id or the entity id of the resource
 #' @param from used if a relative path is used
 #' @references ics1085
+#' @returns A data frame with one row per resource, carrying `resourceId`, `entityId` and
+#'   the child resources, each with their own children nested in `$data` - use [strip()] to
+#'   unwrap a single one. `NULL` when `ident` resolves to no resource. For several idents
+#'   the result of all of them, merged.
 #' @export
 loadFullChildResources <- function(ident,from=pwd()) {
   return(
@@ -26,6 +30,10 @@ loadFullChildResources <- function(ident,from=pwd()) {
 #' unloadFullChildResources
 #' @param ident id
 #' @references ics1085
+#' @returns No meaningful value - called for its side effect of dropping the child
+#'   resources of the resource from the cache, so that the next load reads the server. The
+#'   value handed back by the internal cache removal is an implementation detail and must
+#'   not be relied on.
 #' @export
 unloadFullChildResources <- function(ident) {
   res <- loadResource(ident)
@@ -37,6 +45,9 @@ unloadFullChildResources <- function(ident) {
 #' @param ident id
 #' @param ... For backwards compatibility with the deprecated `update*` alias; not used by `refresh*` itself.
 #' @references ics1085
+#' @returns The freshly read child resources, in the same shape as
+#'   [loadFullChildResources()] - the cached copy is dropped first, so the value comes from
+#'   the server.
 #' @export
 refreshFullChildResources <- function(ident) {
   unloadFullChildResources(ident)

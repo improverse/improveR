@@ -16,6 +16,10 @@ updateParentStep(...)
 
 \item{...}{For backwards compatibility with the deprecated \verb{update*} alias; not used by \verb{refresh*} itself.}
 }
+\value{
+The freshly read parent step, in the same shape as \code{\link[=loadParentStep]{loadParentStep()}} - the
+cached copy is dropped first, so the value comes from the server.
+}
 \description{
 Refresh Parent Step from Server
 }

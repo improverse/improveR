@@ -6,7 +6,9 @@ library(improveR)
 # Set REPO_URL to your improve repository (not /repository/repository, just /repository)
 # CLIENT_ID must allow device_code in the Keycloak configuration
 # ============================================================================
-REPO_URL <- "http://envhost2.hc.scintecodev.internal:14118/repository"
+# Point this at your own instance. A real hostname does not belong in a shipped
+# example (IMR-310).
+REPO_URL <- Sys.getenv("IMPROVER_REPO_URL", "https://improve.example.com/repository")
 CLIENT_ID <- "improve-api-client"
 
 # Set to TRUE to see full log output

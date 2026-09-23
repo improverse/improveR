@@ -10,7 +10,11 @@ getStepTemplate(ident)
 \item{ident}{Identifier of the source step to use as a template.}
 }
 \value{
-A new step environment containing the template configuration.
+A step template environment carrying the source step's configuration -
+its processes, runserver, tool, tool instance and arguments - ready to be
+changed and realised into a new step. Stops with an error, naming the ident
+and the reason, when \code{ident} does not resolve, is not a step, or has no
+selected process to take a configuration from (IMR-288).
 }
 \description{
 Reads a step and its processes to generate a new step template environment.

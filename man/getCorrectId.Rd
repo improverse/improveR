@@ -10,6 +10,14 @@ getCorrectId(resolveToId)
 \item{resolveToId}{Value which should be resolved to an ID. Accepts a resource ID, resource version ID, long and short entity ID, and an entity
 without prefix.}
 }
+\value{
+The resolved identifier as a character string: the \code{resourceId} column for a
+data frame, the part after \code{=} for a long entity id in URL form (shortened to the
+repository prefix when the host is spelled out), the value prefixed with
+\code{\link[=repoPrefix]{repoPrefix()}} for an entity id without prefix, and the input unchanged for a path or
+a value that already carries a prefix. Stops with an error for \code{NULL}, an empty value,
+a data frame without \code{resourceId}, or a non-character value.
+}
 \description{
 Resolves various ident types to an ID.
 \itemize{

@@ -13,6 +13,13 @@ getFullFolderAuditTrail(ident, from = pwd(), includeReadAccess = FALSE)
 
 \item{includeReadAccess}{if TRUE also read access entries of the audit trail are shown}
 }
+\value{
+A data frame of audit trail entries for the folder and everything below it,
+made distinct over revision, entity, description and timestamp (and over the changed
+attribute where the entries carry one), ordered by \code{createdAt}. Read access entries
+are only included with \code{includeReadAccess = TRUE}. This call bypasses the audit trail
+cache by design.
+}
 \description{
 Retrieve Recursive Audit Trail For A Specific Folder
 }

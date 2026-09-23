@@ -1,7 +1,16 @@
-REST_FUNCTIONS <- list(POST="httr::POST",
-                       GET="httr::GET",
-                       PUT="httr::PUT",
-                       DELETE="httr::DELETE")
+# The functions themselves, not their names. They used to be strings, resolved
+# on every call by eval(parse(text = ...)) with the comment "fix for httptest to
+# work": httptest works by tracing httr::POST, and a function bound once at load
+# time would never see the trace.
+#
+# ENT-05 chose Karate over httptest, and the recording hook (IMR-293) sits INSIDE
+# authenticatedREST rather than tracing httr - so nothing traces these any more,
+# and nothing needs late binding. What the indirection cost was an eval(parse())
+# on every REST call in the library (IMR-303).
+REST_FUNCTIONS <- list(POST   = httr::POST,
+                       GET    = httr::GET,
+                       PUT    = httr::PUT,
+                       DELETE = httr::DELETE)
 
 restEnv <- new.env()
 restEnv$lastRestError <- NULL
@@ -10,7 +19,7 @@ restEnv$httpHandleBase <- NULL
 
 #' Reuse a single httr/curl handle across REST calls so the underlying TCP+TLS
 #' connection stays open. httr has an automatic handle_pool keyed by hostname,
-#' but passing an explicit handle is more deterministic — without it we have
+#' but passing an explicit handle is more deterministic -- without it we have
 #' seen new TCP/TLS handshakes added to short bulk-create paths (e.g. realise()
 #' uploading 100+ inputFiles to a freshly created step). Handle is recreated
 #' if the repository base URL changes (e.g. after re-connect to a different
@@ -25,11 +34,32 @@ getOrCreateRestHandle <- function(baseUrl) {
   return(restEnv$httpHandle)
 }
 
-timing <- function(name) {
-  #log_info(paste(
-  #  name,
-  #  Sys.time()
-  #))
+# timing() liegt in prepareStep.R. Hier stand eine zweite, ebenfalls leere
+# Fassung, die von der dortigen verdeckt wurde (IMR-273).
+
+# Read the body of a REST response, or report why there is none.
+#
+# authenticatedREST() returns NULL for every non-2xx. Handing that straight to
+# httr::content() aborts with "is.response(x) is not TRUE" - a message naming
+# neither the status, nor the URL, nor the operation. Measured on 2026-09-09:
+# 14 of 66 call sites did exactly that, and one of them (setGridArguments.R)
+# took down a test that had nothing to do with it (IMR-270).
+#
+# Returns NULL on a failed call, after logging the diagnostic lastRestError()
+# has been carrying all along. Callers that already treat NULL as "nothing
+# there" keep working unchanged; callers that cannot use NULL now have to check
+# it, which is the point.
+restContent <- function(result, what, as = NULL) {
+  if (is.null(result)) {
+    err <- lastRestError()
+    if (is.null(err)) {
+      log_warn(what, " failed: the REST call returned nothing and no error was recorded")
+    } else {
+      log_warn(what, " failed: HTTP ", err$status_code, " on ", err$method, " ", err$url)
+    }
+    return(NULL)
+  }
+  if (is.null(as)) httr::content(result) else httr::content(result, as = as)
 }
 
 #' Last REST Error
@@ -77,12 +107,12 @@ clearLastRestError <- function() {
 #' On success (HTTP 2xx), returns the httr response object.
 #'
 #' On any non-2xx response (including 404, 401, 417, other 4xx, 5xx) returns
-#' NULL — the existing contract callers rely on. Diagnostic detail is
+#' NULL -- the existing contract callers rely on. Diagnostic detail is
 #' captured on every non-2xx and is accessible via \code{lastRestError()}:
 #' status code, URL, REST method, a snippet of the response body (up to
 #' ~500 chars), and a timestamp. Failures are also logged with the URL +
-#' method + status + body snippet in the message — \code{log_error} for
-#' 5xx, \code{log_warn} for other non-2xx — so the failing call is
+#' method + status + body snippet in the message -- \code{log_error} for
+#' 5xx, \code{log_warn} for other non-2xx -- so the failing call is
 #' identifiable at the log site.
 #'
 #' Callers that need to distinguish "resource absent" (404) from other
@@ -107,8 +137,12 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
     return(NULL)
   }
   restFunction <- REST_FUNCTIONS[restType][[1]]
-  #fix for httptest to work
-  restFunction <- eval(parse(text=restFunction))
+
+  # FR-RPL-012: the template is kept beside the concrete URL, because the
+  # template is the form that resolves against a server specification
+  # (REQ-CLIOQ-001 FR-CLI-002). It must be taken BEFORE substitution.
+  recUrlTemplate <- url
+  recStartedAt <- Sys.time()
 
   url <- replacePlaceHoldersinURL(url,urlParams)
   url <- appendQueryParams(url,queryParams)
@@ -157,6 +191,7 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
   if ((result$status_code>=200 && result$status_code<300)) {
     log_debug(result$status_code, fullUrl)
     clearLastRestError()
+    recordRestInteraction(recUrlTemplate, fullUrl, restType, data, result, recStartedAt)
     timing("done")
     return(result)
   }
@@ -175,21 +210,24 @@ authenticatedREST <- function(url,urlParams=list(),queryParams=list(),data="",re
                  " -> HTTP ", result$status_code, ": ", body_snippet)
 
   if (result$status_code == 401) {
-    log_error("Invalid authentication credentials (token or username/password) — ", diag)
+    log_error("Invalid authentication credentials (token or username/password) \u2014 ", diag)
     setLastRestError(result$status_code, fullUrl, restType,
                      paste0("Invalid authentication credentials: ", body_snippet))
   } else if (result$status_code == 417) {
-    log_error("Resource could not be run — ", diag)
+    log_error("Resource could not be run \u2014 ", diag)
     setLastRestError(result$status_code, fullUrl, restType,
                      paste0("Resource could not be run: ", body_snippet))
   } else if (result$status_code >= 500) {
-    log_error("Server error — ", diag)
+    log_error("Server error \u2014 ", diag)
     setLastRestError(result$status_code, fullUrl, restType, diag)
   } else {
-    # other 4xx (404, 403, 410, 422, …)
+    # other 4xx (404, 403, 410, 422, ...)
     log_warn(diag)
     setLastRestError(result$status_code, fullUrl, restType, diag)
   }
+  # Non-2xx is recorded too: a replay that only carries successes cannot
+  # reproduce the error paths the OQ asserts on.
+  recordRestInteraction(recUrlTemplate, fullUrl, restType, data, result, recStartedAt)
   return(NULL)
 }
 

@@ -132,7 +132,7 @@ deleteGridArgumentsById <- function(processId,ids) {
                                                  resourceId=process$stepId,
                                                  processId=process$id,
                                                  id=id))
-    gridArgumentsContent <- httr::content(gridArgumentsResponse)
+    gridArgumentsContent <- restContent(gridArgumentsResponse, "deleteGridArgument")
   })
   return(refreshProcessGridArguments(process$id))
 }

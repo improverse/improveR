@@ -59,6 +59,9 @@ test_that("get non existant|ics1141", {
 test_that("wrong type for get functions|ics1141", {
   TEST_FOLDER <- ensureTestFolder()
   Sys.setenv(improver.logfile="improver.log")
+  # start each block from an empty log so the assertions do not depend on
+  # which test files ran before (IMR-260)
+  file.create("improver.log")
   improveConnect()
 # test link resolving
   analysisTree <- createAnalysisTree(TEST_FOLDER,"errorCTree")
@@ -95,7 +98,7 @@ test_that("wrong type for get functions|ics1141", {
   expect_null(failed)
   eId <- analysisTree$entityId
   typ <- analysisTree$nodeType
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, as.character(glue::glue(expectedMessage)))
 
 
@@ -103,7 +106,7 @@ test_that("wrong type for get functions|ics1141", {
   expect_null(failed)
   eId <- testFolder$entityId
   typ <- testFolder$nodeType
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, as.character(glue::glue(expectedMessage)))
 
 
@@ -111,7 +114,7 @@ test_that("wrong type for get functions|ics1141", {
   expect_null(failed)
   eId <- testStep$entityId
   typ <- testStep$nodeType
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, as.character(glue::glue(expectedMessage)))
 
 
@@ -119,7 +122,7 @@ test_that("wrong type for get functions|ics1141", {
   expect_null(failed)
   eId <- testExtLink$entityId
   typ <- testExtLink$nodeType
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, as.character(glue::glue(expectedMessage)))
 #test loadfile mit link
 
@@ -140,7 +143,7 @@ test_that("wrong type for get functions|ics1141", {
   expect_null(failed)
   eId <- testExtLink$entityId
   typ <- testExtLink$nodeType
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, as.character(glue::glue(expectedMessage)))
 
 
@@ -148,14 +151,14 @@ test_that("wrong type for get functions|ics1141", {
   expect_null(failed)
   eId <- testLink$entityId
   typ <- testLink$nodeType
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, as.character(glue::glue(expectedMessage)))
 
   failed <- getFilesFromFolder(testFile)
   expect_null(failed)
   eId <- testFile$entityId
   typ <- testFile$nodeType
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, as.character(glue::glue(expectedMessage)))
 })
 
@@ -163,6 +166,9 @@ test_that("wrong type for get functions|ics1141", {
 test_that("multiple resources for getFiles from folder, illegal pattern|ics1141", {
   TEST_FOLDER <- ensureTestFolder()
   Sys.setenv(improver.logfile="improver.log")
+  # start each block from an empty log so the assertions do not depend on
+  # which test files ran before (IMR-260)
+  file.create("improver.log")
   improveConnect()
 
   expectedMessage <- "getFilesFromFolder ident must specify exactly one resource {folder1$entityId}, {folder2$entityId}"
@@ -175,7 +181,7 @@ test_that("multiple resources for getFiles from folder, illegal pattern|ics1141"
   folders <- rbind(folder1,folder2)
   failed <- getFilesFromFolder(folders)
   expect_null(failed)
-  message <- improveLastLogMessage("WARN")
+  message <- improveLastLogMessage("WARNING")
   expect_equal(message, as.character(glue::glue(expectedMessage)))
 
   # illegal pattern for getfilesfromfolder

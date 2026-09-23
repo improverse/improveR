@@ -8,6 +8,9 @@
 #' @param expiration Character or numeric. Token expiration time
 #' @param refreshToken Character. Optional refresh token
 #' @param lastAccess Character or numeric. Optional last access time
+#' @returns `TRUE`, invisibly. Stops with an error if `token` is `NULL` or empty.
+#'   `IMPROVER_LAST_ACCESS` is always set, to the current time when `lastAccess` is not
+#'   given.
 #' @export
 updateAccessToken <- function(token, expiration = NULL, refreshToken = NULL, lastAccess = NULL) {
   if (is.null(token) || token == "") {
@@ -48,6 +51,8 @@ updateAccessToken <- function(token, expiration = NULL, refreshToken = NULL, las
 #' @param tokenData List containing token information with fields:
 #'   IMPROVER_TOKEN, IMPROVER_TOKEN_EXPIRATION, IMPROVER_REFRESH_TOKEN,
 #'   IMPROVER_LAST_ACCESS, IMPROVER_REPO_URL, IMPROVER_USER
+#' @returns `TRUE`, invisibly. Only the fields present in `tokenData` are applied; the
+#'   others keep their current value. Stops with an error if `tokenData` is not a list.
 #' @export
 applyTokenData <- function(tokenData) {
   if (!is.list(tokenData)) {

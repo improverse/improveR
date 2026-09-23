@@ -85,6 +85,10 @@ getHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="",refresh = FALSE) 
 #' @param includeCaption display the caption
 #' @param refresh If TRUE, invalidate cached file content and resource metadata for `ident` before fetching. Defaults to FALSE.
 #' @references ics1141
+#' @returns An `htmltools` tag list holding the HTML file and its caption, ready to be
+#'   printed from an R Markdown chunk. When `ident` resolves to several objects, a single
+#'   character string with their rendered output concatenated. `NULL` when no HTML object
+#'   was found.
 #' @export
 
 showHTML <- function(ident,from=pwd(),addAsLink=TRUE,caption="",includeCaption=T,refresh = FALSE) {
