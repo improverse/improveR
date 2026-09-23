@@ -1,0 +1,348 @@
+# CLI tools
+
+## CLI Tools
+
+This tutorial demonstrates the CLI-style tools in improveR for working
+with local copies of repository content. You’ll learn how to clone
+folders, push changes, pull updates, and manage resource locks.
+
+**Prerequisites**: Complete Tutorial 01 first, as this tutorial expects
+the folder structure and files created there.
+
+### Environment Variables
+
+This tutorial requires the following environment variables to be set:
+
+``` r
+# Add these lines to your .Renviron file:
+# Sys.setenv(IMPROVER_REPO_URL = "https://<url>:<repoPort>/repository")
+# Sys.setenv(IMPROVER_STEP = "<valid-entityId>")  # Ideally the entityId of your tutorial folder
+```
+
+### Tutorial Configuration
+
+``` r
+# Define the paths for this tutorial
+TUTORIAL_FOLDER <- "/Projects/tutorials/myUserName/tutorial1-basic-nodes"  # Update with your username
+CLI_WORKSPACE <- "./tutorial2-workspace"  # Local directory for CLI operations
+
+# Check if environment variables are set
+if (Sys.getenv("IMPROVER_REPO_URL") == "") {
+  stop("IMPROVER_REPO_URL environment variable is not set. Please set it in your .Renviron file.")
+}
+
+if (Sys.getenv("IMPROVER_STEP") == "") {
+  stop("IMPROVER_STEP environment variable is not set. Please set it in your .Renviron file.")
+}
+
+# Display current configuration
+cat("Repository URL:", Sys.getenv("IMPROVER_REPO_URL"), "\n")
+cat("Step ID:", Sys.getenv("IMPROVER_STEP"), "\n")
+cat("Tutorial folder:", TUTORIAL_FOLDER, "\n")
+cat("Local workspace:", CLI_WORKSPACE, "\n")
+
+# Create local workspace directory
+if (!dir.exists(CLI_WORKSPACE)) {
+  dir.create(CLI_WORKSPACE, recursive = TRUE)
+  cat("\nCreated local workspace directory:", CLI_WORKSPACE, "\n")
+}
+```
+
+### Connect and Verify Prerequisites
+
+``` r
+# Connect to improve repository
+improveConnect()
+
+# Verify connection is valid
+# This is useful if your session has been idle or if tokens have expired
+checkConnect()
+
+setEditable(TRUE)
+
+# Verify tutorial folder from Tutorial 01 exists
+tutorialResource <- tryCatch({
+  loadResource(TUTORIAL_FOLDER)
+}, error = function(e) {
+  NULL
+})
+
+if (is.null(tutorialResource)) {
+  stop(paste("Tutorial folder", TUTORIAL_FOLDER, "does not exist.",
+             "Please complete Tutorial 01 first."))
+}
+
+cat("Tutorial folder found:", tutorialResource$path, "\n")
+cat("Entity ID:", tutorialResource$entityId, "\n")
+
+# Check for expected content from Tutorial 01
+children <- loadChildResources(tutorialResource)$data[[1]]
+expectedFolders <- c("data", "scripts", "outputs")
+foundFolders <- children[children$nodeType == "Folder", "name"]
+
+if (!all(expectedFolders %in% foundFolders)) {
+  stop("Expected folders from Tutorial 01 not found. Please complete Tutorial 01 first.")
+}
+
+cat("\nFound expected folders from Tutorial 01:\n")
+print(foundFolders)
+```
+
+### 1. Clone Repository Content
+
+The clone function creates a local copy of repository content for
+offline work.
+
+``` r
+cat("\n=== Cloning Repository Content ===\n")
+
+
+
+# Clone the entire tutorial folder
+cloneResult <- cloneCli(
+  localPath = CLI_WORKSPACE,
+  ident = tutorialResource$entityId
+)
+
+cat("\nClone completed. Local files:\n")
+list.files(CLI_WORKSPACE, recursive = TRUE)
+```
+
+### 2. Modify Files Locally
+
+Let’s modify a file in our local clone.
+
+``` r
+cat("\n=== Modifying Files Locally ===\n")
+
+# Read the current sample data file
+local_data_path <- file.path(CLI_WORKSPACE, "data", "raw", "sample_data.csv")
+if (file.exists(local_data_path)) {
+  local_data <- read.csv(local_data_path)
+  cat("Original data dimensions:", nrow(local_data), "x", ncol(local_data), "\n")
+  
+  # Modify the data
+  local_data$cli_modified <- TRUE
+  local_data$timestamp <- Sys.time()
+  local_data$new_values <- runif(nrow(local_data))
+  
+  # Save the modified file
+  write.csv(local_data, local_data_path, row.names = FALSE)
+  cat("Modified data dimensions:", nrow(local_data), "x", ncol(local_data), "\n")
+  cat("Added columns: cli_modified, timestamp, new_values\n")
+} else {
+  stop("Expected sample_data.csv not found. Please check Tutorial 01 completion.")
+}
+
+# Create a new file
+new_script_path <- file.path(CLI_WORKSPACE, "scripts", "cli_analysis.R")
+new_script_content <- '# Analysis script created via CLI tools
+# Created: %s
+
+# Load the modified data
+data <- read.csv("../data/raw/sample_data.csv")
+
+# New analysis
+cat("Data has CLI modifications:", "cli_modified" %%in%% names(data), "\\n")
+cat("Number of records:", nrow(data), "\\n")
+
+# Summary of new values
+summary(data$new_values)
+'
+writeLines(sprintf(new_script_content, Sys.Date()), new_script_path)
+cat("\nCreated new script: scripts/cli_analysis.R\n")
+```
+
+### 3. Push Changes to Repository
+
+Push the local changes back to the repository.
+
+``` r
+cat("\n=== Pushing Changes to Repository ===\n")
+
+
+
+# Push changes
+pushResult <- pushCli(localPath = CLI_WORKSPACE)
+
+cat("\nPush completed. Changes sent to repository.\n")
+
+
+
+# Verify changes on server
+cat("\n=== Verifying Changes on Server ===\n")
+updatedData <- updateResource("./data/raw/sample_data.csv", from = tutorialResource)
+cat("Server file updated:", as.character(updatedData$lastModifiedOnDate), "\n")
+cat("Version ID:", updatedData$entityVersionId, "\n")
+
+# Check file history
+history <- updateHistory(updatedData$entityId)$data[[1]]
+cat("\nRecent history:\n")
+print(tail(history[, c("entityVersionId", "lastModifiedOnDate", "comment")], 3))
+```
+
+### 4. Lock Resources
+
+Locking prevents other users from modifying resources while you’re
+working on them. Since folder locking is currently not working, we’ll
+lock a single file instead.
+
+``` r
+cat("\n=== Locking Resources ===\n")
+
+# Load the sample data file we'll be working with
+dataFile <- loadResource("./data/raw/sample_data.csv", from = tutorialResource)
+cat("File to lock:", dataFile$path, "\n")
+
+# Lock the single file
+lockResult <- lockResource(dataFile$entityId)
+cat("Locked file:", dataFile$name, "\n")
+
+# Check lock status
+lockedFile <- updateResource(dataFile$entityId)
+cat("\nLock status:\n")
+cat("Locked by:", lockedFile$lockedByName, "\n")
+cat("Locked at:", as.character(lockedFile$lockedAt), "\n")
+
+# Store the locked file ID for later unlock
+LOCKED_FILE_ID <- lockedFile$entityId
+```
+
+### 5. Add Content While Locked
+
+While we have a file locked, let’s add a new link via the repository to
+demonstrate that other operations can still proceed.
+
+``` r
+cat("\n=== Adding Link on Server ===\n")
+
+# Get the outputs folder
+outputsFolder <- loadResource("./outputs", from = tutorialResource)
+
+# Create a link to the modified data file
+newLink <- createLink(
+  links =  updatedData$entityId,
+  linkName = "cli_modified_data_link",
+  linkContainer = outputsFolder$resourceId
+)
+cat("Created new link:", newLink$path, "\n")
+cat("Link points to:", newLink$targetVersionId, "\n")
+```
+
+### 6. Pull Changes
+
+Pull the new link to our local workspace.
+
+``` r
+cat("\n=== Pulling Changes ===\n")
+
+# Change to workspace directory
+
+
+# Pull changes
+pullResult <- pullCli(localPath = CLI_WORKSPACE)
+cat("\nPull completed.\n")
+
+# Check for the new link
+local_links <- list.files(file.path(CLI_WORKSPACE,"outputs"), pattern = "*link*")
+cat("Links in outputs folder:", paste(local_links, collapse = ", "), "\n")
+```
+
+### 7. Delete Link and Push
+
+Remove the link locally and push the deletion.
+
+``` r
+cat("\n=== Deleting Link Locally ===\n")
+
+# Delete the link file
+link_path <- file.path(CLI_WORKSPACE, "outputs", "cli_modified_data_link")
+if (file.exists(link_path)) {
+  unlink(link_path,force = T)
+  cat("Deleted local link file\n")
+}
+
+# Push the deletion
+
+pushResult <- pushCli(
+  localPath = CLI_WORKSPACE
+)
+cat("\nPush completed. Deletion sent to repository.\n")
+
+
+# Verify deletion on server
+outputsChildren <- updateChildResources(outputsFolder)$data[[1]]
+remainingLinks <- outputsChildren[grep("link", outputsChildren$name), "name"]
+cat("\nRemaining links in outputs folder:", 
+    if(length(remainingLinks) > 0) paste(remainingLinks, collapse = ", ") else "none", "\n")
+```
+
+### 8. Unlock Resources
+
+Finally, unlock the file to allow others to modify it.
+
+``` r
+cat("\n=== Unlocking Resources ===\n")
+
+# Unlock the file we locked earlier
+if (exists("LOCKED_FILE_ID")) {
+  unlockResult <- unlockResource(LOCKED_FILE_ID)
+  cat("Unlocked file with ID:", LOCKED_FILE_ID, "\n")
+  
+  # Verify unlock
+  unlockedFile <- updateResource(LOCKED_FILE_ID)
+  cat("\nLock status after unlock:\n")
+  cat("lockedByName" %in% names(unlockedFile))
+  cat("File name:", unlockedFile$name, "\n")
+  ""
+} else {
+  cat("No locked file ID found - skipping unlock\n")
+}
+```
+
+### Summary
+
+``` r
+cat("\n=== Summary of CLI Operations ===\n")
+
+cat("\nOperations completed in this tutorial:\n")
+cat("1. ✓ Cloned repository content to local workspace\n")
+cat("2. ✓ Modified files locally (data and scripts)\n")
+cat("3. ✓ Pushed changes to repository\n")
+cat("4. ✓ Locked a single file to prevent concurrent modifications\n")
+cat("5. ✓ Added content on server while file was locked\n")
+cat("6. ✓ Pulled server changes to local workspace\n")
+cat("7. ✓ Deleted content locally and pushed deletion\n")
+cat("8. ✓ Unlocked file for others to use\n")
+
+cat("\n=== Key CLI Functions ===\n")
+cat("- cliClone(): Create local copy of repository content\n")
+cat("- cliPush(): Send local changes to repository\n")
+cat("- cliPull(): Get latest changes from repository\n")
+cat("- lockResource(): Prevent concurrent modifications\n")
+cat("- unlockResource(): Release lock on resources\n")
+
+cat("\n=== Best Practices ===\n")
+cat("- Always pull before making changes to avoid conflicts\n")
+cat("- Use meaningful commit messages when pushing\n")
+cat("- Lock resources when making major changes\n")
+cat("- Remember to unlock resources when done\n")
+cat("- Keep local workspace organized and clean\n")
+```
+
+### Clean Up
+
+``` r
+# Clean up local workspace (optional)
+if (exists("CLI_WORKSPACE") && dir.exists(CLI_WORKSPACE)) {
+  # Uncomment to remove workspace:
+  # unlink(CLI_WORKSPACE, recursive = TRUE)
+  cat("\nLocal workspace preserved at:", CLI_WORKSPACE, "\n")
+  cat("You can explore the cloned content there.\n")
+}
+
+# Disconnect from improve
+improveDisconnect()
+
+cat("\nTutorial completed successfully!\n")
+```

@@ -1,0 +1,148 @@
+# Reviews
+
+## Overview
+
+Reviews in improve follow a structured workflow where a **requestor**
+creates a review, assigns **reviewers**, and submits resources for
+inspection. Reviewers accept the invitation, examine individual entries,
+and approve or reject them.
+
+### Review statuses
+
+| Status        | Description                                            |
+|---------------|--------------------------------------------------------|
+| **Planning**  | Initial state — setting up entries and reviewers       |
+| **Reviewing** | Active review — reviewers can comment, approve, reject |
+| **Approved**  | Locked — review and all reviewed resources are locked  |
+
+### Transitions
+
+    Planning  →  Reviewing  →  Approved
+       ↑             ↓
+       └── revert ───┘
+
+## Complete review flow
+
+### 1. Create a review
+
+The requestor creates a review with files to be reviewed and assigns
+reviewers.
+
+``` r
+library(improveR)
+
+# Create a review with a file and a reviewer
+review <- createReview(
+  name = "Data Analysis Review Q1",
+  parentIdent = "/Projects/Reviews",
+  comment = "Review of Q1 analysis outputs",
+  templateId = NULL,
+  resourceIds = list(analysisFile$resourceId),
+  reviewerIds = list(reviewerUserId),
+  dueDate = "2026-06-30"
+)
+```
+
+You can add more entries and reviewers after creation:
+
+``` r
+# Add another file to the review
+createReviewEntry(review, resourceIds = list(additionalFile$resourceId))
+
+# Add another reviewer
+createReviewer(review, userId = secondReviewerId, username = "jane")
+```
+
+### 2. Reviewer accepts the invitation
+
+The reviewer must accept the invitation while the review is in
+**Planning** state.
+
+``` r
+# As the reviewer:
+acceptReviewInvitation(review, comment = "Happy to review")
+```
+
+### 3. Start the review
+
+The requestor transitions the review to **Reviewing**.
+
+``` r
+# As the requestor/admin:
+changeReviewStatus(review, "Reviewing")
+```
+
+### 4. Reviewer works on entries
+
+The reviewer can now comment on entries and approve or reject them
+individually.
+
+``` r
+# As the reviewer:
+
+# Add a comment to a specific file
+createReviewComment(
+  ident = review,
+  resourceIdent = analysisFile$resourceId,
+  comment = "The statistical model looks correct",
+  commentType = "GENERAL"
+)
+
+# Get all entries
+entries <- getReviewEntries(review)
+
+# Approve one entry
+approveReviewEntries(review,
+  reviewEntryIds = list(entries$id[1]),
+  comment = "Verified and approved"
+)
+
+# Reject another entry
+rejectReviewEntries(review,
+  reviewEntryIds = list(entries$id[2]),
+  comment = "Missing validation step, please revise"
+)
+
+# Reset a decision (e.g. after re-review)
+resetReviewEntries(review,
+  reviewEntryIds = list(entries$id[2]),
+  comment = "Re-reviewing after revision"
+)
+```
+
+### 5. Remove entries
+
+Individual entries can be removed by their entry IDs:
+
+``` r
+entries <- getReviewEntries(review)
+deleteReviewEntry(review, reviewEntryIds = list(entries$id[2]))
+```
+
+### 6. Finalize the review
+
+Once all entries are approved (no rejections), the requestor can lock
+the review:
+
+``` r
+# As the requestor/admin:
+changeReviewStatus(review, "Approved")
+```
+
+This locks both the review and all reviewed resources. Only an admin can
+revert to Reviewing.
+
+## Reading review data
+
+``` r
+# Load a review by ID
+review <- getReviewById(reviewIdent)
+
+# List all reviews
+allReviews <- loadReviews()
+
+# Get reviewers, entries, comments
+reviewers <- getReviewers(review)
+entries <- getReviewEntries(review)
+comments <- getReviewComments(review)
+```

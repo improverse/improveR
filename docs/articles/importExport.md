@@ -1,0 +1,84 @@
+# Import & Export
+
+## Overview
+
+improve supports exporting workflows and folders as portable `.zip`
+packages that can be imported into other repositories or shared between
+teams.
+
+## Workflow export/import
+
+### Export a workflow
+
+``` r
+library(improveR)
+
+# Get the workflow from an analysis tree
+workflow <- getWorkflow(analysisTree)
+
+# Export to a local folder
+exportWorkflow(workflow,
+  workflowName = "PK-Analysis-Q1",
+  targetFolder = "~/exports")
+```
+
+This creates three files:
+
+| File                             | Content                                             |
+|----------------------------------|-----------------------------------------------------|
+| `PK-Analysis-Q1.zip`             | The workflow with all steps, files, and structure   |
+| `PK-Analysis-Q1LinkMapping.json` | Maps file references between source and target      |
+| `PK-Analysis-Q1ToolMapping.json` | Maps tool configurations for the target environment |
+
+### Import a workflow
+
+``` r
+# Create a target folder
+targetFolder <- createFolder("/Projects", "Imported-Analyses")
+
+# Import the workflow
+importWorkflow("~/exports/PK-Analysis-Q1.zip", targetFolder)
+
+# Verify: the analysis tree and all steps are recreated
+importedTree <- loadResource("./PK-Analysis-Q1", targetFolder)
+importedWorkflow <- getWorkflow(importedTree)
+```
+
+The import preserves:
+
+- Step descriptions and rationale
+- Step dependencies (parent-child relationships)
+- File references and links
+- Process configurations
+
+## Folder export/import
+
+For simpler transfers without workflow structure:
+
+### Export a folder
+
+``` r
+exportFolder(sourceFolder,
+  exportName = "StudyData",
+  targetFolder = "~/exports")
+```
+
+### Import a folder
+
+``` r
+targetFolder <- createFolder("/Projects", "ImportedData")
+importFolder("~/exports/StudyData.zip", targetFolder)
+
+# Verify contents
+children <- loadChildResources(targetFolder)
+```
+
+## Incremental import
+
+When re-importing to a location that already has content, the import can
+handle conflicts:
+
+``` r
+# Import with skip on conflict (keep existing)
+importWorkflow("~/exports/PK-Analysis-Q1.zip", targetFolder)
+```

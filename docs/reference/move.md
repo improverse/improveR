@@ -1,0 +1,123 @@
+# Move Resources to Target Location
+
+Relocates one or more resources to a target folder, changing their path
+while preserving their version history and metadata. The resource is
+removed from its current location and placed in the new location.
+
+## Usage
+
+``` r
+move(
+  sources,
+  target,
+  targetName = "",
+  overwrite = F,
+  comment = "modified by improveRW"
+)
+```
+
+## Arguments
+
+- sources:
+
+  Identifier(s) of resource(s) to move. Can be a single resource or
+  multiple resources. Accepts paths, resource ids, entity ids, or a data
+  frame of resources.
+
+- target:
+
+  Identifier of the target folder or file location. Can be a path,
+  resource id, or entity id. If moving multiple sources, must be a
+  container (folder).
+
+- targetName:
+
+  Character. Optional new name for the moved resource. Only used when
+  moving a single source. Ignored when moving multiple sources. Defaults
+  to empty string (uses original name).
+
+- overwrite:
+
+  Logical. If `TRUE` and a resource with the same name exists at the
+  target location, it is deleted and replaced. If `FALSE` (default) and
+  a name conflict exists, returns `NULL` with a warning.
+
+- comment:
+
+  Character. Commit message for the move operation. Defaults to
+  "modified by improveRW".
+
+## Value
+
+The moved resource(s) as a data frame with updated paths, or `NULL` if
+the operation fails (e.g., source doesn't exist, target doesn't exist,
+name conflict with overwrite=FALSE, invalid target type for the source
+type).
+
+## Details
+
+The function supports both single and batch moving:
+
+- **Single move:** When moving one resource, you can optionally specify
+  a new name via `targetName` (also serves as a rename operation)
+
+- **Batch move:** When moving multiple resources, all are moved to the
+  target folder with their original names (`targetName` must be empty)
+
+The move operation validates:
+
+- Source and target resources exist
+
+- Target accepts the source type (e.g., can't move a workflow into a
+  file)
+
+- No naming conflicts (unless `overwrite=TRUE`)
+
+- Repository is in editable mode (automatically checked)
+
+After moving, path caches for both source and target locations are
+automatically invalidated to ensure fresh data on subsequent queries.
+
+## References
+
+ics1139
+
+## See also
+
+[`copy`](https://improverse.github.io/improveR/reference/copy.md) to
+duplicate resources instead of moving,
+[`delete`](https://improverse.github.io/improveR/reference/delete.md) to
+remove resources,
+[`createLink`](https://improverse.github.io/improveR/reference/createLink.md)
+to create references without moving
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Move a file to a different folder
+move(
+  sources = "/Data/old_location/baseline.csv",
+  target = "/Data/current"
+)
+
+# Move and rename in one operation
+move(
+  sources = "/Data/draft_analysis.R",
+  target = "/Analysis",
+  targetName = "final_analysis.R"
+)
+
+# Move multiple files at once
+move(
+  sources = c("/Temp/file1.csv", "/Temp/file2.csv"),
+  target = "/Data/Archive"
+)
+
+# Reorganize folder structure
+move(
+  sources = "/Projects/Old_Structure/Workflows",
+  target = "/Projects/New_Structure"
+)
+} # }
+```

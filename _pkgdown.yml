@@ -1,4 +1,4 @@
-url: https://www.scinteco.com/
+url: https://improverse.github.io/improveR/
 template:
   bootstrap: 5
   light-switch: true
@@ -12,6 +12,7 @@ exclude:
   - "CLAUDE.md"
   - "AGENTS.md"
   - "claude.local.md"
+  - "TODO-improveR-updates.md"
 
 toc:
   depth: 4
@@ -42,6 +43,19 @@ navbar:
           href: articles/cli-tools.html
         - text: Node Types
           href: articles/basic-node-types.html
+        - text: -----------
+        - text: Reviews
+          href: articles/reviews.html
+        - text: Permissions
+          href: articles/permissions.html
+        - text: Metadata
+          href: articles/metadata.html
+        - text: Import and Export
+          href: articles/importExport.html
+        - text: Resource Lifecycle
+          href: articles/resourceLifecycle.html
+        - text: SSH Tunnels
+          href: articles/sshTunnels.html
 
 
 reference:
@@ -113,6 +127,8 @@ reference:
   - getMainProcess
   - getProcessFileVariables
   - setCommandFile
+  - markStep
+  - updateProcessProperty
   - runStepResource
   - finishRunResource
   - terminateStepResource
@@ -158,10 +174,6 @@ reference:
   - replaceResourcePermissions
   - updateResourcePermission
   - removeResourcePermission
-  - getOwners
-  - getCollaborators
-  - getReadOnly
-  - getUsersByRole
   - loadGroups
   - loadGroup
   - loadGroupUsers
@@ -185,8 +197,8 @@ reference:
   contents:
   - createReview
   - getReviewById
-  - acceptReview
-  - declineReview
+  - acceptReviewInvitation
+  - declineReviewInvitation
   - changeReviewStatus
   - loadReviews
   - refreshReviews
@@ -197,6 +209,9 @@ reference:
   - loadReviewers
   - refreshReviewers
   - unloadReviewers
+  - approveReviewEntries
+  - rejectReviewEntries
+  - resetReviewEntries
   - createReviewEntry
   - deleteReviewEntry
   - getReviewEntries
@@ -208,14 +223,10 @@ reference:
   - getReviewComments
   - getReviewEntryComments
   - loadReviewComments
-  - loadReviewEntryComments
   - refreshReviewComments
-  - refreshReviewEntryComments
   - unloadReviewComments
-  - unloadReviewEntryComments
   - updateReviewComments
   - updateReviewEntries
-  - updateReviewEntryComments
   - updateReviewers
   - updateReviews
 
@@ -244,6 +255,9 @@ reference:
   - loadResourceRelations
   - refreshResourceRelations
   - unloadResourceRelations
+  - createRelationType
+  - updateRelationType
+  - deleteRelationType
   - loadRelationTypes
   - refreshRelationTypes
   - unloadRelationTypes
@@ -321,8 +335,17 @@ reference:
   - query
   - queryFolder
 
+- title: SSH Tunnels
+  contents:
+  - improveSetupSSH
+  - improveOpenTunnel
+  - improveCloseTunnel
+
 - title: Utilities
   contents:
+  - getCorrectId
+  - normalisePath
+  - repoPrefix
   - "%>%"
   - byNotEmpty
   - byNotEmptyAsDf
@@ -352,7 +375,6 @@ reference:
   - refreshParentalDescendant
   - refreshReviewComments
   - refreshReviewEntries
-  - refreshReviewEntryComments
   - refreshReviewers
   - refreshReviews
   - updateChildResources

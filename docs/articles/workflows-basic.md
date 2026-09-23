@@ -1,0 +1,379 @@
+# Workflows basic
+
+## Tutorial 03: Basic Workflows
+
+This tutorial introduces the workflow concepts in improve by creating a
+simple step that loads and processes an R dataset. You’ll learn how to
+create analysis trees, configure steps, and execute them.
+
+**Prerequisites**: Complete Tutorials 01 and 02 first, as this tutorial
+builds on those concepts.
+
+### Environment Variables
+
+This tutorial requires the following environment variables:
+
+``` r
+# Add these lines to your .Renviron file:
+# Sys.setenv(IMPROVER_REPO_URL = "https://<url>:<repoPort>/repository")
+# Sys.setenv(IMPROVER_STEP = "<valid-entityId>")  # Ideally the entityId of your tutorial folder
+```
+
+### Tutorial Configuration
+
+``` r
+# Define paths and configuration
+TUTORIAL_FOLDER <- "/Projects/tutorials/myUserName/tutorial3-workflows"  # Update with your username
+
+# Configure runserver settings as variables (not environment variables)
+# These would typically come from your organization's configuration
+R_RUNSERVER <- "runserver"  # Or your specific runserver name
+R_TOOL <- "R_4.2"       # R version specification
+R_TOOL_INSTANCE <- "rbatch"  # Instance type for R execution
+
+# Check environment variables
+if (Sys.getenv("IMPROVER_REPO_URL") == "") {
+  stop("IMPROVER_REPO_URL environment variable is not set.")
+}
+
+if (Sys.getenv("IMPROVER_STEP") == "") {
+  stop("IMPROVER_STEP environment variable is not set.")
+}
+
+cat("Repository URL:", Sys.getenv("IMPROVER_REPO_URL"), "\n")
+cat("Tutorial folder:", TUTORIAL_FOLDER, "\n")
+cat("R Runserver:", R_RUNSERVER, "\n")
+cat("R Tool:", R_TOOL, "\n")
+cat("R Tool Instance:", R_TOOL_INSTANCE, "\n")
+```
+
+### Connect and Setup
+
+``` r
+# Connect to improve repository
+improveConnect()
+
+# Verify connection is valid
+# This is useful if your session has been idle or if tokens have expired
+checkConnect()
+
+# Display repository version
+repoVersion <- getRepositoryVersion()
+if (!is.null(repoVersion)) {
+  cat("Connected to repository version:", repoVersion, "\n")
+}
+
+setEditable(TRUE)
+
+# Verify tutorial folder exists
+tutorialResource <- tryCatch({
+  loadResource(TUTORIAL_FOLDER)
+}, error = function(e) {
+  NULL
+})
+
+if (is.null(tutorialResource)) {
+  # Create tutorial folder if it doesn't exist
+  parentPath <- dirname(TUTORIAL_FOLDER)
+  folderName <- basename(TUTORIAL_FOLDER)
+  
+  parent <- loadResource(parentPath)
+  if (is.null(parent)) {
+    stop(paste("Parent folder", parentPath, "does not exist. Please create it first."))
+  }
+  
+  tutorialResource <- createFolder(
+    folderName = folderName,
+    targetIdent = parent$entityId,
+    comment = "Tutorial 03: Workflows"
+  )
+  cat("Created tutorial folder:", tutorialResource$path, "\n")
+} else {
+  cat("Tutorial folder found:", tutorialResource$path, "\n")
+}
+```
+
+### 1. Create Script Files
+
+First, let’s create R scripts that our workflow steps will execute.
+
+``` r
+cat("\n=== Creating Script Files ===\n")
+
+# Create a simple data loading script
+dataLoadScript <- '# Data Loading Script
+# This script loads the built-in iris dataset and saves it as CSV
+
+# Load the iris dataset
+data(iris)
+
+# Display basic information
+cat("Dataset: iris\\n")
+cat("Dimensions:", nrow(iris), "rows x", ncol(iris), "columns\\n")
+cat("Column names:", paste(names(iris), collapse = ", "), "\\n")
+
+# Summary statistics
+summary(iris)
+
+# Save to CSV
+write.csv(iris, "iris_data.csv", row.names = FALSE)
+cat("\\nData saved to iris_data.csv\\n")
+'
+
+# Write script locally
+writeLines(dataLoadScript, "load_iris_data.R")
+
+# Upload to repository
+scriptFile <- createFile(
+  targetIdent = tutorialResource$entityId,
+  fileName = "load_iris_data.R",
+  localPath = "load_iris_data.R",
+  comment = "Script to load and save iris dataset"
+)
+cat("Uploaded script:", scriptFile$path, "\n")
+
+# Create an analysis script
+analysisScript <- '# Data Analysis Script
+# This script performs basic analysis on the iris dataset
+
+# Check if data file exists
+if (!file.exists("iris_data.csv")) {
+  stop("iris_data.csv not found. Run data loading step first.")
+}
+
+# Load the data
+iris_data <- read.csv("iris_data.csv")
+cat("Loaded data with", nrow(iris_data), "observations\\n")
+
+# Create visualizations
+pdf("iris_analysis.pdf")
+
+# Pairwise scatter plots
+pairs(iris_data[, 1:4], 
+      main = "Iris Dataset - Pairwise Relationships",
+      pch = 21, 
+      bg = c("red", "green", "blue")[unclass(iris_data$Species)])
+
+# Box plots by species
+par(mfrow = c(2, 2))
+for (col in names(iris_data)[1:4]) {
+  boxplot(iris_data[[col]] ~ iris_data$Species,
+          main = col,
+          xlab = "Species",
+          ylab = col,
+          col = c("red", "green", "blue"))
+}
+
+dev.off()
+cat("\\nAnalysis plots saved to iris_analysis.pdf\\n")
+
+# Calculate means by species
+species_means <- aggregate(. ~ Species, data = iris_data, FUN = mean)
+write.csv(species_means, "species_means.csv", row.names = FALSE)
+cat("Species means saved to species_means.csv\\n")
+
+# Print summary
+print(species_means)
+'
+
+writeLines(analysisScript, "analyze_iris_data.R")
+
+analysisFile <- createFile(
+  targetIdent = tutorialResource$entityId,
+  fileName = "analyze_iris_data.R",
+  localPath = "analyze_iris_data.R",
+  comment = "Script to analyze iris dataset"
+)
+cat("Uploaded analysis script:", analysisFile$path, "\n")
+
+# Clean up local files
+unlink(c("load_iris_data.R", "analyze_iris_data.R"))
+```
+
+### 2. Create Analysis Tree
+
+Analysis trees organize workflow steps hierarchically.
+
+``` r
+cat("\n=== Creating Analysis Tree ===\n")
+
+# Create an analysis tree
+analysisTree <- createAnalysisTree(
+  targetIdent = tutorialResource$entityId,
+  treeName = "Iris_Analysis_Workflow",
+  comment = "Workflow for loading and analyzing iris dataset"
+)
+
+cat("Created analysis tree:", analysisTree$name, "\n")
+cat("Tree ID:", analysisTree$entityId, "\n")
+```
+
+### 3. Create Data Loading Step
+
+Now we’ll create our first workflow step using the step template
+environment.
+
+``` r
+cat("\n=== Creating Data Loading Step ===\n")
+
+# Create step environment
+loadStepEnv <- createStepTemplateEnv(treeIdent = analysisTree)
+
+# Configure the step
+loadStepEnv$setStepDescription("Load Iris Dataset")
+loadStepEnv$setStepRationale("Load the built-in iris dataset and save as CSV for further analysis")
+
+# Set runserver configuration
+loadStepEnv$setStepRunserverLabel(R_RUNSERVER)
+loadStepEnv$setStepToolLabel(R_TOOL)
+loadStepEnv$setStepToolInstance(R_TOOL_INSTANCE)
+
+# Add the script file as the command file
+loadStepEnv$addStepRemoteFile(ident = scriptFile$entityId, 
+  variableName = "command-file"
+)
+
+# Realize the step (create it in the repository)
+loadResultStep <- loadStepEnv$realise()
+loadStepEnv$finishRun()
+# Get the created step resource
+loadStep <- loadResultStep$getStepResource()
+cat("Created step:", loadStep$name, "\n")
+cat("Step path:", loadStep$path, "\n")
+cat("Step ID:", loadStep$entityId, "\n")
+dataFile <- dplyr::filter(loadResultStep$getStepInventory()$data[[1]],name=="iris_data.csv")
+```
+
+### 4. Create Analysis Step
+
+Create a second step that depends on the output of the first step.
+
+``` r
+cat("\n=== Creating Analysis Step ===\n")
+
+# Create step environment for analysis
+analysisStepEnv <- createStepTemplateEnv(treeIdent = analysisTree)
+
+# Configure the step
+analysisStepEnv$setStepDescription("Analyze Iris Dataset")
+analysisStepEnv$setStepRationale("Perform exploratory data analysis on the iris dataset")
+
+# would Set this as a child of the load step
+# analysisStepEnv$setStepParent(loadStep$resourceId)
+
+# Set runserver configuration
+analysisStepEnv$setStepRunserverLabel(R_RUNSERVER)
+analysisStepEnv$setStepToolLabel(R_TOOL)
+analysisStepEnv$setStepToolInstance(R_TOOL_INSTANCE)
+
+# Add the analysis script
+analysisStepEnv$addStepRemoteFile(
+  analysisFile$entityId,
+  variableName = "command-file"
+)
+
+# We'll also link the expected output from the parent step
+analysisStepEnv$addStepRemoteFile(
+  dataFile
+)
+
+# Realize the step
+analysisResult <- analysisStepEnv$realise()
+
+# Get the created step
+analysisStep <- analysisResult$getStepResource()
+cat("Created analysis step:", analysisStep$name, "\n")
+cat("Step path:", analysisStep$path, "\n")
+cat("Parent step:", loadStep$name, "\n")
+```
+
+### 5. Explore Step Structure
+
+Let’s examine the structure of our workflow.
+
+``` r
+
+
+# Get step inventory (files in the step)
+cat("\n=== Step Inventory ===\n")
+
+# For load step
+loadInventory <- loadChildResources(loadStep)$data[[1]]
+cat("\nLoad step contains:\n")
+print(loadInventory[, c("name", "nodeType")])
+
+# For analysis step
+analysisInventory <- loadChildResources(analysisStep)$data[[1]]
+cat("\nAnalysis step contains:\n")
+print(analysisInventory[, c("name", "nodeType")])
+```
+
+### 8. Workflow Best Practices
+
+``` r
+cat("\n=== Workflow Best Practices ===\n")
+
+cat("
+1. Step Organization:
+   - Use descriptive names for steps
+   - Document rationale for each step
+   - Organize steps hierarchically in analysis trees
+
+2. Data Flow:
+   - Use links to connect step outputs to inputs
+   - Links ensure reproducibility by pointing to specific versions
+   - Document expected inputs and outputs
+
+3. Configuration:
+   - Store runserver configuration in variables or config files
+   - Use consistent tool versions across related steps
+   - Document tool requirements
+
+4. Error Handling:
+   - Check for required input files
+   - Provide meaningful error messages
+   - Save logs and intermediate results
+
+5. Reproducibility:
+   - All inputs should be versioned
+   - Record tool versions and parameters
+   - Capture execution environment details
+")
+```
+
+### Summary
+
+``` r
+cat("\n=== Summary ===\n")
+
+# List all created resources
+allResources <- loadChildResources(tutorialResource)$data[[1]]
+workflowResources <- allResources[allResources$nodeType %in% c( "Step"), ]
+
+cat("Created workflow resources:\n")
+print(workflowResources[, c("name", "nodeType", "path")])
+
+cat("\n=== Key Concepts Covered ===\n")
+cat("1. Analysis Trees - Organize workflow steps\n")
+cat("2. Steps - Executable units of work\n")
+cat("3. Step Configuration - Runserver, tools, and instances\n")
+cat("4. Step Dependencies - Parent-child relationships\n")
+cat("5. Data Flow - Using links between steps\n")
+
+cat("\n=== Next Steps ===\n")
+cat("- In production, steps are executed by the configured runserver\n")
+cat("- Use runStep() to submit steps for execution\n")
+cat("- Monitor step execution status and logs\n")
+cat("- Build more complex workflows with multiple branches\n")
+```
+
+### Clean Up
+
+``` r
+
+
+cat("\nTutorial completed successfully!\n")
+cat("Workflow created in:", TUTORIAL_FOLDER, "\n")
+cat("\nNote: This tutorial demonstrated workflow concepts.\n")
+cat("In production use, steps would be executed by the runserver.\n")
+```

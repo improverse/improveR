@@ -1,0 +1,177 @@
+# Install improveR
+
+## Installing improveR
+
+This guide will walk you through installing the improveR package from
+the improve repository.
+
+If you
+
+### Step 1: Configure R Repository
+
+First, we need to add the improve repository as a secondary repository
+source:
+
+``` r
+# Add improve repository
+options(repos = c(getOption("repos"),
+  improve = "https://r.scinteco.com/4.4.0/"))
+
+# Verify the configuration
+cat("\nUpdated repositories:\n")
+print(getOption("repos"))
+```
+
+### Step 2: Install improveR Package
+
+Now we can install the improveR package from the improve repository:
+
+``` r
+# Install improveR package
+install.packages("improveR")
+#this package contains the CLI tools
+install.packages("improveRcontributions")
+# Load the package to verify installation
+library(improveR)
+
+# Check package version
+cat("improveR package version:", as.character(packageVersion("improveR")), "\n")
+```
+
+### Step 3: Configure Environment Variables
+
+To use improveR, you need to set up the required environment variables.
+We recommend creating a `.Renviron` file in your project root:
+
+``` r
+# Add these lines to your .Renviron file:
+# Sys.setenv(IMPROVER_REPO_URL = "https://<url>:<repoPort>/repository")
+# Sys.setenv(IMPROVER_STEP = "<valid-entityId>")  # Ideally the entityId of your working folder
+```
+
+### Step 4: Verify Installation
+
+Let’s verify that improveR is properly installed and configured:
+
+``` r
+# Check if improveR is installed
+if ("improveR" %in% installed.packages()[, "Package"]) {
+  cat("✓ improveR package is installed\n")
+  
+  # List key functions
+  cat("\nKey improveR functions available:\n")
+  improver_functions <- ls("package:improveR")
+  main_functions <- improver_functions[improver_functions %in% c(
+    "improveConnect", "improveDisconnect", "loadResource", "createFile", 
+    "createFolder", "createLink", "effectiveRights", "whoami"
+  )]
+  print(main_functions)
+} else {
+  cat("✗ improveR package is NOT installed\n")
+}
+
+# Check environment variables
+cat("\nEnvironment variable status:\n")
+repo_url <- Sys.getenv("IMPROVER_REPO_URL")
+step_id <- Sys.getenv("IMPROVER_STEP")
+
+if (repo_url != "") {
+  cat("✓ IMPROVER_REPO_URL is set:", repo_url, "\n")
+} else {
+  cat("✗ IMPROVER_REPO_URL is NOT set\n")
+}
+
+if (step_id != "") {
+  cat("✓ IMPROVER_STEP is set:", step_id, "\n")
+} else {
+  cat("✗ IMPROVER_STEP is NOT set\n")
+}
+```
+
+### Step 5: Test Connection (Optional)
+
+If you have valid environment variables set, you can test the
+connection:
+
+``` r
+# Only run this if you have valid credentials
+if (Sys.getenv("IMPROVER_REPO_URL") != "" && Sys.getenv("IMPROVER_STEP") != "") {
+  tryCatch({
+    # Connect to repository
+    improveConnect()
+    
+    # Test basic functionality
+    user <- whoami()
+    cat("\nSuccessfully connected as:", user, "\n")
+    
+    # Disconnect
+    improveDisconnect()
+    cat("Connection test completed successfully!\n")
+  }, error = function(e) {
+    cat("Connection test failed:\n")
+    print(e)
+  })
+} else {
+  cat("\nSkipping connection test - environment variables not set\n")
+  cat("Please configure IMPROVER_REPO_URL and IMPROVER_STEP before testing connection\n")
+}
+```
+
+### Installation with Docker
+
+If you prefer to use Docker the code below returns a Docker image which
+provides a reproducible, self-contained environment with R 4.4.0 and the
+improveR packages ready to use.
+
+``` r
+FROM r-base:4.4.0
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    && rm -rf /var/lib/apt/lists/*
+# Install improveR following instructions from improverse.net
+RUN R -e "options(repos = c(getOption('repos'), improve = 'https://r.scinteco.com/4.4.0/')); \
+    install.packages('improveR'); \
+    install.packages('improveRcontributions'); \
+    library(improveR)"
+# Set working directory
+WORKDIR /app
+# Default command to start R
+CMD ["R"]
+```
+
+### Troubleshooting
+
+If you encounter issues:
+
+1.  **Package installation fails:**
+    - Check your internet connection
+    - Verify the repository URL is accessible
+    - Try installing with `type = "source"` if binary installation fails
+2.  **Environment variables not working:**
+    - Restart your R session after creating `.Renviron`
+    - Check that `.Renviron` is in your working directory
+    - Use [`Sys.setenv()`](https://rdrr.io/r/base/Sys.setenv.html) for
+      temporary testing
+3.  **Connection issues:**
+    - Verify your repository URL format (<https://>:/repository)
+    - Check that your step ID is valid
+    - Ensure you have network access to the repository
+
+### Summary
+
+You have now: 1. ✓ Added the improve repository to your R configuration
+2. ✓ Installed the improveR package 3. ✓ Learned how to configure
+environment variables 4. ✓ Verified the installation
+
+Next steps: - Configure your environment variables in `.Renviron` - Try
+the basic node types tutorial: `tutorial-01-basic-node-types.Rmd` -
+Explore the improveR documentation
+
+``` r
+# Display session information for debugging
+cat("\n=== Session Information ===\n")
+sessionInfo()
+```
