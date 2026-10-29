@@ -11,8 +11,8 @@ public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostat
 
 The improveR User Group meets on the **last Thursday of each month at 17:00 CET** via Google Meet: <https://meet.google.com/kri-qxfz-obv>
 
-- **Thursday, 29 October 2026 · 17:00 CET** — [Join the call](https://meet.google.com/kri-qxfz-obv)
-- **Thursday, 26 November 2026 · 17:00 CET** — [Join the call](https://meet.google.com/kri-qxfz-obv)
+- **Thursday, 29 October 2026 · 17:00 CET / 12:00 EDT (US Eastern)** — [Join the call](https://meet.google.com/kri-qxfz-obv)
+- **Thursday, 26 November 2026 · 17:00 CET / 11:00 EST (US Eastern)** — [Join the call](https://meet.google.com/kri-qxfz-obv)
 - **December: no meeting** — the User Group will not take place in December.
 
 ## Overview
