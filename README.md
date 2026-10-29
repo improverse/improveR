@@ -7,6 +7,14 @@ has not yet been a stable, usable release suitable for the
 public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 <!-- badges: end -->
 
+## improveR User Group
+
+The improveR User Group meets on the **last Thursday of each month at 17:00 CET** via Google Meet: <https://meet.google.com/kri-qxfz-obv>
+
+- **Thursday, 29 October 2026 · 17:00 CET** — [Join the call](https://meet.google.com/kri-qxfz-obv)
+- **Thursday, 26 November 2026 · 17:00 CET** — [Join the call](https://meet.google.com/kri-qxfz-obv)
+- **December: no meeting** — the User Group will not take place in December.
+
 ## Overview
 
 **improveR** is the R client package for Scinteco's **improve** platform - a secure, versioned repository designed specifically for pharmaceutical R&D data science and modeling workflows. This package enables seamless integration between R environments and the improve platform, providing pharmaceutical researchers with tools to manage, track, and control reproducible analytical workflows in a 21 CFR Part 11 compliant environment.
